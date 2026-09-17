@@ -1,0 +1,198 @@
+*{box-sizing:border-box}body{margin:0;font-family:Poppins,Inter,system-ui,sans-serif;background:#f1f5f9;color:#1e293b}.app{min-height:100vh}.ref-topbar{height:72px;background:#312e81;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 28px;box-shadow:0 3px 12px #0002}.ref-brand{display:flex;gap:12px;align-items:center}.brand-icon{font-size:30px}.ref-brand h1{font-size:18px;margin:0;font-weight:800}.ref-brand p{font-size:10px;color:#c7d2fe;margin:3px 0 0}.ref-controls{display:flex;align-items:center;gap:10px}.time-box{background:#4338ca;padding:7px 12px;border-radius:9px;text-align:right;border:1px solid #6366f1}.time-box span{display:block;font-size:8px;color:#c7d2fe}.time-box b{font-size:16px}.ref-yellow{background:#eab308;border:0;color:#312e81;font-weight:800;border-radius:8px;padding:9px 12px}.ref-nav{height:50px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:4px;padding:0 28px;box-shadow:0 2px 8px #00000008}.ref-nav button{height:50px;border:0;background:transparent;padding:0 15px;color:#475569;font-weight:700;font-size:12px;cursor:pointer;border-bottom:3px solid transparent}.ref-nav button.active{color:#4f46e5;border-bottom-color:#4f46e5}.ref-nav .student-toggle{margin-left:auto;color:#312e81;background:#eef2ff;border-radius:7px;height:34px;border:1px solid #c7d2fe}.ref-main{max-width:1300px;margin:0 auto;padding:20px;display:grid;grid-template-columns:7fr 5fr;gap:20px}.ref-board-panel,.ref-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 5px 18px #0f172a0d}.ref-board-panel{padding:18px}.ref-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.eyebrow{font-size:9px;letter-spacing:1.15px;font-weight:900;color:#64748b}.ref-title-row h2{font-size:19px;margin:4px 0 0}.turn-chip{padding:7px 11px;border-radius:999px;font-size:10px;font-weight:800}.ludo-svg-like{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;aspect-ratio:1/1;max-width:650px;margin:auto;border:8px solid #334155;border-radius:14px;overflow:hidden;background:#fff}.home-ref{position:relative;padding:12px;border:2px solid}.home-ref-rojo{background:#fee2e2;border-color:#ef4444}.home-ref-verde{background:#d1fae5;border-color:#10b981}.home-ref-amarillo{background:#fef3c7;border-color:#eab308}.home-ref-azul{background:#dbeafe;border-color:#3b82f6}.home-label{text-align:center;font-size:11px;font-weight:900;margin-bottom:10px}.home-slots-ref{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:80%;margin:auto}.home-slot-ref{background:#fff;border:3px solid;border-radius:50%;aspect-ratio:1;display:grid;place-items:center}.board-track{grid-column:1/3;grid-row:1/3;align-self:center;justify-self:center;width:44%;height:44%;background:repeating-linear-gradient(90deg,#fff 0,#fff 11.6%,#e2e8f0 11.6%,#e2e8f0 12.1%),repeating-linear-gradient(0deg,transparent 0,transparent 11.6%,#e2e8f0 11.6%,#e2e8f0 12.1%);border:1px solid #cbd5e1;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(6,1fr);position:relative}.track-cell{border:1px solid #cbd5e1;display:grid;place-items:center;position:relative}.board-piece{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:9px;font-weight:900;border:2px solid #fff;box-shadow:0 2px 4px #0004}.goal-center{position:absolute;left:32%;top:32%;width:36%;height:36%;border-radius:50%;background:linear-gradient(135deg,#fff,#e2e8f0);box-shadow:0 0 0 4px #fff,0 3px 10px #0002;display:grid;place-items:center;font-size:20px}.goal-center span{font-size:7px;letter-spacing:1px;font-weight:900}.legend{display:flex;justify-content:center;gap:25px;margin-top:13px;font-size:11px;color:#64748b}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.ref-side{display:flex;flex-direction:column;gap:14px}.ref-card{padding:16px}.card-head,.question-top{display:flex;justify-content:space-between;align-items:center}.mini-team{font-size:11px;font-weight:900}.ref-card h3{font-size:18px;margin:7px 0 13px}.dice-control{display:flex;gap:12px;align-items:center}.dice-box{width:64px;height:64px;border:3px solid #cbd5e1;border-radius:12px;display:grid;place-items:center;font-size:27px;font-weight:900;background:#fff}.dark-btn{flex:1;background:#1e293b;color:#fff;border:0;border-radius:9px;padding:13px;font-weight:800;cursor:pointer}.dark-btn:disabled{opacity:.45;cursor:not-allowed}.status,.projection-note,.muted{font-size:11px;color:#64748b;line-height:1.5}.timer-badge{background:#fef3c7;color:#92400e;padding:5px 8px;border-radius:999px;font-weight:900;font-size:10px}.answer-options{display:grid;gap:7px;margin-top:10px}.answer-options button{display:grid;grid-template-columns:28px 1fr;text-align:left;align-items:center;border:1px solid #dbe2ea;background:#f8fafc;border-radius:9px;padding:9px;font-size:11px;color:#334155;cursor:pointer}.answer-options button b{width:24px;height:24px;background:#eef2f7;border-radius:6px;display:grid;place-items:center}.answer-options button.ok{border-color:#10b981;background:#ecfdf5}.answer-options button.bad{border-color:#ef4444;background:#fef2f2}.empty-question{padding:20px 4px;color:#94a3b8;font-size:11px}.team-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.team-mini-grid>div{padding:9px;border:1px solid #e2e8f0;border-radius:9px}.team-mini-grid span,.team-mini-grid b,.team-mini-grid small{display:block}.team-mini-grid span{font-size:10px;font-weight:900}.team-mini-grid b{font-size:16px}.team-mini-grid small{font-size:9px;color:#94a3b8}.next-btn{width:100%;margin-top:10px;background:#4f46e5;color:white;border:0;border-radius:8px;padding:11px;font-weight:800}.ref-content{max-width:1250px;margin:0 auto;padding:24px}.wide{padding:20px}.question-table{margin-top:15px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}.q-row{display:grid;grid-template-columns:40px 210px 1fr;gap:14px;padding:14px;border-bottom:1px solid #e2e8f0;align-items:start}.q-row:last-child{border-bottom:0}.q-row>span strong,.q-row>span small{display:block}.q-row>span small{font-size:9px;color:#64748b;margin-top:4px}.q-row p{margin:0;font-size:11px;line-height:1.5}.score-grid{max-width:1250px;margin:0 auto 18px;padding:24px 24px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.score-card{background:#fff;border:1px solid #e2e8f0;border-top:4px solid;border-radius:10px;padding:15px}.score-card span,.score-card strong,.score-card small{display:block}.score-card span{font-weight:800}.score-card strong{font-size:24px;margin-top:8px}.score-card small{font-size:10px;color:#64748b}.history-row{display:grid;grid-template-columns:80px 100px 70px 1fr 100px;gap:10px;padding:10px 0;border-bottom:1px solid #eef2f7;font-size:10px}.rules-grid{max-width:1250px;margin:auto;padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:18px}.rules-grid ol{padding-left:20px;line-height:2;font-size:12px}.rules-grid p{font-size:12px;line-height:1.6}.setup-main,.lobby-ref{max-width:1100px;margin:45px auto;padding:0 22px;display:grid;grid-template-columns:1.25fr .75fr;gap:22px}.setup-welcome,.setup-preview,.lobby-main,.lobby-side{background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 7px 25px #0f172a0d;padding:30px}.setup-welcome h1,.lobby-main h1{font-size:30px;margin:7px 0}.setup-welcome>p,.lobby-main>p{color:#64748b;line-height:1.6}.field-label{display:block;font-size:11px;font-weight:800;color:#475569;margin:14px 0 6px}.game-name,.student-team-select{width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:9px;background:#fff}.setup-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}.setup-summary>div{background:#f8fafc;padding:13px;border-radius:10px}.setup-summary span{display:block;font-size:10px;color:#64748b}.setup-summary strong{display:block;font-size:22px}.setup-section-title{font-size:14px}.setup-teams{border:1px solid #e2e8f0;border-radius:10px;padding:5px 14px}.team-setting{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eef2f7;font-size:12px}.team-setting:last-child{border-bottom:0}.create-ref{border:0;border-radius:9px;background:#4f46e5;color:#fff;padding:12px 15px;font-weight:800;cursor:pointer;width:100%;margin-top:14px}.create-ref:disabled{opacity:.5}.ref-secondary{border:1px solid #cbd5e1;border-radius:9px;background:#fff;padding:12px 15px;font-weight:800}.preview-badge{display:inline-block;background:#eef2ff;color:#4f46e5;font-weight:900;font-size:9px;padding:5px 8px;border-radius:999px}.setup-preview h2{font-size:20px;margin:12px 0 20px}.preview-step{display:flex;gap:12px;margin-bottom:17px}.preview-step>b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#1e293b;color:#fff;font-size:11px}.preview-step strong{font-size:12px}.preview-step p{font-size:10px;color:#64748b;line-height:1.5;margin:3px 0}.join-code-box{margin:22px 0;padding:20px;background:#eef2ff;border:1px dashed #a5b4fc;border-radius:12px;text-align:center}.join-code-box span{display:block;font-size:9px;letter-spacing:1px;color:#64748b;font-weight:900}.join-code-box strong{display:block;font-size:45px;letter-spacing:6px;margin:6px 0}.join-code-box small{font-size:10px;color:#64748b}.connection-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.connection-card{border:1px solid #e2e8f0;border-radius:10px;padding:12px}.connection-team{display:flex;align-items:center;font-size:11px}.connection-card>strong{display:block;font-size:20px;margin-top:6px}.connection-card>small{font-size:9px;color:#94a3b8}.lobby-actions{display:flex;gap:10px}.lobby-actions .create-ref{width:auto;flex:1}.phone-preview{display:grid;place-items:center;margin-top:18px}.phone-screen{width:220px;min-height:360px;border:7px solid #1e293b;border-radius:28px;padding:19px;background:#fff;box-shadow:0 14px 32px #0f172a1a}.phone-brand{font-weight:900;font-size:12px;margin-bottom:20px}.phone-code-label{text-align:center;color:#94a3b8;font-size:9px}.phone-code{text-align:center;font-size:29px;font-weight:900;letter-spacing:3px;margin:5px 0 18px}.phone-mini-field{height:36px;border:1px solid #e2e8f0;border-radius:8px;color:#a1aab8;font-size:9px;padding:10px;margin:8px 0}.phone-mini-button{background:#4f46e5;color:#fff;border-radius:8px;text-align:center;font-size:9px;font-weight:900;padding:10px;margin-top:14px}.student-page{min-height:calc(100vh - 72px);display:grid;place-items:center;padding:25px;background:#f1f5f9}.phone-card{width:min(410px,100%);background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:26px;text-align:center;box-shadow:0 12px 36px #0f172a12}.phone-card h1{margin:8px 0}.student-code{font-size:34px;font-weight:900;letter-spacing:4px;margin:16px 0}.team-label{margin-top:12px}.mobile-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.mobile-options button{min-height:64px;height:auto;width:100%;border:1px solid #dbe2ea;background:#f8fafc;border-radius:16px;padding:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center}.mobile-options .opt-letter{font-size:13px;font-weight:900;color:#94a3b8;width:22px;height:22px;border-radius:50%;background:#eef2f7;display:grid;place-items:center;flex-shrink:0}.mobile-options .opt-text{font-size:13px;font-weight:700;line-height:1.35;word-break:break-word;white-space:normal;overflow-wrap:break-word;max-width:100%}.mobile-options .mobile-selected{border-color:#4f46e5;background:#eef2ff}.mobile-options .mobile-selected .opt-letter{background:#4f46e5;color:#fff}.mobile-options .mobile-correct{background:#ecfdf5;border-color:#10b981}.mobile-options .mobile-correct .opt-letter{background:#10b981;color:#fff}.mobile-options .mobile-wrong{background:#fef2f2;border-color:#ef4444}.mobile-options .mobile-wrong .opt-letter{background:#ef4444;color:#fff}.mobile-question{font-size:16px;line-height:1.4;margin:8px 0 4px;text-align:left}.waiting{padding:38px 10px}.phone-icon{font-size:44px}.answer-result{margin-top:15px;color:#047857;font-weight:800}.joined-summary{border:1px solid #e2e8f0;background:#f8fafc;border-radius:10px;padding:12px;display:grid;gap:4px;margin-top:14px}@media(max-width:1000px){.ref-main{grid-template-columns:1fr}.ref-side{display:grid;grid-template-columns:1fr 1fr}.ref-side .ref-card:last-child{grid-column:1/-1}}@media(max-width:850px){.ref-nav{padding:0 10px;overflow:auto}.ref-nav button{white-space:nowrap}.setup-main,.lobby-ref,.rules-grid{grid-template-columns:1fr}.score-grid{grid-template-columns:1fr 1fr}.q-row{grid-template-columns:30px 150px 1fr}}@media(max-width:650px){.ref-topbar{padding:9px 12px}.ref-brand h1{font-size:13px}.ref-brand p{display:none}.ref-controls .ref-yellow{display:none}.ref-main,.ref-content{padding:10px}.ref-side{display:flex}.score-grid{padding:10px;grid-template-columns:1fr 1fr}.q-row{grid-template-columns:25px 1fr}.q-row p{grid-column:2}.history-row{grid-template-columns:1fr 1fr}.setup-main,.lobby-ref{margin:20px auto;padding:0 12px}.setup-welcome,.setup-preview,.lobby-main,.lobby-side{padding:20px}.setup-welcome h1,.lobby-main h1{font-size:24px}.ludo-svg-like{border-width:5px}.home-label{font-size:8px}.home-slots-ref{gap:6px}.board-piece{width:17px;height:17px;font-size:7px}.goal-center{font-size:14px}.legend{gap:12px}}
+
+/* Estilos añadidos para el flujo de conexión real (código de partida y errores) */
+.student-code-input{text-align:center;font-size:22px;letter-spacing:4px;font-weight:900}
+.join-error{color:#b91c1c;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px 10px;font-size:11px;margin-top:10px}
+.mobile-options button:disabled{opacity:.6;cursor:not-allowed}
+.answer-options button:disabled{opacity:.85;cursor:default}
+
+/* Cronómetro de respuesta por pregunta (límite de tiempo) */
+.answer-timer{margin-top:10px;padding:8px 10px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:9px;font-size:12px;font-weight:800;color:#3730a3;text-align:center}
+.answer-timer-urgent{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
+
+/* Botón para finalizar la partida manualmente */
+.ref-danger{background:#ef4444;border:0;color:#fff;font-weight:800;border-radius:8px;padding:9px 12px;cursor:pointer}
+
+/* Tablero de Ludo visible en el celular del alumno, a menor escala */
+.mobile-board-wrap{margin:6px 0 16px}
+.mobile-board-wrap .ludo-svg-like{max-width:260px;border-width:5px}
+.mobile-board-wrap .home-label{font-size:8px}
+.mobile-board-wrap .home-slots-ref{gap:5px}
+.mobile-board-wrap .board-piece{width:15px;height:15px;font-size:7px}
+.mobile-board-wrap .goal-center span{font-size:6px}
+
+/* Resultado de la respuesta (correcta/incorrecta) */
+.answer-result.result-ok{color:#047857}
+.answer-result.result-bad{color:#b91c1c}
+
+/* Pantalla de partida finalizada */
+.finished-card{text-align:center}
+.finished-card h1{margin:10px 0 20px}
+.finished-grid{padding:0}
+
+/* ==========================================================================
+   TABLERO DE LUDO REAL (cuadrícula de 15 x 15)
+   ========================================================================== */
+.ludo-board{
+  display:grid;
+  grid-template-columns:repeat(15,1fr);
+  grid-template-rows:repeat(15,1fr);
+  aspect-ratio:1/1;
+  width:100%;
+  max-width:620px;
+  margin:auto;
+  background:#fff;
+  border:6px solid #334155;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 6px 20px #0f172a1f;
+}
+
+/* Cada casilla del anillo y de las rectas finales */
+.ludo-board .cell{border:1px solid #cbd5e1;position:relative;display:grid;place-items:center}
+.ludo-board .cell.home-lane{border-color:#ffffff66}
+.ludo-board .cell.safe{box-shadow:inset 0 0 0 2px #94a3b855}
+.ludo-board .star{font-size:11px;color:#94a3b8;line-height:1}
+
+/* Fichas dentro de una casilla (se apilan si hay varias) */
+.ludo-board .tokens{display:flex;flex-wrap:wrap;gap:1px;justify-content:center;align-items:center;width:100%;height:100%}
+.ludo-board .board-piece{width:18px;height:18px;font-size:9px;border:2px solid #fff}
+
+/* Las 4 casas de las esquinas */
+.base-box{border:2px solid;display:grid;place-items:center}
+.base-inner{display:grid;grid-template-columns:1fr 1fr;gap:12%;width:66%;aspect-ratio:1;background:#fff;border-radius:12px;padding:8%;box-shadow:0 2px 6px #0f172a14}
+.base-slot{border:3px solid;border-radius:50%;aspect-ratio:1;display:grid;place-items:center;background:#fff}
+
+/* El centro: la meta, con los 4 triángulos de color */
+.center-goal{position:relative;overflow:hidden}
+.center-goal .tri{position:absolute;inset:0;display:block}
+.tri-left{clip-path:polygon(0 0,0 100%,50% 50%)}
+.tri-top{clip-path:polygon(0 0,100% 0,50% 50%)}
+.tri-right{clip-path:polygon(100% 0,100% 100%,50% 50%)}
+.tri-bottom{clip-path:polygon(0 100%,100% 100%,50% 50%)}
+.goal-inner{position:absolute;inset:0;display:grid;place-items:center;z-index:2}
+.goal-cup{font-size:20px;filter:drop-shadow(0 1px 2px #0006)}
+
+/* Versión reducida del tablero para el celular del alumno */
+.ludo-board.small{max-width:300px;border-width:4px}
+.ludo-board.small .board-piece{width:11px;height:11px;font-size:6px;border-width:1px}
+.ludo-board.small .star{font-size:7px}
+.ludo-board.small .base-inner{gap:10%;padding:6%}
+.ludo-board.small .base-slot{border-width:2px}
+.ludo-board.small .goal-cup{font-size:12px}
+.mobile-board-wrap{margin:6px 0 16px;display:grid;place-items:center}
+
+/* Lista de fichas del panel del docente */
+.piece-list{margin-top:12px;display:grid;gap:6px;max-height:180px;overflow:auto}
+.piece-row{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;font-size:11px}
+.piece-row small{color:#64748b}
+
+/* Botones de administración */
+.ref-green{background:#10b981;border:0;color:#fff;font-weight:800;border-radius:8px;padding:9px 12px;cursor:pointer}
+.ref-secondary.small{padding:9px 12px;font-size:12px}
+.ref-controls .ref-green,.ref-controls .ref-yellow,.ref-controls .ref-danger{white-space:nowrap}
+
+@media(max-width:650px){
+  .ludo-board{border-width:4px}
+  .ludo-board .board-piece{width:12px;height:12px;font-size:6px;border-width:1px}
+  .ludo-board .star{font-size:7px}
+  /* En pantallas chicas los botones de admin siguen visibles, pero compactos */
+  .ref-controls .ref-green,.ref-controls .ref-yellow{display:inline-block;padding:7px 9px;font-size:11px}
+}
+
+/* ==========================================================================
+   EL DADO
+   ========================================================================== */
+.dice{
+  width:72px;height:72px;flex-shrink:0;
+  background:#fff;border:3px solid #cbd5e1;border-radius:14px;
+  display:grid;place-items:center;padding:9px;
+  box-shadow:0 4px 12px #0f172a1f;
+  transition:transform .12s ease;
+}
+.dice.mini{width:44px;height:44px;border-radius:10px;padding:6px;border-width:2px}
+.dice-face{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100%;height:100%;gap:2px}
+.pip{border-radius:50%;background:transparent}
+.pip.on{background:#1e293b}
+.dice.mini .pip.on{background:#334155}
+.dice-empty{font-size:28px;font-weight:900;color:#cbd5e1}
+
+/* Animación mientras el dado gira */
+.dice-rolling{animation:dice-shake .35s infinite;border-color:#4f46e5}
+@keyframes dice-shake{
+  0%{transform:rotate(-8deg) scale(1)}
+  25%{transform:rotate(7deg) scale(1.06)}
+  50%{transform:rotate(-5deg) scale(1)}
+  75%{transform:rotate(9deg) scale(1.05)}
+  100%{transform:rotate(-8deg) scale(1)}
+}
+
+/* Barra de progreso de la fase del turno (panel del docente) */
+.turn-info{flex:1;min-width:0}
+.phase-bar{height:6px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:8px}
+.phase-fill{height:100%;border-radius:999px;transition:width 1s linear;background:#4f46e5}
+.phase-fill.phase-roll{background:#0ea5e9}
+.phase-fill.phase-rolling{background:#a855f7}
+.phase-fill.phase-question{background:#eab308}
+.phase-fill.phase-result{background:#10b981}
+.ref-secondary.full{width:100%;margin-top:12px;font-size:11px}
+
+/* Zona de lanzamiento en el celular del alumno */
+.roll-zone{display:grid;place-items:center;gap:10px;padding:14px 0 6px}
+.roll-zone h2{margin:2px 0;font-size:20px}
+.roll-btn{
+  width:100%;border:0;border-radius:14px;padding:18px;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;
+  font-size:17px;font-weight:900;letter-spacing:.5px;cursor:pointer;
+  box-shadow:0 8px 20px #4f46e555;
+  animation:roll-pulse 1.6s infinite;
+}
+.roll-btn:active{transform:scale(.97)}
+@keyframes roll-pulse{0%,100%{box-shadow:0 8px 20px #4f46e544}50%{box-shadow:0 8px 30px #4f46e588}}
+
+/* Fila con el dado ya lanzado, arriba de la pregunta */
+.dice-result-row{display:flex;align-items:center;gap:12px;text-align:left;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px;margin-bottom:10px}
+.dice-result-row strong{display:block;font-size:15px}
+.dice-result-row small{display:block}
+
+/* ==========================================================================
+   CONTROL DEL TIEMPO (docente) y ELECCIÓN DE COLORES
+   ========================================================================== */
+.time-controls{display:flex;gap:4px}
+.time-controls button{
+  background:#4338ca;color:#fff;border:1px solid #6366f1;border-radius:7px;
+  padding:8px 9px;font-weight:800;font-size:11px;cursor:pointer;min-width:34px;
+}
+.time-controls button:hover{background:#4f46e5}
+.time-box.time-low{background:#b91c1c;border-color:#ef4444;animation:blink-time 1s infinite}
+@keyframes blink-time{50%{opacity:.55}}
+
+.setup-summary.three{grid-template-columns:repeat(3,1fr)}
+.team-setting.off{opacity:.55}
+.team-setting.off span{text-decoration:line-through}
+.time-settings{display:grid;gap:10px;border:1px solid #e2e8f0;border-radius:10px;padding:14px}
+.time-settings label{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;font-weight:700;color:#475569}
+.time-settings select{padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;min-width:150px}
+
+/* Selector de equipo del alumno */
+.found-game{background:#ecfdf5;border:1px solid #a7f3d0;color:#047857;border-radius:8px;padding:8px;font-size:12px}
+.team-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.team-option{
+  display:grid;place-items:center;gap:3px;padding:12px 8px;
+  border:2px solid #e2e8f0;border-radius:14px;background:#fff;cursor:pointer;
+}
+.team-option.picked{background:#f8fafc;box-shadow:0 0 0 3px #4f46e522}
+.team-option:disabled{opacity:.45;cursor:not-allowed}
+.team-option b{font-size:13px}
+.team-option small{font-size:10px;color:#64748b}
+.team-option .dot{width:12px;height:12px;margin:0}
+
+/* Casa de un color que no juega en esta partida */
+.base-box.base-off{filter:grayscale(1);opacity:.35}
+
+/* Pantalla de error de conexión */
+.join-success{font-size:40px;font-weight:900;color:#10b981}
+.join-success.error{color:#b91c1c}
+
+/* Marca de versión (footer de la pantalla de inicio) */
+.build-mark{text-align:center;padding:14px;font-size:10px;color:#94a3b8}

@@ -1,0 +1,19 @@
+{
+  "name": "ludo-educativo-backend",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Backend con Express + Socket.IO + SQLite (node:sqlite) para el Ludo Educativo (Inventos Históricos de la Ingeniería)",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "nanoid": "^5.0.7",
+    "socket.io": "^4.7.5"
+  }
+}

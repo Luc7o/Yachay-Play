@@ -1,85 +1,62 @@
-import { DatabaseSync } from "node:sqlite";
-import { fileURLToPath } from "url";
-import path from "path";
+// ============================================================================
+// BASE DE DATOS: PostgreSQL en Supabase (antes: SQLite local con node:sqlite)
+// ============================================================================
+// Las tablas YA están creadas en Supabase (games, teams, players, questions,
+// users, settings, turn_history). Aquí solo nos conectamos.
+//
+// Necesita la variable DATABASE_URL en backend/.env  (ver .env.example).
+//
+// Para no reescribir todo el proyecto, mantenemos la misma forma de uso:
+//     await db.prepare("SELECT * FROM users WHERE id = ?").get(id)
+// con dos diferencias: ahora hay que usar `await`, y los `?` se convierten
+// solos en $1, $2... que es lo que usa Postgres.
+// ============================================================================
+import "./env.js";
+import pg from "pg";
 
-// Usamos el módulo SQLite incluido en Node.js (>=22.5) en vez de una librería
-// nativa como better-sqlite3, para no depender de compiladores de C++
-// (Visual Studio Build Tools en Windows, build-essential en Linux, etc.).
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const db = new DatabaseSync(path.join(__dirname, "ludo.db"));
+if (!process.env.DATABASE_URL) {
+  console.error(
+    "\n[ERROR] Falta DATABASE_URL en backend/.env\n" +
+      "Cópiala desde Supabase: botón 'Connect' -> 'Session pooler'. Mira .env.example\n"
+  );
+  process.exit(1);
+}
 
-db.exec("PRAGMA journal_mode = WAL;");
+// COUNT(*) llega como bigint (texto) en Postgres; lo convertimos a número normal.
+pg.types.setTypeParser(20, (v) => Number(v));
 
-// Esquema de la base de datos.
-// - games: una partida creada por el ingeniero/docente
-// - teams: los 4 equipos de color de cada partida, con su cupo y puntaje
-// - players: los estudiantes que se unieron desde su celular
-// - questions: banco de preguntas (se siembra una sola vez)
-// - turn_history: historial de turnos jugados, para el reporte de evaluación
-db.exec(`
-CREATE TABLE IF NOT EXISTS games (
-  id TEXT PRIMARY KEY,
-  code TEXT UNIQUE NOT NULL,
-  name TEXT NOT NULL,
-  phase TEXT NOT NULL DEFAULT 'lobby',
-  minutes INTEGER NOT NULL DEFAULT 30,
-  answer_seconds INTEGER NOT NULL DEFAULT 20,
-  roll_seconds INTEGER NOT NULL DEFAULT 15,
-  active_teams TEXT NOT NULL DEFAULT 'rojo,verde,amarillo,azul',
-  created_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS teams (
-  id TEXT PRIMARY KEY,
-  game_id TEXT NOT NULL REFERENCES games(id),
-  color TEXT NOT NULL,
-  slots INTEGER NOT NULL DEFAULT 1,
-  score REAL NOT NULL DEFAULT 0,
-  correct INTEGER NOT NULL DEFAULT 0,
-  incorrect INTEGER NOT NULL DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS players (
-  id TEXT PRIMARY KEY,
-  game_id TEXT NOT NULL REFERENCES games(id),
-  team TEXT NOT NULL,
-  name TEXT NOT NULL,
-  created_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS questions (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  topic TEXT NOT NULL,
-  level TEXT NOT NULL,
-  question TEXT NOT NULL,
-  options TEXT NOT NULL,
-  answer_index INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS turn_history (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  game_id TEXT NOT NULL REFERENCES games(id),
-  turn INTEGER NOT NULL,
-  team TEXT NOT NULL,
-  dice INTEGER NOT NULL,
-  question_id INTEGER,
-  correct INTEGER NOT NULL,
-  points REAL NOT NULL DEFAULT 0,
-  created_at TEXT DEFAULT (datetime('now'))
-);
-`);
-
-// --- Migración suave para bases de datos creadas con versiones anteriores ---
-// Si el archivo ludo.db ya existía sin estas columnas, se las agregamos.
-const columnasGames = db.prepare("PRAGMA table_info(games)").all().map((c) => c.name);
-const nuevas = [
-  ["minutes", "INTEGER NOT NULL DEFAULT 30"],
-  ["answer_seconds", "INTEGER NOT NULL DEFAULT 20"],
-  ["roll_seconds", "INTEGER NOT NULL DEFAULT 15"],
-  ["active_teams", "TEXT NOT NULL DEFAULT 'rojo,verde,amarillo,azul'"],
-];
-nuevas.forEach(([nombre, tipo]) => {
-  if (!columnasGames.includes(nombre)) db.exec(`ALTER TABLE games ADD COLUMN ${nombre} ${tipo};`);
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: /localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL) ? false : { rejectUnauthorized: false }, // Supabase exige SSL
+  max: 10,
 });
+pool.on("error", (e) => console.error("Error en la conexión a la base de datos:", e.message));
+
+const aPostgres = (sql) => {
+  let i = 0;
+  return sql.replace(/\?/g, () => `$${++i}`);
+};
+
+const db = {
+  prepare(sql) {
+    const text = aPostgres(sql);
+    return {
+      get: async (...params) => (await pool.query(text, params)).rows[0],
+      all: async (...params) => (await pool.query(text, params)).rows,
+      run: async (...params) => ({ changes: (await pool.query(text, params)).rowCount }),
+    };
+  },
+  pool,
+};
+
+// Comprobación al arrancar: si la URL o la contraseña están mal, avisamos claro.
+try {
+  await pool.query("SELECT 1");
+  console.log("Conectado a Supabase (PostgreSQL).");
+} catch (e) {
+  console.error("\n[ERROR] No se pudo conectar a Supabase:", e.message);
+  console.error("Revisa DATABASE_URL en backend/.env (contraseña y que sea la cadena 'Session pooler').\n");
+  process.exit(1);
+}
 
 export default db;

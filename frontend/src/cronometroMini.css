@@ -1,0 +1,38 @@
+/* ============================================================================
+   VENTANITA DEL CRONÓMETRO (esquina inferior derecha, en cualquier pantalla)
+   Los colores salen de data-estado: normal / aviso / urgente / fin
+   ============================================================================ */
+.cm{
+  --cm-bg:#0F2A4A; --cm-fg:#FFFFFF; --cm-sub:#B9CCE2; --cm-bar:#F16503; --cm-track:#ffffff2e; --cm-line:#ffffff33;
+  position:fixed; right:16px; bottom:16px; z-index:60; width:min(330px,calc(100vw - 24px));
+  display:flex; align-items:stretch; background:var(--cm-bg); color:var(--cm-fg); border:2px solid var(--cm-line);
+  border-radius:16px; box-shadow:0 12px 34px rgba(8,20,36,.4); overflow:hidden; font-family:Poppins,Nunito,system-ui,sans-serif;
+  animation:cm-entra .22s ease-out;
+}
+.cm[data-estado="aviso"]{--cm-bg:#FFF6DC; --cm-fg:#5C4300; --cm-sub:#7A5C10; --cm-bar:#D99A00; --cm-track:#F3E3B0; --cm-line:#EBD79A}
+.cm[data-estado="urgente"]{--cm-bg:#FDECEA; --cm-fg:#7A1B14; --cm-sub:#8F3A33; --cm-bar:#D92D20; --cm-track:#F6CFCB; --cm-line:#F0BDB8}
+.cm[data-estado="fin"]{--cm-bg:#B3261E; --cm-fg:#FFFFFF; --cm-sub:#FFD9D5; --cm-bar:#FFFFFF; --cm-track:#8F1D17; --cm-line:#FFFFFF66; animation:cm-entra .22s ease-out, cm-pulso 1.1s ease-in-out infinite}
+.cm-main{
+  flex:1; min-width:0; position:relative; display:flex; align-items:center; gap:12px; padding:12px 8px 16px 14px; border:0; background:transparent;
+  color:inherit; font:inherit; text-align:left; cursor:pointer;
+}
+.cm-main:hover{background:rgba(127,127,127,.12)}
+.cm-time{font-size:2rem; font-weight:800; line-height:1; letter-spacing:.02em; font-variant-numeric:tabular-nums; flex:none}
+.cm-info{display:flex; flex-direction:column; min-width:0; gap:2px}
+.cm-act{font-weight:800; font-size:.88rem; line-height:1.2; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
+.cm-sub{font-size:.72rem; font-weight:600; color:var(--cm-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.cm-bar{position:absolute; left:0; right:0; bottom:0; height:5px; background:var(--cm-track)}
+.cm-bar b{display:block; height:100%; background:var(--cm-bar); transition:width .2s linear}
+.cm-ctrl{display:flex; flex-direction:column; justify-content:center; gap:4px; padding:6px 8px 10px 0}
+.cm-ctrl button{
+  width:34px; height:34px; border-radius:50%; border:1px solid var(--cm-line); background:transparent; color:inherit; cursor:pointer; font-size:.95rem; line-height:1;
+}
+.cm-ctrl button:hover{background:rgba(127,127,127,.2)}
+.cm button:focus-visible{outline:3px solid #F16503; outline-offset:2px}
+@keyframes cm-entra{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+@keyframes cm-pulso{0%,100%{box-shadow:0 12px 34px rgba(8,20,36,.4)} 50%{box-shadow:0 0 0 6px rgba(179,38,30,.35),0 12px 34px rgba(8,20,36,.4)}}
+@media (max-width:600px){
+  .cm{left:12px; right:12px; width:auto; bottom:96px} /* deja libre el botón del Asistente (abajo a la izquierda) */
+  .cm-time{font-size:1.7rem}
+}
+@media (prefers-reduced-motion: reduce){ .cm{animation:none !important} }

@@ -1,0 +1,258 @@
+/* ==========================================================================
+   PUERTA DE ENTRADA DE UN JUEGO  (GameGate.jsx)
+   Usa las variables de la marca definidas en styles.css (--navy, --orange…).
+   Cada juego cambia de "clima" solo con la clase .gate-ludo / .gate-crossword.
+   ========================================================================== */
+.gate-page{
+  --g-glow-soft:#3b8de055;     /* brillo suave del fondo del hero */
+  --g-a:#ffa566;               /* círculo de color detrás de la tarjeta (inicio del degradado) */
+  --g-b:#F16503;               /* …y su final */
+  --g-hl:#ffb877;              /* color del texto resaltado */
+  min-height:100vh;
+  background-color:#f5f8fc;
+  background-image:radial-gradient(#d9e5f2 1.4px,transparent 1.4px);
+  background-size:22px 22px;
+}
+.gate-crossword{
+  --g-glow-soft:#22b8f042;
+  --g-a:#7fdcff;
+  --g-b:#1c86d8;
+  --g-hl:#8fe0ff;
+}
+.gate-main{max-width:1080px;margin:0 auto;padding:20px 24px 28px}
+.gate-main .back-link{padding-bottom:14px}
+
+/* ------------------------------- HERO ------------------------------- */
+.gate-hero{
+  position:relative;isolation:isolate;overflow:hidden;
+  display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:8px;align-items:center;
+  padding:42px 22px 40px 46px;border-radius:28px;color:#fff;
+  background:
+    radial-gradient(620px 360px at 92% 6%,var(--g-glow-soft),transparent 70%),
+    linear-gradient(135deg,#012A55 0%,#023A73 55%,#0A4C8F 100%);
+  box-shadow:0 26px 50px -22px #012a55b0,inset 0 0 0 1px #ffffff14;
+}
+.gate-hero::before{ /* trama de puntos que se desvanece hacia la derecha */
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background-image:radial-gradient(#ffffff1a 1.5px,transparent 1.5px);background-size:20px 20px;
+  -webkit-mask-image:linear-gradient(100deg,#000 8%,transparent 72%);
+  mask-image:linear-gradient(100deg,#000 8%,transparent 72%);
+}
+.gate-eyebrow{
+  display:inline-block;background:var(--orange);color:#fff;font-weight:900;font-size:11.5px;
+  letter-spacing:1.6px;padding:6px 13px;border-radius:999px;box-shadow:0 6px 14px #f1650355;
+}
+.gate-hero h1{font-size:clamp(28px,4.1vw,43px);line-height:1.08;font-weight:900;margin:16px 0 14px;letter-spacing:-.5px;text-wrap:balance}
+.gate-hl{background:linear-gradient(90deg,var(--g-hl),#fff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gate-hero-text p{margin:0 0 18px;max-width:52ch;color:#d3e3f5;font-size:15.5px;line-height:1.65}
+.gate-hero-text p b{color:#fff}
+
+.gate-tags{display:flex;flex-wrap:wrap;gap:8px}
+.gate-tags span{
+  background:#ffffff1c;border:1px solid #ffffff38;color:#fff;font-size:12.5px;font-weight:700;
+  padding:7px 12px;border-radius:999px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+}
+
+.gate-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:24px 0 0;max-width:470px}
+.gate-stats div{background:#ffffff14;border:1px solid #ffffff2a;border-radius:16px;padding:12px 14px}
+.gate-stats dt{font-size:26px;font-weight:900;line-height:1;color:#fff}
+.gate-stats dd{margin:5px 0 0;font-size:11.5px;line-height:1.3;color:#b9d0ea;font-weight:600}
+
+/* --------------------- escenario: vista previa + mascota --------------------- */
+.gate-stage{position:relative;min-height:350px;display:grid;align-items:center;justify-items:end}
+.gate-stage::before{ /* círculo de color de marca detrás de la vista previa */
+  content:"";position:absolute;z-index:0;width:270px;height:270px;border-radius:50%;right:-40px;top:-10px;
+  background:linear-gradient(145deg,var(--g-a),var(--g-b));opacity:.9;
+}
+.gate-stage-card{
+  position:relative;z-index:1;width:min(268px,80%);margin-right:4px;background:#fff;border-radius:24px;
+  padding:14px;color:#0f172a;box-shadow:0 26px 40px -14px #000000777;transform:rotate(3deg);
+}
+.gate-mascot{
+  position:absolute;left:-78px;bottom:-36px;z-index:2;width:min(222px,54%);height:auto;
+  filter:drop-shadow(0 14px 18px #00000066);animation:gate-float 4.6s ease-in-out infinite;
+}
+.gate-orb{position:absolute;border-radius:50%;background:#fff;opacity:.22}
+.gate-orb.o1{width:14px;height:14px;top:14%;left:8%}
+.gate-orb.o2{width:9px;height:9px;top:80%;right:3%}
+.gate-orb.o3{width:20px;height:20px;top:4%;right:40%;opacity:.14}
+
+/* --------------------------- títulos de sección --------------------------- */
+.gate-h2{font-size:24px;font-weight:900;color:var(--navy);margin:40px 0 4px}
+.gate-sub{margin:0 0 16px;color:#5b6b80;font-size:14.5px}
+
+/* --------------------------- tarjetas de cuenta --------------------------- */
+.gate-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.gate-card{
+  position:relative;overflow:hidden;cursor:pointer;
+  display:flex;flex-direction:column;align-items:flex-start;gap:10px;
+  background:#fff;border:2px solid var(--navy-border);border-radius:22px;padding:28px 26px 24px;
+  box-shadow:0 10px 26px #023a730f;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;
+}
+.gate-card::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:var(--ca)}
+.gate-card:hover{transform:translateY(-4px);border-color:var(--ca);box-shadow:0 18px 34px #023a7324}
+.gate-card:focus-within{border-color:var(--ca)}
+.gate-card-login{--ca:var(--navy);--cs:var(--navy-soft)}
+.gate-card-register{--ca:var(--orange);--cs:var(--orange-soft)}
+.gate-card-icon{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;font-size:34px;background:var(--cs)}
+.gate-card strong{font-size:23px;font-weight:900;color:var(--navy);margin-top:4px}
+.gate-card-desc{font-size:14px;line-height:1.5;color:#475569}
+.gate-points{list-style:none;margin:4px 0 8px;padding:0;display:grid;gap:8px;width:100%}
+.gate-points li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.4;color:#334155}
+.gate-points li::before{
+  content:"✓";flex:none;width:20px;height:20px;border-radius:50%;margin-top:1px;
+  display:grid;place-items:center;background:var(--cs);color:var(--ca);font-weight:900;font-size:12px;
+}
+.gate-card-cta{
+  margin-top:auto;border:0;cursor:pointer;font-family:inherit;padding:12px 22px;border-radius:999px;
+  background:var(--ca);color:#fff;font-weight:900;font-size:15px;
+}
+.gate-card-cta:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+
+/* ------------------------------- invitado ------------------------------- */
+.gate-guest{
+  margin-top:18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  background:linear-gradient(135deg,#fff,#eef4fb);border:2px dashed var(--navy-border);border-radius:20px;padding:18px 22px;
+}
+.gate-guest-code{display:flex;gap:6px}
+.gate-guest-code i{
+  width:32px;height:42px;border-radius:10px;background:#fff;border:2px solid var(--navy-border);
+  display:grid;place-items:center;font-style:normal;font-weight:900;color:#9db3cc;
+}
+.gate-guest-code i:first-child{border-color:var(--orange);position:relative}
+.gate-guest-code i:first-child::after{ /* cursor parpadeante */
+  content:"";width:2px;height:20px;background:var(--orange);animation:gate-blink 1.1s steps(1) infinite;
+}
+.gate-guest-text{flex:1;min-width:210px}
+.gate-guest-text strong{display:block;color:var(--navy);font-size:15px;font-weight:800}
+.gate-guest-text small{display:block;margin-top:2px;color:#64748b;font-size:12.5px}
+.gate-guest button{
+  border:2px solid var(--orange);background:#fff;color:var(--orange-dark);font-family:inherit;font-weight:900;
+  font-size:14px;padding:10px 20px;border-radius:999px;cursor:pointer;transition:background .15s,color .15s;
+}
+.gate-guest button:hover{background:var(--orange);color:#fff}
+.gate-guest button:focus-visible{outline:3px solid var(--navy);outline-offset:3px}
+
+/* ------------------------------ cómo se juega ------------------------------ */
+.gate-steps{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.gate-steps li{
+  position:relative;background:#fff;border:1px solid var(--navy-border);border-radius:18px;
+  padding:18px 16px;box-shadow:0 6px 16px #023a730b;
+}
+.gate-steps li:not(:last-child)::after{
+  content:"›";position:absolute;right:-16px;top:50%;transform:translateY(-50%);z-index:1;
+  width:14px;text-align:center;color:var(--orange);font-size:26px;font-weight:900;line-height:1;
+}
+.gate-step-n{
+  display:grid;place-items:center;width:36px;height:36px;border-radius:50%;margin-bottom:12px;
+  background:var(--navy);color:#fff;font-weight:900;
+}
+.gate-steps li:nth-child(even) .gate-step-n{background:var(--orange)}
+.gate-step-icon{position:absolute;right:14px;top:12px;font-size:26px;opacity:.85}
+.gate-steps strong{display:block;color:var(--navy);font-size:15px;margin-bottom:4px}
+.gate-steps p{margin:0;font-size:13px;line-height:1.5;color:#475569}
+
+/* --------------------- extra: equipos de Ludo --------------------- */
+.gate-teams{display:flex;flex-wrap:wrap;gap:12px}
+.gate-team{
+  display:inline-flex;align-items:center;gap:10px;background:#fff;border:2px solid var(--c);
+  border-radius:999px;padding:9px 20px 9px 10px;font-weight:800;color:#0f172a;box-shadow:0 6px 14px #0f172a0d;
+}
+.gate-team i{width:26px;height:26px;border-radius:50%;background:var(--c);box-shadow:0 0 0 4px var(--s)}
+
+/* --------------------- extra: sabotajes del Crucigrama --------------------- */
+.gate-sabs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.gate-sab{
+  background:#fff;border:1px solid var(--navy-border);border-radius:18px;padding:20px 18px;
+  box-shadow:0 6px 16px #023a730b;display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+}
+.gate-sab-icon{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:28px;background:var(--navy-soft)}
+.gate-sab strong{color:var(--navy);font-size:17px;font-weight:900;margin-top:4px}
+.gate-sab p{margin:0;font-size:13px;line-height:1.5;color:#475569;flex:1}
+.gate-sab-cost{margin-top:6px;background:var(--orange-soft);color:var(--orange-dark);font-weight:900;font-size:12px;padding:5px 11px;border-radius:999px}
+
+/* ==========================================================================
+   VISTAS PREVIAS (dentro de la tarjeta blanca del hero)
+   ========================================================================== */
+/* --- Ludo --- */
+.pv-board{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:7px;aspect-ratio:1}
+.pv-home{
+  background:var(--s);border:2px solid var(--c);border-radius:14px;padding:11px;
+  display:grid;grid-template-columns:1fr 1fr;gap:7px;place-items:center;
+}
+.pv-slot{width:100%;aspect-ratio:1;border-radius:50%;background:#fff;border:2px solid var(--c)}
+.pv-slot.tok{background:var(--c);box-shadow:inset 0 0 0 3px #fff;animation:pv-hop 1.7s ease-in-out infinite}
+.pv-goal{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:30%;aspect-ratio:1;border-radius:13px;
+  background:var(--orange);border:4px solid #fff;color:#fff;font-size:9px;font-weight:900;letter-spacing:.6px;
+  display:grid;place-items:center;box-shadow:0 5px 12px #0003;
+}
+.pv-bar{display:flex;gap:10px;align-items:center;margin-top:12px;background:var(--navy-soft);border-radius:14px;padding:9px 12px}
+.pv-dice{font-size:28px;line-height:1;animation:pv-roll 2.6s ease-in-out infinite}
+.pv-bar b{display:block;font-size:12.5px;color:var(--navy)}
+.pv-bar small{display:block;font-size:11px;color:#64748b}
+
+/* --- Crucigrama --- */
+.pv-cw-board{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:#023A73;padding:8px;border-radius:16px;
+}
+.pv-cell{
+  position:relative;aspect-ratio:1;border-radius:7px;background:#fff;display:grid;place-items:center;
+  font-weight:900;font-size:17px;color:var(--navy);
+}
+.pv-cell.gap{visibility:hidden}
+.pv-cell em{position:absolute;top:1px;left:3px;font-size:8px;font-style:normal;font-weight:800;color:#64748b}
+.pv-cell b{opacity:0;animation:pv-pop .5s ease-out both;animation-delay:var(--d)}
+.pv-cell.hot{background:var(--orange);animation:pv-pulse 1.6s ease-in-out infinite}
+.pv-cell.hot em{color:#fff}
+.pv-clue{margin:10px 0 0;font-size:11.5px;line-height:1.4;color:#334155;background:var(--navy-soft);border-radius:10px;padding:8px 10px}
+.pv-clue b{color:var(--orange-dark)}
+.pv-energy{margin-top:9px;display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;color:var(--navy)}
+.pv-energy-bar{flex:1;height:9px;border-radius:99px;background:#e2e8f0;overflow:hidden}
+.pv-energy-bar i{display:block;height:100%;width:70%;border-radius:inherit;background:linear-gradient(90deg,#22b8f0,var(--orange));animation:pv-fill 2.6s ease-out both}
+
+/* ------------------------------- animaciones ------------------------------- */
+@keyframes gate-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes gate-blink{50%{opacity:0}}
+@keyframes pv-hop{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.12)}}
+@keyframes pv-roll{0%,100%{transform:rotate(0)}25%{transform:rotate(-16deg)}75%{transform:rotate(16deg)}}
+@keyframes pv-pop{0%{opacity:0;transform:scale(.3)}70%{opacity:1;transform:scale(1.25)}100%{opacity:1;transform:scale(1)}}
+@keyframes pv-pulse{0%,100%{box-shadow:0 0 0 0 #f1650388}50%{box-shadow:0 0 0 5px #f1650300}}
+@keyframes pv-fill{from{width:8%}}
+
+/* ------------------------------ responsive ------------------------------ */
+@media(max-width:920px){
+  .gate-hero{grid-template-columns:1fr;padding:34px 26px 26px}
+  .gate-stage{min-height:320px;justify-items:center;margin-top:10px}
+  .gate-stage-card{margin-right:0;margin-left:150px}
+  .gate-stage::before{right:50%;margin-right:-190px}
+  .gate-mascot{left:calc(50% - 282px)}
+  .gate-steps{grid-template-columns:1fr 1fr}
+  .gate-steps li::after{display:none}
+  .gate-sabs{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .gate-main{padding:14px 14px 22px}
+  .gate-hero{padding:26px 20px 22px;border-radius:22px}
+  .gate-stats{grid-template-columns:repeat(3,1fr);gap:8px}
+  .gate-stats dt{font-size:21px}
+  .gate-cards{grid-template-columns:1fr}
+  .gate-card{padding:24px 20px 20px}
+  .gate-steps{grid-template-columns:1fr}
+  .gate-h2{font-size:21px}
+  .gate-guest{padding:16px}
+  .gate-guest button{width:100%}
+  .gate-stage{min-height:300px}
+  .gate-stage{justify-items:end}
+  .gate-stage-card{width:min(232px,72%);margin:0 2px 0 0}
+  .gate-stage::before{width:210px;height:210px;right:-50px;margin-right:0}
+  .gate-mascot{width:118px;left:-14px;bottom:-24px}
+}
+
+/* respeta a quien pidió menos movimiento en su dispositivo */
+@media(prefers-reduced-motion:reduce){
+  .gate-mascot,.pv-slot.tok,.pv-dice,.pv-cell.hot,.gate-guest-code i:first-child::after{animation:none}
+  .pv-cell b{opacity:1;animation:none}
+  .pv-energy-bar i{animation:none}
+  .gate-card{transition:none}
+}

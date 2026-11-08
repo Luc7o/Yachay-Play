@@ -1,3 +1,5 @@
 node_modules
-ludo.db
-ludo.db-*
+.env
+.env.*
+!.env.example
+ludo.db*

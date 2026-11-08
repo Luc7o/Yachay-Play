@@ -1,0 +1,157 @@
+/* ============================================================================
+   PIZARRA
+   Los colores de los paneles salen de las variables de ".hr-page"
+   (herramientas.css), así que siguen el modo claro / oscuro del equipo.
+   ============================================================================ */
+.pz-stage{position:relative; flex:1; min-height:0; overflow:hidden; background:#fff; touch-action:none}
+.pz-canvas{position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; user-select:none; -webkit-user-select:none; cursor:crosshair}
+.pz-canvas.pz-c-mover{cursor:default}
+.pz-canvas.pz-c-texto{cursor:text}
+.pz-canvas.pz-c-borrador,.pz-canvas.pz-c-lapiz,.pz-canvas.pz-c-marcador{cursor:none} /* se dibuja una vista previa del pincel */
+.pz-hint{
+  position:absolute; left:50%; top:26%; transform:translate(-50%,-50%); pointer-events:none; text-align:center;
+  font-weight:700; font-size:clamp(1rem,2vw,1.5rem); color:#64748B; opacity:.55; max-width:70%;
+}
+
+/* ---------- Paneles flotantes ---------- */
+.pz-panel{
+  position:absolute; z-index:3; background:var(--hr-card); color:var(--hr-fg); border:1px solid var(--hr-line);
+  border-radius:14px; box-shadow:0 6px 22px rgba(15,42,74,.2); padding:5px;
+}
+.pz-rail{left:12px; top:12px; display:flex; flex-direction:column; gap:3px}
+.pz-top{position:absolute; z-index:3; top:12px; right:12px; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; max-width:calc(100% - 90px); pointer-events:none}
+.pz-top .pz-panel{position:relative; pointer-events:auto}
+.pz-group{display:flex; align-items:center; gap:2px}
+.pz-bottom{left:50%; transform:translateX(-50%); bottom:12px; display:flex; align-items:center; gap:10px; padding:7px 12px; max-width:calc(100% - 24px); overflow-x:auto}
+.pz-anchor{position:relative}
+
+.pz-btn{
+  min-width:44px; height:44px; border:0; border-radius:10px; background:transparent; color:var(--hr-fg); cursor:pointer;
+  display:inline-grid; place-items:center; font:inherit; padding:0;
+}
+.pz-btn:hover:not(:disabled){background:var(--hr-field)}
+.pz-btn[aria-pressed="true"],.pz-btn[aria-pressed="true"]:hover:not(:disabled){background:var(--orange); color:#fff}
+.pz-btn:disabled{opacity:.35; cursor:not-allowed}
+.pz-btn.pz-txt{padding:0 12px; font-weight:800; font-size:.9rem}
+.pz-pag{min-width:44px; text-align:center; font-weight:800; font-size:.9rem}
+.pz-sep{width:1px; height:28px; background:var(--hr-line); flex:none}
+
+/* Menús desplegables (formas y fondos) */
+.pz-fly{left:calc(100% + 8px); top:0; min-width:190px; display:flex; flex-direction:column; gap:2px; padding:6px}
+.pz-fly-abajo{left:auto; right:0; top:calc(100% + 8px)}
+/* La lista flota SOBRE la pizarra: sin esto, ".pz-top .pz-panel" la dejaba dentro del panel y lo agrandaba */
+.pz-top .pz-panel.pz-fly{position:absolute; z-index:6; min-width:230px; padding:8px; box-shadow:0 12px 34px rgba(8,20,36,.45)}
+.pz-top .pz-panel.pz-fly-abajo{animation:pz-baja .14s ease-out}
+@keyframes pz-baja{from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:none}}
+.pz-fly-titulo{margin:2px 8px 6px; font-size:.72rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--hr-muted)}
+.pz-item .pz-ok{margin-left:auto; font-weight:900}
+.pz-item{
+  display:flex; align-items:center; gap:10px; padding:9px 10px; border:0; border-radius:8px; background:transparent;
+  color:inherit; font:inherit; font-weight:700; font-size:.92rem; cursor:pointer; text-align:left; white-space:nowrap;
+}
+.pz-item:hover{background:var(--hr-field)}
+.pz-item[aria-pressed="true"]{background:var(--orange); color:#fff}
+.pz-muestra{width:26px; height:26px; border-radius:6px; border:1px solid rgba(127,127,127,.55); flex:none; background-size:8px 8px}
+
+/* Colores y grosor */
+.pz-colores{display:flex; align-items:center; gap:7px}
+.pz-sw{
+  width:30px; height:30px; border-radius:50%; border:2px solid rgba(127,127,127,.6); cursor:pointer; padding:0; flex:none; position:relative;
+  box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.55);
+}
+.pz-sw[aria-pressed="true"]{outline:3px solid var(--orange); outline-offset:2px}
+.pz-custom{background:conic-gradient(#e53935,#fbc02d,#2e9e5b,#1e6fd9,#7e57c2,#e53935); overflow:hidden; display:block}
+.pz-custom input{position:absolute; inset:-6px; width:44px; height:44px; opacity:0; cursor:pointer; padding:0; border:0}
+.pz-grosores{display:flex; align-items:center; gap:4px}
+.pz-gr{width:40px; height:40px; border-radius:10px; border:0; background:transparent; cursor:pointer; display:grid; place-items:center; padding:0}
+.pz-gr:hover{background:var(--hr-field)}
+.pz-gr i{display:block; border-radius:50%; background:var(--hr-fg)}
+.pz-gr[aria-pressed="true"]{background:var(--orange)}
+.pz-gr[aria-pressed="true"] i{background:#fff}
+
+/* Editor de texto sobre la pizarra */
+.hr-page .pz-texto{
+  position:absolute; z-index:2; margin:0; padding:0; border:0; border-radius:2px; background:transparent !important; resize:none;
+  overflow:hidden; white-space:pre; font-family:Poppins,Nunito,system-ui,sans-serif; font-weight:700; min-width:40px;
+  outline:2px dashed var(--orange); outline-offset:6px; width:auto;
+}
+.hr-page .pz-texto:focus{outline:2px dashed var(--orange); box-shadow:none}
+
+/* Pantalla chica: la barra superior se ajusta y el asistente queda libre */
+@media (max-width:760px){
+  .pz-btn{min-width:40px; height:40px}
+  .pz-top{max-width:calc(100% - 76px)}
+  .has-ai-fab .pz-bottom{left:104px; transform:none; max-width:calc(100% - 116px)}
+}
+
+/* ---------- Nombre del trabajo (barra superior) ---------- */
+.hr-page .ref-topbar .pz-titulo-caja{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:1px; padding:0 14px}
+.hr-page .ref-topbar input.pz-titulo{
+  width:min(380px,100%); height:30px; padding:0 12px; text-align:center; font-weight:800; font-size:.95rem; color:#fff;
+  background:#ffffff14; border:1px solid transparent; border-radius:8px; text-overflow:ellipsis;
+}
+.hr-page .ref-topbar input.pz-titulo::placeholder{color:#ffffffa6; font-weight:700}
+.hr-page .ref-topbar input.pz-titulo:hover{border-color:#ffffff55}
+.hr-page .ref-topbar input.pz-titulo:focus{outline:none; border-color:var(--orange); background:#ffffff22; box-shadow:none}
+.pz-guardado{font-size:11px; font-weight:700; color:#ffffffb8; white-space:nowrap}
+.pz-g-ok{color:#86EFAC}
+.pz-g-error{color:#FCA5A5}
+
+/* ---------- Qué se está haciendo (franja inferior) ---------- */
+.pz-estado{
+  position:absolute; z-index:2; left:50%; transform:translateX(-50%); bottom:84px; max-width:calc(100% - 24px);
+  display:flex; align-items:center; gap:8px; padding:7px 14px; border-radius:999px; pointer-events:none;
+  background:rgba(15,42,74,.9); color:#fff; font-size:.82rem; font-weight:700; box-shadow:0 4px 14px rgba(15,42,74,.25);
+  white-space:nowrap; overflow:hidden;
+}
+.pz-estado b{font-weight:800}
+.pz-estado .pz-dot{width:12px; height:12px; border-radius:50%; flex:none; border:2px solid #fff}
+.pz-estado-txt{color:#CFE0F3; overflow:hidden; text-overflow:ellipsis; padding-left:8px; border-left:1px solid #ffffff40}
+.pz-vivo-on{background:var(--orange)}
+.pz-vivo-on .pz-estado-txt{color:#fff}
+.pz-aviso{
+  position:absolute; z-index:4; left:50%; transform:translateX(-50%); bottom:128px; max-width:calc(100% - 24px);
+  background:#fff; color:#0F2A4A; border:2px solid var(--orange); border-radius:12px; padding:9px 16px;
+  font-weight:800; font-size:.9rem; box-shadow:0 8px 24px rgba(15,42,74,.28); pointer-events:none; animation:pz-sube .22s ease-out;
+}
+@keyframes pz-sube{from{opacity:0; transform:translate(-50%,8px)} to{opacity:1; transform:translate(-50%,0)}}
+
+/* ---------- Cuadro "Guardar tu trabajo" ---------- */
+.pz-modal-fondo{position:fixed; inset:0; z-index:50; background:rgba(8,20,36,.6); display:grid; place-items:center; padding:16px; overflow:auto}
+.pz-modal{
+  width:min(440px,100%); background:var(--hr-card); color:var(--hr-fg); border:1px solid var(--hr-line); border-radius:18px;
+  padding:20px 22px 18px; box-shadow:0 20px 60px rgba(0,0,0,.4); max-height:100%; overflow:auto;
+}
+.pz-modal h2{margin:0 0 12px; font-size:1.25rem; font-weight:800}
+.pz-vista{border:1px solid var(--hr-line); border-radius:10px; overflow:hidden; background:#fff; display:grid; place-items:center; max-height:150px}
+.pz-vista img{display:block; max-width:100%; max-height:150px; object-fit:contain}
+.pz-lab{display:block; margin:14px 0 6px; font-size:.82rem; font-weight:800; color:var(--hr-muted)}
+.pz-check{display:flex; align-items:center; gap:8px; margin-top:9px; font-size:.88rem; font-weight:700; cursor:pointer}
+.pz-check input{width:18px; height:18px; accent-color:var(--orange)}
+.pz-chips{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.pz-chips-2{grid-template-columns:1fr 1fr}
+.pz-chip{
+  display:flex; flex-direction:column; align-items:center; gap:2px; padding:9px 6px; border-radius:10px; cursor:pointer;
+  background:var(--hr-field); color:var(--hr-fg); border:1px solid var(--hr-line); font:inherit; text-align:center;
+}
+.pz-chip b{font-size:.95rem; font-weight:800}
+.pz-chip small{font-size:.7rem; color:var(--hr-muted); font-weight:600; line-height:1.2}
+.pz-chip:hover{border-color:var(--orange)}
+.pz-chip[aria-pressed="true"]{background:var(--orange); border-color:var(--orange); color:#fff}
+.pz-chip[aria-pressed="true"] small{color:#ffffffd9}
+.pz-archivo{margin:14px 0 0; font-size:.85rem; color:var(--hr-muted); word-break:break-all}
+.pz-archivo b{color:var(--hr-fg)}
+.pz-acciones{display:flex; justify-content:flex-end; gap:10px; margin-top:16px}
+
+@media (max-width:760px){
+  .pz-guardado{font-size:10px}
+  .pz-estado{bottom:76px; font-size:.76rem; padding:6px 11px}
+  .pz-aviso{bottom:116px}
+  .hr-page .ref-topbar input.pz-titulo{font-size:.85rem}
+}
+@media (max-width:520px){
+  .pz-estado .pz-estado-txt{display:none}
+  .hr-page .ref-topbar .pz-titulo-caja{padding:0 6px}
+}
+
+@media (prefers-reduced-motion: reduce){ .pz *{transition:none !important; animation:none !important} }

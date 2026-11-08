@@ -93,7 +93,10 @@ function Options({ value, options, onChange, format }) {
   );
 }
 
-export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode = "", onGuestCode }) {
+// Si App.jsx pasa `frame`, la configuración del docente se muestra dentro del menú lateral.
+const conMarco = (frame, pagina) => (frame ? frame(pagina) : pagina);
+
+export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode = "", onGuestCode, frame }) {
   // Si ya hay sesión, arrancamos directo en la pantalla de su rol (sin pasar
   // primero por "gate"): así no se alcanza a ver un parpadeo de esa pantalla
   // antes de que el useEffect de abajo la cambie.
@@ -217,7 +220,8 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
   }
 
   if (view === "teacher-setup") {
-    return (
+    return conMarco(
+      frame,
       <CwTeacherSetup
         goHome={volverAlCatalogo}
         error={error}

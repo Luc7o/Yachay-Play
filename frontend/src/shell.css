@@ -39,7 +39,7 @@
 /* páginas internas (Estadísticas, Preguntas, Perfil) dentro del marco */
 .sh-content .app{min-height:0}
 .sh-content .tl-page{min-height:0;background:transparent}
-.sh-content .tl-page>.ref-topbar{display:none}
+.sh-content .ref-topbar{display:none}
 .sh-content .tl-back{display:none}
 .sh-content .tl-main{max-width:none;margin:0;padding:0}
 
@@ -108,3 +108,4 @@
   .sh-side,.gc{transition:none}
 }
 section[id]{scroll-margin-top:84px}
+.sh-content .app{background:none}

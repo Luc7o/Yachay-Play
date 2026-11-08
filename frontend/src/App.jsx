@@ -339,6 +339,31 @@ function App() {
     );
   }
 
+  // Marco con menú lateral para las pantallas de configuración del docente (Ludo y Crucigrama).
+  // Las pantallas en vivo (sala, tablero, proyección) siguen a pantalla completa.
+  const enMenu = (activo, pagina) =>
+    user ? (
+      <AppShell
+        user={user}
+        active={activo}
+        onNavigate={(id) => {
+          clearGameSession();
+          setCatalogGame(null);
+          if (id === "stats" || id === "questions" || id === "profile") return setToolPage(id);
+          if (id === "join") return chooseMode("student");
+          if (id === "juegos" || id === "herramientas") {
+            setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 80);
+          }
+        }}
+        onLogout={logout}
+        buildVersion={BUILD_VERSION}
+      >
+        {pagina}
+      </AppShell>
+    ) : (
+      pagina
+    );
+
   if (!mode) {
     if (authScreen) {
       return (
@@ -398,6 +423,7 @@ function App() {
           onLogin={() => setAuthScreen("login")}
           onRegister={() => setAuthScreen("register")}
           goHome={() => setCatalogGame(null)}
+          frame={(pagina) => enMenu("juegos", pagina)}
         />
       );
     }
@@ -432,8 +458,8 @@ function App() {
 
   if (mode === "engineer") {
     if (!gameCode) {
-      return (
-        <>
+      return enMenu(
+        "juegos",
         <SetupScreen
           gameName={gameName}
           setGameName={setGameName}
@@ -450,7 +476,6 @@ function App() {
           creating={creating}
           goHome={changeDevice}
         />
-        </>
       );
     }
     if (!serverState) return <LoadingScreen code={gameCode} error={connError} onReset={changeDevice} />;

@@ -1,6 +1,7 @@
 import React from "react";
 import { Brand } from "./Brand";
 import { CwGridIcon } from "./Crossword";
+import { AppShell } from "./AppShell";
 
 // ============================================================================
 // CATÁLOGO DE JUEGOS DE YACHAYPLAY
@@ -31,24 +32,24 @@ export const HERO = {
 };
 
 export const GAMES = [
-  { id: "ludo", name: "Ludo Educativo", available: true, icon: "ludo", bg: "linear-gradient(145deg,#0A4C8F,#023A73)" },
-  { id: "crucigrama", name: "Crucigrama Relámpago", available: true, icon: "crucigrama", bg: "linear-gradient(145deg,#023A73,#0A4C8F)" },
-  { id: "quiz", name: "Quiz", available: false, icon: "❓", bg: "linear-gradient(145deg,#F16503,#D45500)" },
-  { id: "sino", name: "Sí o No", available: false, icon: "✅", bg: "linear-gradient(145deg,#0A4C8F,#2B6AA8)" },
-  { id: "adivinanza", name: "Adivinanza", available: false, icon: "🔮", bg: "linear-gradient(145deg,#F16503,#ff9a4d)" },
-  { id: "relacionar", name: "Relacionar grupos", available: false, icon: "🧩", bg: "linear-gradient(145deg,#023A73,#2B6AA8)" },
-  { id: "sopa", name: "Sopa de letras", available: false, icon: "🔤", bg: "linear-gradient(145deg,#D45500,#F16503)" },
-  { id: "memoria", name: "Memoria", available: false, icon: "🧠", bg: "linear-gradient(145deg,#2B6AA8,#0A4C8F)" },
-  { id: "ordenar", name: "Ordenar frases", available: false, icon: "🔢", bg: "linear-gradient(145deg,#F16503,#D45500)" },
+  { id: "ludo", name: "Ludo Educativo", desc: "Tablero por equipos: responde preguntas, lanza el dado y llega primero a la meta.", available: true, icon: "ludo", bg: "linear-gradient(145deg,#0A4C8F,#023A73)" },
+  { id: "crucigrama", name: "Crucigrama Relámpago", desc: "Cada estudiante resuelve su crucigrama contra el reloj y puede sabotear a sus rivales.", tag: "Nuevo", available: true, icon: "crucigrama", bg: "linear-gradient(145deg,#023A73,#0A4C8F)" },
+  { id: "quiz", name: "Quiz", desc: "Preguntas de opción múltiple para toda la clase.", available: false, icon: "❓", bg: "linear-gradient(145deg,#F16503,#D45500)" },
+  { id: "sino", name: "Sí o No", desc: "Afirmaciones que se responden con verdadero o falso.", available: false, icon: "✅", bg: "linear-gradient(145deg,#0A4C8F,#2B6AA8)" },
+  { id: "adivinanza", name: "Adivinanza", desc: "Pistas que los estudiantes deben descifrar.", available: false, icon: "🔮", bg: "linear-gradient(145deg,#F16503,#ff9a4d)" },
+  { id: "relacionar", name: "Relacionar grupos", desc: "Une cada concepto con su categoría o definición.", available: false, icon: "🧩", bg: "linear-gradient(145deg,#023A73,#2B6AA8)" },
+  { id: "sopa", name: "Sopa de letras", desc: "Encuentra las palabras escondidas en la cuadrícula.", available: false, icon: "🔤", bg: "linear-gradient(145deg,#D45500,#F16503)" },
+  { id: "memoria", name: "Memoria", desc: "Encuentra las parejas de cartas iguales.", available: false, icon: "🧠", bg: "linear-gradient(145deg,#2B6AA8,#0A4C8F)" },
+  { id: "ordenar", name: "Ordenar frases", desc: "Ordena las palabras para formar la frase correcta.", available: false, icon: "🔢", bg: "linear-gradient(145deg,#F16503,#D45500)" },
 ];
 
 // Herramientas para el docente. Cada una es un componente de React (Cronometro.jsx,
 // Ruleta.jsx, Pizarra.jsx) que App.jsx muestra al elegirla, igual que Ludo y el Crucigrama.
 // Para agregar otra: crea su componente, añádelo aquí y agrega su pantalla en App.jsx.
 export const TOOLS = [
-  { id: "cronometro", name: "Cronómetro de actividad", icon: "⏱️", bg: "linear-gradient(145deg,#F16503,#D45500)" },
-  { id: "ruleta", name: "Ruleta de sorteos", icon: "🎡", bg: "linear-gradient(145deg,#0A4C8F,#023A73)" },
-  { id: "pizarra", name: "Pizarra", icon: "🖍️", bg: "linear-gradient(145deg,#2B6AA8,#0A4C8F)" },
+  { id: "cronometro", name: "Cronómetro de actividad", desc: "Controla el tiempo de una actividad y proyéctalo en pantalla.", icon: "⏱️", bg: "linear-gradient(145deg,#F16503,#D45500)" },
+  { id: "ruleta", name: "Ruleta de sorteos", desc: "Sortea estudiantes o equipos con una ruleta animada.", icon: "🎡", bg: "linear-gradient(145deg,#0A4C8F,#023A73)" },
+  { id: "pizarra", name: "Pizarra", desc: "Dibuja y explica en vivo sobre una pizarra digital.", icon: "🖍️", bg: "linear-gradient(145deg,#2B6AA8,#0A4C8F)" },
 ];
 
 // Mini tablero de Ludo dibujado en SVG (ícono del juego disponible)
@@ -68,57 +69,138 @@ export function LudoIcon() {
   );
 }
 
-export function GameCatalog({ onSelectGame, onJoinWithCode, buildVersion, user, onLogin, onRegister, onLogout, onOpenStats, onOpenQuestions, onOpenProfile }) {
-  const primerNombre = user ? user.name.split(" ")[0] : "";
-  const esDocente = user?.role === "docente";
+// Tarjeta de un juego o herramienta (icono + nombre + descripción corta)
+function GameCard({ item, onSelect }) {
+  const soon = item.available === false;
+  return (
+    <button className={"gc" + (soon ? " gc-soon" : "")} onClick={() => !soon && onSelect(item.id)} disabled={soon}>
+      <span className="gc-icon" style={{ background: item.bg }}>
+        {item.icon === "ludo" ? <LudoIcon /> : item.icon === "crucigrama" ? <CwGridIcon /> : <span className="gc-emoji">{item.icon}</span>}
+      </span>
+      <span className="gc-body">
+        {soon ? (
+          <span className="gc-tag gc-tag-soon">Próximamente</span>
+        ) : item.tag ? (
+          <span className="gc-tag gc-tag-nuevo">{item.tag}</span>
+        ) : null}
+        <strong>{item.name}</strong>
+        <small>{item.desc}</small>
+      </span>
+    </button>
+  );
+}
+
+// Secciones "Juegos" y "Herramientas" (las comparten el inicio con sesión y la portada)
+function GamesSection({ onSelectGame, esEstudiante, showTools }) {
+  return (
+    <>
+      <section id="juegos">
+        <div className="sec-head">
+          <h2>Selecciona un juego</h2>
+          <p>
+            {esEstudiante
+              ? "Estos son los juegos de YachayPlay. Tu docente crea la partida y te da un código para entrar."
+              : "Elige un juego para crear una partida con tus estudiantes."}
+          </p>
+        </div>
+        <div className="gc-grid">
+          {GAMES.map((g) => (
+            <GameCard key={g.id} item={g} onSelect={onSelectGame} />
+          ))}
+        </div>
+      </section>
+
+      {/* Herramientas para dar la clase en vivo (no se muestran a estudiantes) */}
+      {showTools && (
+        <section id="herramientas" aria-labelledby="tools-title">
+          <div className="sec-head">
+            <h2 id="tools-title">Herramientas para docentes</h2>
+            <p>Para dar tu clase en vivo y proyectar la pantalla. No necesitan cuenta.</p>
+          </div>
+          <div className="gc-grid">
+            {TOOLS.map((t) => (
+              <GameCard key={t.id} item={t} onSelect={onSelectGame} />
+            ))}
+          </div>
+        </section>
+      )}
+    </>
+  );
+}
+
+// Inicio con sesión iniciada: menú lateral + saludo + tarjetas
+function HomeLogged({ onSelectGame, onJoinWithCode, buildVersion, user, onLogout, onOpenStats, onOpenQuestions, onOpenProfile }) {
+  const esDocente = user.role === "docente";
+  const primerNombre = user.name.split(" ")[0];
+
+  const irA = (id) => {
+    if (id === "stats") return onOpenStats();
+    if (id === "questions") return onOpenQuestions();
+    if (id === "profile") return onOpenProfile();
+    if (id === "join") return onJoinWithCode();
+    const el = id === "home" ? null : document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  return (
+    <AppShell user={user} active="home" onNavigate={irA} onLogout={onLogout} buildVersion={buildVersion}>
+      <section className="dash-hero">
+        <div>
+          <span className="dash-hello">¡Hola, {primerNombre}! 👋</span>
+          <h1>{esDocente ? "¿Qué quieres que aprendan hoy?" : "¿Listo para jugar?"}</h1>
+          <p>
+            {esDocente
+              ? "Crea una partida, proyecta el código y deja que tus estudiantes se unan desde el celular."
+              : "Ingresa el código que muestra tu docente y compite con tu equipo."}
+          </p>
+          <div className="dash-chips">
+            {esDocente ? (
+              <>
+                <button className="dash-chip primary" onClick={() => onSelectGame("ludo")}>🖥️ Crear partida de Ludo</button>
+                <button className="dash-chip" onClick={() => onSelectGame("crucigrama")}>⚡ Crear crucigrama</button>
+                <button className="dash-chip" onClick={onOpenQuestions}>📚 Mis preguntas</button>
+                <button className="dash-chip" onClick={onOpenStats}>📊 Estadísticas</button>
+              </>
+            ) : (
+              <>
+                <button className="dash-chip primary" onClick={onJoinWithCode}>📱 Unirme con código</button>
+                <button className="dash-chip" onClick={onOpenStats}>📊 Mis resultados</button>
+              </>
+            )}
+          </div>
+        </div>
+        <img className="dash-img" src="/yachayplay-mascota.png" alt="" />
+      </section>
+
+      <GamesSection onSelectGame={onSelectGame} esEstudiante={!esDocente} showTools={esDocente} />
+    </AppShell>
+  );
+}
+
+// Portada para visitantes (sin sesión)
+function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegister }) {
   return (
     <div className="app catalog-page">
       <header className="ref-topbar">
         <Brand />
         <nav className="catalog-nav">
           <span className="catalog-nav-item active">▦ Tipos de juegos</span>
-          {user ? (
-            <>
-              <button className="catalog-tool" onClick={onOpenStats}>📊 {esDocente ? "Estadísticas" : "Mis resultados"}</button>
-              {esDocente && <button className="catalog-tool" onClick={onOpenQuestions}>📚 Mis preguntas</button>}
-              <button className="user-chip user-chip-btn" title="Ver mi perfil" onClick={onOpenProfile}>
-                <i>{user.name.trim().charAt(0).toUpperCase()}</i>
-                <span>
-                  <b>{primerNombre}</b>
-                  <small>{esDocente ? "Docente" : "Estudiante"}</small>
-                </span>
-              </button>
-              <button className="catalog-logout" onClick={onLogout}>Cerrar sesión</button>
-            </>
-          ) : (
-            <>
-              <button className="catalog-login" onClick={onLogin}>Iniciar sesión</button>
-              <button className="ref-yellow catalog-join" onClick={onRegister}>Crear cuenta</button>
-            </>
-          )}
+          <button className="catalog-login" onClick={onLogin}>Iniciar sesión</button>
+          <button className="ref-yellow catalog-join" onClick={onRegister}>Crear cuenta</button>
         </nav>
       </header>
 
       <section className="hero">
         <div className="hero-inner">
           <div className="hero-text">
-            {user ? (
-              <span className="hero-eyebrow hero-hello">¡HOLA, {primerNombre.toUpperCase()}! 👋</span>
-            ) : (
-              <span className="hero-eyebrow">{HERO.eyebrow}</span>
-            )}
+            <span className="hero-eyebrow">{HERO.eyebrow}</span>
             <h1 className="hero-title">{HERO.title}</h1>
             <p className="hero-lead">{HERO.text}</p>
             <p className="hero-quechua">{HERO.quechua}</p>
             <div className="hero-actions">
               <a className="hero-btn hero-btn-main" href="#juegos">Ver los juegos</a>
-              {user ? (
-                <button className="hero-btn hero-btn-alt" onClick={() => (esDocente ? onSelectGame("ludo") : onJoinWithCode())}>
-                  {esDocente ? "🖥️ Crear una partida" : "📱 Unirme con código"}
-                </button>
-              ) : (
-                <button className="hero-btn hero-btn-alt" onClick={onJoinWithCode}>📱 Unirme con código</button>
-              )}
+              <button className="hero-btn hero-btn-alt" onClick={onJoinWithCode}>📱 Unirme con código</button>
             </div>
           </div>
           <img className="hero-img" src="/yachayplay-mascota.png" alt="Mascota de YachayPlay: un dragón andino con chullo, una tableta de preguntas y un trofeo" />
@@ -136,48 +218,15 @@ export function GameCatalog({ onSelectGame, onJoinWithCode, buildVersion, user, 
         </div>
       </section>
 
-      <main className="catalog-main" id="juegos">
-        <h2 className="catalog-title">▦ Tipos de juegos</h2>
-        <p className="catalog-sub">Elige un juego para crear una partida con tus estudiantes.</p>
-
-        <div className="catalog-grid">
-          {GAMES.map((g) => (
-            <button
-              key={g.id}
-              className={"game-tile" + (g.available ? "" : " soon")}
-              onClick={() => g.available && onSelectGame(g.id)}
-              disabled={!g.available}
-              title={g.available ? g.name : "Próximamente"}
-            >
-              <span className="game-icon" style={{ background: g.bg }}>
-                {g.icon === "ludo" ? <LudoIcon /> : g.icon === "crucigrama" ? <CwGridIcon /> : <span className="game-emoji">{g.icon}</span>}
-                {!g.available && <span className="soon-badge">Próximamente</span>}
-              </span>
-              <span className="game-label">{g.name}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Herramientas para dar la clase en vivo (no se muestran a estudiantes) */}
-        {!(user && user.role === "estudiante") && (
-          <section aria-labelledby="tools-title">
-            <h2 className="catalog-title" id="tools-title" style={{ marginTop: 56 }}>🧰 Herramientas para docentes</h2>
-            <p className="catalog-sub">Para dar tu clase en vivo y proyectar la pantalla. No necesitan cuenta.</p>
-            <div className="catalog-grid-tools">
-              {TOOLS.map((t) => (
-                <button key={t.id} className="game-tile" onClick={() => onSelectGame(t.id)} title={t.name}>
-                  <span className="game-icon" style={{ background: t.bg }}>
-                    <span className="game-emoji">{t.icon}</span>
-                  </span>
-                  <span className="game-label">{t.name}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
+      <main className="gc-wrap">
+        <GamesSection onSelectGame={onSelectGame} esEstudiante={false} showTools />
       </main>
 
       <footer className="build-mark">YachayPlay · Build {buildVersion}</footer>
     </div>
   );
+}
+
+export function GameCatalog(props) {
+  return props.user ? <HomeLogged {...props} /> : <Landing {...props} />;
 }

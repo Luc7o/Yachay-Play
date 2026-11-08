@@ -3,6 +3,7 @@ import { api, getToken, setToken } from "./api";
 import { socket, reconnectSocket } from "./socket";
 import { AuthScreen } from "./AuthScreen";
 import { GameCatalog } from "./GameCatalog";
+import { AppShell } from "./AppShell";
 import { CrosswordGame } from "./Crossword";
 import { StatsPage } from "./Stats";
 import { QuestionBankPage } from "./QuestionBank";
@@ -356,8 +357,23 @@ function App() {
     }
     if (toolPage && user) {
       const volver = () => setToolPage(null);
+      // Menú lateral: lleva a otra página interna o vuelve al inicio (y baja a la sección pedida)
+      const irA = (id) => {
+        if (id === "stats" || id === "questions" || id === "profile") return setToolPage(id);
+        setToolPage(null);
+        if (id === "join") return chooseMode("student");
+        if (id === "juegos" || id === "herramientas") {
+          setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 80);
+        }
+      };
+      const conMenu = (activo, pagina) => (
+        <AppShell user={user} active={activo} onNavigate={irA} onLogout={logout} buildVersion={BUILD_VERSION}>
+          {pagina}
+        </AppShell>
+      );
       if (toolPage === "profile") {
-        return (
+        return conMenu(
+          "profile",
           <ProfilePage
             user={user}
             goHome={volver}
@@ -367,11 +383,9 @@ function App() {
           />
         );
       }
-      return toolPage === "questions" && user.role === "docente" ? (
-        <QuestionBankPage goHome={volver} />
-      ) : (
-        <StatsPage user={user} goHome={volver} />
-      );
+      return toolPage === "questions" && user.role === "docente"
+        ? conMenu("questions", <QuestionBankPage goHome={volver} />)
+        : conMenu("stats", <StatsPage user={user} goHome={volver} />);
     }
     // Herramientas para el docente: no necesitan cuenta ni servidor
     if (catalogGame === "cronometro") return <Cronometro goHome={changeDevice} />;

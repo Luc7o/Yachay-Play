@@ -1,0 +1,110 @@
+/* ==========================================================================
+   MARCO DE LA APP (menú lateral), inicio del docente y tarjetas de juegos
+   ========================================================================== */
+.shell{--sh-w:248px;display:flex;min-height:100vh;background:#f3f6fb}
+.shell.is-collapsed{--sh-w:76px}
+
+/* ---- menú lateral ---- */
+.sh-side{position:sticky;top:0;height:100vh;width:var(--sh-w);flex:0 0 var(--sh-w);background:linear-gradient(180deg,var(--navy-dark) 0%,var(--navy) 100%);color:#dbe7f5;display:flex;flex-direction:column;padding:16px 12px;gap:8px;transition:width .2s ease;z-index:40}
+.sh-logo{background:none;border:0;padding:6px 8px 16px;cursor:pointer;text-align:left}
+.sh-logo img{display:block;width:auto}
+.sh-logo .sh-logo-full{height:36px}
+.sh-logo .sh-logo-mini{display:none;height:32px;margin:0 auto}
+.shell.is-collapsed .sh-logo .sh-logo-full{display:none}
+.shell.is-collapsed .sh-logo .sh-logo-mini{display:block}
+/* el botón flotante del asistente (solo docentes) ocupa la esquina inferior izquierda */
+.shell.has-fab .sh-side{padding-bottom:92px}
+.sh-nav{display:flex;flex-direction:column;gap:4px;flex:1;overflow-y:auto}
+.sh-item{display:flex;align-items:center;gap:12px;width:100%;border:0;background:transparent;color:inherit;font:inherit;font-weight:700;font-size:14px;padding:11px 12px;border-radius:12px;cursor:pointer;text-align:left;white-space:nowrap}
+.sh-item:hover{background:#ffffff1a;color:#fff}
+.sh-item:focus-visible{outline:3px solid var(--orange);outline-offset:1px}
+.sh-item.active{background:#fff;color:var(--navy);box-shadow:inset 4px 0 0 var(--orange)}
+.sh-ico{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.shell.is-collapsed .sh-item{justify-content:center;padding:12px 0}
+.shell.is-collapsed .sh-item span{display:none}
+.sh-foot{border-top:1px solid #ffffff22;padding-top:10px;display:flex;flex-direction:column;gap:4px}
+
+/* ---- barra superior y contenido ---- */
+.sh-body{flex:1;min-width:0;display:flex;flex-direction:column}
+.sh-top{height:64px;display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:0 28px;background:#fff;border-bottom:1px solid #e3eaf3;position:sticky;top:0;z-index:30}
+.sh-burger{display:none;place-items:center;width:42px;height:42px;border:1px solid #e3eaf3;background:#fff;border-radius:12px;color:var(--navy);cursor:pointer;margin-right:auto}
+.sh-user{display:flex;align-items:center;gap:10px;border:1px solid #e3eaf3;background:#fff;border-radius:999px;padding:5px 16px 5px 5px;cursor:pointer;font:inherit}
+.sh-user:hover{background:var(--navy-soft)}
+.sh-user i{width:36px;height:36px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-style:normal;font-weight:900}
+.sh-user span{display:flex;flex-direction:column;text-align:left;line-height:1.15}
+.sh-user b{font-size:14px;color:var(--navy)}
+.sh-user small{color:#64748b;font-size:11px}
+.sh-content{flex:1;width:100%;max-width:1180px;margin:0 auto;padding:28px 32px 16px}
+
+/* páginas internas (Estadísticas, Preguntas, Perfil) dentro del marco */
+.sh-content .app{min-height:0}
+.sh-content .tl-page{min-height:0;background:transparent}
+.sh-content .tl-page>.ref-topbar{display:none}
+.sh-content .tl-back{display:none}
+.sh-content .tl-main{max-width:none;margin:0;padding:0}
+
+/* ---- inicio: saludo y accesos rápidos ---- */
+.dash-hero{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;background:linear-gradient(120deg,var(--navy) 0%,var(--navy-light) 60%,var(--navy-line) 100%);color:#fff;border-radius:24px;padding:30px 36px;box-shadow:0 14px 30px #023a7333}
+.dash-hello{display:inline-block;background:#ffffff26;padding:5px 12px;border-radius:999px;font-weight:800;font-size:13px}
+.dash-hero h1{font-size:34px;line-height:1.15;margin:12px 0 8px;font-weight:900}
+.dash-hero p{margin:0 0 18px;max-width:520px;color:#dbe7f5;font-size:15px;line-height:1.55}
+.dash-chips{display:flex;flex-wrap:wrap;gap:10px}
+.dash-chip{border:0;border-radius:999px;padding:10px 16px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;background:#fff;color:var(--navy)}
+.dash-chip:hover{background:var(--orange-soft)}
+.dash-chip:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.dash-chip.primary{background:var(--orange-dark);color:#fff}
+.dash-chip.primary:hover{background:var(--orange)}
+.dash-img{box-sizing:content-box;width:170px;height:auto;background:#fff;border-radius:24px;padding:10px;box-shadow:0 10px 24px #0003}
+
+/* ---- encabezados de sección ---- */
+.sec-head{margin:34px 0 14px}
+.sec-head h2{font-size:22px;color:var(--navy);margin:0 0 4px;font-weight:900}
+.sec-head p{margin:0;color:#64748b;font-size:14px}
+
+/* ---- tarjetas de juegos y herramientas ---- */
+.gc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.gc{display:flex;gap:14px;align-items:flex-start;text-align:left;background:#fff;border:1px solid #e3eaf3;border-radius:18px;padding:16px;cursor:pointer;font:inherit;color:inherit;box-shadow:0 2px 6px #0f172a08;transition:transform .15s,box-shadow .15s,border-color .15s}
+.gc:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 12px 24px #023a731a;border-color:var(--navy-border)}
+.gc:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.gc-icon{width:64px;height:64px;flex:none;border-radius:16px;display:grid;place-items:center;overflow:hidden}
+.gc-icon svg{width:40px;height:40px}
+.gc-emoji{font-size:30px;line-height:1}
+.gc-body{min-width:0}
+.gc-body strong{display:block;font-size:16px;color:var(--navy);font-weight:900;margin-bottom:4px}
+.gc-body small{display:block;font-size:13px;line-height:1.45;color:#64748b}
+.gc-tag{display:inline-block;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;padding:3px 9px;border-radius:999px;margin-bottom:6px}
+.gc-tag-nuevo{background:var(--orange-dark);color:#fff}
+.gc-tag-soon{background:#e2e8f0;color:#475569}
+.gc-soon{background:#f8fafc;cursor:not-allowed}
+.gc-soon .gc-icon{opacity:.55;filter:grayscale(.4)}
+.gc-soon .gc-body strong{color:#64748b}
+
+/* portada para visitantes: mismas tarjetas, alineadas a la izquierda */
+.gc-wrap{max-width:1100px;margin:0 auto;padding:10px 24px 30px;text-align:left}
+
+/* ---- celular: el menú se despliega encima ---- */
+@media(max-width:860px){
+  .sh-side{position:fixed;left:0;top:0;width:270px;transform:translateX(-105%);transition:transform .22s ease;box-shadow:0 0 40px #0007}
+  .sh-side.is-open{transform:none}
+  .shell.is-collapsed .sh-logo .sh-logo-full{display:block}
+  .shell.is-collapsed .sh-logo .sh-logo-mini{display:none}
+  .shell.is-collapsed .sh-item{justify-content:flex-start;padding:11px 12px}
+  .shell.is-collapsed .sh-item span{display:inline}
+  .sh-collapse{display:none}
+  .sh-burger{display:grid}
+  .sh-backdrop{position:fixed;inset:0;background:#0f172a80;z-index:35}
+  .sh-top{padding:0 14px}
+  .sh-content{padding:18px 14px 12px}
+  .dash-hero{grid-template-columns:1fr;padding:22px}
+  .dash-hero h1{font-size:26px}
+  .dash-img{width:110px;order:-1;justify-self:center}
+}
+@media(max-width:520px){
+  .sh-user span{display:none}
+  .sh-user{padding:5px}
+  .gc-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  .sh-side,.gc{transition:none}
+}
+section[id]{scroll-margin-top:84px}

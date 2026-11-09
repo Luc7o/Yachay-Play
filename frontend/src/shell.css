@@ -211,3 +211,15 @@ section[id]{scroll-margin-top:84px}
 .ip-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;margin-top:35px}.ip-grid article{background:var(--surface);border:1px solid var(--line);border-radius:25px;padding:30px;box-shadow:var(--shadow)}
 .ip-grid article>span{color:var(--primary);font-weight:900;font-size:12px}.ip-grid h2{font-size:23px;color:var(--ink)}.ip-grid p,.ip-grid li{color:var(--muted);line-height:1.7}.ip-grid ul{padding-left:20px}
 .ip-grid button{border:0;border-radius:30px;background:var(--primary);color:var(--bg);padding:13px 20px;font:inherit;font-weight:800;cursor:pointer;margin-top:15px}
+
+/* Continuidad visual: cabecera privada con el mismo lenguaje de la portada pública. */
+.sh-top{max-width:1450px;gap:20px}
+.sh-logo img{width:190px;max-height:54px}
+.sh-nav button{font-size:14px;color:var(--ink);padding:12px 14px}
+.sh-nav button.active{background:#006f70;color:#fff}
+.sh-nav button:hover:not(.active){background:var(--surface2)}
+.sh-create{background:#009f91;color:#fff}
+.sh-create:hover{background:#008477}
+:root[data-theme="dark"] .sh-nav button.active{background:#30bda9;color:#041e29}
+:root[data-theme="dark"] .sh-create{background:#4ee1c6;color:#062a30}
+@media(max-width:1100px){.sh-top{gap:12px}.sh-nav button{padding:10px}}

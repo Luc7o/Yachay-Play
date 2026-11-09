@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Brand } from "./Brand";
 import { api } from "./api";
 
 const ROLES = [
@@ -11,6 +10,13 @@ const ROLES = [
 // El rol (docente / estudiante) se elige UNA sola vez, al crear la cuenta.
 export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest }) {
   const registro = tab === "register";
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || "light");
+  const toggleTheme = () => {
+    const next = (document.documentElement.dataset.theme || "light") === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    setTheme(next);
+    try { localStorage.setItem("yp_theme", next); } catch { /* navegación privada */ }
+  };
   const [role, setRole] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -62,8 +68,23 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest }) {
 
   return (
     <div className="app join-page">
-      <header className="ref-topbar">
-        <Brand subtitle={registro ? "Crear cuenta" : "Iniciar sesión"} onClick={onBack} />
+      <header className="pa-header auth-aula-header">
+        <div className="pa-header-inner">
+          <button type="button" className="pa-logo auth-home-logo" onClick={onBack} aria-label="Volver a YachayPlay">
+            <img className="pa-logo-light" src="/logo-aula.png" alt="YachayPlay" />
+            <img className="pa-logo-dark" src="/logo-aula-dark.png" alt="" aria-hidden="true" />
+          </button>
+          <nav className="pa-nav auth-aula-nav" aria-label="Navegación">
+            <button type="button" onClick={onBack}>Inicio</button>
+            <span className="auth-current-page">{registro ? "Crear cuenta" : "Iniciar sesión"}</span>
+          </nav>
+          <div className="pa-auth">
+            <button type="button" className="pa-theme" onClick={toggleTheme} aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}>
+              <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
+              <span className="pa-theme-label">{theme === "dark" ? "Modo claro" : "Modo oscuro"}</span>
+            </button>
+          </div>
+        </div>
       </header>
 
       <main className="join-main">

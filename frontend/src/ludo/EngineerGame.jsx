@@ -1,4 +1,5 @@
 import { Brand } from "../Brand";
+import { phaseTotal } from "../constants";
 import { GameTab } from "./GameTab";
 import { QuestionsTab, ScoresTab, RulesTab } from "./InfoTabs";
 
@@ -65,6 +66,7 @@ export function EngineerGame({ tab, setTab, serverState, timerSeconds, phaseSeco
           teams={serverState.teams}
           activeTeams={serverState.activeTeams}
           skipTurn={skipTurn}
+          phaseTotal={phaseTotal(serverState)}
         />
       )}
       {tab === "questions" && <QuestionsTab bank={bank} />}

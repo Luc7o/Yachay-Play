@@ -4,6 +4,8 @@ import { Dice } from "./Dice";
 import { describeMove } from "./GameTab";
 import { LudoBoard } from "./LudoBoard";
 
+import "../live.css";
+
 export function StudentJoin({ joinCode, setJoinCode, studentName, setStudentName, studentTeam, setStudentTeam, submitJoin, joinError, gameInfo, goHome }) {
   // Colores que juegan en ESA partida, con su cupo disponible
   const opciones = (gameInfo?.activeTeams || TURN_ORDER).map((t) => {
@@ -168,14 +170,10 @@ export function StudentGame({ serverState, playerId, selected, phaseSeconds, pos
         </div>
       </header>
       <main className="student-page">
-        <div className="phone-card">
+        <div className="phone-card phone-live" style={{ borderTopColor: COLORS[myTeam]?.hex }}>
           <span className="eyebrow" style={{ color: COLORS[myTeam]?.hex }}>
             EQUIPO {COLORS[myTeam]?.name.toUpperCase()} · {me?.name}
           </span>
-
-          <div className="mobile-board-wrap">
-            <LudoBoard players={serverState.players} positions={positions} activeTeams={serverState.activeTeams} small />
-          </div>
 
           {/* ---------- FASE 1: LANZAR EL DADO ---------- */}
           {turnPhase === "roll" && (
@@ -225,6 +223,9 @@ export function StudentGame({ serverState, playerId, selected, phaseSeconds, pos
               {turnPhase === "question" && (
                 <div className={`answer-timer ${(phaseSeconds ?? 0) <= 5 ? "answer-timer-urgent" : ""}`}>
                   ⏱️ <b>{phaseSeconds ?? 0}s</b> para responder
+                  <span className="answer-bar">
+                    <i style={{ width: `${Math.min(100, ((phaseSeconds ?? 0) / (serverState.answerTimeLimit || 20)) * 100)}%` }} />
+                  </span>
                 </div>
               )}
 
@@ -269,6 +270,11 @@ export function StudentGame({ serverState, playerId, selected, phaseSeconds, pos
               )}
             </>
           )}
+
+          {/* El tablero va debajo: lo primero que ve el alumno es lo que tiene que hacer */}
+          <div className="mobile-board-wrap">
+            <LudoBoard players={serverState.players} positions={positions} activeTeams={serverState.activeTeams} small />
+          </div>
 
           <button className="ref-secondary" onClick={changeDevice}>
             Salir

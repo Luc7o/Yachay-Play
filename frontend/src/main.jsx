@@ -5,6 +5,7 @@ import App from "./App";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { AssistantFab } from "./AssistantFab";
 import { CronometroMini } from "./CronometroMini";
+import "./gamesDark.css";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>

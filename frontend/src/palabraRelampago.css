@@ -72,3 +72,61 @@
 .pr-night .pr-rank{border-color:#345c67}
 @media(max-width:900px){.pr-night .pr-arena{height:590px}}
 @media(max-width:560px){.pr-page.pr-night{padding:20px 10px 35px;border-radius:14px}.pr-night .pr-panel{padding:14px}.pr-night .pr-arena{height:520px}.pr-night .pr-center{width:205px;min-height:330px;padding:12px 8px}.pr-night .pr-bomb{transform:scale(.78);margin:0 auto -6px}.pr-night .pr-letters{font-size:46px}.pr-night .pr-time{font-size:34px}.pr-night .pr-entry-center input{padding:9px 5px;font-size:11px}.pr-night .pr-entry-center button{padding:8px 9px}.pr-night .pr-center-sub{font-size:9px}.pr-night .pr-avatar{width:68px}.pr-night .pr-avatar-bubble{width:36px;height:36px;font-size:12px}.pr-night .pr-avatar-name{font-size:10px}.pr-night .pr-pointer-line{width:104px}}
+
+
+/* Arena de ancho completo: sin tarjeta central, letras arriba, Enter envía. */
+.pr-page.pr-fullscreen{max-width:none;width:100vw;box-sizing:border-box;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);border-radius:0;min-height:100vh;padding:clamp(14px,2vw,30px) clamp(12px,2.5vw,44px) 40px}
+.pr-page.pr-fullscreen.pr-night{max-width:none;min-height:100vh;border-radius:0}
+.pr-fullscreen .pr-top{margin-bottom:16px;align-items:center}
+.pr-fullscreen .pr-top h1{font-size:clamp(25px,2.7vw,40px);margin:5px 0}
+.pr-top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pr-theme-switch{border:1px solid var(--pr-edge);color:var(--pr-ink);background:transparent;border-radius:99px;padding:12px 16px;font:inherit;font-weight:800;cursor:pointer}
+.pr-fullscreen .pr-game{grid-template-columns:minmax(0,1fr) clamp(215px,19vw,310px);gap:16px;align-items:stretch}
+.pr-fullscreen .pr-board{padding:16px clamp(12px,2vw,28px);display:flex;flex-direction:column}
+.pr-fullscreen .pr-gamehead{margin-bottom:6px}
+.pr-fullscreen .pr-arena{flex:1;width:100%;max-width:none;min-height:440px;height:clamp(440px,64vh,760px);box-sizing:border-box;overflow:hidden}
+.pr-fullscreen .pr-scores{padding:22px clamp(12px,1.3vw,24px)}
+.pr-fullscreen .pr-word-hud{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 8px 13px;position:relative;z-index:4}
+.pr-fragment-badge{font-size:clamp(35px,4.2vw,64px);font-weight:950;letter-spacing:.1em;line-height:1.15;background:#0a2230;color:#e9f5ff;border:1px solid #477384;border-radius:14px;padding:4px 22px}
+.pr-current-turn{font-weight:900;color:#00a995;font-size:12px;letter-spacing:.1em}
+.pr-entry.pr-entry-hud{display:block;width:min(440px,95%);margin:5px auto 0;max-width:none}
+.pr-entry-hud input{width:100%;text-align:center;font-size:clamp(17px,2vw,24px);font-weight:750;padding:12px 16px;outline-offset:3px}
+.pr-hud-help{font-size:12px;color:#5b8184}
+.pr-bomb-anchor{position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+.pr-bomb-anchor .pr-time{font-size:clamp(35px,5vw,67px);line-height:1.05;text-align:center;text-shadow:0 6px 20px #0005}
+.pr-bomb-anchor .pr-bomb{transform:scale(1.6);transform-origin:center;margin:25px auto 18px}
+.pr-fullscreen .pr-arena .pr-avatar{z-index:3}
+.pr-fullscreen .pr-arena .pr-pointer{z-index:1}
+.pr-fullscreen .pr-alert{margin:9px 0 5px;min-height:23px}
+.pr-fullscreen .pr-skip{align-self:center}
+.pr-night .pr-theme-switch{background:#133440;color:#e6ffff;border-color:#47717b}
+.pr-night .pr-fragment-badge{background:#0b1422;color:#f6f7ff;border-color:#426079}
+.pr-night .pr-current-turn{color:#70eed6}
+.pr-night .pr-entry-hud input{background:#071d2b;color:#ffffff;border:2px solid #579a9f}
+.pr-night .pr-entry-hud input::placeholder{color:#a9c4cf}
+.pr-night .pr-hud-help{color:#aed4d4}
+.pr-night .pr-bomb-anchor .pr-time{color:#f0ffff}
+.pr-night .pr-bomb-anchor .pr-time-low{color:#ff6d8d}
+.pr-page.pr-day{background:radial-gradient(ellipse at 45% 20%,#f6fffc,#e7faf5 65%,#dff6ef);--pr-ink:#103c46;--pr-edge:#bcded7;color:#103c46;color-scheme:light}
+.pr-day .pr-panel{background:#fff;border:1px solid #c6e5dc;color:#123d45}
+.pr-day .pr-arena{background:radial-gradient(circle at center,#e0fbf1,#f2fffc);border:1px solid #b9e6d9}
+.pr-day .pr-arena:before,.pr-day .pr-arena:after{border-color:#6abfb3;opacity:.28}
+.pr-day .pr-avatar-name,.pr-day .pr-avatar-points{color:#143c46}
+.pr-day .pr-entry-hud input{background:#fff;color:#133e48;border:2px solid #77c7b9}
+.pr-day .pr-fragment-badge{background:#f8fffd;color:#006e73;border-color:#7ecabe}
+.pr-day .pr-bomb-anchor .pr-time{color:#007b81}
+.pr-day .pr-bomb-anchor .pr-time-low{color:#cc3e5c}
+.pr-day .pr-player{background:#f1fffb;border-color:#c6e5dc;color:#143c46}
+.pr-day .pr-current{background:#e2fbf1;border-color:#12ad9c}
+.pr-day .pr-used span{background:#dff6ef;color:#20505a}
+.pr-day .pr-gamehead,.pr-day .pr-panel p{color:#557a7d}
+.pr-day .pr-gamehead strong{color:#078f80}
+.pr-day .pr-bomb{position:relative;width:68px;height:66px;flex:none;filter:drop-shadow(0 6px 8px #0003)}
+.pr-day .pr-bomb-body{position:absolute;left:9px;bottom:1px;width:51px;height:51px;border-radius:50%;background:radial-gradient(circle at 25% 23%,#536a82,#27364c 40%,#101827 76%);border:3px solid #030c19;box-sizing:border-box}
+.pr-day .pr-bomb-shine{position:absolute;top:9px;left:10px;width:15px;height:7px;border-radius:60%;background:#e5faff;transform:rotate(-34deg)}
+.pr-day .pr-bomb-fuse{position:absolute;left:42px;top:0;width:22px;height:22px;border-top:5px solid #b7a486;border-right:5px solid #b7a486;border-radius:0 100% 0 0;transform:rotate(-23deg)}
+.pr-day .pr-bomb-spark{position:absolute;top:-9px;right:0;color:#ffbd4c;font-size:30px;text-shadow:0 0 12px #ff6b32}
+/* Aislamiento del modo claro frente a estilos heredados del panel. */
+:root[data-theme="light"] .pr-day .pr-avatar-name,:root[data-theme="light"] .pr-day .pr-avatar-points{color:#143c46}
+@media(max-width:850px){.pr-fullscreen .pr-game{grid-template-columns:1fr}.pr-fullscreen .pr-arena{height:clamp(390px,58vh,620px)}.pr-fullscreen .pr-top{flex-wrap:wrap}}
+@media(max-width:540px){.pr-page.pr-fullscreen{padding:14px 8px 30px}.pr-fullscreen .pr-board{padding:10px 6px}.pr-fullscreen .pr-arena{min-height:380px;height:440px}.pr-fullscreen .pr-word-hud{padding:5px 0 9px}.pr-fragment-badge{font-size:39px}.pr-hud-help{text-align:center;font-size:10px}.pr-entry-hud input{padding:11px;font-size:16px}.pr-bomb-anchor .pr-bomb{transform:scale(1.25)}.pr-fullscreen .pr-arena .pr-avatar{width:60px}.pr-fullscreen .pr-top h1{font-size:27px}}

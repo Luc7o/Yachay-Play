@@ -180,7 +180,7 @@ function HomeLogged({ onSelectGame, buildVersion, user, onLogout, onNavigate, se
                 )}
               </div>
             </div>
-            <img className="dh-mascot" src="/yachayplay-mascota.png" alt="Mascota dragón de YachayPlay" />
+            <img className="dh-mascot" src="/mascota-explica.png" alt="Mascota dragón de YachayPlay" />
           </section>
 
           <div className="dh-side">
@@ -322,25 +322,77 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
         </div>
       </header>
       <main>
-        {page === "inicio" && <section id="inicio" className="pa-intro">
-          <div className="pa-hero">
-            <div className="pa-hero-copy">
-              <span className="pa-pill">APRENDER JUGANDO</span>
-              <h1>Juegos educativos<br />para tus <em>clases</em><span className="pa-spark" aria-hidden="true">✳</span></h1>
-              <p>Crea actividades divertidas, organiza tus clases y motiva a tus estudiantes con juegos interactivos como Ludo, Crucigramas y más.</p>
-              <div className="pa-actions">
-                <button className="pa-primary" onClick={onRegister}>Crear cuenta gratis</button>
-                <a className="pa-secondary" href="#/como-funciona">Conocer YachayPlay</a>
+        {page === "inicio" && <>
+          <section id="inicio" className="pa-intro">
+            <div className="pa-hero">
+              <div className="pa-hero-copy">
+                <span className="pa-pill">APRENDER JUGANDO</span>
+                <h1>Juegos educativos<br />para tus <em>clases</em><span className="pa-spark" aria-hidden="true">✳</span></h1>
+                <p>Crea actividades divertidas, organiza tus clases y motiva a tus estudiantes con juegos interactivos como Ludo, Crucigramas y más.</p>
+                <div className="pa-actions">
+                  <button className="pa-primary" onClick={onRegister}>Crear cuenta gratis</button>
+                  <a className="pa-secondary" href="#/como-funciona">Conocer YachayPlay</a>
+                </div>
+                <button className="pa-join" onClick={onJoinWithCode}>¿Ya tienes un código de partida? <strong>Únete aquí →</strong></button>
               </div>
-              <button className="pa-join" onClick={onJoinWithCode}>¿Ya tienes un código de partida? <strong>Únete aquí →</strong></button>
+              <div className="pa-art">
+                <div className="pa-art-glow" />
+                <div className="pa-art-panel" aria-hidden="true"><span>Yachay<span>Play</span></span><div className="pa-art-tiles"><b>⚄</b><b>＃</b><b>?</b><b>★</b></div></div>
+                <img src="/mascota-explica.png" alt="Dragón andino, mascota de YachayPlay" />
+              </div>
             </div>
-            <div className="pa-art">
-              <div className="pa-art-glow" />
-              <div className="pa-art-panel" aria-hidden="true"><span>Yachay<span>Play</span></span><div className="pa-art-tiles"><b>⚄</b><b>＃</b><b>?</b><b>★</b></div></div>
-              <img src="/yachayplay-mascota.png" alt="Dragón andino, mascota de YachayPlay" />
+          </section>
+
+          <section className="pa-home-benefits" aria-label="Ventajas de YachayPlay">
+            <div className="pa-benefits">
+              {benefits.map((item, i) => <div className="pa-benefit" key={item.title}><span className={'pa-benefit-icon pa-benefit-' + i} aria-hidden="true">{item.icon}</span><div><strong>{item.title}</strong><p>{item.text}</p></div></div>)}
             </div>
-          </div>
-        </section>}
+          </section>
+
+          <section className="pa-games pa-home-games" aria-labelledby="pa-home-games-title">
+            <div className="pa-games-heading pa-home-heading">
+              <div><span className="pa-overline">DIVIÉRTETE APRENDIENDO</span><h2 id="pa-home-games-title">Descubre nuestros juegos</h2><p>Actividades para practicar, colaborar y aprender en equipo.</p></div>
+              <a href="#/juegos" className="pa-text-link">Ver todos los juegos →</a>
+            </div>
+            <div className="pa-game-grid">
+              {games.map((g, i) => <article className={'pa-game pa-game-' + i} key={g.id}>
+                <span className="pa-game-icon" aria-hidden="true">{g.icon}</span>{g.isNew && <span className="pa-new">NUEVO</span>}
+                <h3>{g.name}</h3><p>{g.description}</p>
+                {g.available ? <button onClick={() => onSelectGame(g.id)}>Ver juego</button> : <span className="pa-coming">Próximamente</span>}
+              </article>)}
+            </div>
+          </section>
+
+          <section className="pa-home-features" aria-labelledby="pa-home-features-title">
+            <div className="pa-home-heading pa-home-features-top">
+              <div><span className="pa-overline">PENSADO PARA TU AULA</span><h2 id="pa-home-features-title">Más que juegos, experiencias de aprendizaje</h2><p>Una forma cercana y dinámica de convertir la participación en aprendizaje.</p></div>
+              <a href="#/caracteristicas" className="pa-text-link">Explorar características →</a>
+            </div>
+            <div className="pa-home-feature-grid">
+              <article><span className="pa-home-feature-icon">🎯</span><h3>Aprende con propósito</h3><p>Refuerza conceptos con preguntas y desafíos durante cada partida.</p></article>
+              <article><span className="pa-home-feature-icon">🤝</span><h3>Participación en equipo</h3><p>Promueve la colaboración y la participación activa de los estudiantes.</p></article>
+              <article><span className="pa-home-feature-icon">📊</span><h3>Revisa los resultados</h3><p>Consulta las estadísticas disponibles de las actividades y partidas.</p></article>
+            </div>
+          </section>
+
+          <section className="pa-how pa-home-how" aria-labelledby="pa-home-how-title">
+            <span className="pa-overline">TRES PASOS PARA EMPEZAR</span>
+            <h2 id="pa-home-how-title">¿Cómo funciona?</h2>
+            <p className="pa-how-subtitle">Crea una actividad, comparte el código y aprende junto a tu clase.</p>
+            <div className="pa-steps">
+              {steps.map((step, i) => <React.Fragment key={step.title}>
+                {i > 0 && <span className="pa-step-arrow" aria-hidden="true">→</span>}
+                <div className="pa-step"><span className="pa-step-icon" aria-hidden="true">{step.icon}</span><div><h3>{i + 1}. {step.title}</h3><p>{step.text}</p></div></div>
+              </React.Fragment>)}
+            </div>
+            <a className="pa-text-link pa-home-how-link" href="#/como-funciona">Ver la guía completa →</a>
+          </section>
+
+          <section className="pa-home-cta" aria-labelledby="pa-home-cta-title">
+            <div><span className="pa-home-cta-label">TU PRÓXIMA CLASE PUEDE SER DIFERENTE</span><h2 id="pa-home-cta-title">¿Listo para aprender jugando?</h2><p>Explora YachayPlay y empieza a preparar tu próxima actividad educativa.</p></div>
+            <div className="pa-home-cta-actions"><button className="pa-primary" onClick={onRegister}>Crear mi cuenta</button><button className="pa-cta-join" onClick={onJoinWithCode}>Tengo un código de partida →</button></div>
+          </section>
+        </>}
         {page === "caracteristicas" && <section className="pa-subpage"><div className="pa-pagehead"><span className="pa-overline">NUESTRA PLATAFORMA</span><h1>Todo lo que necesitas para aprender jugando</h1><p>Actividades entretenidas, participación en equipo y resultados para mejorar cada clase.</p></div>          <div className="pa-benefits">
             {benefits.map((item, i) => <div className="pa-benefit" key={item.title}><span className={'pa-benefit-icon pa-benefit-' + i} aria-hidden="true">{item.icon}</span><div><strong>{item.title}</strong><p>{item.text}</p></div></div>)}
           </div>

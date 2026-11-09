@@ -130,3 +130,57 @@
 :root[data-theme="light"] .pr-day .pr-avatar-name,:root[data-theme="light"] .pr-day .pr-avatar-points{color:#143c46}
 @media(max-width:850px){.pr-fullscreen .pr-game{grid-template-columns:1fr}.pr-fullscreen .pr-arena{height:clamp(390px,58vh,620px)}.pr-fullscreen .pr-top{flex-wrap:wrap}}
 @media(max-width:540px){.pr-page.pr-fullscreen{padding:14px 8px 30px}.pr-fullscreen .pr-board{padding:10px 6px}.pr-fullscreen .pr-arena{min-height:380px;height:440px}.pr-fullscreen .pr-word-hud{padding:5px 0 9px}.pr-fragment-badge{font-size:39px}.pr-hud-help{text-align:center;font-size:10px}.pr-entry-hud input{padding:11px;font-size:16px}.pr-bomb-anchor .pr-bomb{transform:scale(1.25)}.pr-fullscreen .pr-arena .pr-avatar{width:60px}.pr-fullscreen .pr-top h1{font-size:27px}}
+
+
+/* v3 - HUD integrado dentro de la arena. Sin bloque que tape a los jugadores. */
+.pr-page.pr-fullscreen:has(.pr-game){padding:10px clamp(10px,1.5vw,26px) 22px;min-height:100dvh}
+.pr-fullscreen:has(.pr-game) .pr-top{margin-bottom:8px}
+.pr-fullscreen:has(.pr-game) .pr-top h1{font-size:clamp(22px,2.2vw,32px);margin:2px 0}
+.pr-fullscreen:has(.pr-game) .pr-top p{font-size:12px}
+.pr-fullscreen .pr-game{grid-template-columns:minmax(0,1fr) clamp(205px,19vw,300px);gap:10px}
+.pr-fullscreen .pr-board{min-width:0;padding:6px 4px 0;background:transparent!important;border:none!important;box-shadow:none!important}
+.pr-fullscreen .pr-gamehead{padding:3px clamp(8px,1vw,15px) 5px;margin:0}
+.pr-page.pr-night .pr-fullscreen .pr-board{background:transparent}
+.pr-fullscreen .pr-arena,
+.pr-fullscreen.pr-night .pr-arena{
+  position:relative;display:block;width:100%;max-width:none;
+  height:clamp(510px,76dvh,940px);min-height:510px;
+  border-radius:20px;margin:0 auto 8px;overflow:hidden;
+}
+.pr-fullscreen .pr-word-hud{
+  position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:min(360px,57%);box-sizing:border-box;padding:0;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  z-index:5;background:transparent!important;border:0!important;box-shadow:none!important;
+}
+.pr-fullscreen .pr-fragment-badge{font-size:clamp(29px,3.3vw,49px);padding:3px 17px;border-radius:9px;letter-spacing:.07em}
+.pr-fullscreen .pr-current-turn{font-size:10px;line-height:1.3}
+.pr-fullscreen .pr-entry.pr-entry-hud{margin:0;width:100%;max-width:340px;display:block}
+.pr-fullscreen .pr-entry-hud input{padding:9px 12px;border-radius:10px;font-size:clamp(15px,1.6vw,19px);box-sizing:border-box;display:block}
+.pr-fullscreen .pr-hud-help{font-size:10px;text-align:center;line-height:1.3;max-width:340px}
+.pr-fullscreen .pr-arena .pr-pointer{top:59%;left:50%}
+.pr-fullscreen .pr-arena .pr-bomb-anchor{top:59%;left:50%}
+.pr-fullscreen .pr-bomb-anchor .pr-time{font-size:clamp(32px,3.2vw,47px)}
+.pr-fullscreen .pr-bomb-anchor .pr-bomb{transform:scale(1.35);margin:15px auto 15px}
+.pr-fullscreen .pr-scores{padding:16px 12px}
+.pr-fullscreen .pr-alert{margin:4px 8px 4px;text-align:center}
+.pr-fullscreen .pr-skip{margin-bottom:4px}
+@media(max-width:850px){
+ .pr-fullscreen .pr-game{grid-template-columns:minmax(0,1fr)}
+ .pr-fullscreen .pr-arena,.pr-fullscreen.pr-night .pr-arena{height:clamp(490px,70dvh,770px);min-height:490px}
+ .pr-fullscreen .pr-scores{margin-top:6px}
+}
+@media(max-width:540px){
+ .pr-fullscreen .pr-word-hud{top:8px;width:min(250px,65%)}
+ .pr-fullscreen .pr-fragment-badge{font-size:30px;padding:2px 13px}
+ .pr-fullscreen .pr-current-turn{font-size:9px}
+ .pr-fullscreen .pr-entry-hud input{font-size:15px;padding:8px 6px}
+ .pr-fullscreen .pr-hud-help{font-size:9px}
+ .pr-fullscreen .pr-arena,.pr-fullscreen.pr-night .pr-arena{min-height:475px;height:65dvh}
+ .pr-fullscreen .pr-arena .pr-avatar{width:75px}
+ .pr-fullscreen .pr-arena .pr-avatar-bubble{width:39px;height:39px;font-size:13px}
+ .pr-fullscreen .pr-arena .pr-turn-tag{top:-21px;font-size:8px;padding:3px 5px}
+ .pr-fullscreen .pr-bomb-anchor .pr-bomb{transform:scale(1.1)}
+ .pr-fullscreen .pr-bomb-anchor .pr-time{font-size:34px}
+ .pr-fullscreen .pr-pointer-line{width:min(19vw,105px)}
+}

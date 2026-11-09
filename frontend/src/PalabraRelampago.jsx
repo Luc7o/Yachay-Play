@@ -5,7 +5,7 @@ import './palabraRelampago.css';
 const COLORS = ['#17c7b5','#4388ff','#b18aff','#ffc15d','#f383a6','#6ac9de','#a4d75c','#e1a7ff'];
 const DEFAULT_NAMES = { team: 'Equipo Menta, Equipo Azul, Equipo Violeta', individual: 'Andrea, Mateo, Lucía, Diego' };
 const parseNames = value => [...new Set(value.split(/[,\n]/).map(x => x.trim()).filter(Boolean))].slice(0, 8);
-const POSITIONS = (i, length) => {const angle = -Math.PI/2 + i * 2*Math.PI/length; return { left: `${50+40*Math.cos(angle)}%`, top: `${50+40*Math.sin(angle)}%`,angle: angle*180/Math.PI };};
+const POSITIONS = (i, length) => {const angle = -Math.PI/2 + i * 2*Math.PI/length; return { left: `${50+38*Math.cos(angle)}%`, top: `${59+25*Math.sin(angle)}%`,angle: angle*180/Math.PI };};
 
 export function PalabraRelampago({ goHome, frame }) {
   const [mode, setMode] = useState('team');
@@ -124,6 +124,7 @@ export function PalabraRelampago({ goHome, frame }) {
       {message&&<div className="pr-alert" role="alert">{message}</div>}<button className="pr-primary" onClick={start}>Entrar a la arena →</button>
     </section>}
     {phase==='playing'&&<div className="pr-game"><section className="pr-panel pr-board"><div className="pr-gamehead"><span>Ronda {round} de {maxRounds}</span><strong>Turno: {active?.name}</strong></div>
+      <div className="pr-arena" aria-label="Arena de jugadores y turnos">
       <div className="pr-word-hud" aria-label="Letras y respuesta del turno">
         <div className="pr-fragment-badge">{fragment.toUpperCase()}</div>
         <div className="pr-current-turn">{active?.name} · TU TURNO</div>
@@ -132,7 +133,6 @@ export function PalabraRelampago({ goHome, frame }) {
         </form>
         <div className="pr-hud-help">Las letras pueden aparecer en cualquier parte de la palabra · Enter para enviar</div>
       </div>
-      <div className="pr-arena" aria-label="Arena de jugadores y turnos">
         {players.map((p,i)=>{const pos=POSITIONS(i,players.length);return <div key={p.id} className={'pr-avatar '+(i===turn?'pr-active':'')+(p.lives===0?' pr-out':'')} style={{left:pos.left,top:pos.top,'--player-color':p.color}}><div className="pr-avatar-bubble">{p.name.slice(0,2).toUpperCase()}</div><span className="pr-avatar-name">{p.name}</span><span className="pr-avatar-lives">{'♥'.repeat(p.lives)}{'♡'.repeat(3-p.lives)}</span><span className="pr-avatar-points">{p.score} pts</span>{i===turn&&<span className="pr-turn-tag">TU TURNO</span>}</div>})}
         {active&&<div className="pr-pointer" style={{'--pointer-angle':`${-90+turn*(360/players.length)}deg`}} aria-hidden="true"><div className="pr-pointer-line"><span>➤</span></div></div>}
         <div className="pr-bomb-anchor" aria-label={`${remain} segundos restantes`}>

@@ -77,10 +77,29 @@
 .pa-coming{background:transparent;border:1px solid #8dccbf;color:#29656b}
 .pa-bottom-join{max-width:1320px;margin:28px auto 0;display:flex;align-items:center;gap:15px;color:#315762;font-weight:700}
 .pa-bottom-join button{border:0;background:transparent;color:#008577;font-weight:850}
-.pa-footer{background:#f8fffd;border-top:1px solid #def0eb;padding:25px 32px;display:flex;align-items:center;justify-content:space-between;gap:15px;color:#6a868a;font-size:12px}
+/* Footer profesional Aula Fresca · Opción 2 */
+.public-aula .pa-footer{background:#103b45;color:#d0e5e5;border-top:1px solid #24535c;padding:60px 28px 0;font-size:14px}
+.pa-footer-inner{max-width:1320px;margin:0 auto}
+.pa-footer-main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr);column-gap:clamp(25px,6vw,105px);row-gap:34px;padding-bottom:48px}
+.pa-footer-brand{max-width:340px}
+.pa-footer-logo{color:#fff!important;font-size:clamp(25px,2.1vw,32px)!important;letter-spacing:-.045em;font-weight:900!important;line-height:1.2;display:inline-flex;align-items:baseline}
+.pa-footer-logo>span:first-child,.pa-footer-spark{color:#51e2c4}
+.pa-footer-spark{font-size:.66em;margin-left:3px;vertical-align:top;align-self:flex-start}
+.pa-footer-brand p{color:#d0e5e5;font-size:14px;line-height:1.75;margin:19px 0 16px}
+.pa-footer-motto{font-size:12px;font-weight:700;color:#7fead4}
+.pa-footer-links{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.pa-footer-links h2{font-size:16px;line-height:1.4;color:#fff;font-weight:800;margin:3px 0 9px}
+.pa-footer-links a,.pa-footer-links button{color:#d0e5e5!important;background:none;border:0;padding:0;line-height:1.5;font-size:14px!important;font-weight:500!important;text-align:left;text-decoration:none}
+.pa-footer-links a:hover,.pa-footer-links button:hover{color:#7ff5de!important;text-decoration:underline;text-underline-offset:4px}
+.pa-footer-bottom{border-top:1px solid #426870;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:23px 0 27px;font-size:12px;color:#c4dfdf}
+.pa-footer-bottom-right{display:flex;align-items:center;gap:22px;color:#51e2c4;font-weight:700}
+.pa-footer-build{color:#9ab8bd;font-size:11px;font-weight:400}
+@media(max-width:760px){.public-aula .pa-footer{padding:42px 22px 0}.pa-footer-main{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:34px 25px}.pa-footer-brand{grid-column:1/-1;max-width:480px}.pa-footer-bottom{align-items:flex-start;flex-direction:column;gap:9px}.pa-footer-bottom-right{justify-content:space-between;width:100%}}
+@media(max-width:420px){.pa-footer-main{grid-template-columns:1fr 1fr;gap:30px 14px}.pa-footer-links a,.pa-footer-links button{font-size:13px!important}.pa-footer-links h2{font-size:15px}.pa-footer-bottom-right{flex-wrap:wrap;gap:8px}}
+
 @media(max-width:1100px){.pa-header-inner{gap:12px;padding:12px 18px}.pa-logo img{width:150px}.pa-nav a{padding:10px}.pa-benefits{grid-template-columns:repeat(2,1fr);gap:20px}.pa-benefit:nth-child(2){border:0}.pa-game-grid{grid-template-columns:repeat(2,1fr)}.pa-art{height:370px}}
 @media(max-width:760px){.pa-header-inner{flex-wrap:wrap}.pa-nav{order:3;width:100%;overflow:auto;gap:3px;padding-bottom:2px}.pa-nav a{font-size:12px}.pa-auth{margin-left:auto}.pa-login,.pa-signup{padding:9px 12px;font-size:12px!important}.pa-hero{grid-template-columns:1fr}.pa-hero-copy{padding:16px 0 0}.pa-art{height:310px}.pa-art>img{left:5%;max-width:57%}.pa-benefits{grid-template-columns:1fr 1fr}.pa-benefit{border:0;padding:0 6px}.pa-steps{flex-direction:column}.pa-step{width:100%;min-height:98px}.pa-step-arrow{transform:rotate(90deg)}.pa-how{padding:45px 20px}}
-@media(max-width:480px){.pa-header-inner{padding:10px 13px}.pa-logo img{width:130px}.pa-intro{padding:22px 17px}.pa-hero h1{font-size:39px}.pa-benefits{grid-template-columns:1fr;gap:18px}.pa-game-grid{grid-template-columns:1fr}.pa-game{min-height:230px}.pa-actions>*{width:100%}.pa-games{padding:45px 17px}.pa-art{height:260px}.pa-footer{flex-wrap:wrap}}
+@media(max-width:480px){.pa-header-inner{padding:10px 13px}.pa-logo img{width:130px}.pa-intro{padding:22px 17px}.pa-hero h1{font-size:39px}.pa-benefits{grid-template-columns:1fr;gap:18px}.pa-game-grid{grid-template-columns:1fr}.pa-game{min-height:230px}.pa-actions>*{width:100%}.pa-games{padding:45px 17px}.pa-art{height:260px}}
 
 /* Vistas públicas independientes */
 .pa-subpage{min-height:calc(100vh - 165px);padding:65px 28px 90px;background:radial-gradient(ellipse at 95% 5%,#ccf7ec,transparent 40%),#f2fbf8}

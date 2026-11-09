@@ -891,3 +891,14 @@ html{scroll-behavior:smooth}
   .ai-fab{left:14px;right:auto}
   .ai-panel{left:14px;right:auto;width:calc(100vw - 28px)}
 }
+
+/* Unificación Aula Fresca: pantallas de juego, acceso y herramientas heredadas. */
+.ref-topbar{background:#f8fffe!important;border-bottom:1px solid #d4eae7!important;color:#123b48!important;box-shadow:0 2px 12px #13584a0b!important;min-height:76px}
+.ref-topbar .ref-brand p,.ref-topbar .brand-subtitle{color:#416773!important}
+.ref-topbar .ref-controls{color:#123b48}
+.ref-topbar .ref-yellow{background:#009f91!important;color:white!important}
+.ref-nav button.active{border-bottom-color:#009f91!important}
+.join-page{background-color:#f0faf8!important;background-image:radial-gradient(#cbeee7 1px,transparent 1px)!important}
+.join-card{border-color:#d2eae4!important;box-shadow:0 12px 28px #116e6210!important}
+.join-guide>p{background:#0d535b!important}
+:root{--orange:#009f91;--orange-soft:#e0f8f2}

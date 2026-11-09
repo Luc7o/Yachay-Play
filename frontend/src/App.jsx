@@ -4,6 +4,7 @@ import { socket, reconnectSocket } from "./socket";
 import { AuthScreen } from "./AuthScreen";
 import { GameCatalog } from "./GameCatalog";
 import { AppShell } from "./AppShell";
+import { InfoPage } from "./InfoPages";
 import { CrosswordGame } from "./Crossword";
 import { StatsPage } from "./Stats";
 import { QuestionBankPage } from "./QuestionBank";
@@ -335,7 +336,7 @@ function App() {
   if (!authReady) {
     return (
       <div className="app splash">
-        <img src="/logo.png" alt="YachayPlay" />
+        <img src="/logo-aula.png" alt="YachayPlay" />
       </div>
     );
   }
@@ -346,7 +347,7 @@ function App() {
   const navegar = (id) => {
     clearGameSession();
     setCatalogGame(null);
-    if (id === "stats" || id === "questions" || id === "profile") return setToolPage(id);
+    if (["stats", "questions", "profile", "planes", "contacto"].includes(id)) return setToolPage(id);
     setToolPage(null);
     if (id === "join") return chooseMode("student");
     setSeccion(id === "juegos" || id === "herramientas" ? id : "inicio");
@@ -377,6 +378,9 @@ function App() {
       );
     }
     if (toolPage && user) {
+      if (toolPage === "planes" || toolPage === "contacto") {
+        return enMenu(toolPage, <InfoPage page={toolPage} onNavigate={navegar} />);
+      }
       const volver = () => navegar("home");
       const conMenu = (activo, pagina) => enMenu(activo, pagina);
       if (toolPage === "profile") {

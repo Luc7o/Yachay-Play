@@ -146,7 +146,7 @@ export function LobbyScreen({ gameName, gameCode, teams, activeTeams = TURN_ORDE
             <span className="eyebrow">ASÍ LO VERÁN EN EL CELULAR</span>
             <div className="phone-preview">
               <div className="phone-screen">
-                <div className="phone-brand"><img className="phone-logo" src="/logo.png" alt="YachayPlay" /></div>
+                <div className="phone-brand"><img className="phone-logo" src="/logo-aula.png" alt="YachayPlay" /></div>
                 <div className="phone-code-label">Código</div>
                 <div className="phone-code">{gameCode}</div>
                 <div className="phone-mini-field">Nombre del alumno</div>

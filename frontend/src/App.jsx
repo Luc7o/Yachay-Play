@@ -6,6 +6,7 @@ import { GameCatalog } from "./GameCatalog";
 import { AppShell } from "./AppShell";
 import { InfoPage } from "./InfoPages";
 import { CrosswordGame } from "./Crossword";
+import { PalabraRelampago } from "./PalabraRelampago";
 import { StatsPage } from "./Stats";
 import { QuestionBankPage } from "./QuestionBank";
 import { ProfilePage } from "./Profile";
@@ -409,6 +410,7 @@ function App() {
     if (catalogGame === "cronometro") return <Cronometro goHome={changeDevice} />;
     if (catalogGame === "ruleta") return <Ruleta goHome={changeDevice} />;
     if (catalogGame === "pizarra") return <Pizarra goHome={changeDevice} />;
+    if (catalogGame === "palabra") return <PalabraRelampago goHome={() => setCatalogGame(null)} frame={(pagina) => enMenu("juegos", pagina, true)} />;
     if (catalogGame === "crucigrama") {
       return (
         <CrosswordGame

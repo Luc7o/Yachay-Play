@@ -35,6 +35,7 @@ export const HERO = {
 export const GAMES = [
   { id: "ludo", name: "Ludo Educativo", desc: "Tablero por equipos: responde preguntas, lanza el dado y llega primero a la meta.", available: true, icon: "ludo", bg: "linear-gradient(145deg,#0A4C8F,#023A73)" },
   { id: "crucigrama", name: "Crucigrama Relámpago", desc: "Cada estudiante resuelve su crucigrama contra el reloj y puede sabotear a sus rivales.", tag: "Nuevo", available: true, icon: "crucigrama", bg: "linear-gradient(145deg,#023A73,#0A4C8F)" },
+  { id: "palabra", name: "Palabra Relámpago", desc: "Forma palabras con las letras indicadas antes de que se acabe el tiempo. Compite por equipos.", tag: "Nuevo", available: true, icon: "⚡", bg: "linear-gradient(145deg,#00A996,#087A77)" },
   { id: "quiz", name: "Quiz", desc: "Preguntas de opción múltiple para toda la clase.", available: false, icon: "❓", bg: "linear-gradient(145deg,#00B39D,#087A77)" },
   { id: "sino", name: "Sí o No", desc: "Afirmaciones que se responden con verdadero o falso.", available: false, icon: "✅", bg: "linear-gradient(145deg,#0A4C8F,#2B6AA8)" },
   { id: "adivinanza", name: "Adivinanza", desc: "Pistas que los estudiantes deben descifrar.", available: false, icon: "🔮", bg: "linear-gradient(145deg,#F16503,#ff9a4d)" },
@@ -133,6 +134,7 @@ function GamesSection({ onSelectGame, esEstudiante, showTools }) {
 const CATALOGO = [
   { id: "ludo", glyph: "⚄", name: "Ludo Educativo", desc: "Tablero por equipos: preguntas, dados y llegar a la meta.", ok: true },
   { id: "crucigrama", glyph: "▦", name: "Crucigrama Relámpago", desc: "Resuelve el crucigrama contra el reloj y compite con tus rivales.", ok: true },
+  { id: "palabra", glyph: "⚡", name: "Palabra Relámpago", desc: "Completa letras, compite por puntos y gana antes de que se acabe el tiempo.", ok: true },
   { id: "quiz", glyph: "❓", name: "Quiz", desc: "Preguntas de opción múltiple." },
   { id: "sino", glyph: "✓", name: "Sí o No", desc: "Afirmaciones de verdadero o falso." },
   { id: "adivinanza", glyph: "✦", name: "Adivinanza", desc: "Pistas para descifrar conceptos." },
@@ -304,6 +306,7 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
   const games = [
     { id: "ludo", icon: "⚄", name: "Ludo Educativo", description: "Equipos, dado y preguntas: gana quien llega primero a la meta.", available: true },
     { id: "crucigrama", icon: "＃", name: "Crucigrama Relámpago", description: "Contra el reloj, con sabotajes entre rivales.", available: true, isNew: true },
+    { id: "palabra", icon: "⚡", name: "Palabra Relámpago", description: "Crea palabras en segundos y gana puntos por equipos.", available: true, isNew: true },
     { id: "quiz", icon: "?", name: "Quiz", description: "Responde preguntas y suma puntos.", available: false },
     { id: "sino", icon: "✓", name: "Sí o No", description: "Decide si cada afirmación es verdadera o falsa.", available: false },
   ];
@@ -344,7 +347,7 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
               <a href="#/juegos" className="pa-text-link">Ver todos los juegos →</a>
             </div>
             <div className="pa-game-grid">
-              {games.map((g, i) => <article className={'pa-game pa-game-' + i} key={g.id}>
+              {games.map((g, i) => <article className={'pa-game pa-game-' + (g.id === 'palabra' ? 'word' : g.available ? i : 'soon')} key={g.id}>
                 <span className="pa-game-icon" aria-hidden="true">{g.icon}</span>{g.isNew && <span className="pa-new">NUEVO</span>}
                 <h3>{g.name}</h3><p>{g.description}</p>
                 {g.available ? <button onClick={() => onSelectGame(g.id)}>Ver juego</button> : <span className="pa-coming">Próximamente</span>}
@@ -400,7 +403,7 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
         {page === "juegos" && <section id="juegos" className="pa-games">
           <div className="pa-games-heading"><div><span className="pa-overline">APRENDER ES JUGAR</span><h2>Elige un juego</h2><p>Descubre las actividades disponibles para tus clases.</p></div></div>
           <div className="pa-game-grid">
-            {games.map((g, i) => <article className={'pa-game pa-game-' + i} key={g.id}>
+            {games.map((g, i) => <article className={'pa-game pa-game-' + (g.id === 'palabra' ? 'word' : g.available ? i : 'soon')} key={g.id}>
               <span className="pa-game-icon" aria-hidden="true">{g.icon}</span>{g.isNew && <span className="pa-new">NUEVO</span>}
               <h3>{g.name}</h3><p>{g.description}</p>
               {g.available ? <button onClick={() => onSelectGame(g.id)}>Ver juego</button> : <span className="pa-coming">Próximamente</span>}

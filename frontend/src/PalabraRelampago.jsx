@@ -5,7 +5,7 @@ import './palabraRelampago.css';
 const COLORS = ['#17c7b5','#4388ff','#b18aff','#ffc15d','#f383a6','#6ac9de','#a4d75c','#e1a7ff'];
 const DEFAULT_NAMES = { team: 'Equipo Menta, Equipo Azul, Equipo Violeta', individual: 'Andrea, Mateo, Lucía, Diego' };
 const parseNames = value => [...new Set(value.split(/[,\n]/).map(x => x.trim()).filter(Boolean))].slice(0, 8);
-const POSITIONS = (i, length) => {const angle = -Math.PI/2 + i * 2*Math.PI/length; return { left: `${50+38*Math.cos(angle)}%`, top: `${59+25*Math.sin(angle)}%`,angle: angle*180/Math.PI };};
+const POSITIONS = (i, length) => {const angle = -Math.PI/2 + i * 2*Math.PI/length; return { left: `${50+40*Math.cos(angle)}%`, top: `${50+33*Math.sin(angle)}%` };};
 
 export function PalabraRelampago({ goHome, frame }) {
   const [mode, setMode] = useState('team');
@@ -123,21 +123,25 @@ export function PalabraRelampago({ goHome, frame }) {
       {showVocabulary&&<div className="pr-vocabulary"><p>Agrega palabras específicas para tu clase o importa un <strong>.txt UTF-8</strong> (una palabra por línea o separadas por espacios). Se guardan en este navegador. Revisa previamente los términos: se consideran válidos automáticamente.</p><textarea rows={3} value={vocabularyText} onChange={e=>setVocabularyText(e.target.value)} placeholder="biotecnología&#10;fotosíntesis&#10;ecosistema"/><div className="pr-vocabulary-actions"><button className="pr-skip" type="button" onClick={()=>addWords(vocabularyText)} disabled={!vocabularyText.trim()}>Añadir palabras</button><label className="pr-import">Importar .txt<input type="file" accept=".txt,text/plain" onChange={e=>{importWords(e.target.files?.[0]);e.target.value='';}}/></label></div>{vocabularyStatus&&<p role="status">{vocabularyStatus}</p>}</div>}
       {message&&<div className="pr-alert" role="alert">{message}</div>}<button className="pr-primary" onClick={start}>Entrar a la arena →</button>
     </section>}
-    {phase==='playing'&&<div className="pr-game"><section className="pr-panel pr-board"><div className="pr-gamehead"><span>Ronda {round} de {maxRounds}</span><strong>Turno: {active?.name}</strong></div>
-      <div className="pr-arena" aria-label="Arena de jugadores y turnos">
-      <div className="pr-word-hud" aria-label="Letras y respuesta del turno">
-        <div className="pr-fragment-badge">{fragment.toUpperCase()}</div>
-        <div className="pr-current-turn">{active?.name} · TU TURNO</div>
-        <form onSubmit={submit} className="pr-entry pr-entry-hud">
-          <input ref={inputRef} value={answer} disabled={pending} onChange={e=>setAnswer(e.target.value)} autoComplete="off" autoCapitalize="off" spellCheck="false" placeholder="Escribe aquí y pulsa Enter" aria-label="Escribe tu palabra y pulsa Enter para enviarla" maxLength={35}/>
-        </form>
-        <div className="pr-hud-help">Las letras pueden aparecer en cualquier parte de la palabra · Enter para enviar</div>
-      </div>
-        {players.map((p,i)=>{const pos=POSITIONS(i,players.length);return <div key={p.id} className={'pr-avatar '+(i===turn?'pr-active':'')+(p.lives===0?' pr-out':'')} style={{left:pos.left,top:pos.top,'--player-color':p.color}}><div className="pr-avatar-bubble">{p.name.slice(0,2).toUpperCase()}</div><span className="pr-avatar-name">{p.name}</span><span className="pr-avatar-lives">{'♥'.repeat(p.lives)}{'♡'.repeat(3-p.lives)}</span><span className="pr-avatar-points">{p.score} pts</span>{i===turn&&<span className="pr-turn-tag">TU TURNO</span>}</div>})}
-        {active&&<div className="pr-pointer" style={{'--pointer-angle':`${-90+turn*(360/players.length)}deg`}} aria-hidden="true"><div className="pr-pointer-line"><span>➤</span></div></div>}
-        <div className="pr-bomb-anchor" aria-label={`${remain} segundos restantes`}>
-          <div className={'pr-time '+(remain<=5?'pr-time-low':'')}>{remain}<span>SEGUNDOS</span></div>
-          <div className="pr-bomb" aria-hidden="true"><span className="pr-bomb-fuse"/><span className="pr-bomb-body"><span className="pr-bomb-shine"/></span><span className="pr-bomb-spark">✦</span></div>
+    {phase==='playing'&&<div className="pr-game pr-approved-game"><section className="pr-panel pr-board"><div className="pr-gamehead"><span>Ronda {round} de {maxRounds}</span><strong>Turno: {active?.name}</strong></div>
+      <div className="pr-arena pr-approved-arena" aria-label="Arena de jugadores y turnos">
+        <div className="pr-arena-layout">
+          <div className="pr-prompt" aria-label="Letras y respuesta del turno">
+            <div className="pr-fragment-badge">{fragment.toUpperCase()}</div>
+            <div className="pr-current-turn">{active?.name} · TU TURNO</div>
+            <form onSubmit={submit} className="pr-entry pr-entry-hud">
+              <input ref={inputRef} value={answer} disabled={pending} onChange={e=>setAnswer(e.target.value)} autoComplete="off" autoCapitalize="off" spellCheck="false" placeholder="Escribe tu palabra..." aria-label="Escribe tu palabra y pulsa Enter para enviarla" maxLength={35}/>
+            </form>
+            <div className="pr-hud-help">Pulsa Enter para enviar · Letras en cualquier parte</div>
+          </div>
+          <div className="pr-arena-stage">
+            {players.map((p,i)=>{const pos=POSITIONS(i,players.length);return <div key={p.id} className={'pr-avatar '+(i===turn?'pr-active':'')+(p.lives===0?' pr-out':'')} style={{left:pos.left,top:pos.top,'--player-color':p.color}}><div className="pr-avatar-bubble">{p.name.slice(0,2).toUpperCase()}</div><span className="pr-avatar-name">{p.name}</span><span className="pr-avatar-lives">{'♥'.repeat(p.lives)}{'♡'.repeat(3-p.lives)}</span><span className="pr-avatar-points">{p.score} pts</span>{i===turn&&<span className="pr-turn-tag">TU TURNO</span>}</div>})}
+            {active&&<div className="pr-pointer" style={{'--pointer-angle':`${-90+turn*(360/players.length)}deg`}} aria-hidden="true"><div className="pr-pointer-line"><span>➤</span></div></div>}
+            <div className="pr-bomb-anchor" aria-label={`${remain} segundos restantes`}>
+              <div className={'pr-time '+(remain<=5?'pr-time-low':'')}>{remain}<span>SEGUNDOS</span></div>
+              <div className="pr-bomb" aria-hidden="true"><span className="pr-bomb-fuse"/><span className="pr-bomb-body"><span className="pr-bomb-shine"/></span><span className="pr-bomb-spark">✦</span></div>
+            </div>
+          </div>
         </div>
       </div>
       <div className="pr-alert" role="status" aria-live="polite">{message||'La palabra debe contener las letras indicadas y no haberse usado antes.'}</div><button className="pr-skip" disabled={pending} onClick={()=>finishTurn(0,'','Turno pasado · −1 vida')}>Pasar turno (−1 vida)</button>

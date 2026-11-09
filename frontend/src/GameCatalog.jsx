@@ -422,7 +422,35 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
         {page === "planes" && <section className="pa-subpage"><div className="pa-pagehead"><span className="pa-overline">PLANES Y ACCESO</span><h1>Una forma sencilla de llevar el juego al aula</h1><p>Conoce las opciones disponibles actualmente para empezar con YachayPlay.</p></div><div className="pa-plan-grid"><article className="pa-plan"><span className="pa-overline">PARA EMPEZAR</span><h2>Explora YachayPlay</h2><p>Regístrate, conoce los juegos educativos y descubre las herramientas disponibles.</p><ul><li>Cuenta para docente o estudiante</li><li>Catálogo de actividades</li><li>Ingreso a partidas mediante código</li></ul><button className="pa-primary" onClick={onRegister}>Crear cuenta</button></article><article className="pa-plan"><span className="pa-overline">INFORMACIÓN</span><h2>Planes adicionales</h2><p>Por ahora no hay precios ni planes de pago confirmados en esta página. Evitamos mostrar tarifas o beneficios no anunciados.</p><a className="pa-secondary" href="#/contacto">Ver contacto</a></article></div></section>}
         {page === "contacto" && <section className="pa-subpage"><div className="pa-pagehead"><span className="pa-overline">ESTAMOS AQUÍ</span><h1>¿Necesitas ayuda con YachayPlay?</h1><p>Consulta las preguntas frecuentes o accede a tu cuenta para comenzar.</p></div><div className="pa-feature-grid"><article><strong>¿Cómo puedo jugar?</strong><p>Tu docente te facilita un código de seis dígitos. Ingresa el código y elige un equipo.</p><button className="pa-primary" onClick={onJoinWithCode}>Unirme con código</button></article><article><strong>¿Cómo creo una actividad?</strong><p>Crea una cuenta como docente, elige un juego y prepara tu partida.</p><button className="pa-primary" onClick={onRegister}>Crear cuenta</button></article><article><strong>¿Dónde puedo consultar más?</strong><p>Revisa las características y la explicación del funcionamiento. No se ha configurado todavía un correo de soporte oficial.</p><a className="pa-secondary" href="#/como-funciona">Cómo funciona</a></article></div></section>}
       </main>
-      <footer className="pa-footer"><span>YachayPlay · Aprende jugando</span><span>Build {buildVersion}</span></footer>
+      <footer className="pa-footer" aria-label="Pie de página de YachayPlay">
+        <div className="pa-footer-inner">
+          <div className="pa-footer-main">
+            <div className="pa-footer-brand">
+              <a href="#/inicio" className="pa-footer-logo" aria-label="YachayPlay, ir al inicio">Yachay<span>Play</span><span className="pa-footer-spark" aria-hidden="true">✳</span></a>
+              <p>Transformamos el aprendizaje en una experiencia divertida e interactiva.</p>
+              <span className="pa-footer-motto">Aprende jugando, crece compartiendo.</span>
+            </div>
+            <nav className="pa-footer-links" aria-label="Explorar YachayPlay">
+              <h2>Explorar</h2>
+              <a href="#/inicio">Inicio</a>
+              <a href="#/juegos">Juegos</a>
+              <a href="#/caracteristicas">Características</a>
+              <a href="#/como-funciona">Cómo funciona</a>
+            </nav>
+            <nav className="pa-footer-links" aria-label="Información y acceso">
+              <h2>Información</h2>
+              <a href="#/planes">Planes</a>
+              <a href="#/contacto">Contacto</a>
+              <button type="button" onClick={onLogin}>Iniciar sesión</button>
+              <button type="button" onClick={onRegister}>Crear cuenta</button>
+            </nav>
+          </div>
+          <div className="pa-footer-bottom">
+            <span>© {new Date().getFullYear()} YachayPlay. Todos los derechos reservados.</span>
+            <span className="pa-footer-bottom-right"><span>Aprende jugando ✦</span>{buildVersion && <span className="pa-footer-build">Build {buildVersion}</span>}</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

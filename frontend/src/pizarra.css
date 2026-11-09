@@ -111,7 +111,7 @@
 .pz-vivo-on .pz-estado-txt{color:#fff}
 .pz-aviso{
   position:absolute; z-index:4; left:50%; transform:translateX(-50%); bottom:128px; max-width:calc(100% - 24px);
-  background:#fff; color:#0F2A4A; border:2px solid var(--orange); border-radius:12px; padding:9px 16px;
+  background:#fff; color:#0B2A31; border:2px solid var(--orange); border-radius:12px; padding:9px 16px;
   font-weight:800; font-size:.9rem; box-shadow:0 8px 24px rgba(15,42,74,.28); pointer-events:none; animation:pz-sube .22s ease-out;
 }
 @keyframes pz-sube{from{opacity:0; transform:translate(-50%,8px)} to{opacity:1; transform:translate(-50%,0)}}

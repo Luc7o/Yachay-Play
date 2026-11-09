@@ -128,52 +128,153 @@ function GamesSection({ onSelectGame, esEstudiante, showTools }) {
   );
 }
 
-// Inicio con sesión iniciada: menú lateral + saludo + tarjetas
-function HomeLogged({ onSelectGame, onJoinWithCode, buildVersion, user, onLogout, onOpenStats, onOpenQuestions, onOpenProfile }) {
+// ---- Diseño "Aula Fresca": textos y símbolos de las tarjetas del inicio ----
+const CATALOGO = [
+  { id: "ludo", glyph: "⚄", name: "Ludo Educativo", desc: "Tablero por equipos: preguntas, dados y llegar a la meta.", ok: true },
+  { id: "crucigrama", glyph: "▦", name: "Crucigrama Relámpago", desc: "Resuelve el crucigrama contra el reloj y compite con tus rivales.", ok: true },
+  { id: "quiz", glyph: "❓", name: "Quiz", desc: "Preguntas de opción múltiple." },
+  { id: "sino", glyph: "✓", name: "Sí o No", desc: "Afirmaciones de verdadero o falso." },
+  { id: "adivinanza", glyph: "✦", name: "Adivinanza", desc: "Pistas para descifrar conceptos." },
+  { id: "relacionar", glyph: "▤", name: "Relacionar grupos", desc: "Une conceptos con categorías." },
+  { id: "sopa", glyph: "🔤", name: "Sopa de letras", desc: "Encuentra palabras escondidas." },
+  { id: "memoria", glyph: "◈", name: "Memoria", desc: "Encuentra parejas de cartas." },
+  { id: "ordenar", glyph: "☷", name: "Ordenar frases", desc: "Ordena palabras para formar frases." },
+];
+const HERRAMIENTAS = [
+  { id: "cronometro", glyph: "⏱", name: "Cronómetro de actividad", desc: "Controla la duración de ejercicios y dinámicas.", boton: "Abrir cronómetro", color: "" },
+  { id: "ruleta", glyph: "◉", name: "Ruleta de sorteos", desc: "Elige estudiantes o equipos al azar.", boton: "Abrir ruleta", color: "blue" },
+  { id: "pizarra", glyph: "✎", name: "Pizarra digital", desc: "Explica ideas y conceptos visualmente.", boton: "Abrir pizarra", color: "yellow" },
+];
+
+// Inicio con sesión iniciada. `section` (inicio | juegos | herramientas) la maneja App.jsx
+// para que el menú de arriba funcione igual desde cualquier pantalla.
+function HomeLogged({ onSelectGame, buildVersion, user, onLogout, onNavigate, section = "inicio" }) {
   const esDocente = user.role === "docente";
   const primerNombre = user.name.split(" ")[0];
+  const activo = section === "inicio" ? "home" : section;
 
-  const irA = (id) => {
-    if (id === "stats") return onOpenStats();
-    if (id === "questions") return onOpenQuestions();
-    if (id === "profile") return onOpenProfile();
-    if (id === "join") return onJoinWithCode();
-    const el = id === "home" ? null : document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    else window.scrollTo({ top: 0, behavior: "smooth" });
+  const vistas = {
+    inicio: (
+      <>
+        <div className="dh-grid">
+          <section className="dh-hero">
+            <div className="dh-text">
+              <div className="dh-eyebrow">Hola, {primerNombre}</div>
+              <h1>{esDocente ? "Que tus estudiantes aprendan jugando." : "¿Listo para jugar?"}</h1>
+              <p>
+                {esDocente
+                  ? "Crea una partida, proyecta el código y se unen desde su celular."
+                  : "Ingresa el código que muestra tu docente y compite con tu equipo."}
+              </p>
+              <div className="dh-actions">
+                {esDocente ? (
+                  <>
+                    <button className="dh-white" onClick={() => onSelectGame("ludo")}>Crear partida de Ludo</button>
+                    <button className="dh-outline" onClick={() => onSelectGame("crucigrama")}>Crear crucigrama</button>
+                  </>
+                ) : (
+                  <>
+                    <button className="dh-white" onClick={() => onNavigate("join")}>Unirme con código</button>
+                    <button className="dh-outline" onClick={() => onNavigate("stats")}>Mis resultados</button>
+                  </>
+                )}
+              </div>
+            </div>
+            <img className="dh-mascot" src="/yachayplay-mascota.png" alt="Mascota dragón de YachayPlay" />
+          </section>
+
+          <div className="dh-side">
+            <button className="dh-info" onClick={() => onNavigate("stats")}>
+              <span className="dh-ico">▥</span>
+              <h3>{esDocente ? "Estadísticas" : "Mis resultados"}</h3>
+              <p>{esDocente ? "Mira quién ganó y qué preguntas cuestan más." : "Revisa cómo te ha ido en tus partidas."}</p>
+            </button>
+            <button className="dh-info" onClick={() => onNavigate(esDocente ? "questions" : "profile")}>
+              <span className="dh-ico yellow">▣</span>
+              <h3>{esDocente ? "Mis preguntas" : "Mi perfil"}</h3>
+              <p>{esDocente ? "Crea y ordena tu propio banco de preguntas." : "Mira tus insignias y tu posición."}</p>
+            </button>
+          </div>
+        </div>
+
+        <div className="dh-sectionhead">
+          <h2>Elige un juego</h2>
+        </div>
+        <div className="dh-games">
+          <button className="dh-feature dh-blue" onClick={() => onSelectGame("ludo")}>
+            <span className="dh-glyph" aria-hidden="true">⚄</span>
+            <div>
+              <h3>Ludo Educativo</h3>
+              <p>Equipos, dado y preguntas: gana quien llega primero a la meta.</p>
+            </div>
+            <span className="dh-chip">{esDocente ? "Crear partida" : "Ver el juego"}</span>
+          </button>
+          <button className="dh-feature dh-mint" onClick={() => onSelectGame("crucigrama")}>
+            <span className="dh-glyph" aria-hidden="true">＃</span>
+            <div>
+              <h3>
+                Crucigrama Relámpago <span className="dh-tag">NUEVO</span>
+              </h3>
+              <p>Contra el reloj, con sabotajes entre rivales.</p>
+            </div>
+            <span className="dh-chip dark">{esDocente ? "Crear crucigrama" : "Ver el juego"}</span>
+          </button>
+        </div>
+        <div className="dh-soonrow">
+          {["Quiz", "Sopa de letras", "Memoria", "Ordenar frases"].map((n) => (
+            <div className="dh-soon" key={n}>
+              <strong>{n}</strong>
+              <span>Próximamente</span>
+            </div>
+          ))}
+        </div>
+      </>
+    ),
+
+    juegos: (
+      <>
+        <div className="dh-pagehead">
+          <h1>Juegos educativos</h1>
+          <p>Selecciona una actividad para reforzar lo aprendido en clase.</p>
+        </div>
+        <div className="dh-catalog">
+          {CATALOGO.map((g, i) => (
+            <article className="dh-card" key={g.id}>
+              <div className={"dh-ico" + (i % 3 === 1 ? " blue" : i % 3 === 2 ? " yellow" : "")} aria-hidden="true">{g.glyph}</div>
+              <h3>{g.name}</h3>
+              <p>{g.desc}</p>
+              <button className="dh-flat" disabled={!g.ok} onClick={() => g.ok && onSelectGame(g.id)}>
+                {g.ok ? (esDocente ? "Crear partida" : "Ver el juego") : "Próximamente"}
+              </button>
+            </article>
+          ))}
+        </div>
+      </>
+    ),
+
+    herramientas: (
+      <>
+        <div className="dh-pagehead">
+          <h1>Herramientas para tu clase</h1>
+          <p>Cronómetro, ruleta y pizarra para dar tu clase en vivo. No necesitan cuenta.</p>
+        </div>
+        <div className="dh-tools">
+          {HERRAMIENTAS.map((t) => (
+            <div className="dh-toolcard" key={t.id}>
+              <span className={"dh-ico " + t.color} aria-hidden="true">{t.glyph}</span>
+              <h3>{t.name}</h3>
+              <p>{t.desc}</p>
+              <button className="dh-flat" onClick={() => onSelectGame(t.id)}>{t.boton}</button>
+            </div>
+          ))}
+        </div>
+      </>
+    ),
   };
 
   return (
-    <AppShell user={user} active="home" onNavigate={irA} onLogout={onLogout} buildVersion={buildVersion}>
-      <section className="dash-hero">
-        <div>
-          <span className="dash-hello">¡Hola, {primerNombre}! 👋</span>
-          <h1>{esDocente ? "¿Qué quieres que aprendan hoy?" : "¿Listo para jugar?"}</h1>
-          <p>
-            {esDocente
-              ? "Crea una partida, proyecta el código y deja que tus estudiantes se unan desde el celular."
-              : "Ingresa el código que muestra tu docente y compite con tu equipo."}
-          </p>
-          <div className="dash-chips">
-            {esDocente ? (
-              <>
-                <button className="dash-chip primary" onClick={() => onSelectGame("ludo")}>🖥️ Crear partida de Ludo</button>
-                <button className="dash-chip" onClick={() => onSelectGame("crucigrama")}>⚡ Crear crucigrama</button>
-                <button className="dash-chip" onClick={onOpenQuestions}>📚 Mis preguntas</button>
-                <button className="dash-chip" onClick={onOpenStats}>📊 Estadísticas</button>
-              </>
-            ) : (
-              <>
-                <button className="dash-chip primary" onClick={onJoinWithCode}>📱 Unirme con código</button>
-                <button className="dash-chip" onClick={onOpenStats}>📊 Mis resultados</button>
-              </>
-            )}
-          </div>
-        </div>
-        <img className="dash-img" src="/yachayplay-mascota.png" alt="" />
-      </section>
-
-      <GamesSection onSelectGame={onSelectGame} esEstudiante={!esDocente} showTools={esDocente} />
+    <AppShell user={user} active={activo} onNavigate={onNavigate} onLogout={onLogout} buildVersion={buildVersion}>
+      {vistas[section === "herramientas" && !esDocente ? "inicio" : section] || vistas.inicio}
     </AppShell>
   );
 }

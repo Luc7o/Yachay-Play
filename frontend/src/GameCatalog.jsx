@@ -1,3 +1,4 @@
+import "./publicAula.css";
 import React from "react";
 import { Brand } from "./Brand";
 import { CwGridIcon } from "./Crossword";
@@ -279,51 +280,89 @@ function HomeLogged({ onSelectGame, buildVersion, user, onLogout, onNavigate, se
   );
 }
 
-// Portada para visitantes (sin sesión)
+// Portada pública Aula Fresca; reutiliza callbacks y recursos del proyecto.
 function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegister }) {
+  const benefits = [
+    { icon: "♧", title: "Juegos interactivos", text: "Ludo, crucigramas y más." },
+    { icon: "♙", title: "Para docentes y estudiantes", text: "Crea, comparte y participa." },
+    { icon: "▥", title: "Seguimiento de resultados", text: "Analiza el progreso de tu clase." },
+    { icon: "ϟ", title: "Fácil de usar", text: "Sin instalaciones, desde tu navegador." },
+  ];
+  const steps = [
+    { icon: "♙", title: "Crea tu cuenta", text: "Regístrate como docente o estudiante." },
+    { icon: "▱", title: "Crea tu actividad", text: "Elige un juego y prepara las preguntas." },
+    { icon: "♧", title: "Juega con tu clase", text: "Comparte el código y aprendan juntos." },
+  ];
+  const games = [
+    { id: "ludo", icon: "⚄", name: "Ludo Educativo", description: "Equipos, dado y preguntas: gana quien llega primero a la meta.", available: true },
+    { id: "crucigrama", icon: "＃", name: "Crucigrama Relámpago", description: "Contra el reloj, con sabotajes entre rivales.", available: true, isNew: true },
+    { id: "quiz", icon: "?", name: "Quiz", description: "Responde preguntas y suma puntos.", available: false },
+    { id: "sino", icon: "✓", name: "Sí o No", description: "Decide si cada afirmación es verdadera o falsa.", available: false },
+  ];
   return (
-    <div className="app catalog-page">
-      <header className="ref-topbar">
-        <Brand />
-        <nav className="catalog-nav">
-          <span className="catalog-nav-item active">▦ Tipos de juegos</span>
-          <button className="catalog-login" onClick={onLogin}>Iniciar sesión</button>
-          <button className="ref-yellow catalog-join" onClick={onRegister}>Crear cuenta</button>
-        </nav>
+    <div className="app catalog-page public-aula">
+      <header className="pa-header">
+        <div className="pa-header-inner">
+          <a className="pa-logo" href="#inicio" aria-label="YachayPlay, inicio"><img src="/logo-aula.png" alt="YachayPlay" /></a>
+          <nav className="pa-nav" aria-label="Navegación principal">
+            <a className="active" href="#inicio">Inicio</a>
+            <a href="#juegos">Juegos</a>
+            <a href="#caracteristicas">Características</a>
+            <a href="#como-funciona">Cómo funciona</a>
+          </nav>
+          <div className="pa-auth">
+            <button className="pa-login" onClick={onLogin}>Iniciar sesión</button>
+            <button className="pa-signup" onClick={onRegister}>Crear cuenta</button>
+          </div>
+        </div>
       </header>
-
-      <section className="hero">
-        <div className="hero-inner">
-          <div className="hero-text">
-            <span className="hero-eyebrow">{HERO.eyebrow}</span>
-            <h1 className="hero-title">{HERO.title}</h1>
-            <p className="hero-lead">{HERO.text}</p>
-            <p className="hero-quechua">{HERO.quechua}</p>
-            <div className="hero-actions">
-              <a className="hero-btn hero-btn-main" href="#juegos">Ver los juegos</a>
-              <button className="hero-btn hero-btn-alt" onClick={onJoinWithCode}>📱 Unirme con código</button>
+      <main>
+        <section id="inicio" className="pa-intro">
+          <div className="pa-hero">
+            <div className="pa-hero-copy">
+              <span className="pa-pill">APRENDER JUGANDO</span>
+              <h1>Juegos educativos<br />para tus <em>clases</em><span className="pa-spark" aria-hidden="true">✳</span></h1>
+              <p>Crea actividades divertidas, organiza tus clases y motiva a tus estudiantes con juegos interactivos como Ludo, Crucigramas y más.</p>
+              <div className="pa-actions">
+                <button className="pa-primary" onClick={onRegister}>Crear cuenta gratis</button>
+                <a className="pa-secondary" href="#como-funciona">Conocer YachayPlay</a>
+              </div>
+              <button className="pa-join" onClick={onJoinWithCode}>¿Ya tienes un código de partida? <strong>Únete aquí →</strong></button>
+            </div>
+            <div className="pa-art">
+              <div className="pa-art-glow" />
+              <div className="pa-art-panel" aria-hidden="true"><span>Yachay<span>Play</span></span><div className="pa-art-tiles"><b>⚄</b><b>＃</b><b>?</b><b>★</b></div></div>
+              <img src="/yachayplay-mascota.png" alt="Dragón andino, mascota de YachayPlay" />
             </div>
           </div>
-          <img className="hero-img" src="/yachayplay-mascota.png" alt="Mascota de YachayPlay: un dragón andino con chullo, una tableta de preguntas y un trofeo" />
-        </div>
-        <div className="hero-values">
-          {HERO.values.map((v) => (
-            <div className="hero-value" key={v.title}>
-              <span className="hero-value-icon">{v.icon}</span>
-              <div>
-                <strong>{v.title}</strong>
-                <p>{v.text}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <main className="gc-wrap">
-        <GamesSection onSelectGame={onSelectGame} esEstudiante={false} showTools />
+          <div id="caracteristicas" className="pa-benefits">
+            {benefits.map((item, i) => <div className="pa-benefit" key={item.title}><span className={'pa-benefit-icon pa-benefit-' + i} aria-hidden="true">{item.icon}</span><div><strong>{item.title}</strong><p>{item.text}</p></div></div>)}
+          </div>
+        </section>
+        <section id="como-funciona" className="pa-how">
+          <span className="pa-overline">SENCILLO Y DIVERTIDO</span>
+          <h2>¿Cómo funciona?</h2>
+          <p className="pa-how-subtitle">En solo 3 pasos, crea una experiencia de aprendizaje divertida para tu clase.</p>
+          <div className="pa-steps">
+            {steps.map((step, i) => <React.Fragment key={step.title}>
+              {i > 0 && <span className="pa-step-arrow" aria-hidden="true">→</span>}
+              <div className="pa-step"><span className="pa-step-icon" aria-hidden="true">{step.icon}</span><div><h3>{i + 1}. {step.title}</h3><p>{step.text}</p></div></div>
+            </React.Fragment>)}
+          </div>
+        </section>
+        <section id="juegos" className="pa-games">
+          <div className="pa-games-heading"><div><span className="pa-overline">APRENDER ES JUGAR</span><h2>Elige un juego</h2><p>Descubre las actividades disponibles para tus clases.</p></div></div>
+          <div className="pa-game-grid">
+            {games.map((g, i) => <article className={'pa-game pa-game-' + i} key={g.id}>
+              <span className="pa-game-icon" aria-hidden="true">{g.icon}</span>{g.isNew && <span className="pa-new">NUEVO</span>}
+              <h3>{g.name}</h3><p>{g.description}</p>
+              {g.available ? <button onClick={() => onSelectGame(g.id)}>Ver juego</button> : <span className="pa-coming">Próximamente</span>}
+            </article>)}
+          </div>
+          <div className="pa-bottom-join"><span>¿Tu docente compartió un código?</span><button onClick={onJoinWithCode}>Unirme a una partida →</button></div>
+        </section>
       </main>
-
-      <footer className="build-mark">YachayPlay · Build {buildVersion}</footer>
+      <footer className="pa-footer"><span>YachayPlay · Aprende jugando</span><span>Build {buildVersion}</span></footer>
     </div>
   );
 }

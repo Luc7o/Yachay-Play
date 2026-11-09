@@ -257,3 +257,6 @@
 .student-join-aula .pa-logo{border:0;background:transparent;padding:0}
 .student-join-aula .pa-header button{cursor:pointer}
 :root[data-theme="dark"] .student-join-aula .join-guide p{background:#163d46;color:#eafffa}
+
+/* Palabra Relámpago en el catálogo público */
+.pa-game-word{background:linear-gradient(135deg,#00a996,#b1f6dc);color:#073f46}.pa-game-word button{background:#064c54;color:#fff}.pa-game-soon{border:1.5px dashed #95dcd0;background:#fafffd;color:#11414d}

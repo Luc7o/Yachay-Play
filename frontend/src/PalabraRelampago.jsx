@@ -1,111 +1,130 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { BASE_COUNT, checkWord, candidateFragments, loadExtraWords, normalizeWord, saveExtraWords } from './palabraDiccionario';
 import './palabraRelampago.css';
 
-// Diccionario local inicial. Se puede reemplazar por una API/diccionario español verificado.
-const WORDS = `sandalia sandía sapo salud saludo salvar salmón salsa salero salida sábana sábado saber sabiduría sabana sacapuntas sacar sacrificar saco salto saltar salvavidas salchicha sartén satélite
-camino camiseta camaleón camión campana campo campeón camilla cámara camuflaje caminar cambio cambiar cama caballero cabeza cabello caballo cabina cacao cadena cafetería café caja calendario calor calabaza calcular calle callar calma
-mariposa marina marino marco mármol martes marzo madera madre madrugar maquillaje máquina maqueta mapa manzana mango mano manta mandarina manifestación maravilla maravilloso
-plátano planeta plaza playa plato plata pluma plural plumero plomo planta plancha plantar planificar plástico pliego plegar plácido
-luna lunes luz lupa lugar luchar luciérnaga lluvia llave llevar llegada llenar llover llanta llama llamar llavero
-pescado pescado pescador pesado pesadilla pesar peso persona personaje personal perfume periódico perla perro pera peligro pelícano película peluche pelo pelota peldaño
-corazón coral coraje corbata correcto correr correo corriente cortina cortar corto cortés corona coronar cocina cocinar cocodrilo colegio color colina columna colaborar comida comer cometa comenzar comunidad computadora compañero compartir compañía
-pintura pintar pincel pingüino pino piano pieza piedra pierna piel pie piloto pirámide piscina pista pistacho pistola
-fruta frutilla frutero frasco frase frágil frambuesa frente freno fresco frescura frecuencia frijol frío fritura
-estrella estación estufa estómago estante estudiar estudiante escuela escribir escritura escritor escoba escalera escapar escudo esfuerzo especial espejo esperanza espiral espacio espada
-biblioteca bicicleta bicho bigote billete biología biologico bienvenida bienvenido bienestar
-ventana ventilador verano verde verdura verdad vestido vestir vecino vehículo velocidad vela vencer venta vendedor venado
-nube número nutrición nutria nuevo nueve nuez nuestra nudo nuclear nunca
-reloj relato relámpago regalo regla regreso reunión reunir revisar revista repetir respuesta rescate resolver respeto respirar restar restaurante resultado recurso receta recordar recreo recreación
-teatro teclado teléfono televisión tela telescopio temblor temprano temperatura templado tenedor tenis tener terreno tesoro texto textura
-robot roca roble rodilla rodar rojo rosa rosal rostro ropa romper ronda rompecabezas romance
-zapato zanahoria zancudo zorro zona zoológico zumbido zumo zafiro zambullida
-árbol arco archivo arena arroz ardilla arte artista artículo artesanía ardiente aroma armar armario armonía arriba arrugar arriesgar
-libro libre librería libertad limón limpio limpiar línea linterna líquido lista listo literatura lugar luna luz
-sol sonido sonreír sonrisa sopa soporte sorpresa sorteo sostener sombra sombrero sombrilla sueño suelo suerte suave subir subiré submarino sumar suma superación
-triángulo trigo tristeza trompeta trompo tronco trueno trucha truco transporte trabajo trabajador traer tradición traje tranquilidad transformar tratar
-flor florero florecer flota flotar flauta flecha flexible fleco fluir flujo flama flamenco
-brisa brincar brillo brillante brillar brindar brócoli bronce brocha brazo brasa bruja brújula
-crucigrama cruzar cruz crema crear creativo creación crecer crecimiento cremallera crédito cristal criterio crimen crónica cráter
-`.trim().split(/\s+/);
-const PREFIXES = ['sa','ca','ma','pl','lu','pe','co','pi','fr','es','bi','ve','nu','re','te','ro','za','ar','li','so','tr','fl','br','cr'];
-const norm = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim();
-const validWords = new Set(WORDS.map(norm));
+const COLORS = ['#17c7b5','#4388ff','#b18aff','#ffc15d','#f383a6','#6ac9de','#a4d75c','#e1a7ff'];
+const DEFAULT_NAMES = { team: 'Equipo Menta, Equipo Azul, Equipo Violeta', individual: 'Andrea, Mateo, Lucía, Diego' };
+const parseNames = value => [...new Set(value.split(/[,\n]/).map(x => x.trim()).filter(Boolean))].slice(0, 8);
+const POSITIONS = (i, length) => {const angle = -Math.PI/2 + i * 2*Math.PI/length; return { left: `${50+40*Math.cos(angle)}%`, top: `${50+40*Math.sin(angle)}%`,angle: angle*180/Math.PI };};
 
 export function PalabraRelampago({ goHome, frame }) {
-  const [names, setNames] = useState('Equipo Menta, Equipo Azul');
+  const [mode, setMode] = useState('team');
+  const [names, setNames] = useState(DEFAULT_NAMES.team);
   const [seconds, setSeconds] = useState(20);
-  const [maxRounds, setMaxRounds] = useState(12);
+  const [maxRounds, setMaxRounds] = useState(20);
   const [players, setPlayers] = useState([]);
   const [phase, setPhase] = useState('setup');
   const [turn, setTurn] = useState(0);
   const [round, setRound] = useState(1);
   const [remain, setRemain] = useState(20);
-  const [prefix, setPrefix] = useState('sa');
+  const [fragment, setFragment] = useState('sa');
   const [used, setUsed] = useState([]);
   const [answer, setAnswer] = useState('');
   const [message, setMessage] = useState('');
+  const [extraWords, setExtraWords] = useState(() => loadExtraWords());
+  const [vocabularyText, setVocabularyText] = useState('');
+  const [vocabularyStatus, setVocabularyStatus] = useState('');
+  const [showVocabulary, setShowVocabulary] = useState(false);
+  const [pending, setPending] = useState(false);
   const inputRef = useRef(null);
-  const timeoutRef = useRef(null);
+  const lockRef = useRef(false);
+  const transitionRef = useRef(null);
   const usedRef = useRef([]);
   const playersRef = useRef([]);
   const turnRef = useRef(0);
-  const prefixRef = useRef('sa');
+  const fragmentRef = useRef('sa');
   const roundsRef = useRef(1);
+  const timeRef = useRef(20);
+  const extraSet = useMemo(() => new Set(extraWords), [extraWords]);
   const active = players[turn];
-
-  const choosePrefix = (avoid) => {
-    const candidates = PREFIXES.filter(p => p !== avoid && WORDS.some(w => norm(w).startsWith(p) && !usedRef.current.includes(norm(w))));
-    return candidates[Math.floor(Math.random() * candidates.length)] || 'sa';
-  };
-  const resetTimer = (newPrefix) => { prefixRef.current = newPrefix; setPrefix(newPrefix); setRemain(seconds); setAnswer(''); setMessage(''); setTimeout(() => inputRef.current?.focus(), 0); };
-  const start = () => {
-    const entries = names.split(/[,\n]/).map(x => x.trim()).filter(Boolean).slice(0, 8);
-    if (entries.length < 2) return setMessage('Agrega al menos dos equipos o jugadores separados por comas.');
-    const data = entries.map((name, id) => ({ id, name, score: 0, lives: 3 }));
-    playersRef.current = data; usedRef.current = []; turnRef.current = 0; roundsRef.current = 1;
-    setPlayers(data); setUsed([]); setTurn(0); setRound(1); setPhase('playing'); resetTimer('sa');
-  };
-  const finishTurn = (points, word = '', note = '') => {
-    if (timeoutRef.current) return;
-    timeoutRef.current = true;
-    const current = turnRef.current;
-    const updated = playersRef.current.map((p, i) => i !== current ? p : ({ ...p, score: p.score + points, lives: Math.max(0, p.lives - (points ? 0 : 1)) }));
-    playersRef.current = updated; setPlayers(updated);
-    if (word) { usedRef.current = [...usedRef.current, norm(word)]; setUsed([...usedRef.current]); }
-    setMessage(note || (points ? `¡Correcto! +${points} puntos` : 'Se acabó el tiempo. Pierdes una vida.'));
-    const survivors = updated.map((p, i) => ({...p,index:i})).filter(p => p.lives > 0);
-    const nextRound = roundsRef.current + 1;
-    window.setTimeout(() => {
-      timeoutRef.current = null;
-      if (survivors.length < 2 || nextRound > maxRounds) return setPhase('finished');
-      roundsRef.current = nextRound; setRound(nextRound);
-      const next = Array.from({length:updated.length}, (_, i) => (current + i + 1) % updated.length).find(i => updated[i].lives > 0);
-      turnRef.current = next; setTurn(next); resetTimer(choosePrefix(prefixRef.current));
-    }, 1100);
-  };
-  useEffect(() => {
-    if (phase !== 'playing') return;
-    const id = window.setInterval(() => setRemain(t => Math.max(0, t - 1)), 1000);
-    return () => window.clearInterval(id);
-  }, [phase, round]);
-  useEffect(() => { if (phase === 'playing' && remain === 0) finishTurn(0); }, [remain, phase]); // eslint-disable-line react-hooks/exhaustive-deps
-  const submit = e => {
-    e.preventDefault();
-    if (phase !== 'playing' || timeoutRef.current) return;
-    const val = norm(answer);
-    if (val.length < 4 || !/^[a-zñ]+$/.test(val)) return setMessage('Escribe una palabra de al menos 4 letras.');
-    if (!val.startsWith(prefixRef.current)) return setMessage(`Debe empezar con «${prefixRef.current.toUpperCase()}».`);
-    if (usedRef.current.includes(val)) return setMessage('Esa palabra ya fue utilizada.');
-    if (!validWords.has(val)) return setMessage('No está en el diccionario de esta versión. Intenta otra palabra.');
-    finishTurn(10 + remain, answer.trim());
-  };
-  const sorted = useMemo(() => [...players].sort((a,b) => b.score - a.score), [players]);
+  const sorted = useMemo(() => [...players].sort((a,b) => b.score - a.score || b.lives - a.lives), [players]);
   const winner = sorted[0];
-  const content = <div className="pr-page">
-    <header className="pr-top"><div><span className="pr-kicker">YACHAYPLAY · JUEGO DE PALABRAS</span><h1>⚡ Palabra Relámpago</h1><p>¡Piensa rápido! Convierte las letras en palabras antes de que termine el tiempo.</p></div><button type="button" className="pr-back" onClick={goHome}>← Volver a juegos</button></header>
-    {phase === 'setup' && <section className="pr-panel pr-setup"><div className="pr-burst">SA <span>→</span> SANDALIA</div><h2>Prepara la partida</h2><p>Juego local por turnos, ideal para proyectar en clase. Escribe los equipos separados por comas.</p><label>Jugadores o equipos<textarea value={names} onChange={e => setNames(e.target.value)} rows={2} maxLength={200}/></label><div className="pr-config"><label>Segundos por turno<select value={seconds} onChange={e => setSeconds(Number(e.target.value))}><option value={15}>15 segundos</option><option value={20}>20 segundos</option><option value={30}>30 segundos</option></select></label><label>Turnos totales<select value={maxRounds} onChange={e => setMaxRounds(Number(e.target.value))}><option value={8}>8 turnos</option><option value={12}>12 turnos</option><option value={20}>20 turnos</option></select></label></div><p className="pr-small">Cada equipo empieza con 3 vidas. Acierto: 10 puntos + segundos restantes. Fallo: pierde una vida. Las palabras deben estar en el diccionario incluido.</p>{message && <div className="pr-alert" role="alert">{message}</div>}<button className="pr-primary" onClick={start}>Comenzar partida →</button></section>}
-    {phase === 'playing' && <div className="pr-game"><section className="pr-panel pr-board"><div className="pr-gamehead"><span>Turno {round} de {maxRounds}</span><strong>{active?.name}</strong></div><div className="pr-circle"><strong>{remain}</strong><span>SEGUNDOS</span></div><p className="pr-hint">Escribe una palabra que <strong>empiece por</strong> estas letras:</p><div className="pr-letters">{prefix.toUpperCase()}</div><form onSubmit={submit} className="pr-entry"><input ref={inputRef} value={answer} onChange={e=>setAnswer(e.target.value)} autoComplete="off" placeholder={`Ej.: ${prefix === 'sa' ? 'sandalia' : 'tu palabra...'}`} aria-label="Tu palabra" maxLength={40}/><button className="pr-primary" type="submit">Enviar palabra ↗</button></form><div className="pr-alert" aria-live="polite">{message || 'Una palabra correcta suma puntos. ¡No repitas!'}</div><button className="pr-skip" onClick={()=>finishTurn(0, '', 'Turno pasado. Pierdes una vida.')}>Pasar turno (−1 vida)</button></section><aside className="pr-panel pr-scores"><h2>🏆 Clasificación</h2>{players.map((p,i)=><div className={'pr-player ' + (i===turn?'pr-current':'')} key={p.id}><span>{p.name}{i===turn?' ●':''}</span><strong>{p.score} pts</strong><small>{'♥'.repeat(p.lives)}{'♡'.repeat(3-p.lives)}</small></div>)}<h3>Palabras usadas ({used.length})</h3><div className="pr-used">{used.length ? used.slice(-12).map(w=><span key={w}>{w}</span>):'Todavía ninguna'}</div></aside></div>}
-    {phase === 'finished' && <section className="pr-panel pr-finish"><div className="pr-burst">🏆</div><h2>¡Partida terminada!</h2><p>Ganador: <strong>{winner?.name}</strong> con {winner?.score} puntos</p>{sorted.map((p,i)=><div className="pr-rank" key={p.id}><span>{i+1}. {p.name}</span><strong>{p.score} puntos</strong></div>)}<button className="pr-primary" onClick={()=>{setPhase('setup');setMessage('')}}>Jugar otra vez</button></section>}
+  useEffect(() => () => {window.clearTimeout(transitionRef.current);}, []);
+  const resetTimer = (nextFragment) => {
+    fragmentRef.current = nextFragment;
+    timeRef.current = seconds;
+    setFragment(nextFragment); setRemain(seconds); setAnswer(''); setMessage('');
+    window.setTimeout(() => inputRef.current?.focus(), 0);
+  };
+  const chooseFragment = (avoid) => {
+    const choices = candidateFragments(usedRef.current, extraSet).filter(x=>x!==avoid);
+    return choices[Math.floor(Math.random() * choices.length)] || 'sa';
+  };
+  const start = () => {
+    const entries = parseNames(names);
+    if (entries.length < 2) {setMessage('Necesitas al menos 2 participantes separados por comas.');return;}
+    const data = entries.map((name,id)=>({id,name,score:0,lives:3,color:COLORS[id%COLORS.length]}));
+    playersRef.current=data; usedRef.current=[];turnRef.current=0;roundsRef.current=1;lockRef.current=false;
+    setPlayers(data);setUsed([]);setTurn(0);setRound(1);setPending(false);setPhase('playing');resetTimer('sa');
+  };
+  const finishTurn = (points, word='', note='') => {
+    if(lockRef.current)return;
+    lockRef.current=true;setPending(true);
+    const current = turnRef.current;
+    const updated=playersRef.current.map((p,i)=>i!==current?p:{...p,score:p.score+points,lives:Math.max(0,p.lives-(points?0:1))});
+    playersRef.current=updated;setPlayers(updated);
+    if(word){usedRef.current=[...usedRef.current,normalizeWord(word)];setUsed([...usedRef.current]);}
+    setMessage(note || (points?`¡Correcto! +${points} puntos · ${word}`:'¡Se acabó el tiempo! Pierdes una vida.'));
+    const survivors=updated.filter(p=>p.lives>0);
+    const nextRound=roundsRef.current+1;
+    transitionRef.current=window.setTimeout(()=>{
+      if(survivors.length<2||nextRound>maxRounds){setPhase('finished');return;}
+      roundsRef.current=nextRound;setRound(nextRound);
+      const next=Array.from({length:updated.length},(_,i)=>(current+i+1)%updated.length).find(i=>updated[i].lives>0);
+      turnRef.current=next;setTurn(next);lockRef.current=false;setPending(false);resetTimer(chooseFragment(fragmentRef.current));
+    },1200);
+  };
+  useEffect(()=>{
+    if(phase!=='playing'||pending)return undefined;
+    const interval=window.setInterval(()=>{
+      timeRef.current=Math.max(0,timeRef.current-1);
+      setRemain(timeRef.current);
+      if(timeRef.current===0){window.clearInterval(interval);finishTurn(0);}
+    },1000);
+    return()=>window.clearInterval(interval);
+  // Timer restarts only at the beginning of the next round.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[phase,round,pending]);
+  const submit=e=>{
+    e.preventDefault();if(phase!=='playing'||lockRef.current)return;
+    const reason=checkWord(answer,fragmentRef.current,usedRef.current,extraSet);
+    if(reason){setMessage(reason);return;}
+    finishTurn(10+timeRef.current,answer.trim());
+  };
+  const importWords = async file => {
+    if(!file)return;
+    if(file.size>1024*1024){setVocabularyStatus('El archivo es demasiado grande (máximo 1 MB).');return;}
+    const text=await file.text();
+    addWords(text);
+  };
+  const addWords = text => {
+    const incoming=text.split(/[\s,;]+/u).map(normalizeWord).filter(x=>/^[a-zñü]{4,35}$/u.test(x));
+    const merged=[...new Set([...extraWords,...incoming])].slice(0,50000);
+    try{saveExtraWords(merged);setExtraWords(merged);setVocabularyStatus(`${merged.length} palabras personalizadas disponibles en este navegador.`);setVocabularyText('');}
+    catch{setVocabularyStatus('No se pudo guardar el diccionario en el navegador. Prueba con un archivo más pequeño.');}
+  };
+  const content=<div className="pr-page">
+    <header className="pr-top"><div><span className="pr-kicker">YACHAYPLAY · JUEGO DE PALABRAS</span><h1><span aria-hidden="true">⚡</span> Palabra Relámpago</h1><p>Encuentra las letras en cualquier parte de una palabra antes de que termine tu turno.</p></div><button type="button" className="pr-back" onClick={goHome}>← Volver a juegos</button></header>
+    {phase==='setup'&&<section className="pr-panel pr-setup">
+      <div className="pr-burst">CA <span>→</span> BO<strong>CA</strong>DO</div><h2>Prepara tu arena</h2><p>Organiza hasta 8 participantes. La flecha marcará el turno y todos verán sus puntos y vidas.</p>
+      <div className="pr-mode" role="group" aria-label="Modalidad"><button type="button" className={mode==='team'?'chosen':''} onClick={()=>{setMode('team');setNames(DEFAULT_NAMES.team)}}>👥 Equipos</button><button type="button" className={mode==='individual'?'chosen':''} onClick={()=>{setMode('individual');setNames(DEFAULT_NAMES.individual)}}>👤 Individual</button></div>
+      <label>{mode==='team'?'Nombres de los equipos':'Nombres de los jugadores'}<textarea value={names} onChange={e=>setNames(e.target.value)} rows={2} maxLength={250} placeholder="Separa los nombres con comas"/></label>
+      <div className="pr-config"><label>Tiempo por turno<select value={seconds} onChange={e=>setSeconds(Number(e.target.value))}><option value={15}>15 segundos</option><option value={20}>20 segundos</option><option value={30}>30 segundos</option></select></label><label>Turnos máximos<select value={maxRounds} onChange={e=>setMaxRounds(Number(e.target.value))}><option value={12}>12 turnos</option><option value={20}>20 turnos</option><option value={32}>32 turnos</option><option value={48}>48 turnos</option></select></label></div>
+      <p className="pr-small">3 vidas por participante · +10 puntos y tiempo restante por acierto · Sin palabras repetidas · Contiene las letras en cualquier posición.</p>
+      <button type="button" className="pr-dict-toggle" onClick={()=>setShowVocabulary(v=>!v)} aria-expanded={showVocabulary}>📖 Diccionario: {BASE_COUNT.toLocaleString('es')} palabras base + {extraWords.length.toLocaleString('es')} personalizadas {showVocabulary?'−':'+'}</button>
+      {showVocabulary&&<div className="pr-vocabulary"><p>Agrega palabras específicas para tu clase o importa un <strong>.txt UTF-8</strong> (una palabra por línea o separadas por espacios). Se guardan en este navegador. Revisa previamente los términos: se consideran válidos automáticamente.</p><textarea rows={3} value={vocabularyText} onChange={e=>setVocabularyText(e.target.value)} placeholder="biotecnología&#10;fotosíntesis&#10;ecosistema"/><div className="pr-vocabulary-actions"><button className="pr-skip" type="button" onClick={()=>addWords(vocabularyText)} disabled={!vocabularyText.trim()}>Añadir palabras</button><label className="pr-import">Importar .txt<input type="file" accept=".txt,text/plain" onChange={e=>{importWords(e.target.files?.[0]);e.target.value='';}}/></label></div>{vocabularyStatus&&<p role="status">{vocabularyStatus}</p>}</div>}
+      {message&&<div className="pr-alert" role="alert">{message}</div>}<button className="pr-primary" onClick={start}>Entrar a la arena →</button>
+    </section>}
+    {phase==='playing'&&<div className="pr-game"><section className="pr-panel pr-board"><div className="pr-gamehead"><span>Ronda {round} de {maxRounds}</span><strong>Turno: {active?.name}</strong></div>
+      <div className="pr-arena" aria-label="Arena de jugadores y turnos">
+        {players.map((p,i)=>{const pos=POSITIONS(i,players.length);return <div key={p.id} className={'pr-avatar '+(i===turn?'pr-active':'')+(p.lives===0?' pr-out':'')} style={{left:pos.left,top:pos.top,'--player-color':p.color}}><div className="pr-avatar-bubble">{p.name.slice(0,2).toUpperCase()}</div><span className="pr-avatar-name">{p.name}</span><span className="pr-avatar-lives">{'♥'.repeat(p.lives)}{'♡'.repeat(3-p.lives)}</span><span className="pr-avatar-points">{p.score} pts</span>{i===turn&&<span className="pr-turn-tag">TU TURNO</span>}</div>})}
+        {active&&<div className="pr-pointer" style={{'--pointer-angle':`${-90+turn*(360/players.length)}deg`}} aria-hidden="true"><div className="pr-pointer-line"><span>➤</span></div></div>}
+        <div className="pr-center"><div className={'pr-time '+(remain<=5?'pr-time-low':'')}>{remain}<span>SEG</span></div><div className="pr-center-label">CONTIENE LAS LETRAS</div><div className="pr-letters">{fragment.toUpperCase()}</div><div className="pr-center-sub">En cualquier parte</div></div>
+      </div>
+      <form onSubmit={submit} className="pr-entry"><input ref={inputRef} value={answer} disabled={pending} onChange={e=>setAnswer(e.target.value)} autoComplete="off" placeholder="Escribe tu palabra..." aria-label="Tu palabra" maxLength={35}/><button className="pr-primary" type="submit" disabled={pending}>Enviar palabra ↗</button></form>
+      <div className="pr-alert" role="status" aria-live="polite">{message||'La palabra debe contener las letras indicadas y no haberse usado antes.'}</div><button className="pr-skip" disabled={pending} onClick={()=>finishTurn(0,'','Turno pasado · −1 vida')}>Pasar turno (−1 vida)</button>
+      </section><aside className="pr-panel pr-scores"><h2>🏆 Clasificación</h2>{sorted.map((p,i)=><div className={'pr-player '+(p.id===active?.id?'pr-current':'')} key={p.id}><span className="pr-score-dot" style={{background:p.color}}/><span>{i+1}. {p.name} {p.id===active?.id?'➜':''}</span><strong>{p.score} pts</strong><small>{'♥'.repeat(p.lives)}{'♡'.repeat(3-p.lives)}</small></div>)}<h3>Palabras utilizadas ({used.length})</h3><div className="pr-used">{used.length?used.slice(-18).map(w=><span key={w}>{w}</span>):'Todavía ninguna'}</div><p className="pr-small">Modalidad: {mode==='team'?'Equipos':'Individual'} · Diccionario: {BASE_COUNT+extraWords.length} entradas aproximadamente</p></aside></div>}
+    {phase==='finished'&&<section className="pr-panel pr-finish"><div className="pr-burst">🏆</div><h2>¡Partida terminada!</h2><p>{sorted.filter(p=>p.score===winner?.score).length>1?'Empate en el primer lugar':'Ganador'}: <strong>{sorted.filter(p=>p.score===winner?.score).map(p=>p.name).join(' y ')}</strong> · {winner?.score} puntos</p>{sorted.map((p,i)=><div className="pr-rank" key={p.id}><span>{i+1}. {p.name}</span><strong>{p.score} puntos</strong></div>)}<button className="pr-primary" onClick={()=>{setPhase('setup');setMessage('')}}>Jugar otra vez</button></section>}
   </div>;
-  return frame ? frame(content) : content;
+  return frame?frame(content):content;
 }

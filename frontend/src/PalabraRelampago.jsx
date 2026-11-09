@@ -49,6 +49,9 @@ export function PalabraRelampago({ goHome, frame }) {
   const active = players[turn];
   const sorted = useMemo(() => [...players].sort((a,b) => b.score - a.score || b.lives - a.lives), [players]);
   const winner = sorted[0];
+  // Resaltar el fragmento requerido en cualquier posición de la palabra escrita.
+  const normalizedAnswer = normalizeWord(answer);
+  const fragmentPosition = normalizedAnswer.indexOf(normalizeWord(fragment));
   const timerProgress = Math.max(0, Math.min(1, seconds ? remain / seconds : 0));
   const timerCircumference = 2 * Math.PI * 44;
   const timerOffset = timerCircumference * (1 - timerProgress);
@@ -135,8 +138,14 @@ export function PalabraRelampago({ goHome, frame }) {
           <div className="pr-prompt" aria-label="Letras y respuesta del turno">
             <div className="pr-fragment-badge">{fragment.toUpperCase()}</div>
             <div className="pr-current-turn">{active?.name} · TU TURNO</div>
-            <form onSubmit={submit} className="pr-entry pr-entry-hud">
-              <input ref={inputRef} value={answer} disabled={pending} onChange={e=>setAnswer(e.target.value)} autoComplete="off" autoCapitalize="off" spellCheck="false" placeholder="" aria-label="Escribe tu palabra y pulsa Enter para enviarla" maxLength={35}/>
+            <form onSubmit={submit} className="pr-entry pr-entry-hud pr-tiled-entry">
+              <div className="pr-letter-track" aria-hidden="true">
+                {Array.from(answer).map((letter, index) => <span
+                  key={index}
+                  className={'pr-letter-tile' + (fragmentPosition !== -1 && index >= fragmentPosition && index < fragmentPosition + normalizeWord(fragment).length ? ' pr-letter-match' : '')}
+                >{letter.toUpperCase()}</span>)}
+              </div>
+              <input ref={inputRef} value={answer} disabled={pending} onChange={e=>setAnswer(e.target.value)} autoComplete="off" autoCapitalize="off" spellCheck="false" placeholder="" aria-label="Escribe una palabra y pulsa Enter para enviarla" maxLength={35}/>
             </form>
             
           </div>

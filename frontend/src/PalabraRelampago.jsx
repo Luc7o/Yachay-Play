@@ -5,7 +5,13 @@ import './palabraRelampago.css';
 const COLORS = ['#17c7b5','#4388ff','#b18aff','#ffc15d','#f383a6','#6ac9de','#a4d75c','#e1a7ff'];
 const DEFAULT_NAMES = { team: 'Equipo Menta, Equipo Azul, Equipo Violeta', individual: 'Andrea, Mateo, Lucía, Diego' };
 const parseNames = value => [...new Set(value.split(/[,\n]/).map(x => x.trim()).filter(Boolean))].slice(0, 8);
-const POSITIONS = (i, length) => {const angle = -Math.PI/2 + i * 2*Math.PI/length; return { left: `${50+40*Math.cos(angle)}%`, top: `${50+33*Math.sin(angle)}%` };};
+const POSITIONS = (i, length) => {
+  const angle = -Math.PI/2 + i * 2*Math.PI/length;
+  return {
+    left: `${50 + 41 * Math.cos(angle)}%`,
+    top: `${50 + 29 * Math.sin(angle)}%`
+  };
+};
 
 export function PalabraRelampago({ goHome, frame }) {
   const [mode, setMode] = useState('team');
@@ -46,6 +52,9 @@ export function PalabraRelampago({ goHome, frame }) {
   const active = players[turn];
   const sorted = useMemo(() => [...players].sort((a,b) => b.score - a.score || b.lives - a.lives), [players]);
   const winner = sorted[0];
+  const timerProgress = Math.max(0, Math.min(1, seconds ? remain / seconds : 0));
+  const timerCircumference = 2 * Math.PI * 44;
+  const timerOffset = timerCircumference * (1 - timerProgress);
   useEffect(() => () => {window.clearTimeout(transitionRef.current);}, []);
   const resetTimer = (nextFragment) => {
     fragmentRef.current = nextFragment;
@@ -138,8 +147,20 @@ export function PalabraRelampago({ goHome, frame }) {
             {players.map((p,i)=>{const pos=POSITIONS(i,players.length);return <div key={p.id} className={'pr-avatar '+(i===turn?'pr-active':'')+(p.lives===0?' pr-out':'')} style={{left:pos.left,top:pos.top,'--player-color':p.color}}><div className="pr-avatar-bubble">{p.name.slice(0,2).toUpperCase()}</div><span className="pr-avatar-name">{p.name}</span><span className="pr-avatar-lives">{'♥'.repeat(p.lives)}{'♡'.repeat(3-p.lives)}</span><span className="pr-avatar-points">{p.score} pts</span>{i===turn&&<span className="pr-turn-tag">TU TURNO</span>}</div>})}
             {active&&<div className="pr-pointer" style={{'--pointer-angle':`${-90+turn*(360/players.length)}deg`}} aria-hidden="true"><div className="pr-pointer-line"><span>➤</span></div></div>}
             <div className="pr-bomb-anchor" aria-label={`${remain} segundos restantes`}>
-              <div className={'pr-time '+(remain<=5?'pr-time-low':'')}>{remain}<span>SEGUNDOS</span></div>
-              <div className="pr-bomb" aria-hidden="true"><span className="pr-bomb-fuse"/><span className="pr-bomb-body"><span className="pr-bomb-shine"/></span><span className="pr-bomb-spark">✦</span></div>
+              <div className={'pr-bomb-timer ' + (remain<=5 ? 'pr-bomb-timer-low' : '')} role="img" aria-label={`Tiempo restante: ${remain} segundos`}>
+                <svg viewBox="0 0 120 120" className="pr-bomb-ring" aria-hidden="true">
+                  <circle className="pr-bomb-ring-track" cx="60" cy="60" r="44" />
+                  <circle
+                    className="pr-bomb-ring-progress"
+                    cx="60"
+                    cy="60"
+                    r="44"
+                    strokeDasharray={timerCircumference}
+                    strokeDashoffset={timerOffset}
+                  />
+                </svg>
+                <div className="pr-bomb" aria-hidden="true"><span className="pr-bomb-fuse"/><span className="pr-bomb-body"><span className="pr-bomb-shine"/></span><span className="pr-bomb-spark">✦</span></div>
+              </div>
             </div>
           </div>
         </div>

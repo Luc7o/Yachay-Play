@@ -233,3 +233,80 @@
  .pr-fullscreen .pr-arena-stage .pr-bomb-anchor .pr-bomb{transform:scale(1.1)}
  .pr-fullscreen .pr-arena-stage .pr-avatar-name{font-size:10px}
 }
+
+
+/* Ajuste final: más aire arriba/abajo + temporizador circular alrededor de la bomba */
+.pr-fullscreen .pr-approved-arena,
+.pr-fullscreen.pr-night .pr-approved-arena,
+.pr-fullscreen.pr-day .pr-approved-arena{
+  height:clamp(730px,82dvh,1040px);
+  min-height:730px;
+}
+.pr-fullscreen .pr-arena-layout{
+  grid-template-rows:210px minmax(430px,1fr);
+}
+.pr-fullscreen .pr-prompt{
+  padding:18px 14px 0;
+  gap:10px;
+}
+.pr-fullscreen .pr-arena-stage{
+  padding:14px 0 26px;
+}
+.pr-fullscreen .pr-arena-stage::before{width:min(70%,620px);}
+.pr-fullscreen .pr-arena-stage::after{width:min(48%,430px);}
+.pr-fullscreen .pr-arena-stage .pr-bomb-anchor{gap:0;transform:translate(-50%,-50%);}
+.pr-fullscreen .pr-bomb-timer{
+  position:relative;
+  width:140px;
+  height:140px;
+  display:grid;
+  place-items:center;
+  filter:drop-shadow(0 10px 24px rgba(0,0,0,.28));
+}
+.pr-fullscreen .pr-bomb-ring{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  transform:rotate(-90deg);
+  overflow:visible;
+}
+.pr-fullscreen .pr-bomb-ring-track,
+.pr-fullscreen .pr-bomb-ring-progress{
+  fill:none;
+  stroke-width:10;
+}
+.pr-fullscreen .pr-bomb-ring-track{
+  stroke:rgba(151, 224, 214, 0.14);
+}
+.pr-fullscreen .pr-bomb-ring-progress{
+  stroke:#53e8cf;
+  stroke-linecap:round;
+  transition:stroke-dashoffset 1s linear, stroke .25s ease;
+}
+.pr-fullscreen .pr-bomb-timer-low .pr-bomb-ring-progress{
+  stroke:#ff6f7f;
+}
+.pr-fullscreen .pr-bomb-timer .pr-bomb{
+  transform:scale(1.28);
+  margin:0;
+}
+.pr-fullscreen .pr-bomb-anchor .pr-time{display:none!important;}
+.pr-fullscreen.pr-day .pr-bomb-ring-track{stroke:rgba(0, 110, 115, 0.12);}
+.pr-fullscreen.pr-day .pr-bomb-ring-progress{stroke:#009e92;}
+.pr-fullscreen.pr-day .pr-bomb-timer-low .pr-bomb-ring-progress{stroke:#d94d6a;}
+@media(max-width:850px){
+  .pr-fullscreen .pr-approved-arena,
+  .pr-fullscreen.pr-night .pr-approved-arena,
+  .pr-fullscreen.pr-day .pr-approved-arena{height:700px;min-height:700px;}
+  .pr-fullscreen .pr-arena-layout{grid-template-rows:205px minmax(410px,1fr);}
+}
+@media(max-width:540px){
+  .pr-fullscreen .pr-approved-arena,
+  .pr-fullscreen.pr-night .pr-approved-arena,
+  .pr-fullscreen.pr-day .pr-approved-arena{height:650px;min-height:650px;}
+  .pr-fullscreen .pr-arena-layout{grid-template-rows:190px minmax(400px,1fr);}
+  .pr-fullscreen .pr-prompt{padding-top:14px;}
+  .pr-fullscreen .pr-bomb-timer{width:112px;height:112px;}
+  .pr-fullscreen .pr-bomb-timer .pr-bomb{transform:scale(1.06);}
+}

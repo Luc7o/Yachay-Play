@@ -6,11 +6,8 @@ const COLORS = ['#17c7b5','#4388ff','#b18aff','#ffc15d','#f383a6','#6ac9de','#a4
 const DEFAULT_NAMES = { team: 'Equipo Menta, Equipo Azul, Equipo Violeta', individual: 'Andrea, Mateo, Lucía, Diego' };
 const parseNames = value => [...new Set(value.split(/[,\n]/).map(x => x.trim()).filter(Boolean))].slice(0, 8);
 const POSITIONS = (i, length) => {
-  const angle = -Math.PI/2 + i * 2*Math.PI/length;
-  return {
-    left: `${50 + 29 * Math.cos(angle)}%`,
-    top: `${50 + 31 * Math.sin(angle)}%`
-  };
+  const angle = -Math.PI / 2 + (i * 2 * Math.PI / length);
+  return { left: `${50 + 43 * Math.cos(angle)}%`, top: `${50 + 43 * Math.sin(angle)}%` };
 };
 
 export function PalabraRelampago({ goHome, frame }) {
@@ -133,21 +130,22 @@ export function PalabraRelampago({ goHome, frame }) {
       {message&&<div className="pr-alert" role="alert">{message}</div>}<button className="pr-primary" onClick={start}>Entrar a la arena →</button>
     </section>}
     {phase==='playing'&&<div className="pr-game pr-approved-game"><section className="pr-panel pr-board"><div className="pr-gamehead"><span>Ronda {round} de {maxRounds}</span><strong>Turno: {active?.name}</strong></div>
-      <div className="pr-arena pr-approved-arena" aria-label="Arena de jugadores y turnos">
+      <div className="pr-arena pr-approved-arena" aria-label="Arena de jugadores y turnos" onClick={() => { if (!pending) inputRef.current?.focus(); }}>
         <div className="pr-arena-layout">
           <div className="pr-prompt" aria-label="Letras y respuesta del turno">
             <div className="pr-fragment-badge">{fragment.toUpperCase()}</div>
             <div className="pr-current-turn">{active?.name} · TU TURNO</div>
             <form onSubmit={submit} className="pr-entry pr-entry-hud">
-              <input ref={inputRef} value={answer} disabled={pending} onChange={e=>setAnswer(e.target.value)} autoComplete="off" autoCapitalize="off" spellCheck="false" placeholder="Escribe tu palabra..." aria-label="Escribe tu palabra y pulsa Enter para enviarla" maxLength={35}/>
+              <input ref={inputRef} value={answer} disabled={pending} onChange={e=>setAnswer(e.target.value)} autoComplete="off" autoCapitalize="off" spellCheck="false" placeholder="" aria-label="Escribe tu palabra y pulsa Enter para enviarla" maxLength={35}/>
             </form>
-            <div className="pr-hud-help">Pulsa Enter para enviar · Letras en cualquier parte</div>
+            
           </div>
           <div className="pr-arena-stage">
+            <div className="pr-player-ring">
             {players.map((p,i)=>{const pos=POSITIONS(i,players.length);return <div key={p.id} className={'pr-avatar '+(i===turn?'pr-active':'')+(p.lives===0?' pr-out':'')} style={{left:pos.left,top:pos.top,'--player-color':p.color}}><div className="pr-avatar-bubble">{p.name.slice(0,2).toUpperCase()}</div><span className="pr-avatar-name">{p.name}</span><span className="pr-avatar-lives">{'♥'.repeat(p.lives)}{'♡'.repeat(3-p.lives)}</span><span className="pr-avatar-points">{p.score} pts</span>{i===turn&&<span className="pr-turn-tag">TU TURNO</span>}</div>})}
             {active&&<div className="pr-pointer" style={{'--pointer-angle':`${-90+turn*(360/players.length)}deg`}} aria-hidden="true"><div className="pr-pointer-line"><span>➤</span></div></div>}
             <div className="pr-bomb-anchor" aria-label={`${remain} segundos restantes`}>
-              <div className={'pr-bomb-timer ' + (remain<=5 ? 'pr-bomb-timer-low' : '') + (remain===0 && pending ? ' pr-exploding' : '')} role="img" aria-label={`Tiempo restante: ${remain} segundos`}>
+              <div className={'pr-bomb-timer ' + (remain<=5 ? 'pr-bomb-timer-low' : '') + (pending && remain === 0 ? ' pr-bomb-exploding' : '') + (remain===0 && pending ? ' pr-exploding' : '')} role="img" aria-label={`Tiempo restante: ${remain} segundos`}>
                 <svg viewBox="0 0 120 120" className="pr-bomb-ring" aria-hidden="true">
                   <circle className="pr-bomb-ring-track" cx="60" cy="60" r="44" />
                   <circle
@@ -162,10 +160,11 @@ export function PalabraRelampago({ goHome, frame }) {
                 <div className="pr-bomb" aria-hidden="true"><span className="pr-bomb-fuse"/><span className="pr-bomb-body"><span className="pr-bomb-shine"/></span><span className="pr-bomb-spark">✦</span></div>
               </div>
             </div>
+            </div>
           </div>
         </div>
       </div>
-      <div className="pr-alert" role="status" aria-live="polite">{message||'La palabra debe contener las letras indicadas y no haberse usado antes.'}</div><button className="pr-skip" disabled={pending} onClick={()=>finishTurn(0,'','Turno pasado · −1 vida')}>Pasar turno (−1 vida)</button>
+      {message&&<div className="pr-alert" role="status" aria-live="polite">{message}</div>}<button className="pr-skip" disabled={pending} onClick={()=>finishTurn(0,'','Turno pasado · −1 vida')}>Pasar turno (−1 vida)</button>
       </section><aside className="pr-panel pr-scores"><h2>🏆 Clasificación</h2>{sorted.map((p,i)=><div className={'pr-player '+(p.id===active?.id?'pr-current':'')} key={p.id}><span className="pr-score-dot" style={{background:p.color}}/><span>{i+1}. {p.name} {p.id===active?.id?'➜':''}</span><strong>{p.score} pts</strong><small>{'♥'.repeat(p.lives)}{'♡'.repeat(3-p.lives)}</small></div>)}<h3>Palabras utilizadas ({used.length})</h3><div className="pr-used">{used.length?used.slice(-18).map(w=><span key={w}>{w}</span>):'Todavía ninguna'}</div><p className="pr-small">Modalidad: {mode==='team'?'Equipos':'Individual'} · Diccionario: {BASE_COUNT+extraWords.length} entradas aproximadamente</p></aside></div>}
     {phase==='finished'&&<section className="pr-panel pr-finish"><div className="pr-burst">🏆</div><h2>¡Partida terminada!</h2><p>{sorted.filter(p=>p.score===winner?.score).length>1?'Empate en el primer lugar':'Ganador'}: <strong>{sorted.filter(p=>p.score===winner?.score).map(p=>p.name).join(' y ')}</strong> · {winner?.score} puntos</p>{sorted.map((p,i)=><div className="pr-rank" key={p.id}><span>{i+1}. {p.name}</span><strong>{p.score} puntos</strong></div>)}<button className="pr-primary" onClick={()=>{setPhase('setup');setMessage('')}}>Jugar otra vez</button></section>}
   </div>;

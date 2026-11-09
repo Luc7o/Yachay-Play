@@ -793,3 +793,8 @@
   .pr-fullscreen .pr-tiled-entry .pr-letter-track{gap:1px}
   .pr-fullscreen .pr-tiled-entry .pr-letter-tile {width:clamp(12px,4.6vw,22px);height:28px;font-size:clamp(12px,3.7vw,18px);border-radius:4px}
 }
+
+/* Ajuste solicitado: elevar ligeramente solo las fichas de la palabra escrita. */
+.pr-fullscreen .pr-prompt .pr-entry.pr-tiled-entry {
+  transform: translateY(-14px);
+}

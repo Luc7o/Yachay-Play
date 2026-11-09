@@ -1,0 +1,64 @@
+/* YachayPlay · Aula Fresca — tema oscuro compartido para Ludo, Crucigrama
+   y sus pantallas de preparación, sala, alumnos y resultados.
+   Se activa con el selector existente html[data-theme="dark"].
+   No se modifican casillas, fichas, respuestas ni colores semánticos del tablero. */
+:root[data-theme="dark"] {
+  --navy-soft:#153b46;
+  --navy-border:#38616d;
+  --orange-soft:#174c4b;
+}
+:root[data-theme="dark"] body {background:#071e29;color:#ecf9fc;color-scheme:dark}
+:root[data-theme="dark"] :is(.reference-theme,.student-page,.cw-play-page,.cfg-page,.join-page,.wait-page,.gate-page){background-color:#081f2a;color:#edfaff}
+:root[data-theme="dark"] :is(.gate-page,.join-page,.cfg-page){background-image:radial-gradient(#295260 1px,transparent 1px);background-size:22px 22px}
+/* Paneles y superficies */
+:root[data-theme="dark"] :is(.ref-board-panel,.ref-card,.setup-welcome,.setup-preview,.lobby-main,.lobby-side,.phone-card,.cw-panel-card,.cw-board-panel,.cfg-card,.cfg-side,.join-card,.wait-card,.gate-card,.cw-stat-card,.cw-lobby-side,.cw-code-box,.cw-players-grid,.cw-board-col,.score-card,.cw-rival,.cw-activity-list,.joined-summary,.question-table,.phone-screen){background-color:#123440;color:#f0fcff;border-color:#34636d;box-shadow:0 8px 30px #00131b38}
+:root[data-theme="dark"] :is(.setup-summary>div,.connection-card,.team-mini-grid>div,.cw-lb-row,.cw-clue-list li,.cw-activity-scroll,.cw-rivals,.cw-players-grid li,.cw-player-card,.cw-clue-progress-row,.cfg-team,.cfg-summary,.join-team,.join-guide,.join-teams,.cw-mystats,.joined-summary,.phone-mini-field,.cw-code-pill,.join-code-box,.ref-secondary,.cw-btn-ghost){background-color:#193f4b;color:#effcff;border-color:#386773}
+/* Barra específica de Ludo */
+:root[data-theme="dark"] .ref-nav{background:#102c39;border-color:#37616a;box-shadow:none}
+:root[data-theme="dark"] .ref-nav button{color:#c6e1e6}
+:root[data-theme="dark"] .ref-nav button.active{color:#70f4d7;border-bottom-color:#50d8c0}
+:root[data-theme="dark"] .ref-nav .student-toggle{background:#17434c;color:#e6fcf9;border-color:#40717c}
+/* Texto auxiliar en las tarjetas (sin afectar letras sobre fichas de colores) */
+:root[data-theme="dark"] :is(.ref-card,.setup-welcome,.setup-preview,.lobby-main,.lobby-side,.phone-card,.cfg-page,.join-page,.cw-play-page,.cw-teacher-live,.cw-teacher-room,.gate-page) :is(h1,h2,h3,h4,strong){color:#f1fdff}
+:root[data-theme="dark"] :is(.field-label,.setup-welcome>p,.lobby-main>p,.setup-summary span,.preview-step p,.join-code-box small,.join-code-box span,.status,.projection-note,.muted,.eyebrow,.empty-question,.q-row>span small,.score-card small,.cw-board-sub,.cw-clue-count,.cw-join-url,.gate-sub,.cfg-note,.join-hint,.cw-activity-time,.cw-players-empty,.cw-side-title){color:#b8d4dc}
+:root[data-theme="dark"] :is(.team-setting,.q-row,.history-row,.cw-clue-list li,.cw-lb-row){border-color:#315c69}
+/* Formularios, botones secundarios e inputs */
+:root[data-theme="dark"] :is(.setup-main,.lobby-ref,.cfg-page,.join-page,.student-page,.cw-play-page,.reference-theme,.gate-page) :is(input,textarea,select){background:#0b2935;color:#f5fffe;border-color:#467784;color-scheme:dark}
+:root[data-theme="dark"] :is(.setup-main,.lobby-ref,.cfg-page,.join-page,.student-page,.cw-play-page,.reference-theme,.gate-page) :is(input,textarea)::placeholder{color:#90b4c1}
+:root[data-theme="dark"] :is(.ref-secondary,.cw-btn-ghost,.cfg-page button:not(.cfg-create),.join-page button:not(.join-btn)){border-color:#3c7680;color:#e8fffb}
+:root[data-theme="dark"] :is(.create-ref,.next-btn,.join-btn,.cfg-create){background:#00a898;color:#05252e}
+:root[data-theme="dark"] :is(.create-ref,.next-btn,.join-btn,.cfg-create):hover{background:#4ae1c9}
+:root[data-theme="dark"] :is(button,input,textarea,select):focus-visible{outline:2px solid #70e7d3;outline-offset:3px}
+/* Ludo: conserve la identidad de los 4 equipos y las celdas del tablero */
+:root[data-theme="dark"] :is(.answer-options button,.mobile-options button){background:#193e49;color:#f2fcff;border-color:#416d79}
+:root[data-theme="dark"] :is(.answer-options button b,.mobile-options .opt-letter){background:#28525e;color:#f4fffe}
+:root[data-theme="dark"] :is(.answer-options button.ok,.mobile-options .mobile-correct){background:#124c40;border-color:#31be92;color:#eafff6}
+:root[data-theme="dark"] :is(.answer-options button.bad,.mobile-options .mobile-wrong){background:#552e38;border-color:#ef747c;color:#fff2f4}
+:root[data-theme="dark"] :is(.answer-options button.ok b,.mobile-options .mobile-correct .opt-letter){background:#17855e;color:white}
+:root[data-theme="dark"] :is(.answer-options button.bad b,.mobile-options .mobile-wrong .opt-letter){background:#b94051;color:white}
+:root[data-theme="dark"] :is(.answer-timer,.timer-badge,.preview-badge){background:#174b49;color:#91ffe0;border-color:#2d7770}
+:root[data-theme="dark"] .dice-box{background:#163f4b;color:#fff;border-color:#4a818c}
+:root[data-theme="dark"] .score-card{border-top-color:var(--orange)}
+:root[data-theme="dark"] .phone-mini-field{background:#0c2b36;color:#a8cad1}
+/* Crucigrama: bordes y casillas rellenadas en oscuro, las pistas siguen legibles */
+:root[data-theme="dark"] :is(.cw-play-page,.cw-teacher-live,.cw-teacher-room,.cw-board-live){color:#edf9fa}
+:root[data-theme="dark"] :is(.cw-grid-wrap,.cw-answer-bar,.cw-leaderboard,.cw-players-list,.cw-panel-scroll,.cw-lobby-tip,.cw-teacher-win,.cw-result-card,.cw-clue-list,.cw-clue-list-readonly){background:#12343e;color:#ecfbff;border-color:#396a74}
+:root[data-theme="dark"] .cw-cell:not(.blank){background:#def6ed;color:#092e36;border-color:#487e83}
+:root[data-theme="dark"] .cw-cell.blank{background:#061722}
+:root[data-theme="dark"] .cw-cell :is(.cw-cell-letter,.cw-cell-num){color:#0b3642}
+:root[data-theme="dark"] :is(.cw-lb-name,.cw-lb-rank,.cw-lb-score,.cw-bigtimer){color:#f0ffff}
+:root[data-theme="dark"] .cw-bigtimer.urgent{color:#ff8a95}
+/* Indicadores de error y éxito accesibles en oscuro */
+:root[data-theme="dark"] :is(.join-error,.answer-result.result-bad){background:#4b2933;color:#ffb4c0;border-color:#a64f65}
+:root[data-theme="dark"] :is(.answer-result.result-ok,.cw-player-ready){color:#7ff3c6}
+/* Mantener textos claros cuando se colocan sobre tableros/placas claras */
+:root[data-theme="dark"] :is(.home-ref,.home-slot-ref,.home-label,.ludo-board,.track-cell,.board-track,.goal-center){color:#17313e}
+:root[data-theme="dark"] :is(.home-ref,.home-slot-ref,.ludo-board,.track-cell,.board-track,.goal-center) :is(span,b,strong){color:inherit}
+/* Puerta de entrada */
+:root[data-theme="dark"] .gate-hero{background:radial-gradient(650px 400px at 88% 4%,#0f696544,transparent 70%),linear-gradient(135deg,#061d2a,#0e3641)}
+:root[data-theme="dark"] .gate-h2{color:#f3fffe}
+:root[data-theme="dark"] .gate-sub{color:#accdd6}
+:root[data-theme="dark"] .gate-card{background:#133641;border-color:#36636c}
+:root[data-theme="dark"] .gate-card p{color:#bfd9df}
+/* Ajustes de accesibilidad en móviles */
+@media(max-width:650px){:root[data-theme="dark"] .ref-nav{scrollbar-color:#3e7480 #112d38}}

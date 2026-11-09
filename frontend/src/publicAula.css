@@ -220,3 +220,32 @@
 /* Footer profesional se mantiene azul petróleo en ambos temas. */
 :root[data-theme="dark"] .public-aula .pa-footer{background:#071b25;border-top-color:#315565}
 :root[data-theme="dark"] .pa-footer-bottom{border-top-color:#315565}
+
+/* Acceso y registro: comparten la cabecera y los dos temas de Aula Fresca. */
+.auth-aula-header .auth-home-logo{border:0;background:none;padding:0;cursor:pointer}
+.auth-aula-header .auth-aula-nav{flex:1}
+.auth-aula-header .auth-aula-nav button{font:inherit;font-weight:750;color:#193f49;padding:12px 17px;border:0;border-radius:50px;background:transparent;cursor:pointer}
+.auth-aula-header .auth-aula-nav button:hover{background:#e0f7f0}
+.auth-current-page{padding:12px 17px;border-radius:50px;background:#006f70;color:#fff;font-size:14px;font-weight:750}
+.auth-aula-header .pa-logo-dark{display:none}
+:root[data-theme="dark"] .auth-aula-header .pa-logo-light{display:none}
+:root[data-theme="dark"] .auth-aula-header .pa-logo-dark{display:block}
+:root[data-theme="dark"] .auth-aula-header .auth-aula-nav button{color:#d5f0f2}
+:root[data-theme="dark"] .auth-aula-header .auth-aula-nav button:hover{background:#204450}
+:root[data-theme="dark"] .auth-current-page{background:#30bda9;color:#041e29}
+:root[data-theme="dark"] .join-page{background-color:#091d28!important;background-image:radial-gradient(#1a4250 1px,transparent 1px)!important;color:#ecf9fc}
+:root[data-theme="dark"] .join-page .join-card{background:#132f3d!important;border-color:#2d5361!important;color:#ecf9fc}
+:root[data-theme="dark"] .join-page .join-card h1,:root[data-theme="dark"] .join-page .auth-label{color:#f2fcff}
+:root[data-theme="dark"] .join-page .auth-switch,:root[data-theme="dark"] .join-page .auth-guest{color:#b8d3de}
+:root[data-theme="dark"] .join-page .auth-input{background:#0b2632;color:#f2fcff;border-color:#396373}
+:root[data-theme="dark"] .join-page .auth-input::placeholder{color:#9bb8c2}
+:root[data-theme="dark"] .join-page .auth-role{background:#193945;border-color:#2d5361;color:#f2fcff}
+:root[data-theme="dark"] .join-page .auth-role strong{color:#f2fcff}
+:root[data-theme="dark"] .join-page .auth-role small{color:#bfd5dd}
+:root[data-theme="dark"] .join-page .auth-role.picked{background:#20564e;border-color:#50ddc3}
+:root[data-theme="dark"] .join-page .auth-switch button,:root[data-theme="dark"] .join-page .auth-guest button{color:#65e4c9}
+:root[data-theme="dark"] .join-page .auth-demo{background:#173945;border-color:#396373;color:#d5f0f2}
+:root[data-theme="dark"] .join-page .auth-demo button{background:#0b2632;color:#d5f0f2;border-color:#396373}
+:root[data-theme="dark"] .join-page .auth-tabs button{color:#c4e7e7}
+:root[data-theme="dark"] .join-page .auth-tabs button.on{color:#062a30}
+@media(max-width:760px){.auth-aula-header .auth-aula-nav{order:0;width:auto}}

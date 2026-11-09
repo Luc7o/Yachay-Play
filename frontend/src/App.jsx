@@ -232,6 +232,10 @@ function App() {
     clearGameSession();
     setUser(u);
     setAuthScreen(null);
+    // Al entrar al panel, limpiar la ruta pública previa sin recargar la aplicación.
+    if (window.location.hash) window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    setToolPage(null);
+    setSeccion("inicio");
     window.dispatchEvent(new Event("yachay-auth-changed")); // para que el Asistente IA (fuera de App) se entere
     if (catalogGame === "ludo") chooseMode(u.role === "docente" ? "engineer" : "student");
   }
@@ -243,6 +247,8 @@ function App() {
     setUser(null);
     setStudentName("");
     setAuthScreen(null);
+    // El botón de salir siempre regresa a la portada pública.
+    window.history.replaceState(null, "", window.location.pathname + window.location.search + "#/inicio");
     window.dispatchEvent(new Event("yachay-auth-changed")); // ídem: que el Asistente IA desaparezca al salir
     changeDevice();
   }

@@ -410,7 +410,7 @@ function App() {
     if (catalogGame === "cronometro") return <Cronometro goHome={changeDevice} />;
     if (catalogGame === "ruleta") return <Ruleta goHome={changeDevice} />;
     if (catalogGame === "pizarra") return <Pizarra goHome={changeDevice} />;
-    if (catalogGame === "palabra") return <PalabraRelampago goHome={() => setCatalogGame(null)} frame={(pagina) => enMenu("juegos", pagina, true)} />;
+    if (catalogGame === "palabra") return <PalabraRelampago goHome={() => setCatalogGame(null)} frame={(pagina) => enMenu("juegos", pagina, false)} />;
     if (catalogGame === "crucigrama") {
       return (
         <CrosswordGame

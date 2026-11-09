@@ -4,7 +4,7 @@ import { api } from "./api";
 
 const ROLES = [
   { id: "docente", icon: "🖥️", title: "Docente", text: "Creo las partidas y las proyecto en clase.", color: "#023A73", soft: "#E6EEF7" },
-  { id: "estudiante", icon: "📱", title: "Estudiante", text: "Juego desde mi celular con el código de mi docente.", color: "#F16503", soft: "#FFF1E6" },
+  { id: "estudiante", icon: "📱", title: "Estudiante", text: "Juego desde mi celular con el código de mi docente.", color: "#009F91", soft: "#E0F8F2" },
 ];
 
 // Pantalla de "Iniciar sesión" y "Crear cuenta".

@@ -5,7 +5,7 @@ import React from "react";
 // - variant="color": logo a todo color (para fondos claros).
 // Los archivos viven en frontend/public/ y se sirven desde la raíz.
 export function Brand({ subtitle, variant = "white", onClick }) {
-  const src = variant === "white" ? "/logo-white.png" : "/logo.png";
+  const src = "/logo-aula.png";
   return (
     <div
       className={"ref-brand" + (onClick ? " ref-brand-link" : "")}

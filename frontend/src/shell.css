@@ -204,3 +204,10 @@ section[id]{scroll-margin-top:84px}
   .dh-mascot{opacity:.72;max-height:42%}
 }
 @media(prefers-reduced-motion:reduce){.sh-content,.shell{animation:none;transition:none}}
+
+/* Páginas informativas en el panel autenticado */
+.ip-page{padding:36px 0 60px;min-height:65vh}.ip-kicker{color:var(--primary);font-weight:900;letter-spacing:.1em;font-size:12px}
+.ip-page h1{font-size:clamp(32px,4vw,52px);color:var(--ink);margin:15px 0}.ip-lead{color:var(--muted);font-size:18px;line-height:1.6}
+.ip-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;margin-top:35px}.ip-grid article{background:var(--surface);border:1px solid var(--line);border-radius:25px;padding:30px;box-shadow:var(--shadow)}
+.ip-grid article>span{color:var(--primary);font-weight:900;font-size:12px}.ip-grid h2{font-size:23px;color:var(--ink)}.ip-grid p,.ip-grid li{color:var(--muted);line-height:1.7}.ip-grid ul{padding-left:20px}
+.ip-grid button{border:0;border-radius:30px;background:var(--primary);color:var(--bg);padding:13px 20px;font:inherit;font-weight:800;cursor:pointer;margin-top:15px}

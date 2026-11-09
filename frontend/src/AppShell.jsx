@@ -16,12 +16,16 @@ const NAV_DOCENTE = [
   { id: "herramientas", label: "Herramientas" },
   { id: "stats", label: "Estadísticas" },
   { id: "questions", label: "Mis preguntas" },
+  { id: "planes", label: "Planes" },
+  { id: "contacto", label: "Contacto" },
 ];
 
 const NAV_ESTUDIANTE = [
   { id: "home", label: "Inicio" },
   { id: "join", label: "Unirme con código" },
   { id: "stats", label: "Mis resultados" },
+  { id: "planes", label: "Planes" },
+  { id: "contacto", label: "Contacto" },
 ];
 
 // Tema: "light" | "dark". index.html lo decide antes de pintar; aquí solo se alterna y se recuerda.

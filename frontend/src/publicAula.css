@@ -249,3 +249,11 @@
 :root[data-theme="dark"] .join-page .auth-tabs button{color:#c4e7e7}
 :root[data-theme="dark"] .join-page .auth-tabs button.on{color:#062a30}
 @media(max-width:760px){.auth-aula-header .auth-aula-nav{order:0;width:auto}}
+
+/* El ingreso por código comparte exactamente la cabecera pública Aula Fresca. */
+.student-join-aula .pa-header{width:100%}
+.student-join-aula .pa-header-inner{box-sizing:border-box}
+.student-join-aula .pa-nav a{font-size:14px}
+.student-join-aula .pa-logo{border:0;background:transparent;padding:0}
+.student-join-aula .pa-header button{cursor:pointer}
+:root[data-theme="dark"] .student-join-aula .join-guide p{background:#163d46;color:#eafffa}

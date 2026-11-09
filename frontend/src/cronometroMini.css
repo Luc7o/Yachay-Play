@@ -3,7 +3,7 @@
    Los colores salen de data-estado: normal / aviso / urgente / fin
    ============================================================================ */
 .cm{
-  --cm-bg:#0F2A4A; --cm-fg:#FFFFFF; --cm-sub:#B9CCE2; --cm-bar:#F16503; --cm-track:#ffffff2e; --cm-line:#ffffff33;
+  --cm-bg:#0B2A31; --cm-fg:#FFFFFF; --cm-sub:#B9CCE2; --cm-bar:#00796F; --cm-track:#ffffff2e; --cm-line:#ffffff33;
   position:fixed; right:16px; bottom:16px; z-index:60; width:min(330px,calc(100vw - 24px));
   display:flex; align-items:stretch; background:var(--cm-bg); color:var(--cm-fg); border:2px solid var(--cm-line);
   border-radius:16px; box-shadow:0 12px 34px rgba(8,20,36,.4); overflow:hidden; font-family:Poppins,Nunito,system-ui,sans-serif;
@@ -28,7 +28,7 @@
   width:34px; height:34px; border-radius:50%; border:1px solid var(--cm-line); background:transparent; color:inherit; cursor:pointer; font-size:.95rem; line-height:1;
 }
 .cm-ctrl button:hover{background:rgba(127,127,127,.2)}
-.cm button:focus-visible{outline:3px solid #F16503; outline-offset:2px}
+.cm button:focus-visible{outline:3px solid #00796F; outline-offset:2px}
 @keyframes cm-entra{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
 @keyframes cm-pulso{0%,100%{box-shadow:0 12px 34px rgba(8,20,36,.4)} 50%{box-shadow:0 0 0 6px rgba(179,38,30,.35),0 12px 34px rgba(8,20,36,.4)}}
 @media (max-width:600px){

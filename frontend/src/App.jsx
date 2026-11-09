@@ -25,6 +25,7 @@ import { StudentJoin, StudentWaiting, StudentGame } from "./ludo/Student";
 function App() {
   const [mode, setMode] = useState(() => localStorage.getItem("ludo_mode") || null);
   const [catalogGame, setCatalogGame] = useState(null); // juego elegido en el catálogo (null = ver catálogo)
+  const [seccion, setSeccion] = useState("inicio"); // inicio | juegos | herramientas (menú del docente)
   const [toolPage, setToolPage] = useState(null); // null | "stats" | "questions" | "profile" (pantallas del catálogo)
 
   // La ventanita del cronómetro (fuera de App) pide abrir su pantalla con este evento.
@@ -341,23 +342,18 @@ function App() {
 
   // Marco con menú lateral para las pantallas de configuración del docente (Ludo y Crucigrama).
   // Las pantallas en vivo (sala, tablero, proyección) siguen a pantalla completa.
-  const enMenu = (activo, pagina) =>
+  // Navegación del menú de arriba (la usan el inicio y todas las pantallas dentro del marco).
+  const navegar = (id) => {
+    clearGameSession();
+    setCatalogGame(null);
+    if (id === "stats" || id === "questions" || id === "profile") return setToolPage(id);
+    setToolPage(null);
+    if (id === "join") return chooseMode("student");
+    setSeccion(id === "juegos" || id === "herramientas" ? id : "inicio");
+  };
+  const enMenu = (activo, pagina, hoja = false) =>
     user ? (
-      <AppShell
-        user={user}
-        active={activo}
-        onNavigate={(id) => {
-          clearGameSession();
-          setCatalogGame(null);
-          if (id === "stats" || id === "questions" || id === "profile") return setToolPage(id);
-          if (id === "join") return chooseMode("student");
-          if (id === "juegos" || id === "herramientas") {
-            setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 80);
-          }
-        }}
-        onLogout={logout}
-        buildVersion={BUILD_VERSION}
-      >
+      <AppShell user={user} active={activo} onNavigate={navegar} onLogout={logout} buildVersion={BUILD_VERSION} sheet={hoja}>
         {pagina}
       </AppShell>
     ) : (
@@ -381,21 +377,8 @@ function App() {
       );
     }
     if (toolPage && user) {
-      const volver = () => setToolPage(null);
-      // Menú lateral: lleva a otra página interna o vuelve al inicio (y baja a la sección pedida)
-      const irA = (id) => {
-        if (id === "stats" || id === "questions" || id === "profile") return setToolPage(id);
-        setToolPage(null);
-        if (id === "join") return chooseMode("student");
-        if (id === "juegos" || id === "herramientas") {
-          setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 80);
-        }
-      };
-      const conMenu = (activo, pagina) => (
-        <AppShell user={user} active={activo} onNavigate={irA} onLogout={logout} buildVersion={BUILD_VERSION}>
-          {pagina}
-        </AppShell>
-      );
+      const volver = () => navegar("home");
+      const conMenu = (activo, pagina) => enMenu(activo, pagina);
       if (toolPage === "profile") {
         return conMenu(
           "profile",
@@ -423,7 +406,7 @@ function App() {
           onLogin={() => setAuthScreen("login")}
           onRegister={() => setAuthScreen("register")}
           goHome={() => setCatalogGame(null)}
-          frame={(pagina) => enMenu("juegos", pagina)}
+          frame={(pagina) => enMenu("juegos", pagina, true)}
         />
       );
     }
@@ -441,6 +424,8 @@ function App() {
             onOpenStats={() => setToolPage("stats")}
             onOpenQuestions={() => setToolPage("questions")}
             onOpenProfile={() => setToolPage("profile")}
+            section={seccion}
+            onNavigate={navegar}
           />
         </>
       );
@@ -475,7 +460,8 @@ function App() {
           setupError={setupError}
           creating={creating}
           goHome={changeDevice}
-        />
+        />,
+        true
       );
     }
     if (!serverState) return <LoadingScreen code={gameCode} error={connError} onReset={changeDevice} />;

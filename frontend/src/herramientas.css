@@ -4,8 +4,8 @@
    Para cambiar la apariencia, empieza por las variables de ".hr-page".
    ============================================================================ */
 .hr-page{
-  --hr-bg:#F5F8FC; --hr-fg:#0F2A4A; --hr-muted:#5B6B80; --hr-card:#FFFFFF; --hr-line:#DDE5EF;
-  --hr-field:#F8FAFD; --hr-track:#E1E9F3; --hr-bar:#F16503; --hr-time:#023A73;
+  --hr-bg:#F5F8FC; --hr-fg:#0B2A31; --hr-muted:#5B6B80; --hr-card:#FFFFFF; --hr-line:#DDE5EF;
+  --hr-field:#F8FAFD; --hr-track:#E1E9F3; --hr-bar:#00796F; --hr-time:#143841;
   background:var(--hr-bg); color:var(--hr-fg); min-height:100vh; min-height:100dvh;
   transition:background-color .6s ease,color .6s ease;
 }
@@ -51,7 +51,7 @@
 .hr-label{display:block; margin:14px 0 5px; font-size:.85rem; font-weight:800; color:var(--hr-muted)}
 .hr-muted{margin:6px 0 0; font-size:.85rem; color:var(--hr-muted); line-height:1.4}
 .hr-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
-.hr-card{background:var(--hr-card); border:1px solid var(--hr-line); border-radius:16px; padding:18px; box-shadow:0 2px 10px #0f2a4a0d}
+.hr-card{background:var(--hr-card); border:1px solid var(--hr-line); border-radius:16px; padding:18px; box-shadow:0 2px 10px #0B2A310d}
 
 /* ============================ CRONÓMETRO ============================ */
 .hr-timer{display:flex; flex-direction:column}
@@ -203,7 +203,7 @@
 .hr-tabla .n{width:56px; text-align:center; color:var(--hr-muted)}
 .hr-tabla th.n{color:#fff}
 .hr-tabla tbody tr:nth-child(even){background:var(--hr-field)}
-.hr-rep{margin-left:8px; font-size:.72rem; font-weight:800; padding:2px 8px; border-radius:999px; background:var(--orange-soft); color:#a34700}
+.hr-rep{margin-left:8px; font-size:.72rem; font-weight:800; padding:2px 8px; border-radius:999px; background:var(--orange-soft); color:#00655D}
 
 /* ---------- Pantallas chicas ---------- */
 @media (max-width:1000px){

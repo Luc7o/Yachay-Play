@@ -284,6 +284,15 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
   const pages = ["inicio", "juegos", "caracteristicas", "como-funciona", "planes", "contacto"];
   const getPage = () => { const raw = window.location.hash.replace(/^#\/?/, "").split("?")[0]; return pages.includes(raw) ? raw : "inicio"; };
   const [page, setPage] = React.useState(getPage);
+  // Comparte la misma preferencia persistente del panel con sesión.
+  const [theme, setTheme] = React.useState(() => document.documentElement.dataset.theme || "light");
+  const togglePublicTheme = () => {
+    const next = (document.documentElement.dataset.theme || theme) === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    setTheme(next);
+    try { localStorage.setItem("yp_theme", next); } catch { /* Sin almacenamiento disponible */ }
+  };
+
   React.useEffect(() => {
     const listener = () => { setPage(getPage()); window.scrollTo(0, 0); };
     window.addEventListener("hashchange", listener);
@@ -311,11 +320,14 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
     <div className="app catalog-page public-aula">
       <header className="pa-header">
         <div className="pa-header-inner">
-          <a className="pa-logo" href="#/inicio" aria-label="YachayPlay, inicio"><img src="/logo-aula.png" alt="YachayPlay" /></a>
+          <a className="pa-logo" href="#/inicio" aria-label="YachayPlay, inicio"><img className="pa-logo-light" src="/logo-aula.png" alt="YachayPlay" /><img className="pa-logo-dark" src="/logo-aula-dark.png" alt="" aria-hidden="true" /></a>
           <nav className="pa-nav" aria-label="Navegación principal">
             {nav.map(item => <a key={item.id} className={page === item.id ? "active" : ""} href={`#/${item.id}`} aria-current={page === item.id ? "page" : undefined}>{item.label}</a>)}
           </nav>
           <div className="pa-auth">
+            <button type="button" className="pa-theme" onClick={togglePublicTheme} aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"} title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}>
+              <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span><span className="pa-theme-label">{theme === "dark" ? "Modo claro" : "Modo oscuro"}</span>
+            </button>
             <button className="pa-login" onClick={onLogin}>Iniciar sesión</button>
             <button className="pa-signup" onClick={onRegister}>Crear cuenta</button>
           </div>

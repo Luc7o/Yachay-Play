@@ -144,3 +144,79 @@
 .pa-cta-join:hover{background:#ffffff25}
 @media(max-width:900px){.pa-home-feature-grid{grid-template-columns:1fr 1fr}.pa-home-cta{margin:40px 20px;flex-direction:column;align-items:flex-start}}
 @media(max-width:620px){.pa-home-heading{align-items:flex-start;flex-direction:column}.pa-home-feature-grid{grid-template-columns:1fr}.pa-home-features{padding:52px 18px}.pa-home-cta{padding:32px 24px}.pa-home-benefits{padding:0 16px 26px}.pa-home-how{padding:55px 18px}}
+
+
+/* ==========================================================================
+   Aula Fresca: modo oscuro para toda la experiencia SIN iniciar sesión.
+   Usa el mismo :root[data-theme] y yp_theme que AppShell.
+   ========================================================================== */
+.pa-logo-dark{display:none!important}
+:root[data-theme="dark"] .pa-logo-light{display:none!important}
+:root[data-theme="dark"] .pa-logo-dark{display:block!important}
+.pa-theme{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:9px 14px;border-radius:999px;border:1px solid #afdcd2;background:#edfaf6;color:#07545c;font-size:13px!important;font-weight:800!important;white-space:nowrap}
+.pa-theme:hover{background:#d4f5ea}
+.pa-theme span:first-child{font-size:19px;line-height:1}
+@media(max-width:1180px){.pa-theme-label{display:none}.pa-theme{padding:8px 12px}}
+@media(max-width:480px){.pa-theme{min-height:38px;padding:6px 10px}}
+
+:root[data-theme="dark"] .public-aula{--pa-bg:#091d28;--pa-ink:#ecf9fc;--pa-dark:#061722;--pa-teal:#50ddc3;--pa-mint:#1a504f;--pa-line:#305967;background:#091d28;color:#ecf9fc;color-scheme:dark}
+:root[data-theme="dark"] .pa-header{background:#0b2632;border-bottom-color:#254755}
+:root[data-theme="dark"] .pa-nav a{color:#d5f0f2}
+:root[data-theme="dark"] .pa-nav a.active{background:#30bda9;color:#041e29}
+:root[data-theme="dark"] .pa-nav a:hover:not(.active){background:#204450}
+:root[data-theme="dark"] .pa-theme{background:#163a47;color:#baffee;border-color:#3c6871}
+:root[data-theme="dark"] .pa-theme:hover{background:#225463}
+:root[data-theme="dark"] .pa-login{color:#b5f9eb;border-color:#57cfbd}
+:root[data-theme="dark"] .pa-login:hover{background:#1b4850}
+:root[data-theme="dark"] .pa-signup{background:#4ee1c6;color:#062a30;border-color:#4ee1c6}
+:root[data-theme="dark"] .pa-signup:hover{background:#a0f9df}
+:root[data-theme="dark"] .pa-intro{background:radial-gradient(ellipse at 95% 24%,#14544e 0%,transparent 40%),radial-gradient(ellipse at 0 90%,#123947 0%,transparent 39%),linear-gradient(180deg,#0c2835,#0b1d2b)}
+:root[data-theme="dark"] .pa-pill{background:#174c4a;color:#9ff6de}
+:root[data-theme="dark"] .pa-overline{color:#75ead2}
+:root[data-theme="dark"] .pa-hero h1,:root[data-theme="dark"] .pa-games-heading h2,:root[data-theme="dark"] .pa-home-features-top h2,:root[data-theme="dark"] .pa-pagehead h1,:root[data-theme="dark"] .pa-how h2{color:#f2fcff}
+:root[data-theme="dark"] .pa-hero h1 em,:root[data-theme="dark"] .pa-spark{color:#5fe4ca}
+:root[data-theme="dark"] .pa-hero-copy>p,:root[data-theme="dark"] .pa-games-heading p,:root[data-theme="dark"] .pa-home-features-top p,:root[data-theme="dark"] .pa-pagehead p,:root[data-theme="dark"] .pa-how-subtitle{color:#b8d3de}
+:root[data-theme="dark"] .pa-primary{background:#40d6bd;border-color:#40d6bd;color:#062b37}
+:root[data-theme="dark"] .pa-primary:hover{background:#8ff7db;border-color:#8ff7db}
+:root[data-theme="dark"] .pa-secondary{background:#163946;color:#c5ffed;border-color:#46ccb7}
+:root[data-theme="dark"] .pa-secondary:hover{background:#20535a}
+:root[data-theme="dark"] .pa-join{color:#c6e6e9}
+:root[data-theme="dark"] .pa-join strong{color:#67efd2}
+:root[data-theme="dark"] .pa-art-glow{background:radial-gradient(circle,#186057,transparent 69%)}
+:root[data-theme="dark"] .pa-art-panel{background:linear-gradient(160deg,#154e69,#092b3b);border-color:#266578;box-shadow:0 16px 0 #194d52,0 25px 40px #0006}
+:root[data-theme="dark"] .pa-home-benefits{background:linear-gradient(180deg,#0b1d2b,#091d28)}
+:root[data-theme="dark"] .pa-benefits{background:#132f3d;border-color:#2d5361;box-shadow:0 8px 24px #0003}
+:root[data-theme="dark"] .pa-benefit{border-color:#31515c}
+:root[data-theme="dark"] .pa-benefit strong{color:#f1fcff}
+:root[data-theme="dark"] .pa-benefit p{color:#b9d3dc}
+:root[data-theme="dark"] .pa-how,:root[data-theme="dark"] .pa-home-how{background:#0d2935}
+:root[data-theme="dark"] .pa-step{background:#173945;border-color:#2d5361}
+:root[data-theme="dark"] .pa-step-icon{background:#18574f;color:#79f6d9}
+:root[data-theme="dark"] .pa-step h3{color:#f2fcff}
+:root[data-theme="dark"] .pa-step p{color:#b9d4df}
+:root[data-theme="dark"] .pa-step-arrow{color:#65e4c9}
+:root[data-theme="dark"] .pa-games{background:radial-gradient(#1a4250 1px,transparent 1px),#091d28;background-size:24px 24px}
+:root[data-theme="dark"] .pa-game-0{background:linear-gradient(135deg,#2467cc,#2449a4)}
+:root[data-theme="dark"] .pa-game-1{background:linear-gradient(135deg,#18b8a8,#176e7b);color:#fff}
+:root[data-theme="dark"] .pa-game-1 button{background:#062b38;color:#fff}
+:root[data-theme="dark"] .pa-game-2,:root[data-theme="dark"] .pa-game-3{background:#132f3d;color:#e5f8fa;border-color:#348777}
+:root[data-theme="dark"] .pa-coming{color:#a4f9dd;border-color:#4ca994}
+:root[data-theme="dark"] .pa-bottom-join{color:#c4dfe7}
+:root[data-theme="dark"] .pa-bottom-join button{color:#6ff2d7}
+:root[data-theme="dark"] .pa-home-features{background:#0c2430}
+:root[data-theme="dark"] .pa-home-feature-grid article{background:#153441;border-color:#2d5361}
+:root[data-theme="dark"] .pa-home-feature-icon{background:#1f645e}
+:root[data-theme="dark"] .pa-home-feature-grid h3{color:#f0fafd}
+:root[data-theme="dark"] .pa-home-feature-grid p{color:#b9d5de}
+:root[data-theme="dark"] .pa-text-link{color:#79ead7!important;border-bottom-color:#389a87}
+:root[data-theme="dark"] .pa-text-link:hover{color:#c2fff0!important}
+:root[data-theme="dark"] .pa-home-cta{background:linear-gradient(110deg,#116b69,#09514e)}
+:root[data-theme="dark"] .pa-home-cta .pa-primary{background:#dbfff5;border-color:#dbfff5;color:#083b45}
+:root[data-theme="dark"] .pa-subpage{background:radial-gradient(ellipse at 95% 5%,#145249,transparent 45%),#0b2430}
+:root[data-theme="dark"] .pa-feature-grid article,:root[data-theme="dark"] .pa-plan{background:#173541;border-color:#335b66;box-shadow:0 7px 28px #0003}
+:root[data-theme="dark"] .pa-feature-grid strong,:root[data-theme="dark"] .pa-plan h2{color:#f1fcff}
+:root[data-theme="dark"] .pa-feature-grid p,:root[data-theme="dark"] .pa-plan p,:root[data-theme="dark"] .pa-plan li{color:#bcd4dc}
+:root[data-theme="dark"] .pa-plan .pa-secondary{background:#19454d}
+/* Footer profesional se mantiene azul petróleo en ambos temas. */
+:root[data-theme="dark"] .public-aula .pa-footer{background:#071b25;border-top-color:#315565}
+:root[data-theme="dark"] .pa-footer-bottom{border-top-color:#315565}

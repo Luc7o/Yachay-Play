@@ -1,3 +1,4 @@
+import "../live.css";
 import { GOAL_STEP } from "../board";
 import { COLORS } from "../constants";
 import { Dice } from "./Dice";
@@ -38,6 +39,7 @@ export function GameTab({
   teams,
   activeTeams,
   skipTurn,
+  phaseTotal = 20,
 }) {
   const showQuestion = turnPhase === "question" || turnPhase === "result";
   return (
@@ -63,6 +65,11 @@ export function GameTab({
         </div>
       </section>
       <aside className="ref-side">
+        <div className="turn-banner" style={{ background: COLORS[currentTeam].soft, borderColor: COLORS[currentTeam].hex }}>
+          <i className="dot" style={{ background: COLORS[currentTeam].hex }} />
+          <span>Turno del equipo</span>
+          <b style={{ color: COLORS[currentTeam].hex }}>{COLORS[currentTeam].name}</b>
+        </div>
         <div className="ref-card">
           <div className="card-head">
             <span className="eyebrow">TURNO ACTUAL · AUTOMÁTICO</span>
@@ -76,7 +83,7 @@ export function GameTab({
               <div className="phase-bar">
                 <div
                   className={`phase-fill phase-${turnPhase}`}
-                  style={{ width: `${Math.min(100, ((phaseSeconds ?? 0) / 20) * 100)}%` }}
+                  style={{ width: `${Math.min(100, ((phaseSeconds ?? 0) / (phaseTotal || 20)) * 100)}%` }}
                 />
               </div>
               <p className="status">
@@ -93,7 +100,7 @@ export function GameTab({
             ⏭ Saltar turno (solo si algo se traba)
           </button>
         </div>
-        <div className="ref-card">
+        <div className="ref-card question-card">
           <div className="question-top">
             <span className="eyebrow">PREGUNTA ACTIVA</span>
           </div>

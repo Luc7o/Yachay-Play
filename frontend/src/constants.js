@@ -11,3 +11,8 @@ export const TURN_ORDER = ["rojo", "verde", "amarillo", "azul"];
 // confirmar de un vistazo si el navegador está sirviendo esta versión o una
 // vieja en caché.
 export const BUILD_VERSION = "2026-09-24-1";
+
+// Duración total de la fase actual del turno (para dibujar las barras de tiempo).
+// Los valores fijos (2 s y 6 s) coinciden con ROLLING_SECONDS y RESULT_SECONDS del servidor.
+export const phaseTotal = (state) =>
+  ({ roll: state.rollSeconds, rolling: 2, question: state.answerTimeLimit, result: 6 })[state.turnPhase] || 20;

@@ -184,3 +184,52 @@
  .pr-fullscreen .pr-bomb-anchor .pr-time{font-size:34px}
  .pr-fullscreen .pr-pointer-line{width:min(19vw,105px)}
 }
+
+/* Diseño aprobado de la vista previa: tres zonas sin superposiciones.
+   Las posiciones absolutas se limitan a la arena de jugadores, nunca al prompt. */
+.pr-fullscreen .pr-approved-game{display:grid;grid-template-columns:minmax(0,1fr) clamp(240px,19vw,310px);gap:16px;align-items:stretch}
+.pr-fullscreen .pr-approved-arena,.pr-fullscreen.pr-night .pr-approved-arena,.pr-fullscreen.pr-day .pr-approved-arena{
+  display:block;position:relative;height:clamp(650px,76dvh,900px);min-height:650px;
+  overflow:hidden;margin:0;border-radius:22px;background:radial-gradient(circle at 50% 60%,#123c3b77,transparent 48%),#0b2530;
+}
+.pr-fullscreen.pr-day .pr-approved-arena{background:radial-gradient(circle at 50% 60%,#c5f4e9,transparent 50%),#f3fffb}
+.pr-fullscreen .pr-approved-arena::before,.pr-fullscreen .pr-approved-arena::after{content:none!important}
+.pr-fullscreen .pr-arena-layout{height:100%;display:grid;grid-template-rows:170px minmax(360px,1fr);position:relative;isolation:isolate}
+.pr-fullscreen .pr-prompt{grid-row:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:10px 14px 0;position:relative;z-index:4;min-width:0}
+.pr-fullscreen .pr-prompt .pr-fragment-badge{line-height:1.05;font-size:clamp(32px,3.5vw,46px);letter-spacing:.08em;padding:9px 19px;border-radius:12px}
+.pr-fullscreen .pr-prompt .pr-current-turn{font-size:11px;letter-spacing:.1em}
+.pr-fullscreen .pr-prompt .pr-entry.pr-entry-hud{display:block;margin:0;width:min(360px,90%);max-width:none}
+.pr-fullscreen .pr-prompt .pr-entry-hud input{background:transparent!important;border:0!important;border-bottom:2px solid #53e8cf!important;border-radius:0!important;box-shadow:none!important;padding:7px 10px!important;min-height:43px;text-align:center;font-size:clamp(18px,2.4vw,26px);font-weight:700;outline:none}
+.pr-fullscreen .pr-prompt .pr-entry-hud input:focus{outline:2px solid #53e8cf!important;outline-offset:3px}
+.pr-fullscreen.pr-day .pr-prompt .pr-entry-hud input{border-bottom-color:#009d91!important;color:#123944}
+.pr-fullscreen .pr-prompt .pr-hud-help{font-size:11px;color:#a9c7d2;text-align:center;line-height:1.4}
+.pr-fullscreen.pr-day .pr-prompt .pr-hud-help{color:#527b81}
+.pr-fullscreen .pr-arena-stage{grid-row:2;position:relative;min-height:0;isolation:isolate}
+.pr-fullscreen .pr-arena-stage::before,.pr-fullscreen .pr-arena-stage::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(68%,580px);aspect-ratio:1;border-radius:50%;border:1px dashed #456d73;opacity:.3;pointer-events:none}
+.pr-fullscreen .pr-arena-stage::after{width:min(46%,390px)}
+.pr-fullscreen .pr-arena-stage .pr-avatar{z-index:3;max-width:112px}
+.pr-fullscreen .pr-arena-stage .pr-pointer{left:50%;top:50%;z-index:1}
+.pr-fullscreen .pr-arena-stage .pr-pointer-line{width:clamp(75px,14vw,160px);height:8px;top:-4px}
+.pr-fullscreen .pr-arena-stage .pr-pointer-line span{right:-13px;top:-16px;font-size:30px}
+.pr-fullscreen .pr-arena-stage .pr-bomb-anchor{left:50%;top:50%;z-index:2;gap:12px}
+.pr-fullscreen .pr-arena-stage .pr-bomb-anchor .pr-time{font-size:clamp(22px,2.6vw,30px)}
+.pr-fullscreen .pr-arena-stage .pr-bomb-anchor .pr-bomb{transform:scale(1.45);margin:20px 0 12px}
+.pr-fullscreen .pr-approved-game .pr-board{padding:7px 4px 0;min-width:0}
+.pr-fullscreen .pr-approved-game .pr-gamehead{padding:4px 12px 9px}
+.pr-fullscreen .pr-approved-game .pr-scores{min-width:0}
+@media(max-width:850px){
+ .pr-fullscreen .pr-approved-game{grid-template-columns:minmax(0,1fr)}
+ .pr-fullscreen .pr-approved-arena,.pr-fullscreen.pr-night .pr-approved-arena,.pr-fullscreen.pr-day .pr-approved-arena{height:660px;min-height:660px}
+ .pr-fullscreen .pr-arena-layout{grid-template-rows:170px minmax(360px,1fr)}
+ .pr-fullscreen .pr-approved-game .pr-scores{margin-top:0}
+}
+@media(max-width:540px){
+ .pr-fullscreen .pr-approved-arena,.pr-fullscreen.pr-night .pr-approved-arena,.pr-fullscreen.pr-day .pr-approved-arena{height:620px;min-height:620px}
+ .pr-fullscreen .pr-arena-layout{grid-template-rows:175px minmax(400px,1fr)}
+ .pr-fullscreen .pr-prompt .pr-entry.pr-entry-hud{width:min(290px,90%)}
+ .pr-fullscreen .pr-arena-stage .pr-avatar{width:70px}
+ .pr-fullscreen .pr-arena-stage .pr-avatar-bubble{width:41px;height:41px;font-size:12px}
+ .pr-fullscreen .pr-arena-stage .pr-pointer-line{width:clamp(45px,14vw,80px)}
+ .pr-fullscreen .pr-arena-stage .pr-bomb-anchor .pr-bomb{transform:scale(1.1)}
+ .pr-fullscreen .pr-arena-stage .pr-avatar-name{font-size:10px}
+}

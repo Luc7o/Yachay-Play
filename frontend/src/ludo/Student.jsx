@@ -1,3 +1,4 @@
+import { PublicAulaHeader } from "../PublicAulaHeader";
 import { Brand } from "../Brand";
 import { COLORS, TURN_ORDER } from "../constants";
 import { Dice } from "./Dice";
@@ -6,7 +7,7 @@ import { LudoBoard } from "./LudoBoard";
 
 import "../live.css";
 
-export function StudentJoin({ joinCode, setJoinCode, studentName, setStudentName, studentTeam, setStudentTeam, submitJoin, joinError, gameInfo, goHome }) {
+export function StudentJoin({ joinCode, setJoinCode, studentName, setStudentName, studentTeam, setStudentTeam, submitJoin, joinError, gameInfo, goHome, onLogin, onRegister }) {
   // Colores que juegan en ESA partida, con su cupo disponible
   const opciones = (gameInfo?.activeTeams || TURN_ORDER).map((t) => {
     const ocupados = gameInfo ? gameInfo.players.filter((p) => p.team === t).length : 0;
@@ -18,10 +19,12 @@ export function StudentJoin({ joinCode, setJoinCode, studentName, setStudentName
   const puedeUnirse = studentName.trim() && codigoCompleto && gameInfo && hayCupo;
 
   return (
-    <div className="app join-page">
-      <header className="ref-topbar">
-        <Brand subtitle="Ingreso del alumno" onClick={goHome} />
-      </header>
+    <div className="app join-page public-aula student-join-aula">
+      <PublicAulaHeader
+        onNavigate={goHome}
+        onLogin={onLogin}
+        onRegister={onRegister}
+      />
 
       <main className="join-main">
         <aside className="join-guide">

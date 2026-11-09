@@ -546,6 +546,8 @@ function App() {
         joinError={joinError}
         gameInfo={gameInfo}
         goHome={changeDevice}
+        onLogin={() => { changeDevice(); setAuthScreen("login"); }}
+        onRegister={() => { changeDevice(); setAuthScreen("register"); }}
       />
     );
   }

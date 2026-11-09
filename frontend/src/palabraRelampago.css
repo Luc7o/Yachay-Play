@@ -21,3 +21,54 @@
 .dark .pr-arena,.theme-dark .pr-arena,[data-theme="dark"] .pr-arena{background:radial-gradient(circle,#174b51,#102f3c 75%);border-color:#2f6871}.dark .pr-center,.theme-dark .pr-center,[data-theme="dark"] .pr-center{background:#173e47;border-color:#316f71}.dark .pr-letters,.dark .pr-time,.theme-dark .pr-letters,.theme-dark .pr-time,[data-theme="dark"] .pr-letters,[data-theme="dark"] .pr-time{color:#72f1d7;text-shadow:none}.dark .pr-avatar-name,.theme-dark .pr-avatar-name,[data-theme="dark"] .pr-avatar-name{color:#f5fffe;text-shadow:none}.dark .pr-avatar-points,.dark .pr-center-label,.dark .pr-center-sub,.theme-dark .pr-avatar-points,.theme-dark .pr-center-label,.theme-dark .pr-center-sub,[data-theme="dark"] .pr-avatar-points,[data-theme="dark"] .pr-center-label,[data-theme="dark"] .pr-center-sub{color:#b8d7d5}.dark .pr-dict-toggle,.dark .pr-vocabulary,.theme-dark .pr-dict-toggle,.theme-dark .pr-vocabulary,[data-theme="dark"] .pr-dict-toggle,[data-theme="dark"] .pr-vocabulary{background:#10323a;color:#d5fff5;border-color:#367376}.dark .pr-mode button,.theme-dark .pr-mode button,[data-theme="dark"] .pr-mode button{background:#10333c;color:#eefff9;border-color:#367376}.dark .pr-mode button.chosen,.theme-dark .pr-mode button.chosen,[data-theme="dark"] .pr-mode button.chosen{background:#057c72}
 @media(max-width:900px){.pr-game{grid-template-columns:1fr}.pr-arena{height:520px}}
 @media(max-width:560px){.pr-arena{height:440px}.pr-avatar{width:82px}.pr-avatar-bubble{width:40px;height:40px;font-size:13px}.pr-avatar-name{font-size:10px}.pr-avatar-lives{font-size:12px}.pr-avatar-points{font-size:10px}.pr-center{width:145px;min-height:170px}.pr-letters{font-size:49px}.pr-time{font-size:32px}.pr-center-label{font-size:8px}.pr-pointer-line{width:110px}.pr-turn-tag{font-size:8px;padding:4px 6px}.pr-arena:before{inset:25% 25%}}
+
+/* Palabra Relámpago: arena nocturna propia, independiente del tema del resto de la aplicación. */
+.pr-page.pr-night{--pr-ink:#effdff;--pr-accent:#5cebd2;--pr-edge:#295260;max-width:1460px;color:#effdff;background:radial-gradient(ellipse at 52% 37%,#164338 0%,#0b2833 44%,#071b28 100%);border-radius:26px;padding:35px 30px 55px;min-height:calc(100vh - 175px);color-scheme:dark}
+.pr-night .pr-top p,.pr-night .pr-gamehead,.pr-night .pr-panel p{color:#b6d1da}
+.pr-night .pr-kicker{color:#69efda}
+.pr-night .pr-back,.pr-night .pr-skip{background:#133440;color:#e6ffff;border-color:#47717b}
+.pr-night .pr-back:hover,.pr-night .pr-skip:hover{background:#204b56}
+.pr-night .pr-panel{background:linear-gradient(145deg,#112d3c,#102635);border:1px solid #315363;box-shadow:0 18px 50px #0005;color:#f1fcff}
+.pr-night .pr-gamehead strong{color:#67f3d9}
+.pr-night .pr-arena{height:650px;max-width:860px;background:radial-gradient(ellipse at center,#173c3e 2%,#102d35 42%,#091e2b 85%);border:1px solid #315b60}
+.pr-night .pr-arena:before,.pr-night .pr-arena:after{border-color:#4d8984;opacity:.3}
+.pr-night .pr-avatar-name{color:#f4ffff;text-shadow:0 2px 8px #031a24}
+.pr-night .pr-avatar-points{color:#b7d7df}
+.pr-night .pr-avatar-bubble{border-color:#0f2d3c;box-shadow:0 4px 20px #0009}
+.pr-night .pr-avatar.pr-active .pr-avatar-bubble{outline-color:#65f4db;box-shadow:0 0 0 9px #3ff8c62b,0 0 30px #4cf0d898}
+.pr-night .pr-turn-tag{background:#68efd1;color:#052b32}
+.pr-night .pr-center{width:290px;min-height:370px;padding:18px 17px 15px;border-radius:30px;background:linear-gradient(160deg,#153b49,#102b3b);border:2px solid #48857f;box-shadow:0 16px 50px #0009,0 0 42px #30cf9f24}
+.pr-night .pr-time{font-size:44px;color:#e9ffff}
+.pr-night .pr-time span{font-size:9px;letter-spacing:.14em;color:#7de8d7;margin-top:3px}
+.pr-night .pr-time-low{color:#ff7083;animation:pr-pulse 1s infinite}
+@keyframes pr-pulse{50%{opacity:.55}}
+.pr-night .pr-bomb{position:relative;width:68px;height:66px;flex:none;margin:7px auto 2px;filter:drop-shadow(0 6px 8px #0007)}
+.pr-night .pr-bomb-body{position:absolute;left:9px;bottom:1px;width:51px;height:51px;border-radius:50%;background:radial-gradient(circle at 25% 23%,#536a82 0%,#27364c 40%,#101827 76%);border:3px solid #030c19;box-sizing:border-box}
+.pr-night .pr-bomb-shine{position:absolute;top:9px;left:10px;width:15px;height:7px;border-radius:60%;background:#e5faff;transform:rotate(-34deg)}
+.pr-night .pr-bomb-fuse{position:absolute;left:42px;top:0;width:22px;height:22px;border-top:5px solid #b7a486;border-right:5px solid #b7a486;border-radius:0 100% 0 0;transform:rotate(-23deg)}
+.pr-night .pr-bomb-spark{position:absolute;top:-9px;right:0;color:#ffbd4c;font-size:30px;text-shadow:0 0 12px #ff6b32}
+.pr-night .pr-center-label{color:#a4d4d4;margin-top:3px;font-size:9px}
+.pr-night .pr-letters{font-size:68px;color:#8cf7d9;text-shadow:0 4px 0 #12574d;line-height:1.1;margin:5px 0 8px}
+.pr-night .pr-center-sub{font-size:10px;color:#a4d0d0;margin-top:9px}
+.pr-night .pr-entry-center{display:flex;margin:1px 0 0;width:100%;max-width:none;gap:6px}
+.pr-night .pr-entry-center input{flex:1;width:100%;min-width:0;padding:11px 10px;border-radius:12px;background:#071e2b;color:#fff;border:1px solid #4a8084;font-size:13px;text-align:center}
+.pr-night .pr-entry-center input::placeholder{color:#93afb9}
+.pr-night .pr-entry-center input:focus{outline:2px solid #69f6d9;outline-offset:1px}
+.pr-night .pr-entry-center button{flex:none;border-radius:12px;padding:9px 14px;background:#5debd1;color:#062f38;font-size:20px;line-height:1;font-weight:950}
+.pr-night .pr-primary{background:#50dbc3;color:#062b35}
+.pr-night .pr-primary:disabled{opacity:.55;cursor:not-allowed}
+.pr-night .pr-alert{color:#a4f5e1}
+.pr-night .pr-player{background:#173645;border:1px solid #345968}
+.pr-night .pr-current{background:#174b4a;border-color:#68e6ce}
+.pr-night .pr-player small{color:#ff6c8d}
+.pr-night .pr-used{color:#b8d7d9}
+.pr-night .pr-used span{background:#1f4b50;color:#ddfff6}
+.pr-night .pr-mode button{background:#153744;color:#ecffff;border-color:#3a6570}
+.pr-night .pr-mode button.chosen{background:#147e75;color:#fff;border-color:#67e4cd}
+.pr-night .pr-dict-toggle,.pr-night .pr-vocabulary{background:#153643;border-color:#3b6572;color:#edfffb}
+.pr-night .pr-vocabulary textarea,.pr-night .pr-panel textarea,.pr-night .pr-panel select{background:#0a2532;color:#f6ffff;border-color:#446b79}
+.pr-night .pr-import{background:#205a58;color:#edfff8}
+.pr-night .pr-burst{background:linear-gradient(120deg,#164c54,#153a4b);color:#9cfce1}
+.pr-night .pr-rank{border-color:#345c67}
+@media(max-width:900px){.pr-night .pr-arena{height:590px}}
+@media(max-width:560px){.pr-page.pr-night{padding:20px 10px 35px;border-radius:14px}.pr-night .pr-panel{padding:14px}.pr-night .pr-arena{height:520px}.pr-night .pr-center{width:205px;min-height:330px;padding:12px 8px}.pr-night .pr-bomb{transform:scale(.78);margin:0 auto -6px}.pr-night .pr-letters{font-size:46px}.pr-night .pr-time{font-size:34px}.pr-night .pr-entry-center input{padding:9px 5px;font-size:11px}.pr-night .pr-entry-center button{padding:8px 9px}.pr-night .pr-center-sub{font-size:9px}.pr-night .pr-avatar{width:68px}.pr-night .pr-avatar-bubble{width:36px;height:36px;font-size:12px}.pr-night .pr-avatar-name{font-size:10px}.pr-night .pr-pointer-line{width:104px}}

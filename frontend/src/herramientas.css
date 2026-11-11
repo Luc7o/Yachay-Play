@@ -18,10 +18,20 @@
 
 /* Botón "Volver" dentro de la barra superior de la app */
 .ref-topbar .hr-back{
-  margin-left:auto; background:transparent; color:#fff; border:1px solid #ffffff55; border-radius:999px;
+  margin-left:auto; background:#fff; color:#123b48; border:1px solid #9fcfc7; border-radius:999px;
   padding:9px 18px; font:inherit; font-weight:800; font-size:14px; cursor:pointer;
 }
-.ref-topbar .hr-back:hover{background:#ffffff1f}
+.ref-topbar .hr-back:hover{background:#e2f7f2; border-color:#00796F}
+
+/* La barra superior ahora es CLARA (ver styles.css, "Unificación Aula Fresca"):
+   el nombre de la pizarra y el aviso de guardado deben ir en colores oscuros. */
+.hr-page .ref-topbar .pz-titulo-caja input.pz-titulo{color:#123b48; background:#fff; border:1px solid #cfe6e2}
+.hr-page .ref-topbar .pz-titulo-caja input.pz-titulo::placeholder{color:#5b7f89}
+.hr-page .ref-topbar .pz-titulo-caja input.pz-titulo:hover{border-color:#00796F}
+.hr-page .ref-topbar .pz-titulo-caja input.pz-titulo:focus{background:#fff; border-color:#00796F}
+.hr-page .ref-topbar .pz-guardado{color:#416773}
+.hr-page .ref-topbar .pz-guardado.pz-g-ok{color:#047857}
+.hr-page .ref-topbar .pz-guardado.pz-g-error{color:#b91c1c}
 
 /* ---------- Botones y campos ---------- */
 .hr-btn{

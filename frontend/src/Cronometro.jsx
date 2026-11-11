@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Brand } from "./Brand";
 import { prepararAudio, nota } from "./herramientasAudio";
 import { cronometro, useCronometro } from "./cronometroStore";
@@ -38,6 +38,16 @@ const pad = (n) => (n < 10 ? "0" : "") + n;
 function formato(ms) {
   const s = Math.ceil(ms / 1000); // hacia arriba: se ve 05:00 al empezar y 00:00 solo al terminar
   return `${pad(Math.floor(s / 60))}:${pad(s % 60)}`;
+}
+// Cuánto se reduce el cronómetro según lo largo que sea el texto de la actividad.
+// Texto corto (hasta ~40 letras) = tamaño completo; con 500 letras baja hasta ESCALA_MIN.
+// Cada salto de línea cuenta como ~30 letras (ocupa una línea entera).
+const ESCALA_MIN = 0.6;
+function escalaPorTexto(texto) {
+  const t = texto.trim();
+  if (!t) return 1;
+  const largo = t.length + (t.split("\n").length - 1) * 30;
+  return Math.max(ESCALA_MIN, Math.min(1, 1 - (largo - 40) * 0.00087));
 }
 const aNumero = (v, min, max) => {
   const n = parseInt(v, 10);
@@ -221,13 +231,27 @@ export function Cronometro({ goHome }) {
     }
   }, [actividad, minutos, segundos, sonido, mascota]);
 
-  // La caja de la actividad crece según lo que se escriba
-  useEffect(() => {
+  // La caja de la actividad crece según lo que se escriba. Si el texto es tan largo que
+  // no cabe en el alto máximo, la letra se achica sola (hasta un mínimo legible) en vez de
+  // mostrar la barra de desplazamiento.
+  useLayoutEffect(() => {
     const ajustar = () => {
       const el = textareaRef.current;
       if (!el) return;
+      el.style.fontSize = ""; // vuelve al tamaño que define el CSS
       el.style.height = "auto";
+      const cs = getComputedStyle(el);
       const borde = el.offsetHeight - el.clientHeight; // alto de los bordes: sin esto aparece un scroll de 1-2 px
+      const tope = parseFloat(cs.maxHeight); // alto máximo permitido, en px
+      const minimo = limpio ? 20 : 15; // no bajar de aquí para que se siga leyendo
+      let tam = parseFloat(cs.fontSize);
+      if (Number.isFinite(tope)) {
+        while (el.scrollHeight + borde > tope + 1 && tam > minimo) {
+          tam -= 1;
+          el.style.fontSize = tam + "px";
+          el.style.height = "auto";
+        }
+      }
       el.style.height = el.scrollHeight + borde + "px";
     };
     ajustar();
@@ -251,7 +275,7 @@ export function Cronometro({ goHome }) {
     estado === "running" ? CONFIG.textos.pausar : estado === "paused" ? CONFIG.textos.continuar : estado === "done" ? CONFIG.textos.otraVez : CONFIG.textos.iniciar;
 
   return (
-    <div className={"app hr-page hr-timer" + (limpio ? " is-limpio" : "") + (limpio && sinMensaje ? " sin-mensaje" : "")} data-estado={visual}>
+    <div className={"app hr-page hr-timer" + (limpio ? " is-limpio" : "") + (limpio && sinMensaje ? " sin-mensaje" : "")} data-estado={visual} style={{ "--hr-escala": escalaPorTexto(actividad) }}>
       {!limpio && (
         <header className="ref-topbar">
           <Brand subtitle="Cronómetro de actividad" onClick={irAlInicio} />

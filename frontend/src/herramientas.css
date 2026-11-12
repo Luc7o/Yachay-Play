@@ -89,12 +89,13 @@
 .hr-page.is-limpio .hr-activity:hover{border-color:var(--hr-line)}
 
 /* --- Cronómetro: tamaño moderado (grande solo en pantalla limpia) --- */
+/* --hr-escala (de 0.6 a 1) la calcula Cronometro.jsx según lo largo que sea el texto de la actividad */
 .hr-time{
-  font-size:clamp(3.5rem,min(12vw,22vh),11rem); line-height:1; font-weight:800; color:var(--hr-time);
+  font-size:calc(clamp(3.5rem,min(12vw,22vh),11rem) * var(--hr-escala,1)); line-height:1; transition:font-size .25s ease; font-weight:800; color:var(--hr-time);
   font-variant-numeric:tabular-nums; letter-spacing:.01em;
 }
-.is-limpio .hr-time{font-size:clamp(5rem,min(20vw,38vh),20rem)}
-.is-limpio.sin-mensaje .hr-time{font-size:clamp(6rem,min(34vw,62vh),36rem)}
+.is-limpio .hr-time{font-size:calc(clamp(5rem,min(20vw,38vh),20rem) * var(--hr-escala,1))}
+.is-limpio.sin-mensaje .hr-time{font-size:clamp(6rem,min(34vw,62vh),36rem)} /* sin mensaje no se reduce */
 .is-limpio.sin-mensaje .hr-progress{max-width:min(900px,80%)}
 .hr-msg:empty{display:none}
 .hr-msg{margin:0; min-height:1.2em; font-size:clamp(1.4rem,3.2vw,2.4rem); font-weight:800}
@@ -226,7 +227,7 @@
   .hr-btn.hr-grande{width:100%; font-size:1.3rem}
 }
 @media (max-height:560px){
-  .hr-time{font-size:clamp(3rem,26vh,8rem)} .is-limpio .hr-time{font-size:clamp(4rem,34vh,12rem)}
+  .hr-time{font-size:calc(clamp(3rem,26vh,8rem) * var(--hr-escala,1))} .is-limpio .hr-time{font-size:calc(clamp(4rem,34vh,12rem) * var(--hr-escala,1))}
   .hr-page .hr-activity{max-height:24vh; min-height:2.6em} .hr-activity-label{display:none}
 }
 @media (prefers-reduced-motion: reduce){ .hr-page *{animation:none !important; transition:none !important} }

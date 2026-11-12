@@ -1,7 +1,6 @@
 import { PublicAulaHeader } from "./PublicAulaHeader";
 import "./publicAula.css";
 import React from "react";
-import { CwGridIcon } from "./Crossword";
 import { AppShell } from "./AppShell";
 
 // ============================================================================
@@ -32,28 +31,6 @@ export const HERO = {
   ],
 };
 
-export const GAMES = [
-  { id: "ludo", name: "Ludo Educativo", desc: "Tablero por equipos: responde preguntas, lanza el dado y llega primero a la meta.", available: true, icon: "ludo", bg: "linear-gradient(145deg,#0A4C8F,#023A73)" },
-  { id: "crucigrama", name: "Crucigrama Relámpago", desc: "Cada estudiante resuelve su crucigrama contra el reloj y puede sabotear a sus rivales.", tag: "Nuevo", available: true, icon: "crucigrama", bg: "linear-gradient(145deg,#023A73,#0A4C8F)" },
-  { id: "palabra", name: "Palabra Relámpago", desc: "Forma palabras con las letras indicadas antes de que se acabe el tiempo. Compite por equipos.", tag: "Nuevo", available: true, icon: "⚡", bg: "linear-gradient(145deg,#00A996,#087A77)" },
-  { id: "quiz", name: "Quiz", desc: "Preguntas de opción múltiple para toda la clase.", available: false, icon: "❓", bg: "linear-gradient(145deg,#00B39D,#087A77)" },
-  { id: "sino", name: "Sí o No", desc: "Afirmaciones que se responden con verdadero o falso.", available: false, icon: "✅", bg: "linear-gradient(145deg,#0A4C8F,#2B6AA8)" },
-  { id: "adivinanza", name: "Adivinanza", desc: "Pistas que los estudiantes deben descifrar.", available: false, icon: "🔮", bg: "linear-gradient(145deg,#F16503,#ff9a4d)" },
-  { id: "relacionar", name: "Relacionar grupos", desc: "Une cada concepto con su categoría o definición.", available: false, icon: "🧩", bg: "linear-gradient(145deg,#023A73,#2B6AA8)" },
-  { id: "sopa", name: "Sopa de letras", desc: "Encuentra las palabras escondidas en la cuadrícula.", available: false, icon: "🔤", bg: "linear-gradient(145deg,#D45500,#F16503)" },
-  { id: "memoria", name: "Memoria", desc: "Encuentra las parejas de cartas iguales.", available: false, icon: "🧠", bg: "linear-gradient(145deg,#2B6AA8,#0A4C8F)" },
-  { id: "ordenar", name: "Ordenar frases", desc: "Ordena las palabras para formar la frase correcta.", available: false, icon: "🔢", bg: "linear-gradient(145deg,#00B39D,#087A77)" },
-];
-
-// Herramientas para el docente. Cada una es un componente de React (Cronometro.jsx,
-// Ruleta.jsx, Pizarra.jsx) que App.jsx muestra al elegirla, igual que Ludo y el Crucigrama.
-// Para agregar otra: crea su componente, añádelo aquí y agrega su pantalla en App.jsx.
-export const TOOLS = [
-  { id: "cronometro", name: "Cronómetro de actividad", desc: "Controla el tiempo de una actividad y proyéctalo en pantalla.", icon: "⏱️", bg: "linear-gradient(145deg,#00B39D,#087A77)" },
-  { id: "ruleta", name: "Ruleta de sorteos", desc: "Sortea estudiantes o equipos con una ruleta animada.", icon: "🎡", bg: "linear-gradient(145deg,#0A4C8F,#023A73)" },
-  { id: "pizarra", name: "Pizarra", desc: "Dibuja y explica en vivo sobre una pizarra digital.", icon: "🖍️", bg: "linear-gradient(145deg,#2B6AA8,#0A4C8F)" },
-];
-
 // Mini tablero de Ludo dibujado en SVG (ícono del juego disponible)
 export function LudoIcon() {
   return (
@@ -72,64 +49,6 @@ export function LudoIcon() {
 }
 
 // Tarjeta de un juego o herramienta (icono + nombre + descripción corta)
-function GameCard({ item, onSelect }) {
-  const soon = item.available === false;
-  return (
-    <button className={"gc" + (soon ? " gc-soon" : "")} onClick={() => !soon && onSelect(item.id)} disabled={soon}>
-      <span className="gc-icon" style={{ background: item.bg }}>
-        {item.icon === "ludo" ? <LudoIcon /> : item.icon === "crucigrama" ? <CwGridIcon /> : <span className="gc-emoji">{item.icon}</span>}
-      </span>
-      <span className="gc-body">
-        {soon ? (
-          <span className="gc-tag gc-tag-soon">Próximamente</span>
-        ) : item.tag ? (
-          <span className="gc-tag gc-tag-nuevo">{item.tag}</span>
-        ) : null}
-        <strong>{item.name}</strong>
-        <small>{item.desc}</small>
-      </span>
-    </button>
-  );
-}
-
-// Secciones "Juegos" y "Herramientas" (las comparten el inicio con sesión y la portada)
-function GamesSection({ onSelectGame, esEstudiante, showTools }) {
-  return (
-    <>
-      <section id="juegos">
-        <div className="sec-head">
-          <h2>Selecciona un juego</h2>
-          <p>
-            {esEstudiante
-              ? "Estos son los juegos de YachayPlay. Tu docente crea la partida y te da un código para entrar."
-              : "Elige un juego para crear una partida con tus estudiantes."}
-          </p>
-        </div>
-        <div className="gc-grid">
-          {GAMES.map((g) => (
-            <GameCard key={g.id} item={g} onSelect={onSelectGame} />
-          ))}
-        </div>
-      </section>
-
-      {/* Herramientas para dar la clase en vivo (no se muestran a estudiantes) */}
-      {showTools && (
-        <section id="herramientas" aria-labelledby="tools-title">
-          <div className="sec-head">
-            <h2 id="tools-title">Herramientas para docentes</h2>
-            <p>Para dar tu clase en vivo y proyectar la pantalla. No necesitan cuenta.</p>
-          </div>
-          <div className="gc-grid">
-            {TOOLS.map((t) => (
-              <GameCard key={t.id} item={t} onSelect={onSelectGame} />
-            ))}
-          </div>
-        </section>
-      )}
-    </>
-  );
-}
-
 // ---- Diseño "Aula Fresca": textos y símbolos de las tarjetas del inicio ----
 const CATALOGO = [
   { id: "ludo", glyph: "⚄", name: "Ludo Educativo", desc: "Tablero por equipos: preguntas, dados y llegar a la meta.", ok: true },

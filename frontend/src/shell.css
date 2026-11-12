@@ -3,7 +3,7 @@
    y modo claro / oscuro. Los colores viven en las variables de abajo.
    ========================================================================== */
 :root{
-  --bg:#f0faf8;--surface:#fff;--surface2:#eaf8f5;--ink:#143841;--muted:#61777e;--line:#d5eae7;
+  --bg:#f0faf8;--surface:#fff;--surface2:#eaf8f5;--ink:#143841;--muted:#566b73;--line:#d5eae7;
   --primary:#008e83;--primary2:#00ae9d;--mint:#a3f3db;--hero:#008e83;--hero2:#006d70;--nav:#f8fffd;
   --blue:#347bea;--cyan:#a7f1dc;--shadow:0 12px 35px rgba(20,72,78,.055);
   --btn-ink:#08363b;--avatar:#204c61;
@@ -144,27 +144,6 @@
 :root[data-theme="dark"] .sh-content .tl-ok{color:#6ee7b7}
 
 /* ---- tarjetas de la portada para visitantes (sin sesión) ---- */
-.sec-head{margin:34px 0 14px}
-.sec-head h2{font-size:22px;color:var(--navy);margin:0 0 4px;font-weight:900}
-.sec-head p{margin:0;color:#64748b;font-size:14px}
-.gc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
-.gc{display:flex;gap:14px;align-items:flex-start;text-align:left;background:#fff;border:1px solid #e3eaf3;border-radius:18px;padding:16px;cursor:pointer;font:inherit;color:inherit;box-shadow:0 2px 6px #0f172a08;transition:transform .15s,box-shadow .15s,border-color .15s}
-.gc:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 12px 24px #023a731a;border-color:var(--navy-border)}
-.gc:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
-.gc-icon{width:64px;height:64px;flex:none;border-radius:16px;display:grid;place-items:center;overflow:hidden}
-.gc-icon svg{width:40px;height:40px}
-.gc-emoji{font-size:30px;line-height:1}
-.gc-body{min-width:0}
-.gc-body strong{display:block;font-size:16px;color:var(--navy);font-weight:900;margin-bottom:4px}
-.gc-body small{display:block;font-size:13px;line-height:1.45;color:#64748b}
-.gc-tag{display:inline-block;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;padding:3px 9px;border-radius:999px;margin-bottom:6px}
-.gc-tag-nuevo{background:var(--orange-dark);color:#fff}
-.gc-tag-soon{background:#e2e8f0;color:#475569}
-.gc-soon{background:#f8fafc;cursor:not-allowed}
-.gc-soon .gc-icon{opacity:.55;filter:grayscale(.4)}
-.gc-soon .gc-body strong{color:#64748b}
-.gc-wrap{max-width:1100px;margin:0 auto;padding:10px 24px 30px;text-align:left}
-section[id]{scroll-margin-top:84px}
 /* ---- pantallas medianas y celular ---- */
 @media(max-width:1050px){
   .sh-top{flex-wrap:wrap}
@@ -218,7 +197,7 @@ section[id]{scroll-margin-top:84px}
 .sh-nav button{font-size:14px;color:var(--ink);padding:12px 14px}
 .sh-nav button.active{background:#006f70;color:#fff}
 .sh-nav button:hover:not(.active){background:var(--surface2)}
-.sh-create{background:#009f91;color:#fff}
+.sh-create{background:#00796f;color:#fff}
 .sh-create:hover{background:#008477}
 :root[data-theme="dark"] .sh-nav button.active{background:#30bda9;color:#041e29}
 :root[data-theme="dark"] .sh-create{background:#4ee1c6;color:#062a30}

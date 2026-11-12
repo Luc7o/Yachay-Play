@@ -64,11 +64,11 @@ export class ErrorBoundary extends React.Component {
 }
 
 const styles = {
-  wrap: { minHeight: "100vh", display: "grid", placeItems: "center", background: "#f1f5f9", padding: 20, fontFamily: "system-ui, sans-serif" },
+  wrap: { minHeight: "100vh", display: "grid", placeItems: "center", background: "#f0faf8", padding: 20, fontFamily: "system-ui, sans-serif" },
   card: { maxWidth: 480, background: "#fff", border: "1px solid #fecaca", borderRadius: 16, padding: 28, textAlign: "center", boxShadow: "0 12px 30px #0f172a1a" },
   icon: { fontSize: 40 },
   h1: { margin: "10px 0", color: "#b91c1c" },
   p: { color: "#475569", fontSize: 13, lineHeight: 1.6 },
   pre: { background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: 12, fontSize: 11, color: "#991b1b", textAlign: "left", overflowX: "auto", margin: "14px 0" },
-  btn: { border: 0, borderRadius: 9, background: "#4f46e5", color: "#fff", padding: "12px 18px", fontWeight: 800, cursor: "pointer" },
+  btn: { border: 0, borderRadius: 9, background: "#00796f", color: "#fff", padding: "12px 18px", fontWeight: 800, cursor: "pointer" },
 };

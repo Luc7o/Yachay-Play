@@ -11,7 +11,7 @@ export function CwGridIcon() {
       ].map(([cx, cy], i) => (
         <rect key={i} x={14 + cx * 20} y={14 + cy * 20} width="18" height="18" rx="3" fill="#fff" />
       ))}
-      <rect x={14 + 1 * 20} y={14 + 0 * 20} width="18" height="18" rx="3" fill="#F16503" />
+      <rect x={14 + 1 * 20} y={14 + 0 * 20} width="18" height="18" rx="3" fill="#00A99A" />
     </svg>
   );
 }

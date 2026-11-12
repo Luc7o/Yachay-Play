@@ -1,5 +1,5 @@
 /* Aula Fresca — portada de visitantes. Clases aisladas para no alterar el panel ni los juegos. */
-.public-aula{--pa-bg:#f0faf8;--pa-ink:#123b48;--pa-dark:#083b45;--pa-teal:#009f91;--pa-mint:#a8f4df;--pa-line:#d4eae7;background:var(--pa-bg);color:var(--pa-ink);font-family:Inter,Poppins,system-ui,sans-serif;overflow-x:hidden}
+.public-aula{--pa-bg:#f0faf8;--pa-ink:#123b48;--pa-dark:#083b45;--pa-teal:#00796f;--pa-mint:#a8f4df;--pa-line:#d4eae7;background:var(--pa-bg);color:var(--pa-ink);font-family:Inter,Poppins,system-ui,sans-serif;overflow-x:hidden}
 .public-aula button,.public-aula a{font:inherit}
 .public-aula button{cursor:pointer}
 .public-aula a{text-decoration:none}
@@ -16,7 +16,7 @@
 .pa-login,.pa-signup{border-radius:100px;padding:12px 21px;font-weight:800!important;font-size:14px!important;white-space:nowrap}
 .pa-login{color:#07515a;background:transparent;border:1.8px solid #008f83}
 .pa-login:hover{background:#e1f7f1}
-.pa-signup{background:#009f91;color:white;border:1.8px solid #009f91}
+.pa-signup{background:#00796f;color:white;border:1.8px solid #00796f}
 .pa-signup:hover,.pa-primary:hover{background:#008477}
 .pa-intro{background:radial-gradient(ellipse at 95% 24%,#bdf7e9 0%,transparent 39%),radial-gradient(ellipse at 1% 85%,#d6f8ef 0%,transparent 35%),linear-gradient(180deg,#effcfa,#f9fefd);padding:38px 28px 20px}
 .pa-hero{max-width:1320px;margin:0 auto;min-height:440px;display:grid;grid-template-columns:1.02fr .98fr;align-items:center;gap:22px}

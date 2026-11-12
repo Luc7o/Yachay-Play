@@ -18,10 +18,10 @@
 
 /* Botón "Volver" dentro de la barra superior de la app */
 .ref-topbar .hr-back{
-  margin-left:auto; background:transparent; color:#fff; border:1px solid #ffffff55; border-radius:999px;
+  margin-left:auto; background:transparent; color:var(--ink); border:1px solid var(--line); border-radius:999px;
   padding:9px 18px; font:inherit; font-weight:800; font-size:14px; cursor:pointer;
 }
-.ref-topbar .hr-back:hover{background:#ffffff1f}
+.ref-topbar .hr-back:hover{background:var(--surface2)}
 
 /* ---------- Botones y campos ---------- */
 .hr-btn{

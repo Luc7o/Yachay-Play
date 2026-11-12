@@ -20,11 +20,11 @@ const CONFIG = {
 
   // Colores de los segmentos: tonos suaves de la paleta de la marca. El color del
   // texto (blanco u oscuro) se elige solo para que siempre se lea bien.
-  paleta: ["#023A73", "#FBC8A0", "#2B6AA8", "#DCE8F5", "#0A4C8F", "#F7B07A", "#6D9BC9", "#FFE2C8"],
-  textoOscuro: "#012A55",
-  aro: "#023A73", // borde exterior de la ruleta
-  centro: "#023A73",
-  flecha: "#F16503",
+  paleta: ["#00796F", "#A3F3DB", "#347BEA", "#EAF8F5", "#00A99A", "#A7F1DC", "#1A75C9", "#62E9C6"],
+  textoOscuro: "#0B2A31",
+  aro: "#143841", // borde exterior de la ruleta
+  centro: "#143841",
+  flecha: "#F5B700",
 
   segundosDeGiro: 5,
   maxElementos: 300, // límite por lista, para que la ruleta siga legible

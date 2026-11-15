@@ -36,6 +36,7 @@ export const GAMES = [
   { id: "ludo", name: "Ludo Educativo", desc: "Tablero por equipos: responde preguntas, lanza el dado y llega primero a la meta.", available: true, icon: "ludo", bg: "linear-gradient(145deg,#0A4C8F,#023A73)" },
   { id: "crucigrama", name: "Crucigrama Relámpago", desc: "Cada estudiante resuelve su crucigrama contra el reloj y puede sabotear a sus rivales.", tag: "Nuevo", available: true, icon: "crucigrama", bg: "linear-gradient(145deg,#023A73,#0A4C8F)" },
   { id: "palabra", name: "Palabra Relámpago", desc: "Forma palabras con las letras indicadas antes de que se acabe el tiempo. Compite por equipos.", tag: "Nuevo", available: true, icon: "⚡", bg: "linear-gradient(145deg,#00A996,#087A77)" },
+  { id: "estudio", name: "Presentaciones en vivo", desc: "Crea presentaciones solo o en equipo y que el docente las vea en vivo, sin compartir pantalla.", tag: "Nuevo", available: true, icon: "📽️", bg: "linear-gradient(145deg,#0A4C8F,#00A996)" },
   { id: "quiz", name: "Quiz", desc: "Preguntas de opción múltiple para toda la clase.", available: false, icon: "❓", bg: "linear-gradient(145deg,#00B39D,#087A77)" },
   { id: "sino", name: "Sí o No", desc: "Afirmaciones que se responden con verdadero o falso.", available: false, icon: "✅", bg: "linear-gradient(145deg,#0A4C8F,#2B6AA8)" },
   { id: "adivinanza", name: "Adivinanza", desc: "Pistas que los estudiantes deben descifrar.", available: false, icon: "🔮", bg: "linear-gradient(145deg,#F16503,#ff9a4d)" },
@@ -135,6 +136,7 @@ const CATALOGO = [
   { id: "ludo", glyph: "⚄", name: "Ludo Educativo", desc: "Tablero por equipos: preguntas, dados y llegar a la meta.", ok: true },
   { id: "crucigrama", glyph: "▦", name: "Crucigrama Relámpago", desc: "Resuelve el crucigrama contra el reloj y compite con tus rivales.", ok: true },
   { id: "palabra", glyph: "⚡", name: "Palabra Relámpago", desc: "Completa letras, compite por puntos y gana antes de que se acabe el tiempo.", ok: true },
+  { id: "estudio", glyph: "▤", name: "Presentaciones en vivo", desc: "Crea tu presentación solo o en equipo; el docente la ve en vivo.", ok: true, bd: "Crear sala", be: "Unirme con código" },
   { id: "quiz", glyph: "❓", name: "Quiz", desc: "Preguntas de opción múltiple." },
   { id: "sino", glyph: "✓", name: "Sí o No", desc: "Afirmaciones de verdadero o falso." },
   { id: "adivinanza", glyph: "✦", name: "Adivinanza", desc: "Pistas para descifrar conceptos." },
@@ -147,6 +149,7 @@ const HERRAMIENTAS = [
   { id: "cronometro", glyph: "⏱", name: "Cronómetro de actividad", desc: "Controla la duración de ejercicios y dinámicas.", boton: "Abrir cronómetro", color: "" },
   { id: "ruleta", glyph: "◉", name: "Ruleta de sorteos", desc: "Elige estudiantes o equipos al azar.", boton: "Abrir ruleta", color: "blue" },
   { id: "pizarra", glyph: "✎", name: "Pizarra digital", desc: "Explica ideas y conceptos visualmente.", boton: "Abrir pizarra", color: "yellow" },
+  { id: "estudio", glyph: "▤", name: "Presentaciones en vivo", desc: "Tus estudiantes crean presentaciones y tú las ves en tiempo real, sin Meet.", boton: "Crear sala", color: "blue" },
 ];
 
 // Inicio con sesión iniciada. `section` (inicio | juegos | herramientas) la maneja App.jsx
@@ -247,7 +250,7 @@ function HomeLogged({ onSelectGame, buildVersion, user, onLogout, onNavigate, se
               <h3>{g.name}</h3>
               <p>{g.desc}</p>
               <button className="dh-flat" disabled={!g.ok} onClick={() => g.ok && onSelectGame(g.id)}>
-                {g.ok ? (esDocente ? "Crear partida" : "Ver el juego") : "Próximamente"}
+                {g.ok ? (esDocente ? g.bd || "Crear partida" : g.be || "Ver el juego") : "Próximamente"}
               </button>
             </article>
           ))}

@@ -148,7 +148,7 @@ export function Pizarra({ goHome }) {
       const b = cajaDe(mostrado);
       ctx.save();
       ctx.setLineDash([6, 4]);
-      ctx.strokeStyle = "#F16503";
+      ctx.strokeStyle = "#00A99A";
       ctx.lineWidth = 1.6;
       ctx.strokeRect(b.x - 6, b.y - 6, b.w + 12, b.h + 12);
       ctx.restore();

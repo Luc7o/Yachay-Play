@@ -1,0 +1,156 @@
+/* ==========================================================================
+   YachayPlay · Aula Fresca — ajustes finales (se carga al último, por eso gana)
+   Reemplaza lo que quedaba del diseño viejo en las pantallas de juego y herramientas:
+   barra superior, relojes, botones, textos con poco contraste y modo oscuro.
+   Los colores salen de las variables de shell.css (--ink, --muted, --line, --surface…).
+   ========================================================================== */
+
+/* ---- 1. Barra superior (Ludo, Crucigrama, herramientas): sigue el tema ---- */
+.ref-topbar{background:var(--nav)!important;border-bottom:1px solid var(--line)!important;color:var(--ink)!important}
+.ref-topbar .ref-brand p,.ref-topbar .brand-subtitle{color:var(--muted)!important}
+
+/* ---- 2. Reloj, código de partida y controles de tiempo ---- */
+.time-box{background:var(--surface2)!important;color:var(--ink)!important;border:1px solid var(--line)!important}
+.time-box span,.time-box small{color:var(--muted)!important}
+.time-box b,.time-box strong{color:var(--ink)!important}
+.time-box.time-low{background:#fee2e2!important;border-color:#ef4444!important}
+.time-box.time-low b,.time-box.time-low span{color:#991b1b!important}
+.time-controls button{background:var(--surface2);color:var(--ink);border:1px solid var(--line)}
+.time-controls button:hover{background:var(--mint);color:var(--btn-ink)}
+.cw-timer{background:var(--surface2);color:var(--ink);border:2px solid var(--primary2)}
+
+/* ---- 3. Colores de equipo: se conservan, pero el texto encima ahora se lee ---- */
+.board-piece[style*="234, 179, 8"],.board-piece[style*="16, 185, 129"]{color:#0b2a31!important;text-shadow:none}
+.turn-chip{color:#1d4ed8!important}
+
+/* ---- 4. Modo oscuro: lo que quedaba con colores de modo claro ---- */
+:root[data-theme="dark"] .pz-g-ok{color:#86efac}
+:root[data-theme="dark"] .pz-g-error{color:#fca5a5}
+:root[data-theme="dark"] .wait-title,
+:root[data-theme="dark"] .wait-side h3,
+:root[data-theme="dark"] .join-label,
+:root[data-theme="dark"] .field-label{color:#edfaff}
+:root[data-theme="dark"] .hero-eyebrow{background:#174c4b;color:#7ff0d3}
+:root[data-theme="dark"] .wait-code-warn{background:#3a3a1f;color:#ffe9b0}
+:root[data-theme="dark"] .wait-code-label,
+:root[data-theme="dark"] .wait-code-how{color:#cfeee8}
+:root[data-theme="dark"] .join-status{color:#afcbd1}
+:root[data-theme="dark"] .pa-signup{background:#62e9c6;border-color:#62e9c6;color:#05303a}
+:root[data-theme="dark"] .build-mark{color:#8fb0b8}
+
+/* ---- 5. Fichas y nombres de equipo (los colores de equipo se conservan) ---- */
+.board-piece[style*="239, 68, 68"]{background:#dc2626!important;color:#fff!important}
+.board-piece[style*="59, 130, 246"]{background:#2563eb!important;color:#fff!important}
+.wait-full-tag{color:#065f46!important}
+:root[data-theme="dark"] .team-mini-grid small,
+:root[data-theme="dark"] .piece-row small,
+:root[data-theme="dark"] .phone-code-label{color:#afcbd1!important}
+
+/* ---- 6. Sala de espera en modo oscuro ---- */
+:root[data-theme="dark"] .wait-progress-top strong{color:#edfaff}
+:root[data-theme="dark"] .wait-progress-top span{color:#7ff0d3}
+:root[data-theme="dark"] .wait-phone{background:var(--surface);border-color:var(--line)}
+:root[data-theme="dark"] .wait-phone .eyebrow{color:var(--muted)}
+:root[data-theme="dark"] .pa-signup{background:#62e9c6!important;border-color:#62e9c6!important;color:#05303a!important}
+
+/* ---- 7. Botón rojo (Finalizar) con contraste ---- */
+.ref-danger{background:#dc2626!important}
+.ref-danger:hover{background:#b91c1c!important}
+
+/* ---- 8. Más pantallas en modo oscuro: tablero, selector de modo y Crucigrama ---- */
+:root[data-theme="dark"] .legend span{color:#afcbd1}
+:root[data-theme="dark"] .role-guest span{color:#cfeee8}
+:root[data-theme="dark"] .role-guest button{color:#7ff0d3}
+:root[data-theme="dark"] :is(.cw-stat-card,.cw-clue-list li,.cw-activity-scroll,.cw-rivals,.cw-rival,.cw-lb-row,.cw-players-grid li,.cw-player-card,.cw-clue-progress,.cw-leaderboard) b{color:#edfaff}
+:root[data-theme="dark"] :is(.cw-stat-card,.cw-clue-list li,.cw-activity-scroll,.cw-rivals,.cw-rival,.cw-lb-row,.cw-players-grid li,.cw-player-card,.cw-clue-progress,.cw-leaderboard) small{color:#afcbd1}
+:root[data-theme="dark"] .cw-sabotage{background:var(--surface);border-color:var(--line)}
+:root[data-theme="dark"] .cw-side-title{color:var(--muted)}
+:root[data-theme="dark"] .cw-clue-list li.solved b,:root[data-theme="dark"] .cw-clue-list li.done b{color:#6ee7b7}
+
+
+/* ---- 9. Texto con el color de un equipo: versión que se lee sobre claro y sobre oscuro ----
+   (el texto lleva el color del equipo en su atributo style; las fichas y fondos no se tocan) */
+[style^="color: rgb(239, 68, 68)"]{color:#b91c1c!important}
+[style^="color: rgb(16, 185, 129)"]{color:#047857!important}
+[style^="color: rgb(234, 179, 8)"]{color:#8a6100!important}
+[style^="color: rgb(59, 130, 246)"]{color:#1d4ed8!important}
+:root[data-theme="dark"] [style^="color: rgb(239, 68, 68)"]{color:#ff9a9a!important}
+:root[data-theme="dark"] [style^="color: rgb(16, 185, 129)"]{color:#4ade9f!important}
+:root[data-theme="dark"] [style^="color: rgb(234, 179, 8)"]{color:#fbd34d!important}
+:root[data-theme="dark"] [style^="color: rgb(59, 130, 246)"]{color:#8ab8ff!important}
+
+/* ---- 10. Últimos detalles de contraste (claro y oscuro) ---- */
+.time-box span,.time-box small{color:#4a5f66!important}
+:root[data-theme="dark"] .time-box span,:root[data-theme="dark"] .time-box small{color:#afcbd1!important}
+.cell .star{color:#566474}
+.join-btn:disabled{color:#475569}
+.join-success{color:#047857}
+:root[data-theme="dark"] .join-success{color:#4ade9f}
+:root[data-theme="dark"] .cw-heat-legend,
+:root[data-theme="dark"] .cw-activity-time,
+:root[data-theme="dark"] .cw-stat-card span{color:#afcbd1!important}
+:root[data-theme="dark"] .cw-activity-scroll li{background:var(--surface2)!important;border-color:var(--line)!important}
+:root[data-theme="dark"] .dice-result-row{background:var(--surface2);border-color:var(--line)}
+
+/* Números y letras de las celdas del Crucigrama: oscuros sobre celdas claras, claros sobre las grises */
+.cw-cell-num{color:#0b3642}
+.cw-cell[style*="rgba(100, 116, 139"] .cw-cell-num{color:#f1fbfa}
+.cw-cell[style*="rgba(16, 185, 129"] .cw-cell-num,.cw-cell[style*="rgba(16, 185, 129"] .cw-cell-letter{color:#06251f}
+:root[data-theme="dark"] .cw-activity-scroll span{color:#e5f6f5}
+
+/* El cartel de turno conserva su fondo claro también en modo oscuro: su texto usa el color más fuerte del equipo */
+:root[data-theme="dark"] .turn-banner b[style^="color: rgb(239, 68, 68)"]{color:#b91c1c!important}
+:root[data-theme="dark"] .turn-banner b[style^="color: rgb(16, 185, 129)"]{color:#047857!important}
+:root[data-theme="dark"] .turn-banner b[style^="color: rgb(234, 179, 8)"]{color:#8a6100!important}
+:root[data-theme="dark"] .turn-banner b[style^="color: rgb(59, 130, 246)"]{color:#1d4ed8!important}
+:root[data-theme="dark"] .cw-cell[style*="rgba(100, 116, 139"] .cw-cell-num{color:#f1fbfa}
+:root[data-theme="dark"] .cw-cell[style*="rgba(16, 185, 129"] :is(.cw-cell-num,.cw-cell-letter){color:#06251f}
+.phone-mini-field{color:#667789}
+
+/* ---- 11. Portada pública y panel: últimos contrastes ---- */
+:root:not([data-theme="dark"]) .pa-primary{background:#00796f;border-color:#00796f}
+.pa-new{background:#00796f}
+:root:not([data-theme="dark"]) .pa-pill{color:#005a52}
+:root:not([data-theme="dark"]) .pa-step-icon,:root:not([data-theme="dark"]) .pa-step-arrow{color:#00796f}
+:root[data-theme="dark"] .pa-game:not(.pa-game-0):not(.pa-game-1){background:#132f3d;color:#e5f8fa;border-color:#348777}
+.sh-content .tl-error{color:#b91c1c}
+.sh-content .tl-tab.on{color:#05292c}
+
+:root:not([data-theme="dark"]) .pa-home-cta-actions .pa-primary{background:#fff;border-color:#fff;color:#07565e}
+.cfg-team[style*="ef4444" i] .cfg-chip.on{background:#dc2626;border-color:#dc2626}
+.cfg-team[style*="3b82f6" i] .cfg-chip.on{background:#2563eb;border-color:#2563eb}
+.cfg-team[style*="10b981" i] .cfg-chip.on,.cfg-team[style*="eab308" i] .cfg-chip.on{color:#0b2a31}
+
+:root:not([data-theme="dark"]) .dh-tag,:root:not([data-theme="dark"]) .sh-content .tl-pill{color:#00665c}
+/* La configuración de partida ya tiene modo oscuro propio (gamesDark.css): ya no necesita la hoja clara */
+:root[data-theme="dark"] .sh-sheet{background:transparent;border-color:transparent;color-scheme:dark}
+:root[data-theme="dark"] .cfg-chip:not(.on){background:var(--surface2);color:var(--ink);border-color:var(--line)}
+:root[data-theme="dark"] .cfg-sum-list dd{color:#edfaff}
+:root[data-theme="dark"] .cfg-sum-list dt,
+:root[data-theme="dark"] .cfg-team-state,
+:root[data-theme="dark"] .cfg-card-head p{color:#afcbd1}
+
+:root[data-theme="dark"] .cfg-team.on .cfg-chip.on{background:var(--tc);border-color:var(--tc);color:#fff}
+:root[data-theme="dark"] .cfg-team[style*="ef4444" i] .cfg-chip.on{background:#dc2626;border-color:#dc2626}
+:root[data-theme="dark"] .cfg-team[style*="3b82f6" i] .cfg-chip.on{background:#2563eb;border-color:#2563eb}
+:root[data-theme="dark"] .cfg-team[style*="10b981" i] .cfg-chip.on,:root[data-theme="dark"] .cfg-team[style*="eab308" i] .cfg-chip.on{color:#0b2a31}
+:root[data-theme="dark"] .cfg-time-info p{color:#afcbd1}
+
+:root[data-theme="dark"] .cfg-chip.on{background:var(--primary2)!important;border-color:var(--primary2)!important;color:#052c37!important}
+:root[data-theme="dark"] .cfg-team.on .cfg-chip.on{background:var(--tc)!important;border-color:var(--tc)!important;color:#fff!important}
+:root[data-theme="dark"] .cfg-team[style*="ef4444" i] .cfg-chip.on{background:#dc2626!important;border-color:#dc2626!important}
+:root[data-theme="dark"] .cfg-team[style*="3b82f6" i] .cfg-chip.on{background:#2563eb!important;border-color:#2563eb!important}
+:root[data-theme="dark"] .cfg-team[style*="10b981" i] .cfg-chip.on,:root[data-theme="dark"] .cfg-team[style*="eab308" i] .cfg-chip.on{color:#0b2a31!important}
+
+/* ---- 12. Menú de arriba: con 7 secciones no cabe en una laptop de 1366 px; se compacta antes de cortarse ---- */
+@media(max-width:1440px){
+  .sh-top{gap:14px;padding-left:22px;padding-right:22px}
+  .sh-theme-txt{display:none}
+  .sh-theme{padding:10px 12px}
+  .sh-nav button{padding:12px 11px}
+  .sh-right{gap:8px}
+}
+@media(max-width:1240px){
+  .sh-top{flex-wrap:wrap}
+  .sh-nav{order:3;width:100%;flex-basis:100%}
+}

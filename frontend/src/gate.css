@@ -5,9 +5,9 @@
    ========================================================================== */
 .gate-page{
   --g-glow-soft:#3b8de055;     /* brillo suave del fondo del hero */
-  --g-a:#ffa566;               /* círculo de color detrás de la tarjeta (inicio del degradado) */
+  --g-a:#62e9c6;               /* círculo de color detrás de la tarjeta (inicio del degradado) */
   --g-b:#00796F;               /* …y su final */
-  --g-hl:#ffb877;              /* color del texto resaltado */
+  --g-hl:#7ff0d3;              /* color del texto resaltado */
   min-height:100vh;
   background-color:#f5f8fc;
   background-image:radial-gradient(#d9e5f2 1.4px,transparent 1.4px);
@@ -125,7 +125,7 @@
 }
 .gate-guest-text{flex:1;min-width:210px}
 .gate-guest-text strong{display:block;color:var(--navy);font-size:15px;font-weight:800}
-.gate-guest-text small{display:block;margin-top:2px;color:#64748b;font-size:12.5px}
+.gate-guest-text small{display:block;margin-top:2px;color:#55657a;font-size:12.5px}
 .gate-guest button{
   border:2px solid var(--orange);background:#fff;color:var(--orange-dark);font-family:inherit;font-weight:900;
   font-size:14px;padding:10px 20px;border-radius:999px;cursor:pointer;transition:background .15s,color .15s;
@@ -190,7 +190,7 @@
 .pv-bar{display:flex;gap:10px;align-items:center;margin-top:12px;background:var(--navy-soft);border-radius:14px;padding:9px 12px}
 .pv-dice{font-size:28px;line-height:1;animation:pv-roll 2.6s ease-in-out infinite}
 .pv-bar b{display:block;font-size:12.5px;color:var(--navy)}
-.pv-bar small{display:block;font-size:11px;color:#64748b}
+.pv-bar small{display:block;font-size:11px;color:#55657a}
 
 /* --- Crucigrama --- */
 .pv-cw-board{
@@ -201,7 +201,7 @@
   font-weight:900;font-size:17px;color:var(--navy);
 }
 .pv-cell.gap{visibility:hidden}
-.pv-cell em{position:absolute;top:1px;left:3px;font-size:8px;font-style:normal;font-weight:800;color:#64748b}
+.pv-cell em{position:absolute;top:1px;left:3px;font-size:8px;font-style:normal;font-weight:800;color:#55657a}
 .pv-cell b{opacity:0;animation:pv-pop .5s ease-out both;animation-delay:var(--d)}
 .pv-cell.hot{background:var(--orange);animation:pv-pulse 1.6s ease-in-out infinite}
 .pv-cell.hot em{color:#fff}

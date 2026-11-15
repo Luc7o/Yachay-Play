@@ -18,6 +18,9 @@ import { restoreCrosswordRooms } from "./crossword/persist.js";
 import { assistantRouter } from "./assistant.js";
 import { attachCrosswordSocket, crosswordTick } from "./crossword/sockets.js";
 import { purgeOldRooms } from "./crossword/engine.js";
+import { slidesRouter } from "./slides/routes.js";
+import { attachSlidesSocket, startSlidesCleanup } from "./slides/sockets.js";
+import { startSlidesPersistence } from "./slides/persist.js";
 
 // Guarda en la base de datos SIN frenar el juego en tiempo real: si falla, solo se avisa en consola.
 const bg = (promesa) => promesa.catch((e) => console.error("Error de base de datos:", e.message));
@@ -49,6 +52,7 @@ app.use(express.json());
 app.use(authOptional); // deja el usuario de la sesión (si hay) en req.user
 app.use("/api/auth", authRouter);
 app.use("/api/crossword-games", crosswordRouter); // juego nuevo: Crucigrama Relámpago
+app.use("/api/slides", slidesRouter); // Presentaciones en vivo (docente ve las de sus estudiantes)
 app.use("/api/assistant", assistantRouter); // asistente IA, solo para docentes
 app.use("/api/profile", profileRouter); // perfil, ranking y logros
 app.use("/api/stats", statsRouter); // estadísticas del docente / historial del estudiante
@@ -161,6 +165,8 @@ await restoreGamesFromDb();
 
 // Cuentas establecidas: un docente y un estudiante de prueba
 await restoreCrosswordRooms();
+await startSlidesPersistence(); // crea su tabla sola, recupera salas y guarda cada 4 s
+startSlidesCleanup();
 
 const cuentasNuevas = await seedDemoUsers();
 if (cuentasNuevas.length) console.log(`Cuentas de prueba creadas: ${cuentasNuevas.join(", ")}`);
@@ -415,6 +421,7 @@ io.on("connection", (socket) => {
 // Crucigrama Relámpago: escucha sus propios eventos "cw:*" en cada conexión
 // (aparte de todo el bloque de Ludo de aquí abajo, para no mezclarlos).
 io.on("connection", (socket) => attachCrosswordSocket(io, socket));
+io.on("connection", (socket) => attachSlidesSocket(io, socket)); // Presentaciones en vivo (eventos "ss:*")
 
 io.on("connection", (socket) => {
   socket.on("join-room", ({ code }) => {

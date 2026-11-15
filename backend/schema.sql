@@ -108,3 +108,15 @@ CREATE TABLE IF NOT EXISTS crossword_players (
   PRIMARY KEY (game_id, id)
 );
 CREATE INDEX IF NOT EXISTS crossword_players_user_idx ON crossword_players(user_id);
+
+-- Presentaciones en vivo. El servidor crea esta tabla solo al arrancar; está aquí como referencia.
+CREATE TABLE IF NOT EXISTS slide_rooms (
+  id         text PRIMARY KEY,
+  code       text NOT NULL,
+  owner_id   text REFERENCES users(id) ON DELETE SET NULL,
+  status     text NOT NULL DEFAULT 'open',
+  data       jsonb NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS slide_rooms_owner_idx ON slide_rooms(owner_id);

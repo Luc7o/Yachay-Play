@@ -48,6 +48,7 @@ export function createRoom({ name, task, ownerId }) {
     task: String(task || "").trim().slice(0, 500),
     ownerId: ownerId || null,
     createdAt: Date.now(),
+    lastUsed: Date.now(), // última vez que el docente abrió la sala (evita sacarla de memoria mientras se usa)
     status: "open", // open | closed
     locked: false, // true = nadie puede editar (solo mirar)
     decks: new Map(), // deckKey -> { key, name, deck, comments, updatedAt }
@@ -122,6 +123,23 @@ export function closeRoom(room) {
   avisar(room);
 }
 
+// Elimina la sala de la memoria. La marca `deleted` evita que el guardado automático la vuelva a escribir en la base.
+export function deleteRoom(room) {
+  room.deleted = true;
+  if (rooms.get(room.code) === room) rooms.delete(room.code);
+}
+export const marcarUso = (room) => { room.lastUsed = Date.now(); };
+
+// Resumen corto para la lista "Mis salas" del docente.
+export function resumenLista(room) {
+  let slides = 0;
+  for (const e of room.decks.values()) slides += e.deck?.slides?.length || 0;
+  return {
+    id: room.id, code: room.code, name: room.name, task: room.task, status: room.status,
+    createdAt: room.createdAt, students: room.students.size, decks: room.decks.size, slides,
+  };
+}
+
 export function setPresence(room, studentId, patch) {
   const st = room.students.get(studentId);
   if (!st) return null;
@@ -141,6 +159,7 @@ export function resumenSala(room) {
 export function vistaDocente(room) {
   return {
     ...resumenSala(room),
+    id: room.id,
     decks: [...room.decks.values()].map((e) => ({
       key: e.key, name: e.name, deck: e.deck, comments: e.comments, updatedAt: e.updatedAt, members: miembros(room, e.key),
     })),
@@ -168,7 +187,7 @@ export function restaurar(d) {
   if (!d?.code || rooms.has(d.code)) return null;
   const room = {
     id: d.id, code: d.code, name: d.name, task: d.task || "", ownerId: d.ownerId || null, status: d.status === "closed" ? "closed" : "open",
-    locked: !!d.locked, createdAt: d.createdAt || Date.now(), decks: new Map(), students: new Map(), dirty: false,
+    locked: !!d.locked, createdAt: d.createdAt || Date.now(), lastUsed: Date.now(), decks: new Map(), students: new Map(), dirty: false,
   };
   for (const e of d.decks || []) room.decks.set(e.key, { key: e.key, name: e.name, deck: limpiarDeck(e.deck), comments: e.comments || {}, updatedAt: e.updatedAt || Date.now() });
   for (const s of d.students || []) if (room.decks.has(s.deckKey)) room.students.set(s.id, { ...s, online: false, slideId: null, lastSeen: Date.now() });
@@ -176,6 +195,12 @@ export function restaurar(d) {
   return room;
 }
 
+// Saca de la memoria las salas sin uso. Una sala sigue "en uso" si se creó, la abrió el docente
+// o algún estudiante hizo algo después del límite. (Siguen guardadas en la base y salen en "Mis salas".)
 export function purgeOld(limite) {
-  for (const [code, r] of rooms) if (r.createdAt < limite) rooms.delete(code);
+  for (const [code, r] of rooms) {
+    let ultimo = Math.max(r.createdAt || 0, r.lastUsed || 0);
+    for (const s of r.students.values()) ultimo = Math.max(ultimo, s.lastSeen || 0);
+    if (ultimo < limite) rooms.delete(code);
+  }
 }

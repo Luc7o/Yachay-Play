@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { W, H, LIMITES, aplicarOp, diapositiva, elementoForma, elementoImagen, elementoTexto, nuevoId } from "./model";
 import { ElementoVista, SlideView } from "./SlideView";
+import { ThemeToggle } from "./ThemeToggle";
 
 // ---------- utilidades ----------
 function inverso(deck, op) {
@@ -236,6 +237,7 @@ export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, s
         <div className="es-top-l">{topLeft}</div>
         <div className="es-top-r">
           {topRight}
+          <ThemeToggle />
           <button className="es-btn" onClick={() => setPresentando(true)}>▶ Presentar</button>
         </div>
       </header>

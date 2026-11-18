@@ -10,6 +10,19 @@
 import db from "../db.js";
 import { hooks, rooms, restaurar, serializar } from "./engine.js";
 
+let guardando = false; // true mientras el guardado automático está escribiendo en la base
+
+// Borra una sala de la base. Espera a que termine un guardado en curso para que no la vuelva a escribir.
+// Si la tabla aún no existe (la base no estaba lista), no hay nada que borrar.
+export async function borrarSala(id) {
+  while (guardando) await new Promise((r) => setTimeout(r, 60));
+  try {
+    await db.pool.query("DELETE FROM slide_rooms WHERE id = $1", [id]);
+  } catch (e) {
+    if (e.code !== "42P01") throw e;
+  }
+}
+
 export async function startSlidesPersistence() {
   try {
     await db.pool.query(`
@@ -34,13 +47,12 @@ export async function startSlidesPersistence() {
   }
 
   hooks.onDirty = () => {}; // la bandera room.dirty la pone el motor; aquí solo se guarda por tiempo
-  let guardando = false;
   setInterval(async () => {
     if (guardando) return;
     guardando = true;
     try {
       for (const room of rooms.values()) {
-        if (!room.dirty) continue;
+        if (!room.dirty || room.deleted) continue;
         room.dirty = false;
         try {
           await db.pool.query(

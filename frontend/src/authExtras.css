@@ -1,0 +1,31 @@
+/* ===== Pantallas extra de seguridad (2FA, recuperar contraseña) y ajustes del perfil ===== */
+.ax-card { width: min(420px, 100%); background: var(--sheet); color: var(--ink); border: 1px solid var(--line); border-radius: 22px;
+  box-shadow: var(--shadow); padding: 32px 30px 34px; display: flex; flex-direction: column; }
+.ax-card h1 { font: 600 26px/1.15 var(--ff); letter-spacing: -.02em; margin: 0; color: var(--ink); }
+.ax-card h1::after { content: ""; display: block; width: 38px; height: 3px; border-radius: 3px; margin-top: 12px; background: var(--mint); }
+.ax-lead { margin: 16px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+.yl-ok { margin: 14px 0 0; padding: 10px 12px; font-size: 13px; border-radius: 8px; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; }
+:root[data-theme="dark"] .yl-ok { color: #6ee7b7; background: #0f2f27; border-color: #1f6b55; }
+.ax-check { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 12.5px; color: var(--muted); cursor: pointer; }
+.ax-terms { display: flex; align-items: flex-start; gap: 8px; margin-top: 14px; font-size: 12px; line-height: 1.4; color: var(--muted); cursor: pointer; }
+.ax-terms input { margin-top: 2px; accent-color: var(--accent); flex: none; }
+.ax-terms a, .yl-forgot { color: var(--accent); font-weight: 600; }
+.yl-forgot { align-self: flex-end; margin-top: 8px; border: 0; background: none; padding: 0; font: 600 12px var(--ff); cursor: pointer; }
+.yl-forgot:hover, .ax-terms a:hover { text-decoration: underline; }
+
+/* Ajustes del perfil: verificación en dos pasos */
+.ax-qr { display: block; margin: 12px auto; width: 200px; height: 200px; background: #fff; padding: 8px; border-radius: 12px; }
+.ax-secret { display: block; margin: 8px 0; padding: 10px 12px; font: 600 14px ui-monospace, Menlo, Consolas, monospace; letter-spacing: .08em; word-break: break-all;
+  border: 1px dashed var(--line, #cbd5e1); border-radius: 10px; text-align: center; user-select: all; }
+.ax-codes { list-style: none; margin: 12px 0; padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; border: 1px solid var(--line, #cbd5e1);
+  border-radius: 12px; font: 700 14px ui-monospace, Menlo, Consolas, monospace; letter-spacing: .05em; }
+.ax-badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.ax-badge.on { background: rgba(16,185,129,.15); color: #059669; }
+.ax-badge.off { background: rgba(148,163,184,.2); color: #64748b; }
+.ax-step { font-size: 13px; line-height: 1.5; margin: 6px 0; }
+@media (max-width: 480px) { .ax-card { padding: 26px 20px 28px; } }
+
+/* El formulario de "Crear cuenta" ahora lleva la casilla de Términos: la tarjeta de escritorio crece un poco. */
+@media (min-width: 820px) {
+  .yl-card { height: clamp(680px, 86vh, 740px); }
+}

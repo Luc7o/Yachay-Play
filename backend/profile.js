@@ -11,7 +11,8 @@
 // ============================================================================
 import { Router } from "express";
 import db from "./db.js";
-import { hashPassword, verifyPassword, publicUser } from "./authCore.js";
+import { hashPassword, verifyPassword, publicUser, signToken, findUserById, validatePassword } from "./authCore.js";
+import { verificarSegundoPaso } from "./twoFactor.js";
 
 export const profileRouter = Router();
 export const PUNTOS_VICTORIA = 10;
@@ -164,28 +165,41 @@ profileRouter.patch("/", async (req, res) => {
   }
 });
 
-// ----------------------------- cambiar contraseña -----------------------------
+// ----------------------------- cambiar / crear contraseña -----------------------------
+// - Cuenta con contraseña: se pide la actual.
+// - Cuenta creada con Google (aún sin contraseña): se puede CREAR una sin pedir la actual (no existe);
+//   si tiene verificación en dos pasos, se pide un código para confirmar que es la persona.
 const intentos = new Map(); // userId -> { n, inicio }: 5 intentos fallidos cada 10 minutos
 profileRouter.post("/password", async (req, res) => {
   const actual = String(req.body?.currentPassword || "");
   const nueva = String(req.body?.newPassword || "");
   const ahora = Date.now();
   const a = intentos.get(req.user.id);
+  const fallar = () => {
+    const previo = a && ahora - a.inicio < 10 * 60 * 1000 ? a : { n: 0, inicio: ahora };
+    intentos.set(req.user.id, { n: previo.n + 1, inicio: previo.inicio });
+  };
   if (a && ahora - a.inicio < 10 * 60 * 1000 && a.n >= 5) {
     return res.status(429).json({ error: "Demasiados intentos. Espera unos minutos e inténtalo otra vez." });
   }
-  if (nueva.length < 6) return res.status(400).json({ error: "La nueva contraseña debe tener al menos 6 caracteres." });
-  if (nueva.length > 100) return res.status(400).json({ error: "La nueva contraseña es demasiado larga." });
+  const errClave = validatePassword(nueva, req.user.email);
+  if (errClave) return res.status(400).json({ error: errClave });
   try {
     const u = await db.prepare("SELECT password_hash FROM users WHERE id = ?").get(req.user.id);
-    if (!verifyPassword(actual, u.password_hash)) {
-      const previo = a && ahora - a.inicio < 10 * 60 * 1000 ? a : { n: 0, inicio: ahora };
-      intentos.set(req.user.id, { n: previo.n + 1, inicio: previo.inicio });
+    if (u.password_hash === "google") {
+      if (req.user.totp_enabled && !(await verificarSegundoPaso(req.user, req.body?.code))) {
+        fallar();
+        return res.status(401).json({ error: "Escribe un código válido de tu app de autenticación." });
+      }
+    } else if (!(await verifyPassword(actual, u.password_hash))) {
+      fallar();
       return res.status(401).json({ error: "La contraseña actual no es correcta." });
     }
-    await db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(hashPassword(nueva), req.user.id);
+    // token_version + 1 cierra las demás sesiones abiertas; a esta se le entrega un token nuevo para que no se salga.
+    await db.prepare("UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE id = ?").run(await hashPassword(nueva), req.user.id);
     intentos.delete(req.user.id);
-    res.json({ ok: true });
+    const fresco = await findUserById(req.user.id);
+    res.json({ ok: true, token: signToken(fresco), user: publicUser(fresco) });
   } catch (e) {
     console.error("Error al cambiar contraseña:", e.message);
     res.status(500).json({ error: "No se pudo cambiar la contraseña." });

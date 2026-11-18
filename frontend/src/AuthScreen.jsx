@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { api } from "./api";
+import { GoogleButton } from "./GoogleButton";
 import "./authAnim.css";
+import "./authExtras.css";
 
 const ROLES = [
   { id: "docente", title: "Docente", text: "Creo y proyecto las partidas." },
@@ -39,7 +41,7 @@ const IconEye = ({ off }) => (
 // Pantalla de "Iniciar sesión" y "Crear cuenta".
 // El rol (docente / estudiante) se elige UNA sola vez, al crear la cuenta.
 // Una hoja clara con corte diagonal se desliza sobre un panel verde al cambiar de pestaña.
-export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest }) {
+export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, onNeeds2FA }) {
   const registro = tab === "register";
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || "light");
   const toggleTheme = () => {
@@ -52,6 +54,7 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [terms, setTerms] = useState(false); // aceptó Términos y Política de Privacidad
   const [verClave, setVerClave] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -73,7 +76,7 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest }) {
   }
 
   const listo = registro
-    ? role && name.trim().length >= 2 && email.trim() && password.length >= 6
+    ? role && name.trim().length >= 2 && email.trim() && password.length >= 8 && terms
     : email.trim() && password;
 
   async function enviar(e) {
@@ -83,8 +86,37 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest }) {
     setError("");
     try {
       const r = registro
-        ? await api.register({ name, email, password, role })
+        ? await api.register({ name, email, password, role, acceptTerms: terms })
         : await api.login(email, password);
+      if (r.needs2FA) return onNeeds2FA(r.challenge); // la cuenta tiene verificación en dos pasos
+      onSuccess(r); // { token, user }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ---- Google ----
+  // El botón de Google guarda su callback al iniciar, así que leemos rol y pestaña desde refs.
+  const roleRef = useRef(role);
+  roleRef.current = role;
+  const termsRef = useRef(terms);
+  termsRef.current = terms;
+  async function entrarConGoogle(credential) {
+    if (!credential) return;
+    setLoading(true);
+    setError("");
+    try {
+      const r = await api.google(credential, roleRef.current || undefined, termsRef.current);
+      if (r.needsRole) {
+        setTab("register");
+        if (r.name) setName(r.name);
+        if (r.email) setEmail(r.email);
+        setError("Aún no tienes cuenta. Elige si eres docente o estudiante, acepta los Términos y la Política de Privacidad, y vuelve a pulsar «Continuar con Google».");
+        return;
+      }
+      if (r.needs2FA) return onNeeds2FA(r.challenge);
       onSuccess(r); // { token, user }
     } catch (err) {
       setError(err.message);
@@ -140,7 +172,7 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest }) {
         type={verClave ? "text" : "password"}
         value={password}
         autoComplete={registro ? "new-password" : "current-password"}
-        placeholder={registro ? "Mínimo 6 caracteres" : "Tu contraseña"}
+        placeholder={registro ? "Mínimo 8, con letras y números" : "Tu contraseña"}
         onChange={(e) => setPassword(e.target.value)}
       />
       <button type="button" className="yl-eye" onClick={() => setVerClave(!verClave)} aria-label={verClave ? "Ocultar contraseña" : "Mostrar contraseña"}>
@@ -195,6 +227,7 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest }) {
                 <i className="yl-bar" />
               </div>
               {campoClave("yl-l-pass")}
+              <button type="button" className="yl-forgot" onClick={onForgot}>¿Olvidaste tu contraseña?</button>
 
               {demo.length > 0 && (
                 <div className="yl-demo">
@@ -211,6 +244,8 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest }) {
               <button type="submit" className="yl-btn" disabled={!listo || loading}>
                 {loading ? "Un momento…" : "Entrar"}
               </button>
+              <div className="yl-or"><span>o</span></div>
+              <GoogleButton onCredential={entrarConGoogle} />
               <div className="yl-links">
                 <span>¿Aún no tienes cuenta? <button type="button" onClick={() => cambiarTab("register")}>Créala gratis</button></span>
                 <span>¿Solo quieres jugar con un código? <button type="button" onClick={onGuest}>Entrar como invitado</button></span>
@@ -250,10 +285,19 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest }) {
               </div>
               {campoClave("yl-r-pass")}
 
+              <label className="ax-terms">
+                <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} />
+                <span>
+                  Acepto los <a href="/terminos-y-condiciones" target="_blank" rel="noopener noreferrer">Términos y Condiciones</a> y la{" "}
+                  <a href="/politica-de-privacidad" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>.
+                </span>
+              </label>
               {registro && bloqueError}
               <button type="submit" className="yl-btn" disabled={!listo || loading}>
                 {loading ? "Un momento…" : "Crear mi cuenta"}
               </button>
+              <div className="yl-or"><span>o</span></div>
+              <GoogleButton onCredential={entrarConGoogle} />
               <div className="yl-links">
                 <span>¿Ya tienes cuenta? <button type="button" onClick={() => cambiarTab("login")}>Inicia sesión</button></span>
                 <span>¿Solo quieres jugar con un código? <button type="button" onClick={onGuest}>Entrar como invitado</button></span>

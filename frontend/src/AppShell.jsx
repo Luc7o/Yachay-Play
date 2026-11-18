@@ -97,7 +97,11 @@ export function AppShell({ user, active, onNavigate, onLogout, buildVersion, she
       </header>
 
       <main className="sh-content">{sheet ? <div className="sh-sheet">{children}</div> : children}</main>
-      {buildVersion && <footer className="build-mark">YachayPlay · Build {buildVersion}</footer>}
+      {buildVersion && (
+      <footer className="build-mark">
+        YachayPlay · Build {buildVersion} · <a href="/politica-de-privacidad.html" target="_blank" rel="noopener noreferrer">Privacidad</a> · <a href="/terminos-y-condiciones.html" target="_blank" rel="noopener noreferrer">Términos</a>
+      </footer>
+    )}
     </div>
   );
 }

@@ -137,3 +137,8 @@
   .yl-green, .yl-blk, .yl-bar { transition: none !important; }
   .yl-form { animation: none !important; }
 }
+
+/* Continuar con Google */
+.yl-or { margin: 14px 0 10px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+.yl-or::before, .yl-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.yl-google { display: flex; justify-content: center; min-height: 44px; }

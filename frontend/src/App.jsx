@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { api, getToken, setToken } from "./api";
 import { socket, reconnectSocket } from "./socket";
 import { AuthScreen } from "./AuthScreen";
+import { ForgotPasswordScreen, ResetPasswordScreen, TwoFactorStep } from "./AuthExtras";
 import { GameCatalog } from "./GameCatalog";
 import { AppShell } from "./AppShell";
 import { InfoPage } from "./InfoPages";
@@ -24,6 +25,12 @@ import { SetupScreen } from "./ludo/SetupScreen";
 import { LobbyScreen } from "./ludo/LobbyScreen";
 import { EngineerGame } from "./ludo/EngineerGame";
 import { StudentJoin, StudentWaiting, StudentGame } from "./ludo/Student";
+
+// Enlace del correo de recuperación: https://www.yachayplay.com/#/restablecer/<token>
+function leerTokenRestablecer() {
+  const m = window.location.hash.match(/^#\/restablecer\/([A-Za-z0-9_-]{20,100})$/);
+  return m ? m[1] : null;
+}
 
 function App() {
   const [mode, setMode] = useState(() => localStorage.getItem("ludo_mode") || null);
@@ -56,6 +63,13 @@ function App() {
   const [tab, setTab] = useState("game");
   const [selected, setSelected] = useState(null);
   const [bank, setBank] = useState([]);
+  const [challenge2fa, setChallenge2fa] = useState(null); // 2.º paso del login (cuenta con 2FA)
+  const [olvide, setOlvide] = useState(false); // pantalla "¿Olvidaste tu contraseña?"
+  const [resetToken, setResetToken] = useState(leerTokenRestablecer); // viene del enlace del correo
+  useEffect(() => {
+    // Sacamos el token de la barra de direcciones (queda solo en memoria).
+    if (resetToken) window.history.replaceState(null, "", window.location.pathname + window.location.search + "#/inicio");
+  }, []); // eslint-disable-line
 
   // --- Ingeniero: configuración inicial ---
   const [gameName, setGameName] = useState("Historia de la Ingeniería");
@@ -370,12 +384,28 @@ function App() {
     );
 
   if (!mode) {
+      // --- Pantallas de seguridad (no dependen de la sesión) ---
+  if (resetToken) {
+    return <ResetPasswordScreen token={resetToken} onDone={() => { setResetToken(null); setAuthScreen("login"); }} />;
+  }
+  if (challenge2fa) {
+    return (
+      <TwoFactorStep
+        challenge={challenge2fa}
+        onSuccess={(r) => { setChallenge2fa(null); handleAuthSuccess(r); }}
+        onCancel={() => setChallenge2fa(null)}
+      />
+    );
+  }
+  if (olvide) return <ForgotPasswordScreen onBack={() => setOlvide(false)} />;
     if (authScreen) {
       return (
         <AuthScreen
           tab={authScreen}
           setTab={setAuthScreen}
           onSuccess={handleAuthSuccess}
+          onForgot={() => setOlvide(true)}
+          onNeeds2FA={setChallenge2fa}
           onBack={() => setAuthScreen(null)}
           onGuest={() => {
             setAuthScreen(null);

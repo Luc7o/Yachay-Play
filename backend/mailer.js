@@ -65,3 +65,20 @@ export function enviarAvisoCambioClave({ to, name }) {
   const html = `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;color:#073b47"><h2 style="color:#00796f">YachayPlay</h2><p>Hola ${esc(name)},</p><p>Tu contraseña acaba de cambiarse y se cerraron las sesiones abiertas.</p><p>Si no fuiste tú, restablécela de inmediato desde «¿Olvidaste tu contraseña?» y contáctanos.</p></div>`;
   return enviar({ to, subject, html, text });
 }
+
+export function enviarVerificacion({ to, name, token }) {
+  const enlace = `${frontendUrl()}/#/verificar/${token}`;
+  const subject = "Confirma tu correo de YachayPlay";
+  const text =
+    `Hola ${name},\n\n¡Bienvenido/a a YachayPlay! Confirma que este correo es tuyo abriendo este enlace (vale 24 horas):\n${enlace}\n\n` +
+    `Si no creaste la cuenta, ignora este correo.\n\n— Equipo YachayPlay`;
+  const html =
+    `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;color:#073b47">` +
+    `<h2 style="color:#00796f">YachayPlay</h2>` +
+    `<p>Hola ${esc(name)},</p>` +
+    `<p>¡Bienvenido/a! Confirma que este correo es tuyo. El enlace vale <strong>24 horas</strong>.</p>` +
+    `<p style="margin:28px 0"><a href="${esc(enlace)}" style="background:#0b5550;color:#fff;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:bold">Confirmar mi correo</a></p>` +
+    `<p style="font-size:13px;color:#5a7a80">Si el botón no funciona, copia y pega este enlace en tu navegador:<br>${esc(enlace)}</p>` +
+    `<p style="font-size:13px;color:#5a7a80">Si no creaste la cuenta, ignora este correo.</p></div>`;
+  return enviar({ to, subject, html, text });
+}

@@ -59,6 +59,9 @@ export const api = {
     request("/api/auth/google", { method: "POST", body: JSON.stringify({ credential, role, acceptTerms }) }),
   forgotPassword: (email) => request("/api/auth/forgot", { method: "POST", body: JSON.stringify({ email }) }),
   resetPassword: (token, password) => request("/api/auth/reset", { method: "POST", body: JSON.stringify({ token, password }) }),
+  verifyEmail: (token) => request("/api/auth/verify-email", { method: "POST", body: JSON.stringify({ token }) }),
+  resendVerification: () => request("/api/auth/resend-verification", { method: "POST", body: "{}" }),
+  logoutAll: () => request("/api/auth/logout-all", { method: "POST", body: "{}" }),
   twoFactorSetup: () => request("/api/auth/2fa/setup", { method: "POST", body: "{}" }),
   twoFactorEnable: (code) => request("/api/auth/2fa/enable", { method: "POST", body: JSON.stringify({ code }) }),
   twoFactorDisable: (code, password) => request("/api/auth/2fa/disable", { method: "POST", body: JSON.stringify({ code, password }) }),
@@ -76,8 +79,8 @@ export const api = {
   profile: () => request("/api/profile"),
   profileRanking: () => request("/api/profile/ranking"),
   profileName: (name) => request("/api/profile", { method: "PATCH", body: JSON.stringify({ name }) }),
-  profilePassword: (currentPassword, newPassword) =>
-    request("/api/profile/password", { method: "POST", body: JSON.stringify({ currentPassword, newPassword }) }),
+  profilePassword: (currentPassword, newPassword, code) =>
+    request("/api/profile/password", { method: "POST", body: JSON.stringify({ currentPassword, newPassword, code }) }),
   // Estadísticas (docente: sus partidas; estudiante: su historial)
   stats: () => request("/api/stats"),
   // Banco de preguntas

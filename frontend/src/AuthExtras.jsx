@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { api } from "./api";
 import "./authAnim.css";
 import "./authExtras.css";
@@ -8,6 +8,7 @@ import "./authExtras.css";
 //   <TwoFactorStep />       2.º paso del login: código de 6 dígitos o código de recuperación
 //   <ForgotPasswordScreen/> "¿Olvidaste tu contraseña?": pide el correo
 //   <ResetPasswordScreen/>  se abre desde el enlace del correo: nueva contraseña
+//   <VerifyEmailScreen/>    se abre desde el enlace del correo de bienvenida: confirma el correo
 // ============================================================================
 
 function Marco({ children, onBack, backText = "Volver" }) {
@@ -182,6 +183,33 @@ export function ResetPasswordScreen({ token, onDone }) {
           </>
         )}
       </form>
+    </Marco>
+  );
+}
+
+// ------------------------- confirmar correo (desde el correo de bienvenida) -------------------------
+export function VerifyEmailScreen({ token, onDone }) {
+  const [estado, setEstado] = useState("cargando"); // cargando | ok | error
+  const [mensaje, setMensaje] = useState("");
+
+  useEffect(() => {
+    let vivo = true;
+    api
+      .verifyEmail(token)
+      .then((r) => { if (vivo) { setEstado("ok"); setMensaje(r.message || "Correo verificado."); } })
+      .catch((e) => { if (vivo) { setEstado("error"); setMensaje(e.message); } });
+    return () => { vivo = false; };
+  }, [token]);
+
+  return (
+    <Marco onBack={onDone} backText="Ir al inicio">
+      <div>
+        <h1>Confirmar correo</h1>
+        {estado === "cargando" && <p className="ax-lead">Verificando tu enlace…</p>}
+        {estado === "ok" && <p className="yl-ok" role="status">{mensaje}</p>}
+        {estado === "error" && <p className="yl-error" role="alert">{mensaje}</p>}
+        {estado !== "cargando" && <button type="button" className="yl-btn" onClick={onDone}>Continuar</button>}
+      </div>
     </Marco>
   );
 }

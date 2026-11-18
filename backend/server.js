@@ -47,6 +47,13 @@ process.on("unhandledRejection", (e) => console.error("Promesa sin manejar:", e)
 const app = express();
 app.set("trust proxy", 1); // detrás de un proxy (Render, Railway...) req.ip debe ser la IP real
 const ORIGENES = (process.env.CORS_ORIGIN || "").split(",").map((o) => o.trim()).filter(Boolean);
+// Avisos de configuración insegura o incompleta (solo en producción).
+if (process.env.NODE_ENV === "production") {
+  if (!process.env.AUTH_SECRET) console.warn("[SEGURIDAD] Falta AUTH_SECRET: la clave de sesiones y del 2FA se guarda en la misma base de datos. Define AUTH_SECRET en el hosting.");
+  if (!ORIGENES.length) console.warn("[SEGURIDAD] Falta CORS_ORIGIN: cualquier sitio web podría llamar a la API. Pon la URL de tu frontend.");
+  if (!process.env.RESEND_API_KEY) console.warn("[CORREO] Falta RESEND_API_KEY: no se enviarán los correos de recuperación ni de verificación.");
+  if (!process.env.GOOGLE_CLIENT_ID) console.warn("[GOOGLE] Falta GOOGLE_CLIENT_ID: el botón «Continuar con Google» no funcionará.");
+}
 app.use(cors(ORIGENES.length ? { origin: ORIGENES } : undefined));
 // Cabeceras de seguridad básicas (la API solo devuelve JSON).
 app.disable("x-powered-by");

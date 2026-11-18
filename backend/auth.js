@@ -6,6 +6,9 @@
 //   POST /api/auth/google          entrar / crear cuenta con Google (también pasa por el 2FA si está activo)
 //   POST /api/auth/forgot          pedir enlace para restablecer contraseña (responde siempre igual)
 //   POST /api/auth/reset           { token, password } -> nueva contraseña (cierra las demás sesiones)
+//   POST /api/auth/verify-email    { token } -> confirma el correo (enlace que llega al registrarse)
+//   POST /api/auth/resend-verification  (con sesión) reenvía el enlace de verificación
+//   POST /api/auth/logout-all      (con sesión) cierra la sesión en todos los dispositivos
 //   GET  /api/auth/me              validar la sesión guardada
 //   POST /api/auth/2fa/setup       (con sesión) genera secreto + QR
 //   POST /api/auth/2fa/enable      (con sesión) { code } activa el 2FA y entrega 8 códigos de recuperación
@@ -24,6 +27,7 @@ import {
   readPurposeToken,
   signPurposeToken,
   signToken,
+  upgradeHashIfNeeded,
   userFromToken,
   validatePassword,
   validateRegistration,
@@ -33,9 +37,15 @@ import {
 } from "./authCore.js";
 import { DEMO_USERS, demoEnabled } from "./seed.js";
 import { codigosRestantes, crearCodigosRecuperacion, cifrar, descifrar, nuevoSecreto, qrComoImagen, urlOtpauth, verificarSegundoPaso, verificarTotp } from "./twoFactor.js";
-import { enviarAvisoCambioClave, enviarRecuperacion } from "./mailer.js";
+import { enviarAvisoCambioClave, enviarRecuperacion, enviarVerificacion } from "./mailer.js";
 
 export const authRouter = Router();
+
+// Las respuestas de autenticación llevan tokens y datos personales: que nadie las guarde en caché.
+authRouter.use((_req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  next();
+});
 
 // --- Freno contra fuerza bruta: `max` intentos por ventana, por clave (IP, correo, usuario...) ---
 function crearLimite(max, ventanaMs) {
@@ -60,7 +70,9 @@ function crearLimite(max, ventanaMs) {
   };
 }
 const MIN = 60 * 1000;
-const limLogin = crearLimite(10, 10 * MIN);
+const limLogin = crearLimite(10, 10 * MIN); // por IP + correo
+const limLoginCorreo = crearLimite(30, 15 * MIN); // por correo (frena ataques repartidos entre muchas IP)
+const limVerif = crearLimite(3, 60 * MIN); // reenvíos del correo de verificación, por usuario
 const limGoogle = crearLimite(20, 10 * MIN);
 const limDosPasos = crearLimite(10, 10 * MIN); // por usuario
 const limOlvide = crearLimite(3, 60 * MIN); // por correo
@@ -69,7 +81,7 @@ const limReset = crearLimite(10, 60 * MIN);
 const limRegistro = crearLimite(10, 60 * MIN);
 const MSG_LIMITE = "Demasiados intentos. Espera unos minutos e inténtalo otra vez.";
 
-const DUMMY_HASH = hashPassword("relleno-para-igualar-tiempos");
+const DUMMY_HASH = await hashPassword("relleno-para-igualar-tiempos");
 const sha256 = (t) => crypto.createHash("sha256").update(t).digest("hex");
 
 // Evita que una excepción deje la petición colgada (Express 4 no captura errores async).
@@ -100,18 +112,22 @@ authRouter.post("/register", ruta(async (req, res) => {
   if (error) return res.status(400).json({ error });
   if (await findUserByEmail(data.email)) return res.status(409).json({ error: "Ya existe una cuenta con ese correo." });
   const user = await createUser(data);
+  enviarEnlaceVerificacion(user).catch((e) => console.error("No se pudo enviar la verificación:", e.message)); // sin await: no retrasa el registro
   res.status(201).json({ token: signToken(user), user: publicUser(user) });
 }));
 
 authRouter.post("/login", ruta(async (req, res) => {
   const email = String(req.body?.email || "").trim().toLowerCase();
   const password = String(req.body?.password || "");
-  if (limLogin.excedido(`${req.ip}|${email}`)) return res.status(429).json({ error: MSG_LIMITE });
+  if (password.length > 200) return res.status(401).json({ error: "Correo o contraseña incorrectos." }); // evita gastar CPU con textos enormes
+  if (limLogin.excedido(`${req.ip}|${email}`) || limLoginCorreo.excedido(email)) return res.status(429).json({ error: MSG_LIMITE });
   const user = await findUserByEmail(email);
   // Siempre verificamos un hash (aunque el correo no exista) para no delatar qué correos están registrados.
-  const ok = verifyPassword(password, user ? user.password_hash : DUMMY_HASH);
+  const ok = await verifyPassword(password, user ? user.password_hash : DUMMY_HASH);
   if (!user || !ok) return res.status(401).json({ error: "Correo o contraseña incorrectos." });
   limLogin.reiniciar(`${req.ip}|${email}`);
+  limLoginCorreo.reiniciar(email);
+  await upgradeHashIfNeeded(user, password); // si el hash era de la versión anterior, se re-guarda con los parámetros nuevos
   responderSesion(res, user);
 }));
 
@@ -142,6 +158,13 @@ authRouter.post("/google", ruta(async (req, res) => {
     const role = req.body?.role;
     if (!ROLES.includes(role) || req.body?.acceptTerms !== true) return res.json({ needsRole: true, email: g.email, name: g.name });
     user = await createGoogleUser({ name: g.name, email: g.email, role, termsAccepted: true });
+  } else if (!user.email_verified_at) {
+    // Hay una cuenta con contraseña cuyo correo NUNCA se verificó. Alguien pudo haberla creado con el correo ajeno
+    // y quedarse con la contraseña. Como Google acaba de demostrar que este correo es de quien entra, la cuenta pasa
+    // a ser suya: se borran la contraseña, el 2FA y las sesiones anteriores (puede crear una contraseña nueva desde
+    // su perfil o con «¿Olvidaste tu contraseña?»).
+    await tomarCuentaSinVerificar(user.id);
+    user = await findUserById(user.id);
   }
   responderSesion(res, user);
 }));
@@ -191,8 +214,9 @@ authRouter.post("/reset", ruta(async (req, res) => {
   const gastado = await db.prepare("UPDATE password_resets SET used_at = now() WHERE id = ? AND used_at IS NULL").run(fila.id);
   if (!gastado.changes) return res.status(400).json({ error: "El enlace no es válido o ya caducó. Pide uno nuevo." });
   await db
-    .prepare("UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE id = ?") // cierra las sesiones abiertas
-    .run(hashPassword(String(req.body.password)), fila.user_id);
+    // cierra las sesiones abiertas; y como el enlace llegó a su correo, ese correo queda verificado
+    .prepare("UPDATE users SET password_hash = ?, token_version = token_version + 1, email_verified_at = COALESCE(email_verified_at, now()) WHERE id = ?")
+    .run(await hashPassword(String(req.body.password)), fila.user_id);
   await db.prepare("UPDATE password_resets SET used_at = now() WHERE user_id = ? AND used_at IS NULL").run(fila.user_id);
   const user = await findUserById(fila.user_id);
   if (user) enviarAvisoCambioClave({ to: user.email, name: user.name }).catch(() => {});
@@ -226,7 +250,7 @@ authRouter.post("/2fa/disable", requireSession, ruta(async (req, res) => {
   if (limDosPasos.excedido(req.user.id)) return res.status(429).json({ error: MSG_LIMITE });
   if (!req.user.totp_enabled) return res.status(400).json({ error: "La verificación en dos pasos no está activada." });
   const tieneClave = req.user.password_hash !== "google";
-  if (tieneClave && !verifyPassword(String(req.body?.password || ""), req.user.password_hash)) {
+  if (tieneClave && !(await verifyPassword(String(req.body?.password || ""), req.user.password_hash))) {
     return res.status(401).json({ error: "La contraseña no es correcta." });
   }
   if (!(await verificarSegundoPaso(req.user, req.body?.code))) return res.status(401).json({ error: "Código incorrecto." });
@@ -241,6 +265,56 @@ authRouter.post("/2fa/recovery-codes", requireSession, ruta(async (req, res) => 
   if (!req.user.totp_enabled) return res.status(400).json({ error: "La verificación en dos pasos no está activada." });
   if (!(await verificarSegundoPaso(req.user, req.body?.code))) return res.status(401).json({ error: "Código incorrecto." });
   res.json({ ok: true, recoveryCodes: await crearCodigosRecuperacion(req.user.id) });
+}));
+
+// ------------------------------ verificación de correo ------------------------------
+async function enviarEnlaceVerificacion(user) {
+  if (user.email_verified_at) return;
+  const token = crypto.randomBytes(32).toString("base64url");
+  await db.prepare("UPDATE email_verifications SET used_at = now() WHERE user_id = ? AND used_at IS NULL").run(user.id); // solo vale el último enlace
+  await db
+    .prepare("INSERT INTO email_verifications (user_id, token_hash, expires_at) VALUES (?, ?, now() + interval '24 hours')")
+    .run(user.id, sha256(token));
+  await enviarVerificacion({ to: user.email, name: user.name, token });
+}
+
+// Convierte en "de Google" una cuenta con contraseña que nunca verificó su correo (ver /google).
+async function tomarCuentaSinVerificar(userId) {
+  await db
+    .prepare(
+      "UPDATE users SET password_hash = 'google', token_version = token_version + 1, totp_enabled = false, totp_secret = NULL, totp_last_step = NULL, email_verified_at = now() WHERE id = ?"
+    )
+    .run(userId);
+  await db.prepare("DELETE FROM recovery_codes WHERE user_id = ?").run(userId);
+  await db.prepare("UPDATE password_resets SET used_at = now() WHERE user_id = ? AND used_at IS NULL").run(userId);
+  await db.prepare("UPDATE email_verifications SET used_at = now() WHERE user_id = ? AND used_at IS NULL").run(userId);
+}
+
+authRouter.post("/verify-email", ruta(async (req, res) => {
+  if (limReset.excedido(`${req.ip}|verif`)) return res.status(429).json({ error: MSG_LIMITE });
+  const token = String(req.body?.token || "");
+  const malo = { error: "El enlace no es válido o ya caducó. Pide uno nuevo desde tu perfil." };
+  if (!/^[A-Za-z0-9_-]{20,100}$/.test(token)) return res.status(400).json(malo);
+  const gastado = await db
+    .prepare("UPDATE email_verifications SET used_at = now() WHERE token_hash = ? AND used_at IS NULL AND expires_at > now() RETURNING user_id")
+    .get(sha256(token));
+  if (!gastado) return res.status(400).json(malo);
+  await db.prepare("UPDATE users SET email_verified_at = COALESCE(email_verified_at, now()) WHERE id = ?").run(gastado.user_id);
+  res.json({ ok: true, message: "Correo verificado. ¡Gracias!" });
+}));
+
+authRouter.post("/resend-verification", requireSession, ruta(async (req, res) => {
+  if (req.user.email_verified_at) return res.json({ ok: true, message: "Tu correo ya está verificado." });
+  if (limVerif.excedido(req.user.id)) return res.status(429).json({ error: MSG_LIMITE });
+  await enviarEnlaceVerificacion(req.user);
+  res.json({ ok: true, message: "Te enviamos un enlace de verificación. Revisa también la carpeta de spam." });
+}));
+
+// ------------------------------ cerrar sesión en todos los dispositivos ------------------------------
+authRouter.post("/logout-all", requireSession, ruta(async (req, res) => {
+  await db.prepare("UPDATE users SET token_version = token_version + 1 WHERE id = ?").run(req.user.id);
+  // Esta sesión sigue activa con un token nuevo; todas las demás dejan de servir.
+  res.json({ ok: true, token: signToken(await findUserById(req.user.id)) });
 }));
 
 // ------------------------------ middlewares ------------------------------

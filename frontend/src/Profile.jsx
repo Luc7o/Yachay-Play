@@ -59,11 +59,14 @@ function EditarDatos({ user, onUserUpdate }) {
   );
 }
 
-// ------------------------- cambiar contraseña -------------------------
-function CambiarClave() {
+// ------------------------- cambiar / crear contraseña -------------------------
+// Cuenta con contraseña: pide la actual. Cuenta creada con Google: permite CREAR una (y pide el código 2FA si lo tiene).
+function CambiarClave({ user, onUserUpdate }) {
+  const sinClave = user.hasPassword === false;
   const [actual, setActual] = useState("");
   const [nueva, setNueva] = useState("");
   const [repetir, setRepetir] = useState("");
+  const [codigo, setCodigo] = useState("");
   const [msg, setMsg] = useState({ tipo: "", texto: "" });
   const [guardando, setGuardando] = useState(false);
 
@@ -72,12 +75,14 @@ function CambiarClave() {
     if (nueva !== repetir) return setMsg({ tipo: "error", texto: "Las contraseñas nuevas no coinciden." });
     setGuardando(true);
     try {
-      const r = await api.profilePassword(actual, nueva);
+      const r = await api.profilePassword(actual, nueva, codigo || undefined);
       if (r.token) { setToken(r.token); reconnectSocket(); } // las demás sesiones se cierran; esta sigue activa
+      if (r.user) onUserUpdate?.({ ...user, ...r.user });
       setActual("");
       setNueva("");
       setRepetir("");
-      setMsg({ tipo: "ok", texto: "Contraseña cambiada." });
+      setCodigo("");
+      setMsg({ tipo: "ok", texto: sinClave ? "Contraseña creada. Ya puedes entrar con tu correo y contraseña, además de Google." : "Contraseña cambiada." });
     } catch (e) {
       setMsg({ tipo: "error", texto: e.message });
     } finally {
@@ -86,18 +91,88 @@ function CambiarClave() {
   }
   return (
     <section className="tl-box tl-form">
-      <h2>🔒 Cambiar contraseña</h2>
+      <h2>🔒 {sinClave ? "Crear contraseña" : "Cambiar contraseña"}</h2>
+      {sinClave && <p className="ax-step">Tu cuenta entra con Google. Si quieres, crea una contraseña para poder entrar también con tu correo.</p>}
       {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
-      <label>Contraseña actual</label>
-      <input type="password" autoComplete="current-password" value={actual} onChange={(e) => setActual(e.target.value)} />
+      {!sinClave && (
+        <>
+          <label>Contraseña actual</label>
+          <input type="password" autoComplete="current-password" value={actual} onChange={(e) => setActual(e.target.value)} />
+        </>
+      )}
       <label>Contraseña nueva (mínimo 8, con letras y números)</label>
       <input type="password" autoComplete="new-password" value={nueva} onChange={(e) => setNueva(e.target.value)} />
       <label>Repite la contraseña nueva</label>
       <input type="password" autoComplete="new-password" value={repetir} onChange={(e) => setRepetir(e.target.value)} />
+      {sinClave && user.twoFactorEnabled && (
+        <>
+          <label>Código de tu app de autenticación</label>
+          <input type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={11} placeholder="123456" value={codigo} onChange={(e) => setCodigo(e.target.value)} />
+        </>
+      )}
       <div className="tl-actions">
-        <button className="tl-btn" disabled={guardando || !actual || !nueva} onClick={guardar}>
-          {guardando ? "Guardando…" : "Cambiar contraseña"}
+        <button className="tl-btn" disabled={guardando || (!sinClave && !actual) || !nueva} onClick={guardar}>
+          {guardando ? "Guardando…" : sinClave ? "Crear contraseña" : "Cambiar contraseña"}
         </button>
+      </div>
+    </section>
+  );
+}
+
+// ------------------------- verificar correo -------------------------
+// Solo aparece si el correo aún no se confirmó (cuentas creadas con contraseña).
+function VerificarCorreo({ user }) {
+  const [msg, setMsg] = useState({ tipo: "", texto: "" });
+  const [enviando, setEnviando] = useState(false);
+  if (user.emailVerified !== false) return null;
+  async function reenviar() {
+    setEnviando(true);
+    setMsg({ tipo: "", texto: "" });
+    try {
+      const r = await api.resendVerification();
+      setMsg({ tipo: "ok", texto: r.message });
+    } catch (e) {
+      setMsg({ tipo: "error", texto: e.message });
+    } finally {
+      setEnviando(false);
+    }
+  }
+  return (
+    <section className="tl-box tl-form">
+      <h2>✉️ Confirma tu correo</h2>
+      <p className="ax-step">Enviamos un enlace a <strong>{user.email}</strong>. Confírmalo para proteger tu cuenta y poder recuperarla.</p>
+      {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
+      <div className="tl-actions">
+        <button className="tl-btn" disabled={enviando} onClick={reenviar}>{enviando ? "Enviando…" : "Reenviar enlace"}</button>
+      </div>
+    </section>
+  );
+}
+
+// ------------------------- sesiones abiertas -------------------------
+function Sesiones() {
+  const [msg, setMsg] = useState({ tipo: "", texto: "" });
+  const [cerrando, setCerrando] = useState(false);
+  async function cerrarTodas() {
+    setCerrando(true);
+    setMsg({ tipo: "", texto: "" });
+    try {
+      const r = await api.logoutAll();
+      if (r.token) { setToken(r.token); reconnectSocket(); } // esta sesión sigue; las demás dejan de servir
+      setMsg({ tipo: "ok", texto: "Se cerró la sesión en todos los demás dispositivos." });
+    } catch (e) {
+      setMsg({ tipo: "error", texto: e.message });
+    } finally {
+      setCerrando(false);
+    }
+  }
+  return (
+    <section className="tl-box tl-form">
+      <h2>💻 Sesiones abiertas</h2>
+      <p className="ax-step">¿Entraste desde un computador compartido o sospechas que alguien usa tu cuenta? Cierra la sesión en todos los demás dispositivos.</p>
+      {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
+      <div className="tl-actions">
+        <button className="tl-btn ghost" disabled={cerrando} onClick={cerrarTodas}>{cerrando ? "Cerrando…" : "Cerrar las demás sesiones"}</button>
       </div>
     </section>
   );
@@ -235,8 +310,10 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
 
         <div className="tl-grid">
           <EditarDatos user={user} onUserUpdate={onUserUpdate} />
-          <CambiarClave />
+          <VerificarCorreo user={user} />
+          <CambiarClave user={user} onUserUpdate={onUserUpdate} />
           <TwoFactorSettings user={user} onUserUpdate={onUserUpdate} />
+          <Sesiones />
         </div>
       </main>
     </div>

@@ -24,7 +24,7 @@ export async function seedDemoUsers() {
   const creados = [];
   for (const u of DEMO_USERS) {
     if (!(await findUserByEmail(u.email))) {
-      await createUser(u);
+      await createUser({ ...u, emailVerified: true });
       creados.push(u.email);
     }
   }

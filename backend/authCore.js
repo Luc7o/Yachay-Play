@@ -28,18 +28,61 @@ const SECRET = await getSecret();
 export const getAuthSecret = () => SECRET; // lo usa twoFactor.js para cifrar el secreto 2FA
 
 // ---------------------------- contraseñas ----------------------------
-export function hashPassword(password) {
+// Se guardan con scrypt (función de hash lenta, resistente a GPU) y una sal aleatoria por usuario.
+// Formato:  scrypt$N$r$p$sal$hash   (los parámetros viajan con el hash, así se pueden subir más adelante).
+// Formato antiguo (3 partes, N=16384): se sigue aceptando y se re-guarda con los parámetros nuevos
+// la próxima vez que la persona inicie sesión (ver needsRehash).
+// Es ASÍNCRONO: scryptSync bloqueaba todo el servidor (Socket.IO incluido) en cada login.
+const SCRYPT = { N: 2 ** 15, r: 8, p: 3 }; // ~32 MB por cálculo (valores recomendados por OWASP)
+const LEGACY = { N: 16384, r: 8, p: 1 };
+const KEYLEN = 64;
+const scryptAsync = (password, salt, len, o) =>
+  new Promise((resolve, reject) =>
+    crypto.scrypt(password, salt, len, { N: o.N, r: o.r, p: o.p, maxmem: 256 * o.N * o.r }, (e, k) => (e ? reject(e) : resolve(k)))
+  );
+
+export async function hashPassword(password) {
   const salt = crypto.randomBytes(16);
-  const hash = crypto.scryptSync(password, salt, 64);
-  return `scrypt$${salt.toString("hex")}$${hash.toString("hex")}`;
+  const hash = await scryptAsync(String(password), salt, KEYLEN, SCRYPT);
+  return `scrypt$${SCRYPT.N}$${SCRYPT.r}$${SCRYPT.p}$${salt.toString("hex")}$${hash.toString("hex")}`;
 }
 
-export function verifyPassword(password, stored) {
-  const [alg, saltHex, hashHex] = String(stored || "").split("$");
-  if (alg !== "scrypt" || !saltHex || !hashHex) return false;
-  const esperado = Buffer.from(hashHex, "hex");
-  const obtenido = crypto.scryptSync(password, Buffer.from(saltHex, "hex"), esperado.length);
+function leerHash(stored) {
+  const t = String(stored || "").split("$");
+  if (t[0] !== "scrypt") return null;
+  if (t.length === 3) return { ...LEGACY, salt: t[1], hash: t[2] };
+  if (t.length === 6) {
+    const o = { N: Number(t[1]), r: Number(t[2]), p: Number(t[3]), salt: t[4], hash: t[5] };
+    // Tope por si alguien manipulara la base: evita parámetros que agoten la memoria.
+    if (!(o.N >= 2 ** 12 && o.N <= 2 ** 18 && o.r >= 1 && o.r <= 16 && o.p >= 1 && o.p <= 8)) return null;
+    return o;
+  }
+  return null;
+}
+
+export async function verifyPassword(password, stored) {
+  const h = leerHash(stored);
+  if (!h || !h.salt || !h.hash) return false;
+  const esperado = Buffer.from(h.hash, "hex");
+  if (!esperado.length) return false;
+  const obtenido = await scryptAsync(String(password), Buffer.from(h.salt, "hex"), esperado.length, h);
   return obtenido.length === esperado.length && crypto.timingSafeEqual(obtenido, esperado);
+}
+
+// true si el hash guardado usa parámetros más débiles que los actuales (conviene re-guardarlo).
+export function needsRehash(stored) {
+  const h = leerHash(stored);
+  return !!h && (h.N < SCRYPT.N || h.r < SCRYPT.r || h.p < SCRYPT.p);
+}
+
+// Si la contraseña ya fue verificada y su hash es viejo, lo actualiza en silencio.
+export async function upgradeHashIfNeeded(user, password) {
+  if (!needsRehash(user.password_hash)) return;
+  try {
+    await db.prepare("UPDATE users SET password_hash = ? WHERE id = ? AND password_hash = ?").run(await hashPassword(password), user.id, user.password_hash);
+  } catch (e) {
+    console.error("No se pudo actualizar el hash:", e.message);
+  }
 }
 
 // ------------------------------ sesión ------------------------------
@@ -96,7 +139,7 @@ export async function userFromToken(token) {
 }
 
 // ------------------------------ usuarios ------------------------------
-export const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, twoFactorEnabled: !!u.totp_enabled, hasPassword: u.password_hash !== "google" });
+export const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, twoFactorEnabled: !!u.totp_enabled, hasPassword: u.password_hash !== "google", emailVerified: !!u.email_verified_at });
 export const findUserById = async (id) => (await db.prepare("SELECT * FROM users WHERE id = ?").get(id)) || null;
 export const findUserByEmail = async (email) =>
   (await db.prepare("SELECT * FROM users WHERE email = ?").get(String(email).trim().toLowerCase())) || null;
@@ -104,11 +147,20 @@ export const findUserByEmail = async (email) =>
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Regla de contraseña (registro, recuperar y cambiar): 8+ caracteres, con al menos una letra y un número.
-export function validatePassword(p) {
+const COMUNES = new Set(
+  ("12345678 123456789 1234567890 password password1 password123 contrasena contrasena1 contrasena123 qwerty123 qwertyui " +
+    "abc12345 abcd1234 iloveyou1 admin123 admin1234 welcome1 welcome123 letmein123 11111111 00000000 12341234 87654321 " +
+    "yachayplay yachayplay1 yachayplay123 docente123 estudiante123 colegio123 profesor123 peru1234 lima1234 123456abc " +
+    "a1234567 asdf1234 zxcvbnm123 qazwsx123 1q2w3e4r 1qaz2wsx q1w2e3r4 passw0rd p4ssw0rd").split(" ")
+);
+
+export function validatePassword(p, email) {
   const v = String(p || "");
   if (v.length < 8) return "La contraseña debe tener al menos 8 caracteres.";
   if (v.length > 100) return "La contraseña es demasiado larga.";
   if (!/[A-Za-z\u00C0-\u017F]/.test(v) || !/\d/.test(v)) return "La contraseña debe incluir al menos una letra y un número.";
+  if (COMUNES.has(v.toLowerCase())) return "Esa contraseña es demasiado común. Elige otra más difícil de adivinar.";
+  if (email && v.toLowerCase() === String(email).trim().toLowerCase()) return "La contraseña no puede ser igual a tu correo.";
   return null;
 }
 
@@ -119,22 +171,23 @@ export function validateRegistration({ name, email, password, role, acceptTerms 
   const p = String(password || "");
   if (n.length < 2 || n.length > 40) return { error: "Escribe tu nombre (entre 2 y 40 letras)." };
   if (!EMAIL_RE.test(e) || e.length > 120) return { error: "Escribe un correo válido." };
-  const errClave = validatePassword(p);
+  const errClave = validatePassword(p, e);
   if (errClave) return { error: errClave };
   if (!ROLES.includes(role)) return { error: "Elige si eres docente o estudiante." };
   if (acceptTerms !== true) return { error: "Debes aceptar los Términos y Condiciones y la Política de Privacidad." };
   return { data: { name: n, email: e, password: p, role, termsAccepted: true } };
 }
 
-export async function createUser({ name, email, password, role, termsAccepted = false }) {
+export async function createUser({ name, email, password, role, termsAccepted = false, emailVerified = false }) {
   const id = crypto.randomUUID();
-  await db.prepare("INSERT INTO users (id, name, email, password_hash, role, terms_accepted_at) VALUES (?,?,?,?,?, CASE WHEN ? THEN now() END)").run(
+  await db.prepare("INSERT INTO users (id, name, email, password_hash, role, terms_accepted_at, email_verified_at) VALUES (?,?,?,?,?, CASE WHEN ? THEN now() END, CASE WHEN ? THEN now() END)").run(
     id,
     name,
     email,
-    hashPassword(password),
+    await hashPassword(password),
     role,
-    termsAccepted
+    termsAccepted,
+    emailVerified
   );
   return await findUserById(id);
 }
@@ -168,6 +221,7 @@ export async function verifyGoogleToken(credential) {
 // así que no se puede entrar con contraseña hasta que la persona cree una desde su perfil).
 export async function createGoogleUser({ name, email, role, termsAccepted = false }) {
   const id = crypto.randomUUID();
-  await db.prepare("INSERT INTO users (id, name, email, password_hash, role, terms_accepted_at) VALUES (?,?,?,?,?, CASE WHEN ? THEN now() END)").run(id, name, email, "google", role, termsAccepted);
+  // Google ya comprobó el correo, así que la cuenta nace verificada.
+  await db.prepare("INSERT INTO users (id, name, email, password_hash, role, terms_accepted_at, email_verified_at) VALUES (?,?,?,?,?, CASE WHEN ? THEN now() END, now())").run(id, name, email, "google", role, termsAccepted);
   return await findUserById(id);
 }

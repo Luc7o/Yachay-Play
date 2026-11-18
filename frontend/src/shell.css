@@ -9,8 +9,8 @@
   --btn-ink:#08363b;--avatar:#204c61;
 }
 :root[data-theme="dark"]{
-  --bg:#061e27;--surface:#102e3b;--surface2:#123c47;--ink:#f4fcff;--muted:#afcbd1;--line:#285765;
-  --primary:#55f0cf;--primary2:#22cbb5;--mint:#62e9c6;--hero:#006a68;--hero2:#004b58;--nav:#08232c;
+  --bg:#0e0f12;--surface:#171a1e;--surface2:#1b1e24;--ink:#f9f9fa;--muted:#bcbfc4;--line:#2a3038;
+  --primary:#55f0cf;--primary2:#22cbb5;--mint:#62e9c6;--hero:#006a68;--hero2:#1a1e23;--nav:#101215;
   --blue:#1a75c9;--cyan:#24c8d2;--shadow:0 12px 35px rgba(0,0,0,.18);
 }
 
@@ -74,7 +74,7 @@
 .dh-feature:hover{filter:brightness(1.04)}
 .dh-blue{background:linear-gradient(135deg,#3485f0,#235ed1);color:#fff}
 .dh-mint{background:linear-gradient(135deg,#9cf1d7,#baf6df);color:#0a3f4c}
-:root[data-theme="dark"] .dh-mint{background:linear-gradient(135deg,#22d9c3,#1b9bc2);color:#052c37}
+:root[data-theme="dark"] .dh-mint{background:linear-gradient(135deg,#22d9c3,#1b9bc2);color:#121518}
 .dh-glyph{font-size:37px;line-height:1}
 .dh-chip{background:#fff;color:#14324c;padding:12px 22px;border-radius:50px;font-size:13px;font-weight:800}
 .dh-chip.dark{background:#0a3b47;color:#fff}
@@ -199,6 +199,6 @@
 .sh-nav button:hover:not(.active){background:var(--surface2)}
 .sh-create{background:#00796f;color:#fff}
 .sh-create:hover{background:#008477}
-:root[data-theme="dark"] .sh-nav button.active{background:#30bda9;color:#041e29}
-:root[data-theme="dark"] .sh-create{background:#4ee1c6;color:#062a30}
+:root[data-theme="dark"] .sh-nav button.active{background:#30bda9;color:#0e0f12}
+:root[data-theme="dark"] .sh-create{background:#4ee1c6;color:#101216}
 @media(max-width:1100px){.sh-top{gap:12px}.sh-nav button{padding:10px}}

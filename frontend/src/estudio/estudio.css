@@ -7,8 +7,8 @@
   font-family:Nunito,Poppins,system-ui,sans-serif; color:var(--es-ink); background:var(--es-bg); box-sizing:border-box;
 }
 :root[data-theme="dark"] .es{
-  --es-bg:#081f2a; --es-surface:#102c39; --es-ink:#ecf9fc; --es-muted:#9fc2cc; --es-line:#2b525e;
-  --es-primary:#2dd4bf; --es-primary-d:#5eead4; --es-soft:#17434c; --es-stage:#0b2530; --es-danger:#fca5a5; --es-warn:#4a3a12; --es-warn-ink:#fde68a;
+  --es-bg:#0f1114; --es-surface:#16191d; --es-ink:#f2f4f6; --es-muted:#b0b5bb; --es-line:#292f37;
+  --es-primary:#2dd4bf; --es-primary-d:#5eead4; --es-soft:#1e2228; --es-stage:#121418; --es-danger:#fca5a5; --es-warn:#4a3a12; --es-warn-ink:#fde68a;
 }
 .es *,.es *::before,.es *::after{box-sizing:border-box}
 .es-page{min-height:100vh;display:flex;flex-direction:column}

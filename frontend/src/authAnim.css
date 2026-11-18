@@ -16,10 +16,10 @@
   background: radial-gradient(ellipse 70% 50% at 50% 0%, var(--glow), transparent 70%), var(--stage);
 }
 :root[data-theme="dark"] .yl-page {
-  --stage: #061e27; --glow: #0d4a49; --ink-stage: #d5f0f2; --shadow: 0 30px 80px #0009;
-  --sheet: #132f3d; --ink: #f2fcff; --muted: #9bb8c2; --line: #396373;
-  --accent: #50ddc3; --btn: #00a898; --btn-hover: #4ae1c9; --btn-ink: #05252e;
-  --btn-off: #2a4a56; --btn-off-ink: #7f9fa8; --edge: #62e9c6;
+  --stage: #0e0f12; --glow: #0d4a49; --ink-stage: #e0e3e7; --shadow: 0 30px 80px #0009;
+  --sheet: #181b20; --ink: #f8f8f9; --muted: #aaaeb3; --line: #343b45;
+  --accent: #50ddc3; --btn: #00a898; --btn-hover: #4ae1c9; --btn-ink: #0f1114;
+  --btn-off: #272c33; --btn-off-ink: #7f9fa8; --edge: #62e9c6;
   --err-bg: #4b2933; --err-ink: #ffb4c0; --err-line: #a64f62;
 }
 .yl-page *, .yl-page *::before, .yl-page *::after { box-sizing: border-box; }

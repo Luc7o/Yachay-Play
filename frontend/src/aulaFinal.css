@@ -29,14 +29,14 @@
 :root[data-theme="dark"] .wait-title,
 :root[data-theme="dark"] .wait-side h3,
 :root[data-theme="dark"] .join-label,
-:root[data-theme="dark"] .field-label{color:#edfaff}
+:root[data-theme="dark"] .field-label{color:#f5f6f7}
 :root[data-theme="dark"] .hero-eyebrow{background:#174c4b;color:#7ff0d3}
 :root[data-theme="dark"] .wait-code-warn{background:#3a3a1f;color:#ffe9b0}
 :root[data-theme="dark"] .wait-code-label,
 :root[data-theme="dark"] .wait-code-how{color:#cfeee8}
-:root[data-theme="dark"] .join-status{color:#afcbd1}
-:root[data-theme="dark"] .pa-signup{background:#62e9c6;border-color:#62e9c6;color:#05303a}
-:root[data-theme="dark"] .build-mark{color:#8fb0b8}
+:root[data-theme="dark"] .join-status{color:#bcbfc4}
+:root[data-theme="dark"] .pa-signup{background:#62e9c6;border-color:#62e9c6;color:#131619}
+:root[data-theme="dark"] .build-mark{color:#9ea3a9}
 
 /* ---- 5. Fichas y nombres de equipo (los colores de equipo se conservan) ---- */
 .board-piece[style*="239, 68, 68"]{background:#dc2626!important;color:#fff!important}
@@ -44,25 +44,25 @@
 .wait-full-tag{color:#065f46!important}
 :root[data-theme="dark"] .team-mini-grid small,
 :root[data-theme="dark"] .piece-row small,
-:root[data-theme="dark"] .phone-code-label{color:#afcbd1!important}
+:root[data-theme="dark"] .phone-code-label{color:#bcbfc4!important}
 
 /* ---- 6. Sala de espera en modo oscuro ---- */
-:root[data-theme="dark"] .wait-progress-top strong{color:#edfaff}
+:root[data-theme="dark"] .wait-progress-top strong{color:#f5f6f7}
 :root[data-theme="dark"] .wait-progress-top span{color:#7ff0d3}
 :root[data-theme="dark"] .wait-phone{background:var(--surface);border-color:var(--line)}
 :root[data-theme="dark"] .wait-phone .eyebrow{color:var(--muted)}
-:root[data-theme="dark"] .pa-signup{background:#62e9c6!important;border-color:#62e9c6!important;color:#05303a!important}
+:root[data-theme="dark"] .pa-signup{background:#62e9c6!important;border-color:#62e9c6!important;color:#131619!important}
 
 /* ---- 7. Botón rojo (Finalizar) con contraste ---- */
 .ref-danger{background:#dc2626!important}
 .ref-danger:hover{background:#b91c1c!important}
 
 /* ---- 8. Más pantallas en modo oscuro: tablero, selector de modo y Crucigrama ---- */
-:root[data-theme="dark"] .legend span{color:#afcbd1}
+:root[data-theme="dark"] .legend span{color:#bcbfc4}
 :root[data-theme="dark"] .role-guest span{color:#cfeee8}
 :root[data-theme="dark"] .role-guest button{color:#7ff0d3}
-:root[data-theme="dark"] :is(.cw-stat-card,.cw-clue-list li,.cw-activity-scroll,.cw-rivals,.cw-rival,.cw-lb-row,.cw-players-grid li,.cw-player-card,.cw-clue-progress,.cw-leaderboard) b{color:#edfaff}
-:root[data-theme="dark"] :is(.cw-stat-card,.cw-clue-list li,.cw-activity-scroll,.cw-rivals,.cw-rival,.cw-lb-row,.cw-players-grid li,.cw-player-card,.cw-clue-progress,.cw-leaderboard) small{color:#afcbd1}
+:root[data-theme="dark"] :is(.cw-stat-card,.cw-clue-list li,.cw-activity-scroll,.cw-rivals,.cw-rival,.cw-lb-row,.cw-players-grid li,.cw-player-card,.cw-clue-progress,.cw-leaderboard) b{color:#f5f6f7}
+:root[data-theme="dark"] :is(.cw-stat-card,.cw-clue-list li,.cw-activity-scroll,.cw-rivals,.cw-rival,.cw-lb-row,.cw-players-grid li,.cw-player-card,.cw-clue-progress,.cw-leaderboard) small{color:#bcbfc4}
 :root[data-theme="dark"] .cw-sabotage{background:var(--surface);border-color:var(--line)}
 :root[data-theme="dark"] .cw-side-title{color:var(--muted)}
 :root[data-theme="dark"] .cw-clue-list li.solved b,:root[data-theme="dark"] .cw-clue-list li.done b{color:#6ee7b7}
@@ -81,14 +81,14 @@
 
 /* ---- 10. Últimos detalles de contraste (claro y oscuro) ---- */
 .time-box span,.time-box small{color:#4a5f66!important}
-:root[data-theme="dark"] .time-box span,:root[data-theme="dark"] .time-box small{color:#afcbd1!important}
+:root[data-theme="dark"] .time-box span,:root[data-theme="dark"] .time-box small{color:#bcbfc4!important}
 .cell .star{color:#566474}
 .join-btn:disabled{color:#475569}
 .join-success{color:#047857}
 :root[data-theme="dark"] .join-success{color:#4ade9f}
 :root[data-theme="dark"] .cw-heat-legend,
 :root[data-theme="dark"] .cw-activity-time,
-:root[data-theme="dark"] .cw-stat-card span{color:#afcbd1!important}
+:root[data-theme="dark"] .cw-stat-card span{color:#bcbfc4!important}
 :root[data-theme="dark"] .cw-activity-scroll li{background:var(--surface2)!important;border-color:var(--line)!important}
 :root[data-theme="dark"] .dice-result-row{background:var(--surface2);border-color:var(--line)}
 
@@ -112,11 +112,11 @@
 .pa-new{background:#00796f}
 :root:not([data-theme="dark"]) .pa-pill{color:#005a52}
 :root:not([data-theme="dark"]) .pa-step-icon,:root:not([data-theme="dark"]) .pa-step-arrow{color:#00796f}
-:root[data-theme="dark"] .pa-game:not(.pa-game-0):not(.pa-game-1){background:#132f3d;color:#e5f8fa;border-color:#348777}
+:root[data-theme="dark"] .pa-game:not(.pa-game-0):not(.pa-game-1){background:#181b20;color:#edeff2;border-color:#348777}
 .sh-content .tl-error{color:#b91c1c}
 .sh-content .tl-tab.on{color:#05292c}
 
-:root:not([data-theme="dark"]) .pa-home-cta-actions .pa-primary{background:#fff;border-color:#fff;color:#07565e}
+:root:not([data-theme="dark"]) .pa-home-cta-actions .pa-primary{background:#fff;border-color:#fff;color:#1e2328}
 .cfg-team[style*="ef4444" i] .cfg-chip.on{background:#dc2626;border-color:#dc2626}
 .cfg-team[style*="3b82f6" i] .cfg-chip.on{background:#2563eb;border-color:#2563eb}
 .cfg-team[style*="10b981" i] .cfg-chip.on,.cfg-team[style*="eab308" i] .cfg-chip.on{color:#0b2a31}
@@ -125,22 +125,22 @@
 /* La configuración de partida ya tiene modo oscuro propio (gamesDark.css): ya no necesita la hoja clara */
 :root[data-theme="dark"] .sh-sheet{background:transparent;border-color:transparent;color-scheme:dark}
 :root[data-theme="dark"] .cfg-chip:not(.on){background:var(--surface2);color:var(--ink);border-color:var(--line)}
-:root[data-theme="dark"] .cfg-sum-list dd{color:#edfaff}
+:root[data-theme="dark"] .cfg-sum-list dd{color:#f5f6f7}
 :root[data-theme="dark"] .cfg-sum-list dt,
 :root[data-theme="dark"] .cfg-team-state,
-:root[data-theme="dark"] .cfg-card-head p{color:#afcbd1}
+:root[data-theme="dark"] .cfg-card-head p{color:#bcbfc4}
 
 :root[data-theme="dark"] .cfg-team.on .cfg-chip.on{background:var(--tc);border-color:var(--tc);color:#fff}
 :root[data-theme="dark"] .cfg-team[style*="ef4444" i] .cfg-chip.on{background:#dc2626;border-color:#dc2626}
 :root[data-theme="dark"] .cfg-team[style*="3b82f6" i] .cfg-chip.on{background:#2563eb;border-color:#2563eb}
-:root[data-theme="dark"] .cfg-team[style*="10b981" i] .cfg-chip.on,:root[data-theme="dark"] .cfg-team[style*="eab308" i] .cfg-chip.on{color:#0b2a31}
-:root[data-theme="dark"] .cfg-time-info p{color:#afcbd1}
+:root[data-theme="dark"] .cfg-team[style*="10b981" i] .cfg-chip.on,:root[data-theme="dark"] .cfg-team[style*="eab308" i] .cfg-chip.on{color:#121518}
+:root[data-theme="dark"] .cfg-time-info p{color:#bcbfc4}
 
-:root[data-theme="dark"] .cfg-chip.on{background:var(--primary2)!important;border-color:var(--primary2)!important;color:#052c37!important}
+:root[data-theme="dark"] .cfg-chip.on{background:var(--primary2)!important;border-color:var(--primary2)!important;color:#121518!important}
 :root[data-theme="dark"] .cfg-team.on .cfg-chip.on{background:var(--tc)!important;border-color:var(--tc)!important;color:#fff!important}
 :root[data-theme="dark"] .cfg-team[style*="ef4444" i] .cfg-chip.on{background:#dc2626!important;border-color:#dc2626!important}
 :root[data-theme="dark"] .cfg-team[style*="3b82f6" i] .cfg-chip.on{background:#2563eb!important;border-color:#2563eb!important}
-:root[data-theme="dark"] .cfg-team[style*="10b981" i] .cfg-chip.on,:root[data-theme="dark"] .cfg-team[style*="eab308" i] .cfg-chip.on{color:#0b2a31!important}
+:root[data-theme="dark"] .cfg-team[style*="10b981" i] .cfg-chip.on,:root[data-theme="dark"] .cfg-team[style*="eab308" i] .cfg-chip.on{color:#121518!important}
 
 /* ---- 12. Menú de arriba: con 7 secciones no cabe en una laptop de 1366 px; se compacta antes de cortarse ---- */
 @media(max-width:1440px){

@@ -6,6 +6,7 @@ import { emitConTiempoLimite, loadJSON, saveJSON } from "../cw/helpers";
 import { aplicarOp } from "./model";
 import { Editor } from "./Editor";
 import { TeacherRoom, Miembros } from "./TeacherRoom";
+import { ThemeToggle } from "./ThemeToggle";
 import "./estudio.css";
 
 const LS_DOCENTE = "yachay_es_docente"; // código de la última sala del docente
@@ -38,21 +39,70 @@ async function pedir(path, options = {}) {
 // ============================================================================
 export function Estudio({ user, goHome, onLogin, onRegister }) {
   const esDocente = user?.role === "docente";
-  const [vista, setVista] = useState(() => (esDocente ? "revisando" : "join")); // revisando | setup | docente | join | alumno | gate
+  const [vista, setVista] = useState(() => (esDocente ? "revisando" : "join")); // revisando | salas | setup | docente | join | alumno | gate
   const [sala, setSala] = useState(null); // docente: { code, state }
   const [alumno, setAlumno] = useState(null); // alumno: { session, state }
   const [cargando, setCargando] = useState(false);
 
-  // Docente: si ya tenía una sala abierta (recargó la página), la recuperamos.
+  const [salas, setSalas] = useState(null); // docente: lista de sus salas (null = aún no cargada)
+
+  // Docente: trae la lista de todas las salas que ha creado.
+  const cargarSalas = useCallback(async () => {
+    const r = await pedir("/api/slides/mine");
+    setSalas(r.rooms || []);
+    return r.rooms || [];
+  }, []);
+
+  // Docente: si recargó la página con una sala ABIERTA, vuelve a ella; si no, ve su lista de salas
+  // (o el formulario para crear la primera, si todavía no tiene ninguna).
   useEffect(() => {
     if (vista !== "revisando") return;
+    let vivo = true;
+    const irALista = async () => {
+      try {
+        const lista = await cargarSalas();
+        if (vivo) setVista(lista.length ? "salas" : "setup");
+      } catch {
+        if (vivo) setVista("setup"); // servidor sin la lista todavía: se puede crear sala igual
+      }
+    };
     const code = loadJSON(LS_DOCENTE);
-    if (!code) return setVista("setup");
+    if (!code) { irALista(); return () => { vivo = false; }; }
     emitConTiempoLimite("ss:watch", { code }, (ack) => {
-      if (ack?.ok) { setSala({ code, state: ack.state }); setVista("docente"); }
-      else { saveJSON(LS_DOCENTE, null); setVista("setup"); }
+      if (!vivo) return;
+      if (ack?.ok && ack.state.status !== "closed") { setSala({ code, state: ack.state }); setVista("docente"); }
+      else { saveJSON(LS_DOCENTE, null); irALista(); }
     });
-  }, [vista]);
+    return () => { vivo = false; };
+  }, [vista, cargarSalas]);
+
+  const irASalas = () => { saveJSON(LS_DOCENTE, null); setSala(null); setSalas(null); setVista("revisando"); };
+
+  // Docente: abre una sala de su lista (aunque ya no estuviera en memoria del servidor).
+  const abrirSala = async (s) => {
+    try {
+      const r = await pedir(`/api/slides/mine/${encodeURIComponent(s.id)}/abrir`, { method: "POST" });
+      const ack = await new Promise((res) => emitConTiempoLimite("ss:watch", { code: r.code }, res));
+      if (!ack?.ok) return ack?.error || "No se pudo abrir la sala.";
+      saveJSON(LS_DOCENTE, r.code);
+      setSala({ code: r.code, state: ack.state });
+      setVista("docente");
+      return "";
+    } catch (e) {
+      return e.message;
+    }
+  };
+
+  // Docente: elimina una sala cerrada (de la lista o desde su panel).
+  const eliminarSala = async (id) => {
+    try {
+      await pedir(`/api/slides/mine/${encodeURIComponent(id)}`, { method: "DELETE" });
+      setSalas((l) => (l ? l.filter((x) => x.id !== id) : l));
+      return "";
+    } catch (e) {
+      return e.message;
+    }
+  };
 
   // Alumno: si ya estaba en una sala, vuelve a entrar con su mismo id.
   useEffect(() => {
@@ -107,34 +157,47 @@ export function Estudio({ user, goHome, onLogin, onRegister }) {
         initial={sala.state}
         onExit={goHome}
         onNuevaSala={() => { saveJSON(LS_DOCENTE, null); setSala(null); setVista("setup"); }}
+        onSalas={irASalas}
+        onEliminar={async () => {
+          const msg = await eliminarSala(sala.state.id);
+          if (!msg) irASalas();
+          return msg;
+        }}
       />
     );
   }
+  if (vista === "salas" && salas) {
+    return <MisSalas goHome={goHome} salas={salas} onAbrir={abrirSala} onEliminar={eliminarSala} onNueva={() => setVista("setup")} />;
+  }
   if (vista === "alumno" && alumno) return <SalaAlumno key={alumno.session.code} session={alumno.session} initial={alumno.state} onSalir={salirAlumno} />;
 
-  if (vista === "setup") return <Crear goHome={goHome} cargando={cargando} onCrear={crear} />;
+  if (vista === "setup") return <Crear goHome={goHome} cargando={cargando} onCrear={crear} onSalas={esDocente && salas?.length ? () => setVista("salas") : null} />;
   return <Unirse goHome={goHome} user={user} onEntrar={entrar} onLogin={onLogin} onRegister={onRegister} />;
 }
 
 // ---------- marco simple para las pantallas de formulario ----------
-function Pantalla({ goHome, children }) {
+function Pantalla({ goHome, extra, children }) {
   return (
     <div className="es es-page">
       <header className="es-top">
         <div className="es-top-l"><Brand subtitle="Presentaciones" onClick={goHome} /></div>
-        <div className="es-top-r"><button className="es-btn ghost" onClick={goHome}>← Volver al inicio</button></div>
+        <div className="es-top-r">
+          <ThemeToggle />
+          {extra}
+          <button className="es-btn ghost" onClick={goHome}>← Volver al inicio</button>
+        </div>
       </header>
       <main className="es-center">{children}</main>
     </div>
   );
 }
 
-function Crear({ goHome, onCrear, cargando }) {
+function Crear({ goHome, onCrear, cargando, onSalas }) {
   const [name, setName] = useState("");
   const [task, setTask] = useState("");
   const [error, setError] = useState("");
   return (
-    <Pantalla goHome={goHome}>
+    <Pantalla goHome={goHome} extra={onSalas && <button className="es-btn ghost" onClick={onSalas}>📋 Mis salas</button>}>
       <section className="es-card-form">
         <span className="es-eyebrow">NUEVA SALA</span>
         <h1>Presentaciones en vivo</h1>
@@ -147,6 +210,89 @@ function Crear({ goHome, onCrear, cargando }) {
         <button className="es-btn big" disabled={cargando} onClick={async () => setError(await onCrear(name, task))}>{cargando ? "Creando…" : "Crear sala"}</button>
       </section>
     </Pantalla>
+  );
+}
+
+// ============================================================================
+// DOCENTE: lista de todas las salas que ha creado
+// ============================================================================
+const fechaSala = (ms) =>
+  new Date(ms).toLocaleString("es-PE", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
+
+function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
+  const [error, setError] = useState("");
+  const [ocupada, setOcupada] = useState(""); // id de la sala en la que se está trabajando
+  const abiertas = salas.filter((s) => s.status !== "closed").length;
+
+  const abrir = async (s) => {
+    setOcupada(s.id);
+    setError("");
+    const msg = await onAbrir(s);
+    if (msg) { setError(msg); setOcupada(""); }
+  };
+  const eliminar = async (s) => {
+    if (!window.confirm(`¿Eliminar la sala «${s.name}» para siempre? Se borrarán todas las presentaciones de los estudiantes. Esta acción no se puede deshacer.`)) return;
+    setOcupada(s.id);
+    setError("");
+    const msg = await onEliminar(s.id);
+    if (msg) setError(msg);
+    setOcupada("");
+  };
+
+  return (
+    <div className="es es-page">
+      <header className="es-top">
+        <div className="es-top-l"><Brand subtitle="Presentaciones" onClick={goHome} /></div>
+        <div className="es-top-r">
+          <ThemeToggle />
+          <button className="es-btn" onClick={onNueva}>+ Nueva sala</button>
+          <button className="es-btn ghost" onClick={goHome}>← Volver al inicio</button>
+        </div>
+      </header>
+      <main className="es-wrap">
+        <div className="es-list-head">
+          <div>
+            <span className="es-eyebrow">DOCENTE</span>
+            <h1>Mis salas</h1>
+            <p className="es-muted">{salas.length} sala{salas.length === 1 ? "" : "s"} · {abiertas} abierta{abiertas === 1 ? "" : "s"}. Las salas cerradas se pueden eliminar.</p>
+          </div>
+        </div>
+        {error && <div className="es-aviso es-aviso-box" role="alert">{error}</div>}
+        {salas.length === 0 && (
+          <div className="es-empty">
+            <img src="/mascota-explica.png" alt="" />
+            <p>Ya no tienes salas.<br />Crea una nueva cuando quieras trabajar con tus estudiantes.</p>
+            <button className="es-btn" onClick={onNueva}>+ Nueva sala</button>
+          </div>
+        )}
+        <ul className="es-salas">
+          {salas.map((s) => {
+            const cerrada = s.status === "closed";
+            return (
+              <li key={s.id} className="es-sala">
+                <div className="es-sala-main">
+                  <div className="es-sala-title">
+                    <strong>{s.name}</strong>
+                    <span className={"es-chip " + (cerrada ? "off" : "on")}>{cerrada ? "Cerrada" : "Abierta"}</span>
+                  </div>
+                  <div className="es-sala-meta">
+                    <span>Código <b className="es-sala-code">{s.code}</b></span>
+                    <span>Creada {fechaSala(s.createdAt)}</span>
+                    <span>{s.students} alumno{s.students === 1 ? "" : "s"}</span>
+                    <span>{s.decks} presentación{s.decks === 1 ? "" : "es"}</span>
+                  </div>
+                  {s.task && <p className="es-sala-task">{s.task}</p>}
+                </div>
+                <div className="es-sala-act">
+                  <button className="es-btn" disabled={!!ocupada} onClick={() => abrir(s)}>{ocupada === s.id ? "Abriendo…" : cerrada ? "Ver trabajos" : "Abrir"}</button>
+                  {cerrada && <button className="es-btn danger" disabled={!!ocupada} onClick={() => eliminar(s)}>🗑 Eliminar</button>}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </main>
+    </div>
   );
 }
 

@@ -5,6 +5,7 @@ import { Brand } from "../Brand";
 import { aplicarOp } from "./model";
 import { Editor } from "./Editor";
 import { SlideView } from "./SlideView";
+import { ThemeToggle } from "./ThemeToggle";
 
 const hace = (ms) => {
   const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
@@ -15,7 +16,7 @@ const SIN_OP = () => {};
 // ============================================================================
 // DOCENTE: ve en vivo TODAS las presentaciones de su sala (sin Meet ni compartir pantalla)
 // ============================================================================
-export function TeacherRoom({ code, initial, onExit, onNuevaSala }) {
+export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEliminar }) {
   const [room, setRoom] = useState({ name: initial.name, task: initial.task, status: initial.status, locked: initial.locked });
   const [decks, setDecks] = useState(() => new Map(initial.decks.map((d) => [d.key, d])));
   const [abierta, setAbierta] = useState(null); // deckKey que se está mirando en detalle
@@ -112,6 +113,13 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala }) {
   const cerrar = () => {
     if (window.confirm("¿Cerrar la sala? Nadie más podrá entrar ni editar. Los trabajos se conservan.")) accion("ss:close");
   };
+  const [eliminando, setEliminando] = useState(false);
+  const eliminar = async () => {
+    if (!window.confirm(`¿Eliminar la sala «${room.name}» para siempre? Se borrarán todas las presentaciones de los estudiantes. Esta acción no se puede deshacer.`)) return;
+    setEliminando(true);
+    const msg = await onEliminar();
+    if (msg) { setError(msg); setEliminando(false); }
+  };
 
   // ------- detalle de una presentación -------
   const entrada = abierta ? decks.get(abierta) : null;
@@ -147,6 +155,8 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala }) {
           <strong className="es-title">{room.name}</strong>
         </div>
         <div className="es-top-r">
+          <ThemeToggle />
+          <button className="es-btn ghost" onClick={onSalas}>📋 Mis salas</button>
           <button className="es-btn ghost" onClick={onExit}>← Volver al inicio</button>
         </div>
       </header>
@@ -166,7 +176,12 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala }) {
               <div><b>{lista.length}</b><span>presentaciones</span></div>
             </div>
             <div className="es-row">
-              {room.status === "closed" ? <span className="es-chip warn">Sala cerrada</span> : (
+              {room.status === "closed" ? (
+                <>
+                  <span className="es-chip warn">Sala cerrada</span>
+                  <button className="es-btn danger" onClick={eliminar} disabled={eliminando}>{eliminando ? "Eliminando…" : "🗑 Eliminar sala"}</button>
+                </>
+              ) : (
                 <>
                   <button className="es-btn" onClick={() => accion("ss:lock", { locked: !room.locked })}>{room.locked ? "🔓 Permitir editar" : "🔒 Bloquear edición"}</button>
                   <button className="es-btn danger" onClick={cerrar}>⏹ Cerrar sala</button>

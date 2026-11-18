@@ -7,7 +7,7 @@
 //   ss:<código>                -> todos (avisos generales: bloqueo, cierre)
 // Los eventos empiezan con "ss:" para no chocar con los de Ludo ni Crucigrama.
 // ============================================================================
-import { addComment, closeRoom, getRoom, joinStudent, miembrosDe, rooms, setLocked, setPresence, studentOp, vistaDocente, vistaEstudiante, purgeOld } from "./engine.js";
+import { addComment, closeRoom, getRoom, joinStudent, marcarUso, miembrosDe, rooms, setLocked, setPresence, studentOp, vistaDocente, vistaEstudiante, purgeOld } from "./engine.js";
 
 const salaDocente = (code) => `ss:${code}:teacher`;
 const salaDeck = (code, key) => `ss:${code}:d:${key}`;
@@ -41,6 +41,7 @@ export function attachSlidesSocket(io, socket) {
     if (problema) return ack?.({ error: problema });
     socket.join([salaDocente(room.code), salaTodos(room.code)]);
     socket.data.ssTeacher = room.code;
+    marcarUso(room);
     ack?.({ ok: true, state: vistaDocente(room) });
   });
 

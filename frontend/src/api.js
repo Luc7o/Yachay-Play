@@ -51,9 +51,18 @@ async function request(path, options = {}) {
 
 export const api = {
   // Cuentas
-  register: ({ name, email, password, role }) =>
-    request("/api/auth/register", { method: "POST", body: JSON.stringify({ name, email, password, role }) }),
+  register: ({ name, email, password, role, acceptTerms }) =>
+    request("/api/auth/register", { method: "POST", body: JSON.stringify({ name, email, password, role, acceptTerms }) }),
   login: (email, password) => request("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
+  login2fa: (challenge, code) => request("/api/auth/login/2fa", { method: "POST", body: JSON.stringify({ challenge, code }) }),
+  google: (credential, role, acceptTerms) =>
+    request("/api/auth/google", { method: "POST", body: JSON.stringify({ credential, role, acceptTerms }) }),
+  forgotPassword: (email) => request("/api/auth/forgot", { method: "POST", body: JSON.stringify({ email }) }),
+  resetPassword: (token, password) => request("/api/auth/reset", { method: "POST", body: JSON.stringify({ token, password }) }),
+  twoFactorSetup: () => request("/api/auth/2fa/setup", { method: "POST", body: "{}" }),
+  twoFactorEnable: (code) => request("/api/auth/2fa/enable", { method: "POST", body: JSON.stringify({ code }) }),
+  twoFactorDisable: (code, password) => request("/api/auth/2fa/disable", { method: "POST", body: JSON.stringify({ code, password }) }),
+  twoFactorNewCodes: (code) => request("/api/auth/2fa/recovery-codes", { method: "POST", body: JSON.stringify({ code }) }),
   me: () => request("/api/auth/me"),
   demoAccounts: () => request("/api/auth/demo"),
   assistantChat: (messages) => request("/api/assistant/chat", { method: "POST", body: JSON.stringify({ messages }) }),

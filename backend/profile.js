@@ -11,7 +11,7 @@
 // ============================================================================
 import { Router } from "express";
 import db from "./db.js";
-import { hashPassword, verifyPassword, publicUser } from "./authCore.js";
+import { hashPassword, verifyPassword, publicUser, signToken, findUserById, validatePassword } from "./authCore.js";
 
 export const profileRouter = Router();
 export const PUNTOS_VICTORIA = 10;
@@ -174,8 +174,8 @@ profileRouter.post("/password", async (req, res) => {
   if (a && ahora - a.inicio < 10 * 60 * 1000 && a.n >= 5) {
     return res.status(429).json({ error: "Demasiados intentos. Espera unos minutos e inténtalo otra vez." });
   }
-  if (nueva.length < 6) return res.status(400).json({ error: "La nueva contraseña debe tener al menos 6 caracteres." });
-  if (nueva.length > 100) return res.status(400).json({ error: "La nueva contraseña es demasiado larga." });
+  const errClave = validatePassword(nueva);
+  if (errClave) return res.status(400).json({ error: errClave });
   try {
     const u = await db.prepare("SELECT password_hash FROM users WHERE id = ?").get(req.user.id);
     if (!verifyPassword(actual, u.password_hash)) {
@@ -183,9 +183,10 @@ profileRouter.post("/password", async (req, res) => {
       intentos.set(req.user.id, { n: previo.n + 1, inicio: previo.inicio });
       return res.status(401).json({ error: "La contraseña actual no es correcta." });
     }
-    await db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(hashPassword(nueva), req.user.id);
+    // token_version + 1 cierra las demás sesiones abiertas; a esta se le entrega un token nuevo para que no se salga.
+    await db.prepare("UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE id = ?").run(hashPassword(nueva), req.user.id);
     intentos.delete(req.user.id);
-    res.json({ ok: true });
+    res.json({ ok: true, token: signToken(await findUserById(req.user.id)) });
   } catch (e) {
     console.error("Error al cambiar contraseña:", e.message);
     res.status(500).json({ error: "No se pudo cambiar la contraseña." });

@@ -356,6 +356,8 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
               <a href="#/contacto">Contacto</a>
               <button type="button" onClick={onLogin}>Iniciar sesión</button>
               <button type="button" onClick={onRegister}>Crear cuenta</button>
+              <a href="/politica-de-privacidad.html" target="_blank" rel="noopener noreferrer">Política de privacidad</a>
+              <a href="/terminos-y-condiciones.html" target="_blank" rel="noopener noreferrer">Términos y condiciones</a>
             </nav>
           </div>
           <div className="pa-footer-bottom">

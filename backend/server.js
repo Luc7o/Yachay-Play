@@ -48,7 +48,16 @@ const app = express();
 app.set("trust proxy", 1); // detrás de un proxy (Render, Railway...) req.ip debe ser la IP real
 const ORIGENES = (process.env.CORS_ORIGIN || "").split(",").map((o) => o.trim()).filter(Boolean);
 app.use(cors(ORIGENES.length ? { origin: ORIGENES } : undefined));
-app.use(express.json());
+// Cabeceras de seguridad básicas (la API solo devuelve JSON).
+app.disable("x-powered-by");
+app.use((_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("Strict-Transport-Security", "max-age=15552000; includeSubDomains");
+  next();
+});
+app.use(express.json({ limit: "1mb" }));
 app.use(authOptional); // deja el usuario de la sesión (si hay) en req.user
 app.use("/api/auth", authRouter);
 app.use("/api/crossword-games", crosswordRouter); // juego nuevo: Crucigrama Relámpago

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Brand } from "./Brand";
-import { api } from "./api";
+import { api, setToken } from "./api";
+import { reconnectSocket } from "./socket";
+import { TwoFactorSettings } from "./TwoFactorSettings";
 import "./tools.css";
 
 const fecha = (v) => {
@@ -70,7 +72,8 @@ function CambiarClave() {
     if (nueva !== repetir) return setMsg({ tipo: "error", texto: "Las contraseñas nuevas no coinciden." });
     setGuardando(true);
     try {
-      await api.profilePassword(actual, nueva);
+      const r = await api.profilePassword(actual, nueva);
+      if (r.token) { setToken(r.token); reconnectSocket(); } // las demás sesiones se cierran; esta sigue activa
       setActual("");
       setNueva("");
       setRepetir("");
@@ -87,7 +90,7 @@ function CambiarClave() {
       {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
       <label>Contraseña actual</label>
       <input type="password" autoComplete="current-password" value={actual} onChange={(e) => setActual(e.target.value)} />
-      <label>Contraseña nueva (mínimo 6 caracteres)</label>
+      <label>Contraseña nueva (mínimo 8, con letras y números)</label>
       <input type="password" autoComplete="new-password" value={nueva} onChange={(e) => setNueva(e.target.value)} />
       <label>Repite la contraseña nueva</label>
       <input type="password" autoComplete="new-password" value={repetir} onChange={(e) => setRepetir(e.target.value)} />
@@ -233,6 +236,7 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
         <div className="tl-grid">
           <EditarDatos user={user} onUserUpdate={onUserUpdate} />
           <CambiarClave />
+          <TwoFactorSettings user={user} onUserUpdate={onUserUpdate} />
         </div>
       </main>
     </div>

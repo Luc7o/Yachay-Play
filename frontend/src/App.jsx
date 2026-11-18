@@ -15,6 +15,7 @@ import { cronometro } from "./cronometroStore";
 import { EVENTO_ABRIR } from "./CronometroMini";
 import { Ruleta } from "./Ruleta";
 import { Pizarra } from "./Pizarra";
+import { Estudio } from "./estudio/Estudio";
 import { BUILD_VERSION } from "./constants";
 import { ChooserScreen } from "./screens/ChooserScreen";
 import { LoadingScreen } from "./screens/LoadingScreen";
@@ -410,6 +411,16 @@ function App() {
     if (catalogGame === "cronometro") return <Cronometro goHome={changeDevice} />;
     if (catalogGame === "ruleta") return <Ruleta goHome={changeDevice} />;
     if (catalogGame === "pizarra") return <Pizarra goHome={changeDevice} />;
+    if (catalogGame === "estudio") {
+      return (
+        <Estudio
+          user={user}
+          goHome={() => setCatalogGame(null)}
+          onLogin={() => setAuthScreen("login")}
+          onRegister={() => setAuthScreen("register")}
+        />
+      );
+    }
     if (catalogGame === "palabra") return <PalabraRelampago goHome={() => setCatalogGame(null)} frame={(pagina) => enMenu("juegos", pagina, false)} />;
     if (catalogGame === "crucigrama") {
       return (

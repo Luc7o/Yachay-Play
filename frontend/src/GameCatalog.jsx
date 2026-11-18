@@ -54,6 +54,7 @@ const CATALOGO = [
   { id: "ludo", glyph: "⚄", name: "Ludo Educativo", desc: "Tablero por equipos: preguntas, dados y llegar a la meta.", ok: true },
   { id: "crucigrama", glyph: "▦", name: "Crucigrama Relámpago", desc: "Resuelve el crucigrama contra el reloj y compite con tus rivales.", ok: true },
   { id: "palabra", glyph: "⚡", name: "Palabra Relámpago", desc: "Completa letras, compite por puntos y gana antes de que se acabe el tiempo.", ok: true },
+  { id: "estudio", glyph: "▤", name: "Presentaciones en vivo", desc: "Crea tu presentación solo o en equipo; el docente la ve en vivo.", ok: true, bd: "Crear sala", be: "Unirme con código" },
   { id: "quiz", glyph: "❓", name: "Quiz", desc: "Preguntas de opción múltiple." },
   { id: "sino", glyph: "✓", name: "Sí o No", desc: "Afirmaciones de verdadero o falso." },
   { id: "adivinanza", glyph: "✦", name: "Adivinanza", desc: "Pistas para descifrar conceptos." },
@@ -66,6 +67,7 @@ const HERRAMIENTAS = [
   { id: "cronometro", glyph: "⏱", name: "Cronómetro de actividad", desc: "Controla la duración de ejercicios y dinámicas.", boton: "Abrir cronómetro", color: "" },
   { id: "ruleta", glyph: "◉", name: "Ruleta de sorteos", desc: "Elige estudiantes o equipos al azar.", boton: "Abrir ruleta", color: "blue" },
   { id: "pizarra", glyph: "✎", name: "Pizarra digital", desc: "Explica ideas y conceptos visualmente.", boton: "Abrir pizarra", color: "yellow" },
+  { id: "estudio", glyph: "▤", name: "Presentaciones en vivo", desc: "Tus estudiantes crean presentaciones y tú las ves en tiempo real, sin Meet.", boton: "Crear sala", color: "blue" },
 ];
 
 // Inicio con sesión iniciada. `section` (inicio | juegos | herramientas) la maneja App.jsx
@@ -166,7 +168,7 @@ function HomeLogged({ onSelectGame, buildVersion, user, onLogout, onNavigate, se
               <h3>{g.name}</h3>
               <p>{g.desc}</p>
               <button className="dh-flat" disabled={!g.ok} onClick={() => g.ok && onSelectGame(g.id)}>
-                {g.ok ? (esDocente ? "Crear partida" : "Ver el juego") : "Próximamente"}
+                {g.ok ? (esDocente ? g.bd || "Crear partida" : g.be || "Ver el juego") : "Próximamente"}
               </button>
             </article>
           ))}

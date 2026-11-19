@@ -39,6 +39,8 @@ export function GoogleButton({ onCredential }) {
           });
           inicializado = true;
         }
+        // Mismo ancho que el formulario (Google acepta entre 200 y 400 px).
+        const ancho = Math.round(caja.current.getBoundingClientRect().width) || 280;
         window.google.accounts.id.renderButton(caja.current, {
           type: "standard",
           theme: "outline",
@@ -46,7 +48,7 @@ export function GoogleButton({ onCredential }) {
           text: "continue_with",
           shape: "rectangular",
           locale: "es",
-          width: 280,
+          width: Math.min(400, Math.max(200, ancho)),
         });
       })
       .catch(() => {});
@@ -54,5 +56,5 @@ export function GoogleButton({ onCredential }) {
   }, []);
 
   if (!CLIENT_ID) return null;
-  return <div className="yl-google" ref={caja} />;
+  return <div className="yl-google" ref={caja} style={{ width: "100%" }} />;
 }

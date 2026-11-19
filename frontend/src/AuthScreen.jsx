@@ -224,7 +224,7 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
             )}
 
             {!registro && demo.length > 0 && (
-              <div className="cp-demo">
+              <div className="cp-demo-cuentas">
                 <span>Cuentas de prueba:</span>
                 {demo.map((c) => (
                   <button type="button" key={c.email} className="cp-chip" onClick={() => usarDemo(c)}>

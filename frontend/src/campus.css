@@ -260,10 +260,12 @@
 .cp-auth-side-copy li svg{width:18px;height:18px;flex:none;margin-top:2px;color:#3DD6B8}
 .cp-auth-side-foot{font-size:12px;color:#9AA7A1}
 .cp-auth-main{flex:999 1 480px;min-width:0;box-sizing:border-box;padding:20px clamp(16px,4vw,48px) 48px;display:flex;flex-direction:column;align-items:center}
-.cp-auth-top{width:100%;max-width:440px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:clamp(24px,6vh,72px)}
+.cp-auth-top{width:100%;max-width:400px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:clamp(24px,6vh,72px)}
 .cp-auth-brand-mobile{display:none}
-.cp-auth-card{width:100%;max-width:440px;display:flex;flex-direction:column;gap:22px}
-.cp-auth-form,.cp-auth-form>form,.cp-auth-form>div{display:flex;flex-direction:column;gap:16px}
+.cp-auth-card{width:100%;max-width:400px;display:flex;flex-direction:column;gap:22px}
+.cp-auth-form{display:flex;flex-direction:column;gap:16px}
+/* Solo el contenido de las pantallas extra (recuperar, 2FA...), no los div internos del formulario */
+.cp-auth-card.cp-auth-form>form,.cp-auth-card.cp-auth-form>div{display:flex;flex-direction:column;gap:16px}
 .cp-auth-form h1{margin:0;font-size:30px;line-height:1.1}
 .cp-auth-lead{margin:0;font-size:15px;line-height:1.6;color:var(--cp-ink2)}
 .cp-seg{display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:12px;background:var(--cp-surface2);gap:4px}
@@ -291,12 +293,12 @@
 .cp-check{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--cp-ink2);cursor:pointer}
 .cp-check input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--cp-accent);flex:none}
 .cp-check a{color:var(--cp-accent)}
-.cp-demo{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:var(--cp-muted)}
-.cp-demo .cp-chip{border:1px solid var(--cp-line2);cursor:pointer;min-height:32px;font:600 12px var(--cp-text)}
+.cp-demo-cuentas{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:var(--cp-muted)}
+.cp-demo-cuentas .cp-chip{border:1px solid var(--cp-line2);cursor:pointer;min-height:32px;font:600 12px var(--cp-text)}
 .cp-full{width:100%}
-.cp-or{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--cp-muted)}
-.cp-or::before,.cp-or::after{content:"";flex:1;height:1px;background:var(--cp-line)}
-.cp-google{display:flex;justify-content:center;min-height:44px}
+.cp-or{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--cp-muted)}
+.cp-or::before,.cp-or::after{content:"";flex:1 1 0;height:1px;background:var(--cp-line2)}
+.cp-google{display:block;min-height:44px}
 .cp-google:empty,.cp-google:has(> div:empty){display:none}
 .cp-auth-links{display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--cp-muted);padding-top:18px;border-top:1px solid var(--cp-line)}
 @media (max-width: 900px){

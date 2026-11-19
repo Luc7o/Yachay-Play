@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { conClaseDestino, limpiarClaseDestino } from "../claseDestino";
 import { API_URL, getToken } from "../api";
 import { socket } from "../socket";
 import { Brand } from "../Brand";
@@ -37,7 +38,7 @@ async function pedir(path, options = {}) {
 //   Docente  -> crea una sala y ve en vivo las presentaciones de todos
 //   Alumno   -> entra con el código y crea su presentación (sola o en equipo)
 // ============================================================================
-export function Estudio({ user, goHome, onLogin, onRegister }) {
+export function Estudio({ user, goHome, onLogin, onRegister, initialCode = "" }) {
   const esDocente = user?.role === "docente";
   const [vista, setVista] = useState(() => (esDocente ? "revisando" : "join")); // revisando | salas | setup | docente | join | alumno | gate
   const [sala, setSala] = useState(null); // docente: { code, state }
@@ -118,7 +119,8 @@ export function Estudio({ user, goHome, onLogin, onRegister }) {
   const crear = async (name, task) => {
     setCargando(true);
     try {
-      const r = await pedir("/api/slides", { method: "POST", body: JSON.stringify({ name, task }) });
+      const r = await pedir("/api/slides", { method: "POST", body: JSON.stringify({ name, task, ...conClaseDestino() }) });
+      limpiarClaseDestino();
       const ack = await new Promise((res) => emitConTiempoLimite("ss:watch", { code: r.code }, res));
       if (!ack?.ok) throw new Error(ack?.error || "No se pudo abrir la sala.");
       saveJSON(LS_DOCENTE, r.code);
@@ -173,7 +175,7 @@ export function Estudio({ user, goHome, onLogin, onRegister }) {
   if (vista === "alumno" && alumno) return <SalaAlumno key={alumno.session.code} session={alumno.session} initial={alumno.state} onSalir={salirAlumno} />;
 
   if (vista === "setup") return <Crear goHome={goHome} cargando={cargando} onCrear={crear} onSalas={esDocente && salas?.length ? () => setVista("salas") : null} />;
-  return <Unirse goHome={goHome} user={user} onEntrar={entrar} onLogin={onLogin} onRegister={onRegister} />;
+  return <Unirse goHome={goHome} user={user} initialCode={initialCode} onEntrar={entrar} onLogin={onLogin} onRegister={onRegister} />;
 }
 
 // ---------- marco simple para las pantallas de formulario ----------
@@ -297,8 +299,8 @@ function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
   );
 }
 
-function Unirse({ goHome, user, onEntrar, onLogin, onRegister }) {
-  const [code, setCode] = useState("");
+function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "" }) {
+  const [code, setCode] = useState(String(initialCode || "").replace(/\D/g, "").slice(0, 6));
   const [name, setName] = useState(user?.name || "");
   const [modo, setModo] = useState("solo"); // solo | crear | unirme
   const [team, setTeam] = useState("");

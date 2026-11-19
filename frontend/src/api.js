@@ -1,3 +1,11 @@
+import { conClaseDestino, limpiarClaseDestino } from "./claseDestino";
+
+// Al crear una partida con éxito se olvida la "clase destino" (ver claseDestino.js).
+const olvidarDestino = (r) => {
+  limpiarClaseDestino();
+  return r;
+};
+
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 // --- Sesión: el token se guarda en el navegador para no volver a iniciar sesión ---
@@ -71,7 +79,7 @@ export const api = {
   assistantChat: (messages) => request("/api/assistant/chat", { method: "POST", body: JSON.stringify({ messages }) }),
   // Partidas
   createGame: (name, counts, config) =>
-    request("/api/games", { method: "POST", body: JSON.stringify({ name, counts, ...config }) }),
+    request("/api/games", { method: "POST", body: JSON.stringify({ name, counts, ...config, ...conClaseDestino() }) }).then(olvidarDestino),
   getGame: (code) => request(`/api/games/${code}`),
   joinGame: (code, name, team) =>
     request(`/api/games/${code}/join`, { method: "POST", body: JSON.stringify({ name, team }) }),
@@ -93,8 +101,18 @@ export const api = {
   questionDelete: (id) => request(`/api/my-questions/${id}`, { method: "DELETE" }),
   // Crucigrama Relámpago
   crosswordCreate: (name, minutes, wordCount) =>
-    request("/api/crossword-games", { method: "POST", body: JSON.stringify({ name, minutes, wordCount }) }),
+    request("/api/crossword-games", { method: "POST", body: JSON.stringify({ name, minutes, wordCount, ...conClaseDestino() }) }).then(olvidarDestino),
   crosswordGet: (code) => request(`/api/crossword-games/${code}`),
+  // Clases (curso + sección)
+  classes: () => request("/api/classes"),
+  classCreate: (name, section) => request("/api/classes", { method: "POST", body: JSON.stringify({ name, section }) }),
+  classJoin: (code) => request("/api/classes/join", { method: "POST", body: JSON.stringify({ code }) }),
+  classGet: (id) => request(`/api/classes/${encodeURIComponent(id)}`),
+  classUpdate: (id, data) => request(`/api/classes/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(data) }),
+  classNewCode: (id) => request(`/api/classes/${encodeURIComponent(id)}/code`, { method: "POST", body: "{}" }),
+  classArchive: (id) => request(`/api/classes/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  classRemoveMember: (id, userId) =>
+    request(`/api/classes/${encodeURIComponent(id)}/members/${encodeURIComponent(userId)}`, { method: "DELETE" }),
 };
 
 export { API_URL };

@@ -49,7 +49,7 @@ export function sanitizeQuestions(input) {
   return { questions };
 }
 
-export function createRoom({ name, ownerId, questions }) {
+export function createRoom({ name, ownerId, classId = null, questions }) {
   let code;
   do {
     code = code6();
@@ -59,6 +59,7 @@ export function createRoom({ name, ownerId, questions }) {
     code,
     name: clean(name, 60) || "Evaluación rápida",
     ownerId,
+    classId, // clase a la que pertenece (o null)
     questions,
     status: "lobby", // lobby | question | reveal | ended
     qIndex: -1,

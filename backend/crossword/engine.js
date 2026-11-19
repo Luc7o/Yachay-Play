@@ -52,7 +52,7 @@ function pushLog(room, text, type = "info") {
 }
 
 // --------------------------------- sala ---------------------------------
-export function createRoom({ name, ownerId, minutes = 8, wordCount = 12 }) {
+export function createRoom({ name, ownerId, classId = null, minutes = 8, wordCount = 12 }) {
   const bank = shuffle(DEFAULT_WORDS).slice(0, Math.max(6, Math.min(wordCount, DEFAULT_WORDS.length)));
   const grid = generateCrossword(bank);
   let code;
@@ -65,6 +65,7 @@ export function createRoom({ name, ownerId, minutes = 8, wordCount = 12 }) {
     code,
     name: (name || "Crucigrama Relámpago").trim().slice(0, 60),
     ownerId,
+    classId, // clase a la que pertenece (o null)
     minutes,
     grid, // incluye placements con `word` real (NO se manda entero al estudiante)
     status: "lobby", // lobby -> playing -> ended
@@ -84,13 +85,14 @@ export function createRoom({ name, ownerId, minutes = 8, wordCount = 12 }) {
 
 // Reconstruye una sala guardada en la base de datos (tras reiniciar el servidor).
 // Vuelve a la sala de espera: el avance de la ronda en curso no se guarda.
-export function restoreRoom({ id, code, name, ownerId, minutes, grid, players = [] }) {
+export function restoreRoom({ id, code, name, ownerId, classId = null, minutes, grid, players = [] }) {
   if (rooms.has(code)) return rooms.get(code);
   const room = {
     id,
     code,
     name,
     ownerId,
+    classId,
     minutes,
     grid,
     status: "lobby",

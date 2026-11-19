@@ -24,7 +24,11 @@ import { attachSlidesSocket, startSlidesCleanup } from "./slides/sockets.js";
 import { startSlidesPersistence } from "./slides/persist.js";
 import { quickRouter } from "./quick/routes.js";
 import { attachQuizSocket, quizTick } from "./quick/sockets.js";
-import { purgeOldRooms as purgeOldQuizzes } from "./quick/engine.js";
+import { purgeOldRooms as purgeOldQuizzes, rooms as quizRooms } from "./quick/engine.js";
+import { rooms as crosswordRooms } from "./crossword/engine.js";
+import { rooms as slidesRooms } from "./slides/engine.js";
+import { classesRouter, claseDelDocente } from "./classes/routes.js";
+import { registrarFuente } from "./classes/live.js";
 
 // Guarda en la base de datos SIN frenar el juego en tiempo real: si falla, solo se avisa en consola.
 const bg = (promesa) => promesa.catch((e) => console.error("Error de base de datos:", e.message));
@@ -81,6 +85,7 @@ app.use((err, _req, res, next) => {
 });
 app.use(authOptional); // deja el usuario de la sesión (si hay) en req.user
 app.use("/api/auth", authRouter);
+app.use("/api/classes", classesRouter); // clases (curso + sección) del docente y sus estudiantes
 app.use("/api/crossword-games", crosswordRouter); // juego nuevo: Crucigrama Relámpago
 app.use("/api/quick-quizzes", quickRouter); // Evaluación rápida (preguntas en vivo)
 app.use("/api/slides", slidesRouter); // Presentaciones en vivo (docente ve las de sus estudiantes)
@@ -162,6 +167,7 @@ async function restoreGamesFromDb() {
       id: g.id,
       code: g.code,
       ownerId: g.owner_id || null,
+      classId: g.class_id || null,
       name: g.name,
       phase: "lobby",
       turnPhase: "roll",
@@ -217,7 +223,7 @@ function llaveValida(playerId, llave) {
 }
 
 function publicState(game) {
-  const { currentQuestion, ownerId, createdAt, ...rest } = game; // no exponemos el id del docente
+  const { currentQuestion, ownerId, classId, createdAt, ...rest } = game; // no exponemos el id del docente ni de la clase
   return {
     ...rest,
     currentTeam: TEAM_COLORS[game.currentTeamIndex],
@@ -233,6 +239,28 @@ function publicState(game) {
   };
 }
 
+// Actividades abiertas por clase (las muestra /api/classes). Una línea por juego.
+registrarFuente(() =>
+  [...games.values()]
+    .filter((g) => g.classId && g.phase !== "finished")
+    .map((g) => ({ classId: g.classId, kind: "ludo", code: g.code, name: g.name, status: g.phase, players: g.players.length }))
+);
+registrarFuente(() =>
+  [...crosswordRooms.values()]
+    .filter((r) => r.classId && r.status !== "ended")
+    .map((r) => ({ classId: r.classId, kind: "crucigrama", code: r.code, name: r.name, status: r.status, players: r.players.size }))
+);
+registrarFuente(() =>
+  [...quizRooms.values()]
+    .filter((r) => r.classId && r.status !== "ended")
+    .map((r) => ({ classId: r.classId, kind: "evaluacion", code: r.code, name: r.name, status: r.status, players: r.players.size }))
+);
+registrarFuente(() =>
+  [...slidesRooms.values()]
+    .filter((r) => r.classId && r.status !== "closed" && !r.deleted)
+    .map((r) => ({ classId: r.classId, kind: "estudio", code: r.code, name: r.name, status: r.status, players: r.students.size }))
+);
+
 function broadcast(code) {
   const game = games.get(code);
   if (game) io.to(code).emit("state", publicState(game));
@@ -243,8 +271,11 @@ function broadcast(code) {
 // Solo un docente con sesión iniciada puede crear partidas.
 app.post("/api/games", requireTeacher, async (req, res) => {
   try {
-  const { name, counts, minutes, answerSeconds, rollSeconds } = req.body;
+  const { name, counts, minutes, answerSeconds, rollSeconds, classId } = req.body;
   if (!name || !counts) return res.status(400).json({ error: "name y counts son requeridos" });
+  // classId opcional: la partida queda en el historial de esa clase (solo si es del docente).
+  const clase = classId ? await claseDelDocente(classId, req.user.id) : null;
+  if (classId && !clase) return res.status(404).json({ error: "No encontramos esa clase." });
 
   // Un color con 0 cupos simplemente NO JUEGA. Hacen falta al menos 2 colores.
   const activeTeams = TEAM_COLORS.filter((c) => Number(counts[c]) > 0);
@@ -262,9 +293,9 @@ app.post("/api/games", requireTeacher, async (req, res) => {
     try {
       await db
         .prepare(
-          "INSERT INTO games (id, code, name, minutes, answer_seconds, roll_seconds, active_teams, owner_id) VALUES (?,?,?,?,?,?,?,?)"
+          "INSERT INTO games (id, code, name, minutes, answer_seconds, roll_seconds, active_teams, owner_id, class_id) VALUES (?,?,?,?,?,?,?,?,?)"
         )
-        .run(id, code, String(name).slice(0, 80), durationMinutes, answerLimit, rollLimit, activeTeams.join(","), req.user.id);
+        .run(id, code, String(name).slice(0, 80), durationMinutes, answerLimit, rollLimit, activeTeams.join(","), req.user.id, clase?.id || null);
       break;
     } catch (e) {
       // 23505 = código repetido (choca con una partida vieja): probamos otro
@@ -284,6 +315,7 @@ app.post("/api/games", requireTeacher, async (req, res) => {
     id,
     code,
     ownerId: req.user.id, // docente dueño de la partida
+    classId: clase?.id || null, // clase a la que pertenece (o null)
     createdAt: Date.now(),
     name: String(name).slice(0, 80),
     phase: "lobby", // lobby | playing | finished

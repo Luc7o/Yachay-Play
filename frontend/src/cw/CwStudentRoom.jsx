@@ -55,7 +55,8 @@ export function CwStudentRoom({ live, now, myId, code, solvedMap, toasts, goHome
     const motivo = completada ? "Crucigrama completado" : live.endReason === "teacher" ? "Tu docente finalizó la partida" : "Se acabó el tiempo";
     return (
       <Marco live={live} goHome={goHome}>
-        <div className="stu-card fin-hero" style={{ "--tc": yoGane ? "#3DD6B8" : "#2F3B37" }}>
+        <div className="stu-card fin-hero con-condor" style={{ "--tc": yoGane ? "#8FA0F0" : "#323A5A" }}>
+          <img className={"cp-condor fin-condor" + (yoGane ? "" : " casi")} src="/condor-512.png" alt="" aria-hidden="true" width="512" height="512" />
           <span className="cp-eyebrow">{motivo}</span>
           <h1>{yoGane ? "¡Ganaste!" : ganador ? `Quedaste en el puesto ${puesto}` : "Nadie sumó puntos"}</h1>
           {yoGane && <p>{completada ? "Completaste todo el crucigrama primero." : "Terminaste con más puntos que todos."}</p>}

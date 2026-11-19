@@ -17,9 +17,10 @@ export function PublicAulaHeader({ activePage = null, onNavigate, onLogin, onReg
     <header className="cp cp-pubhead">
       <div className="cp-wrap">
         <a className="cp-brand" href="#/inicio" onClick={() => onNavigate?.("inicio")} aria-label="YachayPlay, inicio">
-          <svg viewBox="0 0 26 26" aria-hidden="true">
-            <path d="M9 1h8v8h8v8h-8v8H9v-8H1V9h8z" fill="none" stroke="currentColor" strokeWidth="2" />
-            <rect x="11" y="11" width="4" height="4" fill="currentColor" />
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <rect x="1" y="1" width="30" height="30" rx="8" fill="var(--cp-logo-bg)" />
+            <path d="M8 9h4v4h4v4h4v-4h4V9" fill="none" stroke="var(--cp-logo-fg)" strokeWidth="2.6" strokeLinejoin="round" />
+            <path d="M16 17v7" stroke="var(--cp-logo-fg)" strokeWidth="2.6" strokeLinecap="round" />
           </svg>
           <span>yachay<b>play</b></span>
         </a>

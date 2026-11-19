@@ -56,6 +56,9 @@ function leerTokenVerificar() {
   return m ? m[1] : null;
 }
 
+const JUEGOS_RUTA = ["ludo", "crucigrama", "palabra", "evaluacion", "estudio", "cronometro", "ruleta", "pizarra"];
+const RUTAS_PANEL = ["inicio", "juegos", "herramientas", "stats", "questions", "profile", "planes", "contacto", "clases"];
+
 function App() {
   const [mode, setMode] = useState(() => leerLocal("ludo_mode") || null);
   const [catalogGame, setCatalogGame] = useState(null); // juego elegido en el catálogo (null = ver catálogo)
@@ -391,6 +394,70 @@ function App() {
     return r;
   }, [serverState]);
 
+  // ---- Historial del navegador (flechas volver / avanzar) dentro del panel ----
+  // Cada pantalla del panel tiene su ruta (#/app/...). Al navegar se agrega al
+  // historial; al usar las flechas, la ruta de la URL se vuelve a aplicar.
+  const rutaPanel = !user
+    ? null
+    : toolPage
+      ? toolPage === "clases" && claseAbierta ? `#/app/clases/${claseAbierta}` : `#/app/${toolPage}`
+      : mode
+        ? "#/app/ludo"
+        : catalogGame
+          ? `#/app/juego/${catalogGame}`
+          : `#/app/${seccion}`;
+  const desdeHistorialRef = useRef(false);
+  // Al recargar con una ruta del panel (#/app/clases...), se abre esa pantalla.
+  const usuarioId = user?.id;
+  useEffect(() => {
+    if (!usuarioId || mode || !window.location.hash.startsWith("#/app/")) return;
+    const [, r, id] = window.location.hash.match(/^#\/app\/([a-z]+)(?:\/(.+))?$/) || [];
+    const valida = r === "ludo" || r === "clases" || (r === "juego" && JUEGOS_RUTA.includes(id)) || (RUTAS_PANEL.includes(r) && !id);
+    if (valida) aplicarRutaRef.current?.(true);
+  }, [usuarioId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!rutaPanel || verifyToken || resetToken) return;
+    if (desdeHistorialRef.current === "cargando") {
+      desdeHistorialRef.current = true; // la ruta cargada se aplica en el próximo render
+      return;
+    }
+    const desdeHistorial = desdeHistorialRef.current;
+    desdeHistorialRef.current = false;
+    if (window.location.hash === rutaPanel) return;
+    const url = window.location.pathname + window.location.search + rutaPanel;
+    // Primera ruta del panel, o corrección tras usar las flechas: se reemplaza (no se apila).
+    if (desdeHistorial || !window.location.hash.startsWith("#/app/")) window.history.replaceState(null, "", url);
+    else window.history.pushState(null, "", url);
+  }, [rutaPanel, verifyToken, resetToken]);
+  const aplicarRutaRef = useRef(null);
+  aplicarRutaRef.current = (alCargar = false) => {
+    if (!user || window.location.hash === rutaPanel) return;
+    // Salir de una partida de Ludo en curso con las flechas: se pide confirmación.
+    if (mode && (engineerGameCode || studentGameCode) && !window.confirm("¿Salir de la partida en curso?")) {
+      window.history.pushState(null, "", window.location.pathname + window.location.search + rutaPanel);
+      return;
+    }
+    desdeHistorialRef.current = alCargar ? "cargando" : true;
+    const [, a, b] = window.location.hash.match(/^#\/app\/([a-z]+)(?:\/(.+))?$/) || [];
+    if (a === "juego" && JUEGOS_RUTA.includes(b)) {
+      navegar("inicio");
+      selectGame(b);
+    } else if (a === "ludo") {
+      navegar("inicio");
+      selectGame("ludo");
+    } else if (a === "clases") {
+      navegar("clases");
+      if (b) setClaseAbierta(decodeURIComponent(b));
+    } else {
+      navegar(RUTAS_PANEL.includes(a) ? a : "inicio");
+    }
+  };
+  useEffect(() => {
+    const alCambiar = () => aplicarRutaRef.current?.();
+    window.addEventListener("popstate", alCambiar);
+    return () => window.removeEventListener("popstate", alCambiar);
+  }, []);
+
   // ---------------- Enrutamiento por pantallas ----------------
 
   // Mientras se valida la sesión guardada mostramos una pantalla de carga breve
@@ -492,7 +559,7 @@ function App() {
     }
     if (toolPage && user) {
       if (toolPage === "clases") {
-        return enMenu("clases", <ClasesPage user={user} initialId={claseAbierta} onLanzar={lanzarEnClase} onEntrar={entrarActividad} />);
+        return enMenu("clases", <ClasesPage user={user} initialId={claseAbierta} onCambiar={setClaseAbierta} onLanzar={lanzarEnClase} onEntrar={entrarActividad} />);
       }
       if (toolPage === "planes" || toolPage === "contacto") {
         return enMenu(toolPage, <InfoPage page={toolPage} onNavigate={navegar} />);

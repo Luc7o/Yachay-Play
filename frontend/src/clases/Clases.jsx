@@ -453,9 +453,13 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
   );
 }
 
-export function ClasesPage({ user, onLanzar, onEntrar, initialId = null }) {
-  const [abierta, setAbierta] = useState(initialId);
-  useEffect(() => setAbierta(initialId), [initialId]);
+// Con onCambiar, la clase abierta la controla App (así queda en el historial del navegador).
+export function ClasesPage({ user, onLanzar, onEntrar, initialId = null, onCambiar }) {
+  const [local, setLocal] = useState(initialId);
+  useEffect(() => setLocal(initialId), [initialId]);
+  const controlado = typeof onCambiar === "function";
+  const abierta = controlado ? initialId : local;
+  const setAbierta = controlado ? onCambiar : setLocal;
   return abierta ? (
     <Detalle user={user} id={abierta} onVolver={() => setAbierta(null)} onLanzar={onLanzar} onEntrar={onEntrar} />
   ) : (

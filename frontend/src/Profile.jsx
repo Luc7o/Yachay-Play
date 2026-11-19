@@ -28,6 +28,7 @@ function EditarDatos({ user, onUserUpdate }) {
   const [nombre, setNombre] = useState(user.name);
   const [msg, setMsg] = useState({ tipo: "", texto: "" });
   const [guardando, setGuardando] = useState(false);
+  if (sinClave) return <CrearClavePorCorreo user={user} />;
 
   async function guardar() {
     setMsg({ tipo: "", texto: "" });
@@ -60,7 +61,36 @@ function EditarDatos({ user, onUserUpdate }) {
 }
 
 // ------------------------- cambiar / crear contraseña -------------------------
-// Cuenta con contraseña: pide la actual. Cuenta creada con Google: permite CREAR una (y pide el código 2FA si lo tiene).
+// Cuenta con contraseña: pide la actual. Cuenta creada con Google: se crea con un enlace que llega al correo.
+function CrearClavePorCorreo({ user }) {
+  const [msg, setMsg] = useState({ tipo: "", texto: "" });
+  const [enviando, setEnviando] = useState(false);
+  async function pedirEnlace() {
+    setEnviando(true);
+    setMsg({ tipo: "", texto: "" });
+    try {
+      const r = await api.passwordLink();
+      setMsg({ tipo: "ok", texto: r.message });
+    } catch (e) {
+      setMsg({ tipo: "error", texto: e.message });
+    } finally {
+      setEnviando(false);
+    }
+  }
+  return (
+    <section className="tl-box tl-form">
+      <h2>🔒 Crear contraseña</h2>
+      <p className="ax-step">
+        Tu cuenta entra con Google. Si quieres entrar también con tu correo y una contraseña, te enviamos un enlace a <b>{user.email}</b> para crearla.
+      </p>
+      {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"} role="status">{msg.texto}</div>}
+      <div className="tl-actions">
+        <button className="tl-btn" disabled={enviando} onClick={pedirEnlace}>{enviando ? "Enviando…" : "Enviar enlace a mi correo"}</button>
+      </div>
+    </section>
+  );
+}
+
 function CambiarClave({ user, onUserUpdate }) {
   const sinClave = user.hasPassword === false;
   const [actual, setActual] = useState("");

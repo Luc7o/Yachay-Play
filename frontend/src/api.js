@@ -79,6 +79,7 @@ export const api = {
   profile: () => request("/api/profile"),
   profileRanking: () => request("/api/profile/ranking"),
   profileName: (name) => request("/api/profile", { method: "PATCH", body: JSON.stringify({ name }) }),
+  passwordLink: () => request("/api/auth/password-link", { method: "POST", body: "{}" }),
   profilePassword: (currentPassword, newPassword, code) =>
     request("/api/profile/password", { method: "POST", body: JSON.stringify({ currentPassword, newPassword, code }) }),
   // Estadísticas (docente: sus partidas; estudiante: su historial)

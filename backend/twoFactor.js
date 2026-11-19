@@ -123,9 +123,20 @@ function codigoRecuperacion() {
 // Borra los anteriores y crea 8 nuevos. Devuelve los códigos en claro (se muestran UNA sola vez).
 export async function crearCodigosRecuperacion(userId) {
   const codigos = Array.from({ length: 8 }, codigoRecuperacion);
-  await db.prepare("DELETE FROM recovery_codes WHERE user_id = ?").run(userId);
-  for (const c of codigos) {
-    await db.prepare("INSERT INTO recovery_codes (user_id, code_hash) VALUES (?, ?)").run(userId, hashCodigo(c));
+  // En una transacción: si algo falla a mitad, la cuenta no queda con menos códigos.
+  const cliente = await db.pool.connect();
+  try {
+    await cliente.query("BEGIN");
+    await cliente.query("DELETE FROM recovery_codes WHERE user_id = $1", [userId]);
+    for (const c of codigos) {
+      await cliente.query("INSERT INTO recovery_codes (user_id, code_hash) VALUES ($1, $2)", [userId, hashCodigo(c)]);
+    }
+    await cliente.query("COMMIT");
+  } catch (e) {
+    await cliente.query("ROLLBACK").catch(() => {});
+    throw e;
+  } finally {
+    cliente.release();
   }
   return codigos;
 }

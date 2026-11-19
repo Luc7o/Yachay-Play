@@ -902,3 +902,6 @@ html{scroll-behavior:smooth}
 .join-card{border-color:#d2eae4!important;box-shadow:0 12px 28px #116e6210!important}
 .join-guide>p{background:#0d535b!important}
 :root{--orange:#00796f;--orange-soft:#e0f8f2}
+
+/* Aviso breve mientras llega una pantalla que se carga bajo demanda (React.lazy). */
+.app-cargando{min-height:60vh;display:grid;place-items:center;font-weight:700;color:#5b7f89}

@@ -132,12 +132,13 @@ export function Estudio({ user, goHome, onLogin, onRegister }) {
     }
   };
 
-  const entrar = (code, name, team) =>
+  const entrar = (code, name, team, teamCode) =>
     new Promise((res) => {
-      const g = { code, studentId: loadJSON(LS_ALUMNO)?.code === code ? loadJSON(LS_ALUMNO).studentId : undefined, name, team };
+      const g = { code, studentId: loadJSON(LS_ALUMNO)?.code === code ? loadJSON(LS_ALUMNO).studentId : undefined, name, team, teamCode };
       emitConTiempoLimite("ss:join", g, (ack) => {
         if (!ack?.ok) return res(ack?.error || "No se pudo entrar.");
-        const session = { ...g, studentId: ack.studentId };
+        // Desde ahora se reconecta con el código del equipo (no con el nombre, que crearía otro).
+        const session = { ...g, studentId: ack.studentId, team: "", teamCode: ack.state?.teamCode || "" };
         saveJSON(LS_ALUMNO, session);
         setAlumno({ session, state: ack.state });
         setVista("alumno");
@@ -299,10 +300,15 @@ function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
 function Unirse({ goHome, user, onEntrar, onLogin, onRegister }) {
   const [code, setCode] = useState("");
   const [name, setName] = useState(user?.name || "");
+  const [modo, setModo] = useState("solo"); // solo | crear | unirme
   const [team, setTeam] = useState("");
+  const [teamCode, setTeamCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const listo = code.length === 6 && name.trim().length > 0;
+  const listo =
+    code.length === 6 &&
+    name.trim().length > 0 &&
+    (modo === "solo" || (modo === "crear" && team.trim().length > 0) || (modo === "unirme" && teamCode.length === 4));
   return (
     <Pantalla goHome={goHome}>
       <section className="es-card-form">
@@ -312,11 +318,28 @@ function Unirse({ goHome, user, onEntrar, onLogin, onRegister }) {
         <input id="es-c" className="es-code-in" inputMode="numeric" value={code} maxLength={6} placeholder="000000" onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} />
         <label htmlFor="es-nm">Tu nombre</label>
         <input id="es-nm" value={name} maxLength={30} placeholder="Ej. Andrea" onChange={(e) => setName(e.target.value)} />
-        <label htmlFor="es-tm">Nombre de tu equipo (opcional)</label>
-        <input id="es-tm" value={team} maxLength={30} placeholder="Déjalo vacío para trabajar solo" onChange={(e) => setTeam(e.target.value)} />
-        <p className="es-muted">Si varios escriben <b>el mismo nombre de equipo</b>, editan la misma presentación al mismo tiempo.</p>
+        <span className="es-label" id="es-modo-lbl">¿Cómo vas a trabajar?</span>
+        <div className="es-modo" role="radiogroup" aria-labelledby="es-modo-lbl">
+          {[["solo", "Solo"], ["crear", "Crear equipo"], ["unirme", "Unirme a un equipo"]].map(([v, t]) => (
+            <button key={v} type="button" role="radio" aria-checked={modo === v} className={modo === v ? "on" : ""} onClick={() => setModo(v)}>{t}</button>
+          ))}
+        </div>
+        {modo === "crear" && (
+          <>
+            <label htmlFor="es-tm">Nombre del equipo</label>
+            <input id="es-tm" value={team} maxLength={30} placeholder="Ej. Los Cóndores" onChange={(e) => setTeam(e.target.value)} />
+            <p className="es-muted">Al entrar verás un <b>código de equipo</b> de 4 letras: compártelo con tus compañeros para que editen contigo.</p>
+          </>
+        )}
+        {modo === "unirme" && (
+          <>
+            <label htmlFor="es-tc">Código del equipo</label>
+            <input id="es-tc" className="es-code-in" value={teamCode} maxLength={4} placeholder="ABCD" autoCapitalize="characters" autoComplete="off" onChange={(e) => setTeamCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4))} />
+            <p className="es-muted">Pídeselo a quien creó el equipo: lo ve arriba en su pantalla.</p>
+          </>
+        )}
         {error && <p className="es-err" role="alert">{error}</p>}
-        <button className="es-btn big" disabled={!listo || busy} onClick={async () => { setBusy(true); setError(await onEntrar(code, name.trim(), team.trim())); setBusy(false); }}>
+        <button className="es-btn big" disabled={!listo || busy} onClick={async () => { setBusy(true); setError(await onEntrar(code, name.trim(), modo === "crear" ? team.trim() : "", modo === "unirme" ? teamCode : "")); setBusy(false); }}>
           {busy ? "Entrando…" : "Entrar a crear"}
         </button>
         {!user && (
@@ -342,7 +365,7 @@ function SalaAlumno({ session, initial, onSalir }) {
 
   // Trae la versión oficial del servidor (al reconectar o si algo no cuadró).
   const resync = useCallback(() => {
-    emitConTiempoLimite("ss:join", { code: session.code, studentId: session.studentId, name: session.name, team: session.team }, (ack) => {
+    emitConTiempoLimite("ss:join", { code: session.code, studentId: session.studentId, name: session.name, team: session.team, teamCode: session.teamCode }, (ack) => {
       if (!ack?.ok) return setError(ack?.error || "");
       setDeck(ack.state.deck);
       setComments(ack.state.comments || {});
@@ -407,6 +430,7 @@ function SalaAlumno({ session, initial, onSalir }) {
           <>
             <Brand subtitle={room.name} onClick={onSalir} />
             <strong className="es-title">{initial.deckName}</strong>
+            {initial.teamCode && <span className="es-teamcode" title="Comparte este código con tu equipo">Código del equipo: <b>{initial.teamCode}</b></span>}
             <Miembros members={members} />
           </>
         }

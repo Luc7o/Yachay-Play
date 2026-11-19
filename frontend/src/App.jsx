@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, useEffect, useMemo, useRef, useState } from "react";
 import { api, getToken, setToken } from "./api";
 import { socket, reconnectSocket } from "./socket";
 import { AuthScreen } from "./AuthScreen";
@@ -6,18 +6,8 @@ import { ForgotPasswordScreen, ResetPasswordScreen, TwoFactorStep, VerifyEmailSc
 import { GameCatalog } from "./GameCatalog";
 import { AppShell } from "./AppShell";
 import { InfoPage } from "./InfoPages";
-import { CrosswordGame } from "./Crossword";
-import { PalabraRelampago } from "./PalabraRelampago";
-import { StatsPage } from "./Stats";
-import { QuestionBankPage } from "./QuestionBank";
-import { ProfilePage } from "./Profile";
-import { Cronometro } from "./Cronometro";
 import { cronometro } from "./cronometroStore";
 import { EVENTO_ABRIR } from "./CronometroMini";
-import { Ruleta } from "./Ruleta";
-import { Pizarra } from "./Pizarra";
-import { Estudio } from "./estudio/Estudio";
-import { Evaluacion } from "./quiz/Evaluacion";
 import { BUILD_VERSION } from "./constants";
 import { ChooserScreen } from "./screens/ChooserScreen";
 import { LoadingScreen } from "./screens/LoadingScreen";
@@ -26,6 +16,30 @@ import { SetupScreen } from "./ludo/SetupScreen";
 import { LobbyScreen } from "./ludo/LobbyScreen";
 import { EngineerGame } from "./ludo/EngineerGame";
 import { StudentJoin, StudentWaiting, StudentGame } from "./ludo/Student";
+
+// Pantallas que se cargan bajo demanda: un alumno que entra a Ludo desde el celular
+// ya no descarga la Pizarra, la Ruleta, el Estudio, etc. (el Suspense está en main.jsx).
+// Sus CSS se cargan igual al inicio, desde estilos.js, para no cambiar el orden.
+const diferido = (cargar, nombre) => lazy(() => cargar().then((m) => ({ default: m[nombre] })));
+const CrosswordGame = diferido(() => import("./cw/CrosswordGame"), "CrosswordGame");
+const PalabraRelampago = diferido(() => import("./PalabraRelampago"), "PalabraRelampago");
+const StatsPage = diferido(() => import("./Stats"), "StatsPage");
+const QuestionBankPage = diferido(() => import("./QuestionBank"), "QuestionBankPage");
+const ProfilePage = diferido(() => import("./Profile"), "ProfilePage");
+const Cronometro = diferido(() => import("./Cronometro"), "Cronometro");
+const Ruleta = diferido(() => import("./Ruleta"), "Ruleta");
+const Pizarra = diferido(() => import("./Pizarra"), "Pizarra");
+const Estudio = diferido(() => import("./estudio/Estudio"), "Estudio");
+const Evaluacion = diferido(() => import("./quiz/Evaluacion"), "Evaluacion");
+
+// localStorage puede estar bloqueado (modo privado, políticas del colegio): sin try, la app se caía.
+function leerLocal(clave) {
+  try {
+    return localStorage.getItem(clave);
+  } catch {
+    return null;
+  }
+}
 
 // Enlace del correo de recuperación: https://www.yachayplay.com/#/restablecer/<token>
 function leerTokenRestablecer() {
@@ -40,7 +54,7 @@ function leerTokenVerificar() {
 }
 
 function App() {
-  const [mode, setMode] = useState(() => localStorage.getItem("ludo_mode") || null);
+  const [mode, setMode] = useState(() => leerLocal("ludo_mode") || null);
   const [catalogGame, setCatalogGame] = useState(null); // juego elegido en el catálogo (null = ver catálogo)
   const [seccion, setSeccion] = useState("inicio"); // inicio | juegos | herramientas (menú del docente)
   const [toolPage, setToolPage] = useState(null); // null | "stats" | "questions" | "profile" (pantallas del catálogo)
@@ -86,16 +100,16 @@ function App() {
   const [answerSeconds, setAnswerSeconds] = useState(20); // segundos para responder
   const [rollSeconds, setRollSeconds] = useState(15); // segundos para lanzar el dado
   const [setupError, setSetupError] = useState("");
-  const [engineerGameCode, setEngineerGameCode] = useState(() => localStorage.getItem("ludo_engineer_code") || "");
+  const [engineerGameCode, setEngineerGameCode] = useState(() => leerLocal("ludo_engineer_code") || "");
 
   // --- Estudiante: ingreso ---
   const [joinCode, setJoinCode] = useState("");
   const [studentName, setStudentName] = useState("");
   const [studentTeam, setStudentTeam] = useState("rojo");
-  const [playerId, setPlayerId] = useState(() => localStorage.getItem("ludo_player_id") || null);
+  const [playerId, setPlayerId] = useState(() => leerLocal("ludo_player_id") || null);
   // Llave privada que da el servidor al unirse: sin ella no se puede tirar el dado ni responder.
-  const [playerKey, setPlayerKey] = useState(() => localStorage.getItem("ludo_player_key") || null);
-  const [studentGameCode, setStudentGameCode] = useState(() => localStorage.getItem("ludo_game_code") || "");
+  const [playerKey, setPlayerKey] = useState(() => leerLocal("ludo_player_key") || null);
+  const [studentGameCode, setStudentGameCode] = useState(() => leerLocal("ludo_game_code") || "");
   const [joinError, setJoinError] = useState("");
   const [gameInfo, setGameInfo] = useState(null); // datos de la partida antes de unirse
   const [connError, setConnError] = useState(""); // "la partida ya no existe", etc.

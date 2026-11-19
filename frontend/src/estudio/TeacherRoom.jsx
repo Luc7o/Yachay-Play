@@ -210,7 +210,7 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
                 <button key={d.key} className="es-card" onClick={() => setAbierta(d.key)}>
                   <SlideView slide={slide} width={290} />
                   <div className="es-card-info">
-                    <strong>{d.name}</strong>
+                    <strong>{d.name}{d.teamCode && <span className="es-teamcode"> · {d.teamCode}</span>}</strong>
                     <Miembros members={d.members} />
                     <small>{d.deck.slides.length} diapositiva{d.deck.slides.length === 1 ? "" : "s"} · {hace(d.updatedAt)}{nComent ? ` · 💬 ${nComent}` : ""}</small>
                   </div>

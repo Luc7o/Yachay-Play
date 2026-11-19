@@ -130,7 +130,8 @@ async function statsEstudiante(uid) {
   return {
     role: "estudiante",
     summary: {
-      played: ludo.length + cw.length,
+      // Solo partidas terminadas, igual que el perfil y el ranking.
+      played: ludo.filter((g) => g.phase === "finished").length + cw.filter((g) => g.status === "ended").length,
       won: ludoGanadas + cwGanadas,
       correct: ludo.reduce((a, g) => a + g.correct, 0),
       incorrect: ludo.reduce((a, g) => a + g.incorrect, 0),

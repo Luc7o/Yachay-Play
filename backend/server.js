@@ -73,6 +73,12 @@ app.use((_req, res, next) => {
   next();
 });
 app.use(express.json({ limit: "1mb" }));
+// JSON malformado o demasiado grande: responder en JSON (antes salía la página HTML de error de Express).
+app.use((err, _req, res, next) => {
+  if (err?.type === "entity.parse.failed") return res.status(400).json({ error: "Datos inválidos." });
+  if (err?.type === "entity.too.large") return res.status(413).json({ error: "Los datos son demasiado grandes." });
+  next(err);
+});
 app.use(authOptional); // deja el usuario de la sesión (si hay) en req.user
 app.use("/api/auth", authRouter);
 app.use("/api/crossword-games", crosswordRouter); // juego nuevo: Crucigrama Relámpago
@@ -473,8 +479,9 @@ function teacherGame(socket, code) {
     socket.emit("error-message", "Inicia sesión como docente para controlar la partida.");
     return null;
   }
-  if (game.ownerId && game.ownerId !== u.id) {
-    socket.emit("error-message", "Esta partida pertenece a otro docente.");
+  // Sin dueño (p. ej. el docente borró su cuenta): nadie la controla; antes podía cualquier docente.
+  if (game.ownerId !== u.id) {
+    socket.emit("error-message", game.ownerId ? "Esta partida pertenece a otro docente." : "Esta partida ya no tiene docente a cargo.");
     return null;
   }
   return game;
@@ -532,7 +539,7 @@ io.on("connection", (socket) => {
   socket.on("engineer:add-time", ({ code, seconds }) => {
     const game = teacherGame(socket, code);
     if (!game) return;
-    const delta = Number(seconds) || 0;
+    const delta = Number.isFinite(Number(seconds)) ? Number(seconds) : 0;
     game.timerSeconds = Math.max(0, Math.min(180 * 60, game.timerSeconds + delta));
     broadcast(code);
   });
@@ -541,7 +548,7 @@ io.on("connection", (socket) => {
   socket.on("engineer:reset-timer", ({ code, minutes }) => {
     const game = teacherGame(socket, code);
     if (!game) return;
-    if (minutes) game.durationMinutes = Math.min(180, Math.max(1, Number(minutes)));
+    if (Number.isFinite(Number(minutes)) && Number(minutes) > 0) game.durationMinutes = Math.min(180, Math.max(1, Number(minutes)));
     game.timerSeconds = game.durationMinutes * 60;
     game.timerRunning = false;
     broadcast(code);
@@ -551,8 +558,9 @@ io.on("connection", (socket) => {
   socket.on("engineer:set-limits", ({ code, answerSeconds, rollSeconds }) => {
     const game = teacherGame(socket, code);
     if (!game) return;
-    if (answerSeconds) game.answerTimeLimit = Math.min(120, Math.max(5, Number(answerSeconds)));
-    if (rollSeconds) game.rollSeconds = Math.min(60, Math.max(3, Number(rollSeconds)));
+    // Number.isFinite: con "abc" quedaba NaN y las fases avanzaban cada segundo.
+    if (Number.isFinite(Number(answerSeconds)) && Number(answerSeconds) > 0) game.answerTimeLimit = Math.min(120, Math.max(5, Number(answerSeconds)));
+    if (Number.isFinite(Number(rollSeconds)) && Number(rollSeconds) > 0) game.rollSeconds = Math.min(60, Math.max(3, Number(rollSeconds)));
     broadcast(code);
   });
 

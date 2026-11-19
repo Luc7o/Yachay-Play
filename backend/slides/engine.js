@@ -26,20 +26,12 @@ const avisar = (room) => {
 };
 
 const MAX_ALUMNOS = 80;
-const clave = (s) =>
-  String(s || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 30);
 const nombreLimpio = (s, max = LIMITES.nombre) => String(s || "").replace(/\s+/g, " ").trim().slice(0, max);
 
 export function createRoom({ name, task, ownerId }) {
   let code;
   do {
-    code = String(Math.floor(100000 + Math.random() * 900000));
+    code = String(crypto.randomInt(100000, 1000000)); // crypto: códigos no predecibles
   } while (rooms.has(code));
   const room = {
     id: crypto.randomUUID(),
@@ -62,7 +54,24 @@ export function createRoom({ name, task, ownerId }) {
 
 export const getRoom = (code) => rooms.get(String(code || "").trim()) || null;
 
-export function joinStudent(room, { id, name, team, userId }) {
+// ---- equipos ----
+// Antes la "llave" del equipo era su nombre escrito a mano: cualquiera que lo adivinara
+// ("grupo 1") entraba y podía borrar la presentación. Ahora quien CREA el equipo recibe
+// un código de 4 caracteres que comparte con sus compañeros, y para unirse hay que escribirlo.
+const ALFABETO_EQUIPO = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sin 0/O ni 1/I/L, que se confunden
+const RE_CODIGO_EQUIPO = /^[A-HJ-NP-Z2-9]{4}$/;
+export const limpiarCodigoEquipo = (c) => String(c || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4);
+// El código vive dentro de la clave del deck ("t:ABCD"), así sobrevive a la restauración sin cambiar el guardado.
+export const codigoDeEquipo = (key) => (typeof key === "string" && key.startsWith("t:") && RE_CODIGO_EQUIPO.test(key.slice(2)) ? key.slice(2) : null);
+function nuevoCodigoEquipo(room) {
+  for (;;) {
+    let c = "";
+    for (let i = 0; i < 4; i++) c += ALFABETO_EQUIPO[crypto.randomInt(ALFABETO_EQUIPO.length)];
+    if (!room.decks.has(`t:${c}`)) return c;
+  }
+}
+
+export function joinStudent(room, { id, name, team, teamCode, userId }) {
   const existente = id ? room.students.get(id) : null;
   if (existente) return { student: existente, entry: room.decks.get(existente.deckKey) };
   if (room.status === "closed") return { error: "El docente cerró esta sala." };
@@ -70,15 +79,20 @@ export function joinStudent(room, { id, name, team, userId }) {
   if (!nombre) return { error: "Escribe tu nombre." };
   if (room.students.size >= MAX_ALUMNOS) return { error: "La sala está llena." };
 
-  const equipo = nombreLimpio(team, 30);
-  const deckKey = equipo ? `t:${clave(equipo)}` : null;
   const sid = id || crypto.randomUUID().slice(0, 12);
-  const key = deckKey || `s:${sid}`;
-  let entry = room.decks.get(key);
-  if (!entry) {
+  const codigo = limpiarCodigoEquipo(teamCode);
+  let entry;
+  if (codigo) {
+    // Unirse a un equipo que ya existe: el código tiene que coincidir.
+    entry = RE_CODIGO_EQUIPO.test(codigo) ? room.decks.get(`t:${codigo}`) : null;
+    if (!entry) return { error: "No existe un equipo con ese código en esta sala. Pídeselo a quien creó el equipo.", codigoInvalido: true };
+  } else {
+    const equipo = nombreLimpio(team, 30);
+    const key = equipo ? `t:${nuevoCodigoEquipo(room)}` : `s:${sid}`;
     entry = { key, name: equipo || nombre, deck: deckInicial(), comments: {}, updatedAt: Date.now() };
     room.decks.set(key, entry);
   }
+  const key = entry.key;
   const student = { id: sid, name: nombre, userId: userId || null, deckKey: key, online: false, slideId: null, lastSeen: Date.now() };
   room.students.set(sid, student);
   avisar(room);
@@ -185,7 +199,7 @@ export function vistaDocente(room) {
     ...resumenSala(room),
     id: room.id,
     decks: [...room.decks.values()].map((e) => ({
-      key: e.key, name: e.name, deck: e.deck, comments: e.comments, updatedAt: e.updatedAt, members: miembros(room, e.key),
+      key: e.key, name: e.name, teamCode: codigoDeEquipo(e.key), deck: e.deck, comments: e.comments, updatedAt: e.updatedAt, members: miembros(room, e.key),
     })),
   };
 }
@@ -193,7 +207,7 @@ export function vistaDocente(room) {
 // El estudiante recibe SOLO la suya.
 export function vistaEstudiante(room, student) {
   const e = room.decks.get(student.deckKey);
-  return { ...resumenSala(room), me: { id: student.id, name: student.name }, deckKey: e.key, deckName: e.name, deck: e.deck, comments: e.comments, members: miembros(room, e.key) };
+  return { ...resumenSala(room), me: { id: student.id, name: student.name }, deckKey: e.key, deckName: e.name, teamCode: codigoDeEquipo(e.key), deck: e.deck, comments: e.comments, members: miembros(room, e.key) };
 }
 
 export const miembrosDe = miembros;

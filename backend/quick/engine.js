@@ -19,7 +19,7 @@ export const LIMITS = { maxQuestions: 30, minOptions: 2, maxOptions: 4, minSecon
 const BASE_POINTS = 100; // por acertar
 const SPEED_POINTS = 50; // extra por responder rápido (proporcional al tiempo que sobraba)
 
-const code6 = () => String(Math.floor(100000 + Math.random() * 900000));
+const code6 = () => String(crypto.randomInt(100000, 1000000)); // crypto: códigos no predecibles
 const clean = (s, n) => String(s ?? "").replace(/\s+/g, " ").trim().slice(0, n);
 
 // Valida y limpia las preguntas que manda el docente. Devuelve { questions } o { error }.

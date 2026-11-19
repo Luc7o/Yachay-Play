@@ -41,18 +41,20 @@ async function enviar({ to, subject, html, text }) {
   }
 }
 
-export function enviarRecuperacion({ to, name, token }) {
+// crear=true: cuenta de Google que pidió crear su primera contraseña (mismo enlace, otro texto).
+export function enviarRecuperacion({ to, name, token, crear = false }) {
   const enlace = `${frontendUrl()}/#/restablecer/${token}`;
-  const subject = "Restablece tu contraseña de YachayPlay";
+  const subject = crear ? "Crea tu contraseña de YachayPlay" : "Restablece tu contraseña de YachayPlay";
+  const motivo = crear ? "crear una contraseña para tu cuenta" : "restablecer tu contraseña";
   const text =
-    `Hola ${name},\n\nRecibimos una solicitud para restablecer tu contraseña de YachayPlay.\n` +
+    `Hola ${name},\n\nRecibimos una solicitud para ${motivo} de YachayPlay.\n` +
     `Abre este enlace (vale 30 minutos y solo se puede usar una vez):\n${enlace}\n\n` +
     `Si no fuiste tú, ignora este correo: tu contraseña no cambiará.\n\n— Equipo YachayPlay`;
   const html =
     `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;color:#073b47">` +
     `<h2 style="color:#00796f">YachayPlay</h2>` +
     `<p>Hola ${esc(name)},</p>` +
-    `<p>Recibimos una solicitud para restablecer tu contraseña. El enlace vale <strong>30 minutos</strong> y solo se puede usar una vez.</p>` +
+    `<p>Recibimos una solicitud para ${motivo}. El enlace vale <strong>30 minutos</strong> y solo se puede usar una vez.</p>` +
     `<p style="margin:28px 0"><a href="${esc(enlace)}" style="background:#0b5550;color:#fff;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:bold">Crear nueva contraseña</a></p>` +
     `<p style="font-size:13px;color:#5a7a80">Si el botón no funciona, copia y pega este enlace en tu navegador:<br>${esc(enlace)}</p>` +
     `<p style="font-size:13px;color:#5a7a80">Si no fuiste tú, ignora este correo: tu contraseña no cambiará.</p></div>`;

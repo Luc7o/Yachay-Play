@@ -118,6 +118,13 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
   }, [user]);
 
   // --- escuchar el estado en vivo del servidor ---
+  // myId y live se leen desde refs: así el efecto se suscribe UNA vez y no hace off/on en cada cw:state.
+  const myIdRef = useRef(myId);
+  myIdRef.current = myId;
+  const liveRef = useRef(live);
+  liveRef.current = live;
+  const timersToast = useRef(new Set());
+  useEffect(() => () => timersToast.current.forEach(clearTimeout), []);
   useEffect(() => {
     function onState(payload) {
       setLive(payload);
@@ -130,18 +137,23 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
       }
     }
     function onSabotage(r) {
+      const myId = myIdRef.current;
       const soyYo = r.targetId === myId;
       const fuiYo = r.sourceId === myId;
       const label = { freeze: "te congeló", fog: "te puso niebla", steal: "te robó puntos" }[r.type];
       const labelYo = { freeze: "Congelaste a", fog: "Le pusiste niebla a", steal: "Le robaste puntos a" }[r.type];
-      const nombre = (id) => live?.leaderboard?.find((p) => p.id === id)?.name || "alguien";
+      const nombre = (id) => liveRef.current?.leaderboard?.find((p) => p.id === id)?.name || "alguien";
       let texto = null;
       if (soyYo) texto = `⚠️ ${nombre(r.sourceId)} ${label}`;
       else if (fuiYo) texto = `${labelYo} ${nombre(r.targetId)}` + (r.stolen ? ` (+${r.stolen} pts)` : "");
       if (texto) {
         const id = Math.random();
         setToasts((t) => [...t, { id, texto }]);
-        setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3500);
+        const timer = setTimeout(() => {
+          timersToast.current.delete(timer);
+          setToasts((t) => t.filter((x) => x.id !== id));
+        }, 3500);
+        timersToast.current.add(timer);
       }
     }
     socket.on("cw:state", onState);
@@ -150,8 +162,7 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
       socket.off("cw:state", onState);
       socket.off("cw:sabotage-used", onSabotage);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [myId, live?.leaderboard]);
+  }, []);
 
   function volverAlCatalogo() {
     saveJSON(LS_TEACHER, null);

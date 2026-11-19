@@ -40,7 +40,7 @@ body{font-family:Inter,system-ui,sans-serif;background:var(--cp-bg);color:var(--
 .ref-brand .brand-subtitle{margin:2px 0 0;font-size:12px}
 
 /* ---------------- 4. Sin mascotas en las pantallas de trabajo ---------------- */
-img[src*="/mascota-"]:not(.hr-mascot):not(.hr-lateral-mascota){display:none!important}
+/* (las mascotas antiguas se retiraron; la actual es el cóndor: /condor-*.png) */
 
 /* ---------------- 5. Asistente IA (esquina inferior DERECHA) ---------------- */
 .ai-fab-wrap{left:auto!important;right:20px!important;bottom:20px;align-items:flex-end!important;transition:bottom .2s}

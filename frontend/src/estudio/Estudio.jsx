@@ -263,7 +263,7 @@ function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
         {error && <div className="es-aviso es-aviso-box" role="alert">{error}</div>}
         {salas.length === 0 && (
           <div className="es-empty">
-            <img src="/mascota-explica.png" alt="" />
+            <img src="/condor-256.png" alt="" />
             <p>Ya no tienes salas.<br />Crea una nueva cuando quieras trabajar con tus estudiantes.</p>
             <button className="es-btn" onClick={onNueva}>+ Nueva sala</button>
           </div>

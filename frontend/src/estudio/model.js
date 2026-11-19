@@ -37,7 +37,7 @@ const color = (v, def) => (typeof v === "string" && HEX.test(v) ? v : def);
 
 // ----------------------- fábricas -----------------------
 export function elementoTexto(over = {}) {
-  return { id: ids(), type: "text", x: 80, y: 80, w: 800, h: 90, text: "Escribe aquí", size: 36, color: "#143841", bold: false, align: "left", ...over };
+  return { id: ids(), type: "text", x: 80, y: 80, w: 800, h: 90, text: "Escribe aquí", size: 36, color: "#1E2A5A", bold: false, align: "left", ...over };
 }
 export function elementoForma(type, over = {}) {
   return { id: ids(), type, x: 360, y: 190, w: 240, h: 160, fill: "#00A996", ...over };
@@ -74,7 +74,7 @@ export function limpiarElemento(el) {
   if (el.type === "text") {
     out.text = String(el.text ?? "").slice(0, LIMITES.texto);
     out.size = num(el.size, 8, 200, 32);
-    out.color = color(el.color, "#143841");
+    out.color = color(el.color, "#1E2A5A");
     out.bold = !!el.bold;
     out.align = ALINEA.includes(el.align) ? el.align : "left";
   } else if (el.type === "image") {
@@ -92,7 +92,7 @@ function limpiarParche(p) {
   for (const k of ["w", "h"]) if (k in p) out[k] = num(p[k], 10, W * 2, 60);
   if ("text" in p) out.text = String(p.text ?? "").slice(0, LIMITES.texto);
   if ("size" in p) out.size = num(p.size, 8, 200, 32);
-  if ("color" in p) out.color = color(p.color, "#143841");
+  if ("color" in p) out.color = color(p.color, "#1E2A5A");
   if ("fill" in p) out.fill = color(p.fill, "#00A996");
   if ("bold" in p) out.bold = !!p.bold;
   if ("align" in p) out.align = ALINEA.includes(p.align) ? p.align : "left";

@@ -7,14 +7,22 @@
 import { Router } from "express";
 import { requireTeacher } from "../auth.js";
 import { createRoom, getRoom, sanitizeQuestions } from "./engine.js";
+import { claseDelDocente } from "../classes/routes.js";
 
 export const quickRouter = Router();
 
-quickRouter.post("/", requireTeacher, (req, res) => {
-  const { name, questions } = req.body || {};
+quickRouter.post("/", requireTeacher, async (req, res) => {
+  const { name, questions, classId } = req.body || {};
   const r = sanitizeQuestions(questions);
   if (r.error) return res.status(400).json({ error: r.error });
-  const room = createRoom({ name, ownerId: req.user.id, questions: r.questions });
+  let clase = null;
+  try {
+    clase = classId ? await claseDelDocente(classId, req.user.id) : null;
+  } catch {
+    return res.status(500).json({ error: "No se pudo comprobar la clase. Intenta otra vez." });
+  }
+  if (classId && !clase) return res.status(404).json({ error: "No encontramos esa clase." });
+  const room = createRoom({ name, ownerId: req.user.id, classId: clase?.id || null, questions: r.questions });
   res.status(201).json({ code: room.code, name: room.name, total: room.questions.length });
 });
 

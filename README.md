@@ -34,6 +34,13 @@ En el catálogo aparecen también como "próximamente": Quiz, Sí o No, Adivinan
 - **Pizarra digital** con exportación.
 - **Asistente con IA** (Google Gemini), solo para docentes.
 
+### Clases
+- El **docente** crea una clase (curso + sección) y comparte su **código de clase** (6 letras y números, distinto del código de cada partida).
+- El **estudiante** se inscribe con ese código desde **Mis clases**.
+- Desde el detalle de la clase, el docente lanza Ludo, Crucigrama, Evaluación rápida o Presentaciones: la actividad queda asociada a la clase. Sus estudiantes la ven "en vivo" en su inicio y entran con un botón.
+- Las partidas de Ludo y Crucigrama quedan en el historial de la clase. Archivar una clase no borra sus partidas.
+- Requiere la migración `0004_clases.sql` (`npm run migrate` en `backend/`).
+
 ### Cuenta y seguimiento
 - **Estadísticas:** el docente ve el resumen de sus partidas, quién ganó y qué preguntas se fallan más. El estudiante ve su historial.
 - **Banco de preguntas:** preguntas oficiales (solo lectura) más las propias de cada docente.

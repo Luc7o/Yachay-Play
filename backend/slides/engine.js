@@ -28,7 +28,7 @@ const avisar = (room) => {
 const MAX_ALUMNOS = 80;
 const nombreLimpio = (s, max = LIMITES.nombre) => String(s || "").replace(/\s+/g, " ").trim().slice(0, max);
 
-export function createRoom({ name, task, ownerId }) {
+export function createRoom({ name, task, ownerId, classId = null }) {
   let code;
   do {
     code = String(crypto.randomInt(100000, 1000000)); // crypto: códigos no predecibles
@@ -39,6 +39,7 @@ export function createRoom({ name, task, ownerId }) {
     name: nombreLimpio(name, 60) || "Presentaciones de la clase",
     task: String(task || "").trim().slice(0, 500),
     ownerId: ownerId || null,
+    classId: classId || null, // clase a la que pertenece (o null)
     createdAt: Date.now(),
     lastUsed: Date.now(), // última vez que el docente abrió la sala (evita sacarla de memoria mientras se usa)
     status: "open", // open | closed
@@ -215,7 +216,7 @@ export const miembrosDe = miembros;
 // ---- guardado / restauración ----
 export function serializar(room) {
   return {
-    id: room.id, code: room.code, name: room.name, task: room.task, ownerId: room.ownerId, status: room.status, locked: room.locked,
+    id: room.id, code: room.code, name: room.name, task: room.task, ownerId: room.ownerId, classId: room.classId || null, status: room.status, locked: room.locked,
     createdAt: room.createdAt,
     decks: [...room.decks.values()],
     students: [...room.students.values()].map(({ id, name, userId, deckKey }) => ({ id, name, userId, deckKey })),
@@ -224,7 +225,7 @@ export function serializar(room) {
 export function restaurar(d) {
   if (!d?.code || rooms.has(d.code)) return null;
   const room = {
-    id: d.id, code: d.code, name: d.name, task: d.task || "", ownerId: d.ownerId || null, status: d.status === "closed" ? "closed" : "open",
+    id: d.id, code: d.code, name: d.name, task: d.task || "", ownerId: d.ownerId || null, classId: d.classId || null, status: d.status === "closed" ? "closed" : "open",
     locked: !!d.locked, createdAt: d.createdAt || Date.now(), lastUsed: Date.now(), decks: new Map(), students: new Map(), dirty: false,
   };
   for (const e of d.decks || []) room.decks.set(e.key, { key: e.key, name: e.name, deck: limpiarDeck(e.deck), comments: e.comments || {}, updatedAt: e.updatedAt || Date.now() });

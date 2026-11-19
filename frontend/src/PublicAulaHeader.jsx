@@ -1,48 +1,50 @@
 import React from "react";
-import "./publicAula.css";
+import { Marca, BotonTema } from "./campusUi";
+// (campus.css se carga en main.jsx, al final, para que gane sobre los estilos antiguos.)
 
-// Cabecera única para la portada y el ingreso de estudiantes.
+// Cabecera única para la portada y el ingreso de estudiantes (diseño "Campus").
+// Los enlaces usan el hash (#/como-funciona...): la portada los convierte en
+// desplazamiento hasta cada sección.
 export const PUBLIC_NAV = [
-  { id: "inicio", label: "Inicio" },
-  { id: "juegos", label: "Juegos" },
-  { id: "caracteristicas", label: "Características" },
   { id: "como-funciona", label: "Cómo funciona" },
-  { id: "planes", label: "Planes" },
-  { id: "contacto", label: "Contacto" },
+  { id: "docentes", label: "Docentes" },
+  { id: "estudiantes", label: "Estudiantes" },
+  { id: "juegos", label: "Juegos" },
 ];
 
 export function PublicAulaHeader({ activePage = null, onNavigate, onLogin, onRegister }) {
-  const [theme, setTheme] = React.useState(() => document.documentElement.dataset.theme || "light");
-  React.useEffect(() => {
-    const sync = () => setTheme(document.documentElement.dataset.theme || "light");
-    window.addEventListener("storage", sync);
-    return () => window.removeEventListener("storage", sync);
-  }, []);
-  const toggleTheme = () => {
-    const next = (document.documentElement.dataset.theme || theme) === "dark" ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
-    setTheme(next);
-    try { localStorage.setItem("yp_theme", next); } catch { /* sin almacenamiento */ }
-  };
   return (
-    <header className="pa-header">
-      <div className="pa-header-inner">
-        <a className="pa-logo" href="#/inicio" onClick={() => onNavigate?.("inicio")} aria-label="YachayPlay, inicio">
-          <img className="pa-logo-light" src="/logo-aula.png" alt="YachayPlay" />
-          <img className="pa-logo-dark" src="/logo-aula-dark.png" alt="" aria-hidden="true" />
+    <header className="cp cp-pubhead">
+      <div className="cp-wrap">
+        <a className="cp-brand" href="#/inicio" onClick={() => onNavigate?.("inicio")} aria-label="YachayPlay, inicio">
+          <svg viewBox="0 0 26 26" aria-hidden="true">
+            <path d="M9 1h8v8h8v8h-8v8H9v-8H1V9h8z" fill="none" stroke="currentColor" strokeWidth="2" />
+            <rect x="11" y="11" width="4" height="4" fill="currentColor" />
+          </svg>
+          <span>yachay<b>play</b></span>
         </a>
-        <nav className="pa-nav" aria-label="Navegación principal">
-          {PUBLIC_NAV.map(item => <a key={item.id} className={activePage === item.id ? "active" : ""} href={`#/${item.id}`} onClick={() => onNavigate?.(item.id)} aria-current={activePage === item.id ? "page" : undefined}>{item.label}</a>)}
+        <nav className="cp-pubnav" aria-label="Navegación principal">
+          {PUBLIC_NAV.map((item) => (
+            <a
+              key={item.id}
+              className={activePage === item.id ? "active" : ""}
+              href={`#/${item.id}`}
+              onClick={() => onNavigate?.(item.id)}
+              aria-current={activePage === item.id ? "page" : undefined}
+            >
+              {item.label}
+            </a>
+          ))}
         </nav>
-        <div className="pa-auth">
-          <button type="button" className="pa-theme" onClick={toggleTheme} aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"} title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}>
-            <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span><span className="pa-theme-label">{theme === "dark" ? "Modo claro" : "Modo oscuro"}</span>
-          </button>
-          <button type="button" className="pa-login" onClick={onLogin}>Iniciar sesión</button>
-          <button type="button" className="pa-signup" onClick={onRegister}>Crear cuenta</button>
+        <div className="cp-pubauth">
+          <BotonTema />
+          <button type="button" className="cp-btn quiet" onClick={onLogin}>Iniciar sesión</button>
+          <button type="button" className="cp-btn dark" onClick={onRegister}>Crear cuenta</button>
         </div>
       </div>
     </header>
   );
 }
 
+// Re-exportado por comodidad para quien quiera la marca suelta.
+export { Marca };

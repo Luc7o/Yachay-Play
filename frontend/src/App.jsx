@@ -9,6 +9,7 @@ import { InfoPage } from "./InfoPages";
 import { cronometro } from "./cronometroStore";
 import { EVENTO_ABRIR } from "./CronometroMini";
 import { BUILD_VERSION } from "./constants";
+import { setClaseDestino, limpiarClaseDestino } from "./claseDestino";
 import { ChooserScreen } from "./screens/ChooserScreen";
 import { LoadingScreen } from "./screens/LoadingScreen";
 import { FinishedScreen } from "./screens/FinishedScreen";
@@ -31,6 +32,7 @@ const Ruleta = diferido(() => import("./Ruleta"), "Ruleta");
 const Pizarra = diferido(() => import("./Pizarra"), "Pizarra");
 const Estudio = diferido(() => import("./estudio/Estudio"), "Estudio");
 const Evaluacion = diferido(() => import("./quiz/Evaluacion"), "Evaluacion");
+const ClasesPage = diferido(() => import("./clases/Clases"), "ClasesPage");
 
 // localStorage puede estar bloqueado (modo privado, políticas del colegio): sin try, la app se caía.
 function leerLocal(clave) {
@@ -57,7 +59,9 @@ function App() {
   const [mode, setMode] = useState(() => leerLocal("ludo_mode") || null);
   const [catalogGame, setCatalogGame] = useState(null); // juego elegido en el catálogo (null = ver catálogo)
   const [seccion, setSeccion] = useState("inicio"); // inicio | juegos | herramientas (menú del docente)
-  const [toolPage, setToolPage] = useState(null); // null | "stats" | "questions" | "profile" (pantallas del catálogo)
+  const [toolPage, setToolPage] = useState(null); // null | "stats" | "questions" | "profile" | "clases" (pantallas del catálogo)
+  const [claseAbierta, setClaseAbierta] = useState(null); // id de la clase a mostrar al abrir "Mis clases"
+  const [codigoInicial, setCodigoInicial] = useState(""); // código para prellenar al entrar a un juego desde una clase
 
   // La ventanita del cronómetro (fuera de App) pide abrir su pantalla con este evento.
   // No se ofrece durante una partida de Ludo, para no sacar a nadie de ella sin querer.
@@ -403,11 +407,43 @@ function App() {
   const navegar = (id) => {
     clearGameSession();
     setCatalogGame(null);
-    if (["stats", "questions", "profile", "planes", "contacto"].includes(id)) return setToolPage(id);
+    limpiarClaseDestino(); // salir del flujo "lanzar desde una clase"
+    setCodigoInicial("");
+    if (id === "clases") setClaseAbierta(null);
+    if (["stats", "questions", "profile", "planes", "contacto", "clases"].includes(id)) return setToolPage(id);
     setToolPage(null);
     if (id === "join") return chooseMode("student");
     setSeccion(id === "juegos" || id === "herramientas" ? id : "inicio");
   };
+  // ---- Clases ----
+  // El docente lanza una actividad desde una clase: se recuerda la clase y se abre el juego.
+  const lanzarEnClase = (clase, juego) => {
+    clearGameSession();
+    setToolPage(null);
+    setCodigoInicial("");
+    setClaseDestino(clase);
+    selectGame(juego);
+  };
+  // El estudiante entra a una actividad en vivo de su clase: se abre el juego con el código puesto.
+  const entrarActividad = (a) => {
+    clearGameSession();
+    setToolPage(null);
+    if (a.kind === "ludo") {
+      setJoinCode(a.code);
+      setCatalogGame(null);
+      chooseMode("student");
+      return;
+    }
+    setCodigoInicial(a.code);
+    selectGame(a.kind);
+  };
+  const abrirClase = (id) => {
+    clearGameSession();
+    setCatalogGame(null);
+    setClaseAbierta(id);
+    setToolPage("clases");
+  };
+
   const enMenu = (activo, pagina, hoja = false) =>
     user ? (
       <AppShell user={user} active={activo} onNavigate={navegar} onLogout={logout} buildVersion={BUILD_VERSION} sheet={hoja}>
@@ -454,6 +490,9 @@ function App() {
       );
     }
     if (toolPage && user) {
+      if (toolPage === "clases") {
+        return enMenu("clases", <ClasesPage user={user} initialId={claseAbierta} onLanzar={lanzarEnClase} onEntrar={entrarActividad} />);
+      }
       if (toolPage === "planes" || toolPage === "contacto") {
         return enMenu(toolPage, <InfoPage page={toolPage} onNavigate={navegar} />);
       }
@@ -483,6 +522,7 @@ function App() {
       return (
         <Estudio
           user={user}
+          initialCode={codigoInicial}
           goHome={() => setCatalogGame(null)}
           onLogin={() => setAuthScreen("login")}
           onRegister={() => setAuthScreen("register")}
@@ -493,6 +533,7 @@ function App() {
       return (
         <Evaluacion
           user={user}
+          initialCode={codigoInicial}
           goHome={() => setCatalogGame(null)}
           onLogin={() => setAuthScreen("login")}
           onRegister={() => setAuthScreen("register")}
@@ -504,6 +545,7 @@ function App() {
       return (
         <CrosswordGame
           user={user}
+          initialCode={codigoInicial}
           onLogin={() => setAuthScreen("login")}
           onRegister={() => setAuthScreen("register")}
           goHome={() => setCatalogGame(null)}
@@ -516,7 +558,11 @@ function App() {
         <>
           <GameCatalog
             onSelectGame={selectGame}
-            onJoinWithCode={() => chooseMode("student")}
+            onJoinWithCode={(codigo) => {
+              // Desde la portada o el inicio se puede escribir el código: llega prellenado.
+              if (typeof codigo === "string" && codigo) setJoinCode(codigo);
+              chooseMode("student");
+            }}
             buildVersion={BUILD_VERSION}
             user={user}
             onLogin={() => setAuthScreen("login")}
@@ -527,6 +573,8 @@ function App() {
             onOpenProfile={() => setToolPage("profile")}
             section={seccion}
             onNavigate={navegar}
+            onOpenClass={abrirClase}
+            onEnterActivity={entrarActividad}
           />
         </>
       );

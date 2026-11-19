@@ -38,8 +38,8 @@ const cerrarAbandonadas = () =>
 
 const insertarPartida = (room) =>
   db
-    .prepare("INSERT INTO crossword_games (id, code, name, minutes, owner_id, grid) VALUES (?,?,?,?,?,?::jsonb)")
-    .run(room.id, room.code, room.name, room.minutes, room.ownerId || null, JSON.stringify(room.grid));
+    .prepare("INSERT INTO crossword_games (id, code, name, minutes, owner_id, grid, class_id) VALUES (?,?,?,?,?,?::jsonb,?)")
+    .run(room.id, room.code, room.name, room.minutes, room.ownerId || null, JSON.stringify(room.grid), room.classId || null);
 
 hooks.onCreate = (room) =>
   encolar(room, "crear partida", async () => {
@@ -120,6 +120,7 @@ export async function restoreCrosswordRooms() {
       code: g.code,
       name: g.name,
       ownerId: g.owner_id,
+      classId: g.class_id || null,
       minutes: g.minutes,
       grid: g.grid, // jsonb: pg ya lo devuelve como objeto
       players: jugadores.map((p) => ({ id: p.id, name: p.name, userId: p.user_id })),

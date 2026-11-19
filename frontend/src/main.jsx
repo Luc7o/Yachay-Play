@@ -6,8 +6,10 @@ import App from "./App";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { AssistantFab } from "./AssistantFab";
 import { CronometroMini } from "./CronometroMini";
+import { AvisoDestino } from "./clases/AvisoDestino";
 import "./gamesDark.css";
 import "./aulaFinal.css";
+import "./campus.css"; // diseño "Campus": va el ÚLTIMO para ganar sobre los estilos antiguos
 import "./theme.js";
 
 createRoot(document.getElementById("root")).render(
@@ -23,6 +25,8 @@ createRoot(document.getElementById("root")).render(
       <AssistantFab />
       {/* Ventanita del cronómetro: sale en cualquier pantalla mientras el conteo sigue en marcha. */}
       <CronometroMini />
+      {/* "Esta actividad quedará en la clase X" mientras el docente prepara una actividad desde una clase. */}
+      <AvisoDestino />
     </ErrorBoundary>
   </React.StrictMode>
 );

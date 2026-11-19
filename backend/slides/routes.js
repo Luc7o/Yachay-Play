@@ -12,11 +12,20 @@ import db from "../db.js";
 import { requireTeacher } from "../auth.js";
 import { createRoom, deleteRoom, getRoom, resumenLista, rooms, restaurar } from "./engine.js";
 import { borrarSala } from "./persist.js";
+import { claseDelDocente } from "../classes/routes.js";
 
 export const slidesRouter = Router();
 
-slidesRouter.post("/", requireTeacher, (req, res) => {
-  const room = createRoom({ name: req.body?.name, task: req.body?.task, ownerId: req.user.id });
+slidesRouter.post("/", requireTeacher, async (req, res) => {
+  const classId = req.body?.classId;
+  let clase = null;
+  try {
+    clase = classId ? await claseDelDocente(classId, req.user.id) : null;
+  } catch {
+    return res.status(500).json({ error: "No se pudo comprobar la clase. Intenta otra vez." });
+  }
+  if (classId && !clase) return res.status(404).json({ error: "No encontramos esa clase." });
+  const room = createRoom({ name: req.body?.name, task: req.body?.task, ownerId: req.user.id, classId: clase?.id || null });
   res.status(201).json({ code: room.code, name: room.name, task: room.task });
 });
 

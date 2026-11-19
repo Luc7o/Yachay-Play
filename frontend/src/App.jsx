@@ -549,7 +549,7 @@ function App() {
           onLogin={() => setAuthScreen("login")}
           onRegister={() => setAuthScreen("register")}
           goHome={() => setCatalogGame(null)}
-          frame={(pagina) => enMenu("juegos", pagina, true)}
+          frame={(pagina) => enMenu("juegos", pagina)}
         />
       );
     }
@@ -609,8 +609,7 @@ function App() {
           setupError={setupError}
           creating={creating}
           goHome={changeDevice}
-        />,
-        true
+        />
       );
     }
     if (!serverState) return <LoadingScreen code={gameCode} error={connError} onReset={changeDevice} />;
@@ -687,6 +686,7 @@ function App() {
         goHome={changeDevice}
         onLogin={() => { changeDevice(); setAuthScreen("login"); }}
         onRegister={() => { changeDevice(); setAuthScreen("register"); }}
+        isLogged={!!user}
       />
     );
   }

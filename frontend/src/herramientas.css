@@ -114,7 +114,7 @@
   display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:14px 28px;
 }
 .hr-controls{position:relative}
-@media (min-width:761px){ .has-ai-fab .hr-controls{padding-left:calc(clamp(12px,3vw,32px) + 92px)} } /* el asistente ocupa la esquina izquierda */
+@media (min-width:761px){ .has-ai-fab .hr-controls{padding-right:calc(clamp(12px,3vw,32px) + 80px)} } /* el asistente ocupa la esquina derecha */
 .hr-set,.hr-actions{display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px}
 .hr-field{display:flex; flex-direction:column; gap:4px; font-size:.8rem; font-weight:800; color:var(--hr-muted)}
 .hr-field input{width:92px; text-align:center; font-size:1.4rem; font-weight:800; padding:6px}

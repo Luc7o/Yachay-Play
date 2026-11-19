@@ -238,7 +238,7 @@ function Editor({ onCreada }) {
                 {SEGUNDOS.map((s) => <option key={s} value={s}>{s < 60 ? `${s} s` : `${s / 60} min`}</option>)}
               </select>
               <button className="hr-icon" title="Duplicar" aria-label="Duplicar pregunta" onClick={() => duplicar(i)}>⧉</button>
-              <button className="hr-icon" title="Eliminar" aria-label="Eliminar pregunta" onClick={() => quitar(i)}>🗑</button>
+              <button className="hr-icon" title="Eliminar" aria-label="Eliminar pregunta" onClick={() => quitar(i)}>✕</button>
             </span>
           </div>
           <textarea rows={2} maxLength={300} value={q.text} onChange={(e) => cambiar(i, { text: e.target.value })} placeholder="Escribe la pregunta…" aria-label={`Texto de la pregunta ${i + 1}`} />
@@ -260,8 +260,8 @@ function Editor({ onCreada }) {
       ))}
 
       <div className="hr-row qz-acciones">
-        <button className="hr-btn" disabled={preguntas.length >= 30} onClick={() => setPreguntas([...preguntas, preguntaNueva()])}>➕ Agregar pregunta</button>
-        <button className="hr-btn" onClick={() => setPegar(!pegar)}>📋 Pegar desde un documento</button>
+        <button className="hr-btn" disabled={preguntas.length >= 30} onClick={() => setPreguntas([...preguntas, preguntaNueva()])}>+ Agregar pregunta</button>
+        <button className="hr-btn" onClick={() => setPegar(!pegar)}>Pegar desde un documento</button>
       </div>
       {pegar && (
         <div className="hr-card">
@@ -272,7 +272,7 @@ function Editor({ onCreada }) {
       )}
       {aviso && <p className="hr-aviso" role="status">{aviso}</p>}
       <div className="qz-crear">
-        <button className="hr-btn hr-primary hr-grande" disabled={busy} onClick={crear}>{busy ? "Creando…" : `🚀 Crear sala (${preguntas.length} ${preguntas.length === 1 ? "pregunta" : "preguntas"})`}</button>
+        <button className="hr-btn hr-primary hr-grande" disabled={busy} onClick={crear}>{busy ? "Creando…" : `Crear sala (${preguntas.length} ${preguntas.length === 1 ? "pregunta" : "preguntas"})`}</button>
       </div>
     </section>
   );
@@ -350,7 +350,7 @@ function VistaDocente({ sala, onNueva }) {
       {st.status === "ended" && (
         <>
           <div className="hr-card">
-            <h2>🏆 Resultados</h2>
+            <h2>Resultados</h2>
             {st.ranking.length === 0 ? <p className="hr-muted">Nadie participó.</p> : (
               <div className="hr-tabla"><table>
                 <thead><tr><th className="n">#</th><th>Estudiante</th><th>Aciertos</th><th>Puntaje</th></tr></thead>
@@ -359,7 +359,7 @@ function VistaDocente({ sala, onNueva }) {
             )}
           </div>
           <div className="hr-card">
-            <h2>📊 ¿Qué quedó claro?</h2>
+            <h2>¿Qué quedó claro?</h2>
             <p className="hr-muted">Porcentaje de aciertos por pregunta: las más bajas son los temas para reforzar.</p>
             {st.review.map((q, i) => {
               const pct = q.respondieron ? Math.round((q.aciertos / q.respondieron) * 100) : 0;
@@ -374,7 +374,7 @@ function VistaDocente({ sala, onNueva }) {
           </div>
           <div className="hr-row qz-acciones">
             <button className="hr-btn hr-primary" onClick={exportar}>⬇ Descargar resultados (Excel/CSV)</button>
-            <button className="hr-btn" onClick={onNueva}>➕ Nueva evaluación</button>
+            <button className="hr-btn" onClick={onNueva}>+ Nueva evaluación</button>
           </div>
         </>
       )}

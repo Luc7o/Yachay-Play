@@ -1,0 +1,483 @@
+/* ==========================================================================
+   DISEÑO "CAMPUS" PARA JUEGOS Y HERRAMIENTAS (Ludo, Crucigrama, Palabra,
+   Evaluación, Presentaciones, Cronómetro, Ruleta, Pizarra y sus pantallas
+   de preparación, sala, ingreso y resultados).
+   --------------------------------------------------------------------------
+   Se carga el ÚLTIMO (después de campus.css). En vez de reescribir cada
+   pantalla, redefine lo que esas pantallas ya comparten:
+     1. los tokens antiguos (--navy, --orange...) con la paleta Campus,
+     2. la tipografía (Inter para leer, Space Grotesk para títulos y cifras),
+     3. botones, campos y tarjetas: esquinas de 10–14 px, sin sombras pesadas,
+     4. sin mascotas en las pantallas de trabajo (Cronómetro y Ruleta la
+        conservan como opción, con su propio botón para mostrarla).
+   Los colores de los equipos (rojo, verde, amarillo, azul) y los de acierto /
+   error NO se tocan: son parte del juego.
+   ========================================================================== */
+
+/* ---------------- 1. Tokens antiguos → paleta Campus ---------------- */
+:root{
+  --navy:#121715; --navy-dark:#0A0F0D; --navy-light:#2F3935; --navy-line:#5A6560;
+  --navy-border:#E2E6E3; --navy-soft:#EEF1EF;
+  /* --orange es el acento histórico: se usa como fondo con texto blanco, así que
+     queda oscuro en los dos temas (el verde azulado claro no da contraste con blanco). */
+  --orange:#0E6B5E; --orange-dark:#0A574C; --orange-soft:#E3F0EC;
+}
+:root[data-theme="dark"]{
+  --navy:#1B2421; --navy-dark:#141B19; --navy-light:#2F3B37; --navy-line:#9AA7A1;
+  --navy-border:#2F3B37; --navy-soft:#1B2421;
+  --orange:#0E6B5E; --orange-dark:#0A574C; --orange-soft:#10302B;
+}
+
+/* ---------------- 2. Tipografía ---------------- */
+body{font-family:Inter,system-ui,sans-serif;background:var(--cp-bg);color:var(--cp-ink);-webkit-font-smoothing:antialiased}
+:where(h1,h2,h3){font-family:"Space Grotesk",Inter,system-ui,sans-serif;letter-spacing:-.02em}
+:where(button,input,select,textarea){font-family:inherit}
+
+/* ---------------- 3. Marca en la barra superior (Brand.jsx) ---------------- */
+.cp-brand-sm span{font-size:17px}
+.cp-brand-sm svg{width:22px;height:22px}
+.cp-brand-btn{background:none;border:0;padding:0;cursor:pointer;font:inherit;text-align:left;color:inherit}
+.ref-brand .brand-subtitle{margin:2px 0 0;font-size:12px}
+
+/* ---------------- 4. Sin mascotas en las pantallas de trabajo ---------------- */
+img[src*="/mascota-"]:not(.hr-mascot):not(.hr-lateral-mascota){display:none!important}
+
+/* ---------------- 5. Asistente IA (esquina inferior DERECHA) ---------------- */
+.ai-fab-wrap{left:auto!important;right:20px!important;bottom:20px;align-items:flex-end!important;transition:bottom .2s}
+.has-cm-mini .ai-fab-wrap{bottom:104px} /* sube si la ventanita del cronómetro está a la vista */
+.ai-fab{left:auto!important;width:56px!important;height:56px!important;border-radius:50%!important;border:0!important;background:#121715!important;color:#3DD6B8!important;box-shadow:0 8px 24px rgba(18,23,21,.28)!important;animation:none!important;display:grid;place-items:center}
+.ai-fab:hover{transform:translateY(-2px)!important;background:#1B2421!important}
+.ai-fab svg{width:26px;height:26px}
+.ai-fab.is-open{width:48px!important;height:48px!important;background:#2F3935!important}
+.ai-fab:focus-visible{outline:3px solid var(--cp-accent);outline-offset:3px}
+.ai-panel{left:auto!important;right:0!important;width:360px;height:520px;max-height:min(80vh,calc(100vh - 120px));border-radius:16px!important;border:1px solid var(--cp-line)!important;background:var(--cp-surface)!important;box-shadow:0 20px 50px rgba(18,23,21,.22)!important}
+.ai-panel-head{background:var(--cp-surface)!important;border-bottom:1px solid var(--cp-line)!important;position:static!important}
+.ai-head-bar{position:static!important;background:none!important;color:var(--cp-ink)!important;padding:14px 16px!important;font:600 15px "Space Grotesk",Inter,sans-serif!important}
+.ai-head-title{display:flex;align-items:center;gap:10px}
+.ai-head-title small{color:var(--cp-muted)!important;font:500 12px Inter,sans-serif}
+.ai-head-ico{width:30px;height:30px;border-radius:8px;background:var(--cp-accent-soft);color:var(--cp-accent);display:grid;place-items:center}
+.ai-head-ico svg{width:18px;height:18px}
+.ai-head-bar button{background:var(--cp-surface2)!important;color:var(--cp-ink)!important;width:32px!important;height:32px!important;border-radius:8px!important}
+.ai-panel-body{background:var(--cp-bg)!important}
+.ai-empty{background:var(--cp-surface)!important;border:1px solid var(--cp-line)!important;color:var(--cp-ink2)!important;border-radius:12px!important}
+.ai-avatar{width:28px!important;height:28px!important;border-radius:8px!important;padding:0!important;border:0!important;background:var(--cp-accent-soft)!important;color:var(--cp-accent);display:grid!important;place-items:center}
+.ai-avatar svg{width:16px;height:16px}
+.ai-msg{border-radius:12px!important}
+.ai-msg.user{background:var(--cp-accent)!important;color:var(--cp-on-accent)!important}
+.ai-msg.assistant{background:var(--cp-surface)!important;color:var(--cp-ink)!important;border:1px solid var(--cp-line)!important}
+.ai-panel-form{background:var(--cp-surface)!important;border-top:1px solid var(--cp-line)!important}
+.ai-panel-form input{border:1px solid var(--cp-line2)!important;border-radius:10px!important;background:var(--cp-surface)!important;color:var(--cp-ink)!important}
+.ai-panel-form input:focus{border-color:var(--cp-accent)!important;outline:none}
+.ai-panel-form button{border-radius:10px!important;background:var(--cp-accent)!important;color:var(--cp-on-accent)!important}
+.ai-panel-form button:disabled{background:var(--cp-surface2)!important;color:var(--cp-muted)!important}
+@media (max-width:480px){
+  .ai-fab-wrap{right:14px!important;bottom:14px}
+  .has-cm-mini .ai-fab-wrap{bottom:96px}
+  .ai-panel{width:calc(100vw - 28px)!important}
+}
+/* Los botones flotantes de las herramientas (pantalla completa, etc.) se corren a la izquierda del asistente */
+.has-ai-fab .hr-mini{right:88px}
+
+/* ---------------- 6. Ventanita del cronómetro con la paleta Campus ---------------- */
+.cm{--cm-bg:#121715;--cm-fg:#ECF1EF;--cm-sub:#9AA7A1;--cm-bar:#3DD6B8;--cm-track:#ffffff22;--cm-line:#ffffff1f;border-radius:14px!important;font-family:Inter,system-ui,sans-serif!important}
+.cm-time{font-family:"Space Grotesk",Inter,sans-serif}
+
+/* ---------------- 7. Opciones en fila (Chips de Ludo y otras pantallas) ---------------- */
+.cp-opts{display:flex;flex-wrap:wrap;gap:6px}
+.cp-opts button{min-height:38px;min-width:44px;padding:0 12px;border:1px solid var(--cp-line2);border-radius:9px;background:var(--cp-surface);color:var(--cp-ink2);font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
+.cp-opts button:hover{border-color:var(--cp-accent);color:var(--cp-ink)}
+.cp-opts button.on{background:var(--cp-accent);border-color:var(--cp-accent);color:var(--cp-on-accent)}
+.cp-opts.sm button{min-height:34px;min-width:38px;padding:0 10px;font-size:12px}
+
+/* ---------------- 8. Ludo · crear partida ---------------- */
+.cfg2-grid{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.cfg2-form{flex:999 1 460px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.cfg2-side{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:16px}
+@media (min-width:1100px){.cfg2-side{position:sticky;top:20px}}
+.cfg2-step{display:flex;align-items:center;gap:10px}
+.cfg2-step span{width:28px;height:28px;flex:none;border-radius:8px;display:grid;place-items:center;background:var(--cp-ink);color:var(--cp-bg);font:600 13px "Space Grotesk",sans-serif}
+.cfg2-step h2{margin:0;font-size:18px}
+.cfg2-teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.cfg2-team{border:1px solid var(--cp-line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px;background:var(--cp-surface)}
+.cfg2-team.on{border-color:var(--tc);box-shadow:inset 3px 0 0 var(--tc)}
+.cfg2-team-head{display:flex;align-items:center;gap:8px}
+.cfg2-team-head i{width:10px;height:10px;border-radius:3px;background:var(--tc);flex:none}
+.cfg2-team-head strong{font-size:15px}
+.cfg2-team-head span{margin-left:auto;font-size:12px;color:var(--cp-muted)}
+.cfg2-team:not(.on) .cfg2-team-head i{opacity:.35}
+.cfg2-team .cp-opts button.on{background:var(--tc);border-color:var(--tc);color:#fff}
+.cfg2-team[data-t="amarillo"] .cp-opts button.on{color:#2B2205}
+.cfg2-team .cp-opts button:first-child.on{background:var(--cp-surface2);border-color:var(--cp-line2);color:var(--cp-ink2)}
+.cfg2-times{display:flex;flex-direction:column;gap:16px}
+.cfg2-time{display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1px solid var(--cp-line)}
+.cfg2-time:first-child{padding-top:0;border-top:0}
+.cfg2-time strong{display:block;font-size:14px}
+.cfg2-time small{display:block;font-size:13px;color:var(--cp-muted);margin-top:2px}
+.cfg2-summary h2{margin:0;font-size:20px;overflow-wrap:anywhere}
+.cfg2-sum-teams{display:flex;flex-wrap:wrap;gap:6px}
+.cfg2-dot{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--tc)}
+.cfg2-dl{margin:0;display:flex;flex-direction:column}
+.cfg2-dl div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--cp-line);font-size:14px}
+.cfg2-dl dt{color:var(--cp-muted)}
+.cfg2-dl dd{margin:0;font-weight:600}
+.cfg2-how h3{margin:0 0 4px;font-size:16px}
+.cfg2-howstep,.preview-step{display:flex;gap:12px;align-items:flex-start}
+.cfg2-howstep>b,.preview-step>b{width:24px;height:24px;flex:none;border-radius:7px;display:grid;place-items:center;background:var(--cp-accent-soft);color:var(--cp-accent);font:600 12px "Space Grotesk",sans-serif}
+.cfg2-howstep strong,.preview-step strong{display:block;font-size:14px;color:var(--cp-ink)}
+.cfg2-howstep p,.preview-step p{margin:2px 0 0;font-size:13px;line-height:1.5;color:var(--cp-muted)}
+
+/* ---------------- 9. Modo proyección (salas en vivo del docente) ---------------- */
+/* Siempre oscuro y de alto contraste, aunque la app esté en modo claro. */
+.cp-proj{
+  --cp-bg:#0D1211; --cp-surface:#141B19; --cp-surface2:#1B2421; --cp-ink:#ECF1EF; --cp-ink2:#CFD8D4;
+  --cp-muted:#9AA7A1; --cp-line:#222B28; --cp-line2:#2F3B37;
+  --cp-accent:#3DD6B8; --cp-accent-hover:#7BE6D1; --cp-accent-soft:#10302B; --cp-on-accent:#0D1211;
+  --cp-live:#F59E0B; --cp-live-ink:#FBBF5D; --cp-danger:#F5A49A; --cp-danger-soft:#2B1715;
+  /* Tokens antiguos que usan las piezas heredadas (marcador, pistas, tablero...): también en oscuro */
+  --bg:#0D1211; --surface:#141B19; --surface2:#1B2421; --ink:#ECF1EF; --muted:#9AA7A1; --line:#222B28;
+  --primary:#3DD6B8; --primary2:#3DD6B8; --mint:#10302B; --btn-ink:#ECF1EF;
+  --navy-border:#2F3B37; --navy-soft:#1B2421; --navy-line:#9AA7A1; --orange-soft:#10302B;
+  min-height:100vh;background:var(--cp-bg);color:var(--cp-ink);color-scheme:dark
+}
+.proj-top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:14px clamp(16px,3vw,36px);border-bottom:1px solid var(--cp-line)}
+.proj-top .ref-brand .cp-brand span{color:var(--cp-ink)}
+.proj-top-info{flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.proj-top-info strong{font:600 20px "Space Grotesk",sans-serif;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.proj-main{display:flex;flex-wrap:wrap;gap:20px;padding:24px clamp(16px,3vw,36px) 40px;box-sizing:border-box}
+.proj-stage{flex:999 1 600px;min-width:0;display:flex;flex-direction:column;gap:18px}
+.proj-side{flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.proj-side h2,.proj-stage h2{margin:0;font-size:16px}
+.proj-hero{padding:clamp(20px,3vw,36px);display:flex;flex-wrap:wrap;gap:24px 32px;align-items:center;border-radius:18px}
+.proj-hero-copy{flex:1 1 300px;display:flex;flex-direction:column;gap:12px}
+.proj-hero-copy h1{margin:0;font-size:clamp(26px,3vw,38px);line-height:1.12}
+.proj-hero-copy h1 b{color:var(--cp-accent);font-weight:600}
+.proj-hero-copy p{margin:0;font-size:15px;color:var(--cp-muted)}
+.proj-warn{padding:10px 12px;border-radius:10px;background:#2E2210;color:#FBBF5D!important;font-size:13px!important}
+.proj-code{display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 30px;border:1px solid var(--cp-line2);border-radius:16px;background:var(--cp-bg)}
+.proj-code span{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--cp-muted)}
+.proj-code strong{font:600 clamp(48px,6vw,80px)/1 "Space Grotesk",sans-serif;letter-spacing:.06em;color:var(--cp-accent);white-space:nowrap}
+.proj-progress-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.proj-progress-top span{font-size:13px;color:var(--cp-muted)}
+.proj-bar{height:6px;border-radius:3px;background:var(--cp-surface2);overflow:hidden}
+.proj-bar i{display:block;height:100%;background:var(--cp-accent);transition:width .3s}
+.proj-teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.proj-team{border:1px solid var(--cp-line2);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:inset 3px 0 0 var(--tc)}
+.proj-team.full{border-color:var(--tc)}
+.proj-team-head{display:flex;align-items:center;gap:8px}
+.proj-team-head i{width:10px;height:10px;border-radius:3px;background:var(--tc)}
+.proj-team-head span{margin-left:auto;font-size:12px;color:var(--cp-muted)}
+.proj-members{display:flex;flex-wrap:wrap;gap:6px}
+.proj-member{font-size:13px;padding:5px 10px;border-radius:999px;background:var(--cp-surface2);border:1px solid var(--cp-line2)}
+.proj-member.empty{background:transparent;border-style:dashed;color:var(--cp-muted)}
+.proj-actions{display:flex;flex-wrap:wrap;gap:10px}
+.proj-url{display:block;padding:10px 12px;border-radius:10px;background:var(--cp-bg);border:1px solid var(--cp-line2);font-size:12px;color:var(--cp-ink2);overflow-wrap:anywhere}
+
+/* ---------------- 10. Ludo · pantallas del estudiante (celular) ---------------- */
+.stu-page{min-height:100vh;background:var(--cp-bg);color:var(--cp-ink);display:flex;flex-direction:column}
+.stu-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px clamp(16px,3vw,28px);border-bottom:1px solid var(--cp-line)}
+.stu-top-right{display:flex;align-items:center;gap:8px}
+.stu-main{flex:1;width:100%;max-width:480px;margin:0 auto;padding:24px 16px 40px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px}
+.stu-card{background:var(--cp-surface);border:1px solid var(--cp-line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:18px}
+.stu-card h1{margin:4px 0 0;font-size:30px;line-height:1.08}
+.stu-card h2{margin:0;font-size:20px;line-height:1.3}
+.stu-lead{margin:8px 0 0;font-size:15px;line-height:1.5;color:var(--cp-ink2)}
+.stu-code{font:600 30px/1 "Space Grotesk",sans-serif!important;letter-spacing:.18em;text-align:center;min-height:62px!important}
+.stu-code.ok{border-color:var(--cp-accent);box-shadow:0 0 0 3px var(--cp-accent-soft)}
+.stu-ok{color:var(--cp-accent)!important}
+.stu-center{text-align:center}
+.stu-teams-field{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.stu-teams-field legend{padding:0;margin-bottom:8px;font-size:13px;font-weight:600;color:var(--cp-ink2)}
+.stu-teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stu-team{position:relative;display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--cp-line2);border-radius:12px;background:var(--cp-surface);cursor:pointer}
+.stu-team input{position:absolute;opacity:0;pointer-events:none}
+.stu-team.on{border-color:var(--tc);box-shadow:0 0 0 3px color-mix(in srgb,var(--tc) 22%,transparent)}
+.stu-team.lleno{opacity:.5;cursor:not-allowed}
+.stu-team:has(input:focus-visible){outline:3px solid var(--cp-accent);outline-offset:2px}
+.stu-team-head{display:flex;align-items:center;gap:8px}
+.stu-team-head i{width:10px;height:10px;border-radius:3px;background:var(--tc)}
+.stu-pips{display:flex;gap:4px}
+.stu-pips i{width:14px;height:6px;border-radius:3px;background:var(--cp-surface2);border:1px solid var(--cp-line2)}
+.stu-pips i.full{background:var(--tc);border-color:var(--tc)}
+.stu-team small{font-size:12px;color:var(--cp-muted)}
+/* Espera */
+.stu-wait .cp-live{color:var(--cp-live-ink)}
+.stu-me{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;background:var(--cp-surface2)}
+.stu-me i{width:12px;height:36px;border-radius:4px;background:var(--tc)}
+.stu-me strong{display:block;font-size:16px}
+.stu-me small{color:var(--cp-muted)}
+.stu-wait-box{display:flex;gap:14px;align-items:flex-start}
+.stu-wait-box p{margin:4px 0 0;font-size:14px;line-height:1.5;color:var(--cp-muted)}
+.stu-pulse{width:12px;height:12px;margin-top:4px;flex:none;border-radius:50%;background:var(--cp-accent);animation:stu-pulso 1.6s ease-in-out infinite}
+@keyframes stu-pulso{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+/* Juego */
+.stu-game-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--cp-line)}
+.stu-game-top strong{display:block;font-size:16px;margin-top:2px}
+.stu-chip{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;background:color-mix(in srgb,var(--tc) 18%,transparent);color:var(--cp-ink);font-size:13px;font-weight:600;white-space:nowrap}
+.stu-chip i{width:9px;height:9px;border-radius:3px;background:var(--tc)}
+.stu-main-game{padding-top:18px}
+.stu-roll{align-items:center;text-align:center}
+.stu-dice-row{display:flex;align-items:center;gap:12px}
+.stu-dice-row strong{display:block;font-size:15px}
+.stu-dice-row small{color:var(--cp-muted);font-size:13px}
+.stu-timer{display:flex;flex-direction:column;gap:8px}
+.stu-timer>div:first-child{display:flex;justify-content:space-between;font-size:13px;color:var(--cp-muted)}
+.stu-timer b{font:600 15px "Space Grotesk",sans-serif;color:#FBBF5D}
+.stu-timer b.urgente{color:#F5A49A}
+.stu-timer-bar{height:6px;border-radius:3px;background:var(--cp-surface2);overflow:hidden}
+.stu-timer-bar i{display:block;height:100%;background:#F59E0B;transition:width 1s linear}
+.stu-timer-bar i.urgente{background:#F07B6E}
+.stu-question{gap:10px}
+.stu-question h2{font-size:22px;font-weight:500;letter-spacing:-.01em}
+.stu-options{display:flex;flex-direction:column;gap:10px}
+.stu-opt{display:flex;align-items:center;gap:12px;min-height:56px;padding:14px 16px;border:1px solid var(--cp-line2);border-radius:14px;background:var(--cp-surface);color:var(--cp-ink);font:500 15px Inter,sans-serif;text-align:left;cursor:pointer}
+.stu-opt:disabled{cursor:default}
+.stu-opt:not(:disabled):hover{border-color:var(--cp-accent)}
+.stu-opt-letra{width:28px;height:28px;flex:none;border-radius:8px;display:grid;place-items:center;background:var(--cp-surface2);font-weight:700;font-size:13px}
+.stu-opt-txt{overflow-wrap:anywhere}
+.stu-opt.elegida{border:1.5px solid var(--cp-accent);background:var(--cp-accent-soft)}
+.stu-opt.elegida .stu-opt-letra{background:var(--cp-accent);color:var(--cp-on-accent)}
+.stu-opt.correcta{border:1.5px solid #3DD6B8;background:#10302B}
+.stu-opt.correcta .stu-opt-letra{background:#3DD6B8;color:#0D1211}
+.stu-opt.incorrecta{border:1.5px solid #F07B6E;background:#2B1715}
+.stu-opt.incorrecta .stu-opt-letra{background:#F07B6E;color:#0D1211}
+.stu-result{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:12px}
+.stu-result.ok{background:#10302B;color:#7BE6D1}
+.stu-result.bad{background:#2B1715;color:#F5A49A}
+.stu-result small{color:var(--cp-muted)}
+.stu-board{padding:12px}
+
+/* ---------------- 11. Ludo · partida en curso (docente, proyección) ---------------- */
+.eg-top{gap:12px 20px}
+.eg-clock{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.eg-time{display:flex;flex-direction:column;align-items:flex-end;padding:4px 12px;border-radius:10px;border:1px solid var(--cp-line2);min-width:92px}
+.eg-time span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--cp-muted)}
+.eg-time b{font:600 24px/1.1 "Space Grotesk",sans-serif;font-variant-numeric:tabular-nums}
+.eg-time.poco{border-color:#F07B6E;background:#2B1715}
+.eg-time.poco b{color:#F5A49A}
+.eg-time-btns{display:flex;gap:4px}
+.eg-actions{display:flex;gap:6px;flex-wrap:wrap}
+.eg-tabs{display:flex;gap:4px;padding:8px clamp(16px,3vw,36px);border-bottom:1px solid var(--cp-line);overflow-x:auto;scrollbar-width:none}
+.eg-tabs button{min-height:40px;padding:0 14px;border:0;border-radius:9px;background:transparent;color:var(--cp-muted);font:500 14px Inter,sans-serif;cursor:pointer;white-space:nowrap}
+.eg-tabs button:hover{color:var(--cp-ink);background:var(--cp-surface2)}
+.eg-tabs button.on{background:var(--cp-surface2);color:var(--cp-ink);font-weight:600}
+.eg-main{align-items:flex-start}
+.eg-board{flex:999 1 560px;min-width:0;padding:16px;display:flex;flex-direction:column;gap:12px;align-items:center}
+.eg-board>*:first-child{width:100%;max-width:min(720px,calc(100vh - 200px))}
+.eg-legend{display:flex;gap:16px;font-size:13px;color:var(--cp-muted)}
+.eg-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px}
+.eg-side{flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.eg-turn{box-shadow:inset 3px 0 0 var(--tc)}
+.eg-turn-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.eg-team{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:14px}
+.eg-team i,.eg-scores i{width:10px;height:10px;border-radius:3px;background:var(--tc);display:inline-block}
+.eg-dice{display:flex;gap:14px;align-items:center}
+.eg-dice-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.eg-dice-info p{margin:0;font-size:14px;line-height:1.45}
+.eg-dice-info small{font-size:12px;color:var(--cp-muted)}
+.eg-phase-roll{background:#F59E0B!important}
+.eg-question h3{margin:0;font-size:17px;line-height:1.4}
+.eg-opts{display:flex;flex-direction:column;gap:6px}
+.eg-opt{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:10px;border:1px solid var(--cp-line2);font-size:14px}
+.eg-opt b{width:24px;height:24px;flex:none;border-radius:7px;display:grid;place-items:center;background:var(--cp-surface2);font-size:12px}
+.eg-opt.correcta{border-color:#3DD6B8;background:#10302B}
+.eg-opt.incorrecta{border-color:#F07B6E;background:#2B1715}
+.eg-scores{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.eg-scores>div{display:flex;flex-direction:column;gap:2px;padding:10px;border-radius:10px;background:var(--cp-surface2)}
+.eg-scores span{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--cp-ink2)}
+.eg-scores b{font:600 18px "Space Grotesk",sans-serif}
+.eg-pieces{max-height:220px;overflow:auto}
+.eg-pieces .board-piece{position:static;width:26px;height:26px;font-size:11px}
+/* Dado con la paleta Campus (las caras siguen igual) */
+.cp-proj .dice{background:#ECF1EF;border-color:#2F3B37}
+.cp-proj .pip.on{background:#121715}
+/* Pestañas de información */
+.eg-info{flex-direction:column}
+.eg-info h2{margin:0 0 4px;font-size:18px}
+.eg-info .question-table{border-color:var(--cp-line2);border-radius:12px;background:transparent}
+.eg-info .q-row{border-bottom-color:var(--cp-line);font-size:13px}
+.eg-info .q-row p,.eg-info .q-row small{color:var(--cp-ink2);font-size:13px}
+.eg-score-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.eg-score-card{padding:16px;display:flex;flex-direction:column;gap:4px;box-shadow:inset 0 3px 0 var(--tc)}
+.eg-score-card span{font-weight:600}
+.eg-score-card strong{font:600 28px "Space Grotesk",sans-serif}
+.eg-score-card small{font-size:12px;color:var(--cp-muted)}
+.eg-info .history-row{border-bottom-color:var(--cp-line);font-size:13px}
+.eg-ok{color:#7BE6D1}.eg-bad{color:#F5A49A}
+.eg-rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.eg-rules ol,.eg-rules p{font-size:14px;line-height:1.7;color:var(--cp-ink2);margin:0}
+.eg-rules ol{padding-left:20px}
+.eg-pieces .cp-rows-end{white-space:normal;text-align:right;max-width:55%}
+
+/* ---------------- 12. Ludo · resultados, carga y "cómo entrar" ---------------- */
+.fin-main{flex-direction:column;max-width:900px;margin:0 auto;width:100%}
+.fin-hero{padding:clamp(22px,3vw,36px);display:flex;flex-direction:column;gap:10px;box-shadow:inset 0 3px 0 var(--tc)}
+.fin-hero h1{margin:0;font-size:clamp(28px,3.4vw,42px);line-height:1.1}
+.fin-hero p{margin:0;color:var(--cp-muted);font-size:15px}
+.fin-team{display:inline-flex;align-items:center;gap:10px}
+.fin-team i{width:16px;height:16px;border-radius:5px;background:var(--tc)}
+.fin-ranking{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.fin-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:16px 20px;box-shadow:inset 3px 0 0 var(--tc)}
+.fin-row.top{border-color:var(--tc)}
+.fin-row.mine{background:var(--cp-surface2)}
+.fin-pos{font:600 22px "Space Grotesk",sans-serif;color:var(--cp-muted);width:24px}
+.fin-name{display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px;flex:1 1 160px}
+.fin-name i{width:10px;height:10px;border-radius:3px;background:var(--tc)}
+.fin-name small{font-weight:400;color:var(--cp-muted)}
+.fin-stats{font-size:13px;color:var(--cp-muted)}
+.fin-score{font:600 26px "Space Grotesk",sans-serif;margin-left:auto}
+.fin-score small{font-size:14px;color:var(--cp-muted)}
+.stu-loader{width:28px;height:28px;border-radius:50%;border:3px solid var(--cp-line2);border-top-color:var(--cp-accent);animation:stu-gira .8s linear infinite}
+@keyframes stu-gira{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.stu-loader,.stu-pulse{animation:none}}
+.ch-main{padding-block:48px 64px;display:flex;flex-direction:column;gap:24px}
+.ch-intro{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.ch-intro>div{flex:1 1 420px;display:flex;flex-direction:column;gap:14px}
+.ch-intro h1{margin:0;font-size:clamp(30px,4vw,48px);line-height:1.05;letter-spacing:-.035em}
+.ch-intro p{margin:0;font-size:17px;line-height:1.6;color:var(--cp-ink2);max-width:620px}
+.ch-ico{width:64px;height:64px;border-radius:16px}
+.ch-ico svg{width:30px;height:30px}
+.ch-tags{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.ch-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+
+/* ---------------- 13. Crucigrama · sala del docente y marcador (proyección) ---------------- */
+.cwr-main{flex-direction:column}
+.cwr-empty{display:flex;gap:12px;align-items:flex-start;color:var(--cp-muted);font-size:14px}
+.cwr-empty p{margin:0}
+.cp-proj .cw-teacher-live{display:flex;flex-direction:column;gap:16px}
+.cp-proj .cw-stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.cp-proj .cw-stat-card{background:var(--cp-surface)!important;border:1px solid var(--cp-line)!important;border-radius:14px!important;padding:14px 16px!important;box-shadow:none!important;color:var(--cp-ink)!important}
+.cp-proj .cw-stat-card span{color:var(--cp-muted)!important;font-size:12px}
+.cp-proj .cw-stat-card b{font:600 24px "Space Grotesk",sans-serif;color:var(--cp-ink)!important}
+.cp-proj .cw-stat-wide b{font-size:15px;font-family:Inter,sans-serif;line-height:1.4}
+.cp-proj .cw-teacher-grid-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.cp-proj .cw-board-panel{flex:999 1 460px;min-width:0;background:var(--cp-surface)!important;border:1px solid var(--cp-line)!important;border-radius:14px!important;box-shadow:none!important;padding:16px!important;color:var(--cp-ink)!important}
+.cp-proj .cw-board-panel h3{margin:0 0 4px;font-size:16px;color:var(--cp-ink)!important}
+.cp-proj .cw-board-sub,.cp-proj .cw-heat-legend{color:var(--cp-muted)!important;font-size:13px}
+.cp-proj .cw-side-col{flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:12px}
+.cp-proj .cw-panel-card{background:var(--cp-surface)!important;border:1px solid var(--cp-line)!important;border-radius:14px!important;box-shadow:none!important;padding:14px 16px!important;color:var(--cp-ink)!important}
+.cp-proj .cw-side-title{font:600 12px Inter,sans-serif!important;letter-spacing:.08em;text-transform:uppercase;color:var(--cp-muted)!important;margin:4px 0 10px}
+.cp-proj .cw-clue-list li{color:var(--cp-ink2)!important;border-color:var(--cp-line)!important;font-size:13px}
+.cp-proj .cw-clue-list li.done{color:#7BE6D1!important}
+.cp-proj .cw-clue-count,.cp-proj .cw-clue-list small{color:var(--cp-muted)!important}
+.cp-proj .cw-lb-bar{background:var(--cp-surface2)!important;border-radius:3px}
+.cp-proj .cw-lb-bar i{background:var(--cp-accent)!important;border-radius:3px}
+.cp-proj .cw-lb-row{border-bottom:1px solid var(--cp-line)!important;color:var(--cp-ink)!important;font-size:14px}
+.cp-proj .cw-lb-rank{color:var(--cp-muted)!important}
+.cp-proj .cw-lb-score{font-weight:600;color:var(--cp-ink)!important}
+.cp-proj .cw-lb-done{color:#7BE6D1!important}
+.cp-proj .cw-activity-list li{color:var(--cp-ink2)!important;border-color:var(--cp-line)!important;font-size:13px}
+.cp-proj .cw-activity-time{color:var(--cp-muted)!important}
+.cp-proj .muted{color:var(--cp-muted)!important}
+
+/* ---------------- 14. Crucigrama · tablero del estudiante (proyección) ---------------- */
+.cwp .stu-top{position:sticky;top:0;z-index:20;background:var(--cp-bg)}
+.cwp .cw-play-main{max-width:1180px;margin:0 auto;padding:18px 16px 40px;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.cwp .cw-board-col{flex:999 1 420px;min-width:0;position:relative}
+.cwp .cw-side-col{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:12px}
+.cwp .cw-grid{background:#2F3B37!important;border-color:#2F3B37!important;border-radius:10px!important}
+.cwp .cw-cell{background:#ECF1EF!important;color:#121715!important;font-family:"Space Grotesk",sans-serif}
+.cwp .cw-cell.blank{background:#141B19!important}
+.cwp .cw-cell-num{color:#5A6560!important}
+.cwp .cw-overlay{background:rgba(13,18,17,.86)!important;border-radius:10px;color:#7BE6D1!important;font:600 20px "Space Grotesk",sans-serif!important}
+.cwp .cw-answer-bar{background:var(--cp-surface)!important;border:1px solid var(--cp-line2)!important;border-radius:14px!important;color:var(--cp-ink)!important;display:flex;flex-direction:column;gap:10px;box-shadow:none!important}
+.cwp .cw-answer-bar small{color:var(--cp-muted)!important}
+.cwp .cw-answer-row{display:flex;gap:8px}
+.cwp .cw-answer-input{flex:1;min-width:0;font:600 18px "Space Grotesk",sans-serif!important;letter-spacing:.18em;text-transform:uppercase}
+.cwp .cw-mystats,.cwp .cw-energy,.cwp .cw-sabotage{background:var(--cp-surface)!important;border:1px solid var(--cp-line)!important;border-radius:14px!important;color:var(--cp-ink)!important;box-shadow:none!important}
+.cwp .cw-mystats b{font-family:"Space Grotesk",sans-serif;font-weight:600}
+.cwp .cw-energy>span{color:var(--cp-ink)!important;font-weight:600}
+.cwp .cw-energy-bar{background:var(--cp-surface2)!important;border-radius:4px!important}
+.cwp .cw-energy-bar i{background:#F59E0B!important;border-radius:4px!important}
+.cwp .cw-rival{background:var(--cp-surface2)!important;border:1px solid var(--cp-line2)!important;color:var(--cp-ink)!important;border-radius:10px!important;font-weight:600!important}
+.cwp .cw-rival small{color:var(--cp-muted)!important}
+.cwp .cw-rival.on{border-color:var(--cp-accent)!important;background:var(--cp-accent-soft)!important}
+.cwp .cw-sabo-btn{background:var(--cp-surface2)!important;border:1px solid var(--cp-line2)!important;color:var(--cp-ink)!important;border-radius:10px!important;min-height:44px;font-weight:600!important}
+.cwp .cw-sabo-btn:not(:disabled):hover{border-color:var(--cp-accent)!important}
+.cwp .cw-sabo-btn:disabled{opacity:.45}
+.cwp .cw-sabo-btn small{margin-left:auto;color:var(--cp-muted)!important;font-weight:500}
+.cwp .cw-sabo-btn span{color:#7BE6D1;display:inline-flex}
+.cwp .cw-clue-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.cwp .cw-clue-list li{padding:0!important;background:none!important;border:0!important;min-height:0}
+.cwp .cwp-clue{all:unset;box-sizing:border-box;display:block;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--cp-line2);background:var(--cp-surface);color:var(--cp-ink2);font:500 14px/1.45 Inter,sans-serif;cursor:pointer}
+.cwp .cwp-clue:hover:not(:disabled){border-color:var(--cp-accent);color:var(--cp-ink)}
+.cwp .cwp-clue:focus-visible{outline:3px solid var(--cp-accent);outline-offset:2px}
+.cwp .cwp-clue b{color:var(--cp-ink)}
+.cwp .cwp-clue small{color:var(--cp-muted)}
+.cwp li.active .cwp-clue{border-color:var(--cp-accent);background:var(--cp-accent-soft);color:var(--cp-ink)}
+.cwp li.done .cwp-clue{border-color:#1F4A42;background:#10302B;color:#7BE6D1;text-decoration:line-through;cursor:default}
+.cwp .cw-toast{background:#121715!important;color:#ECF1EF!important;border:1px solid #2F3B37!important;border-radius:12px!important;box-shadow:0 8px 24px rgba(0,0,0,.35)!important}
+@media (max-width:760px){
+  .cwp .cw-answer-bar{position:fixed!important;left:0;right:0;bottom:0;border-radius:14px 14px 0 0!important;border-width:1px 0 0!important}
+}
+.cp-proj .cw-leaderboard{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
+.cp-proj .cw-lb-row{background:transparent!important;border-radius:0!important;box-shadow:none!important;padding:10px 0!important}
+.cp-proj .cw-lb-name{color:var(--cp-ink)!important;font-weight:500}
+.cp-proj .cw-clue-list li{background:var(--cp-surface2)!important;border:1px solid var(--cp-line2)!important;border-radius:10px!important}
+.cwp .cw-clue-list li{background:none!important;border:0!important}
+.cp-proj .cw-activity-list li{background:var(--cp-surface2)!important;border:1px solid var(--cp-line)!important;border-radius:10px!important}
+.cp-proj .cw-grid-wrap{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}
+.cp-proj .cw-clue-list li b,.cp-proj b.cw-cell-num{color:var(--cp-ink)!important}
+.cp-proj .cw-clue-list li.done b{color:#7BE6D1!important}
+.cp-proj .cw-lb-row{border:0!important;border-bottom:1px solid var(--cp-line)!important}
+
+/* ---------------- 15. Herramientas y Evaluación (tokens --hr-*) ---------------- */
+/* Siguen el tema de la APP (data-theme), no el del sistema operativo. Los estados del
+   cronómetro (aviso / urgente / fin) conservan sus colores: van con más especificidad. */
+.hr-page{--hr-bg:var(--cp-bg);--hr-fg:var(--cp-ink);--hr-muted:var(--cp-muted);--hr-card:var(--cp-surface);--hr-line:var(--cp-line);--hr-field:var(--cp-surface);--hr-track:var(--cp-surface2);--hr-bar:var(--cp-accent);--hr-time:var(--cp-ink);font-family:Inter,system-ui,sans-serif}
+.hr-page h1,.hr-page h2,.hr-page h3{font-family:"Space Grotesk",Inter,sans-serif;letter-spacing:-.02em}
+.hr-page :focus-visible{outline-color:var(--cp-accent)}
+.hr-btn{border-radius:10px!important;font-family:Inter,sans-serif!important;font-weight:600!important;box-shadow:none!important}
+.hr-btn.hr-primary{background:var(--cp-accent)!important;border-color:var(--cp-accent)!important;color:var(--cp-on-accent)!important}
+.hr-card,.hr-box,.hr-panel{border-radius:14px!important;box-shadow:none!important}
+.hr-page input,.hr-page select,.hr-page textarea{border-radius:10px;font-family:Inter,sans-serif}
+.hr-time{font-family:"Space Grotesk",Inter,sans-serif}
+
+/* ---------------- 16. Presentaciones en vivo (tokens --es-*) ---------------- */
+:root .es,:root[data-theme="dark"] .es{
+  --es-bg:var(--cp-bg);--es-surface:var(--cp-surface);--es-ink:var(--cp-ink);--es-muted:var(--cp-muted);--es-line:var(--cp-line);
+  --es-primary:var(--cp-accent);--es-primary-d:var(--cp-accent-hover);--es-soft:var(--cp-accent-soft);--es-stage:var(--cp-surface2);--es-danger:var(--cp-danger);
+  font-family:Inter,system-ui,sans-serif
+}
+.es h1,.es h2,.es h3,.es .es-title{font-family:"Space Grotesk",Inter,sans-serif;letter-spacing:-.02em}
+.es .es-btn{border-radius:10px!important;font-weight:600!important;box-shadow:none!important}
+.es .es-btn:not(.ghost):not(.danger){color:var(--cp-on-accent)}
+.es .es-card,.es .es-card-form,.es .es-panel{border-radius:14px!important;box-shadow:none!important}
+
+/* ---------------- 17. Palabra relámpago (fondo, paneles y acento; la arena y la bomba no se tocan) ---------------- */
+.pr-page{--pr-accent:#0E6B5E;font-family:Inter,system-ui,sans-serif}
+.pr-page h1,.pr-page h2,.pr-page h3{font-family:"Space Grotesk",Inter,sans-serif;letter-spacing:-.02em}
+.pr-page.pr-day{background:#F6F7F5!important;--pr-ink:#121715;--pr-edge:#E2E6E3;color:#121715}
+.pr-page.pr-night{background:#0D1211!important;--pr-ink:#ECF1EF;--pr-accent:#3DD6B8;--pr-edge:#222B28;color:#ECF1EF}
+.pr-day .pr-panel{background:#FFFFFF!important;border:1px solid #E2E6E3!important;box-shadow:none!important;border-radius:16px!important}
+.pr-night .pr-panel{background:#141B19!important;border:1px solid #222B28!important;box-shadow:none!important;border-radius:16px!important}
+.pr-fullscreen.pr-night{background:#0D1211!important}
+.pr-fullscreen.pr-day{background:#F6F7F5!important}
+/* Dentro del menú de la app no se estira a todo el ancho de la ventana (taparía el menú lateral) */
+.cp-main .pr-page.pr-fullscreen{width:auto!important;margin-left:0!important;margin-right:0!important;max-width:none!important;min-height:0!important;border-radius:16px!important}
+.pr-day :is(input,select,textarea){background:#FFFFFF!important;border:1px solid #CDD3CF!important;border-radius:10px!important;color:#121715!important}
+.pr-night :is(input,select,textarea){background:#141B19!important;border:1px solid #2F3B37!important;border-radius:10px!important;color:#ECF1EF!important}
+.pr-page :is(input,select,textarea):focus{outline:none;border-color:var(--pr-accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--pr-accent) 20%,transparent)!important}
+
+/* ---------------- 18. Pantalla previa de cada juego (GameGate) ---------------- */
+.gate2-sub{font-size:14px;color:var(--cp-muted);padding-left:14px;border-left:1px solid var(--cp-line)}
+.gate2-hero h1 .gate-hl{color:var(--cp-accent)}
+.gate2-tags{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.gate2-stats{display:flex;flex-wrap:wrap;gap:12px 32px;margin:8px 0 0}
+.gate2-stats dt{font:600 28px "Space Grotesk",sans-serif;letter-spacing:-.02em}
+.gate2-stats dd{margin:2px 0 0;font-size:13px;color:var(--cp-muted)}
+.gate2-art{align-items:center}
+.gate2-preview{width:100%;max-width:420px;margin:0 auto;padding:28px;border-radius:20px;background:#121715;border:1px solid #222B28}
+.gate2-card{padding:24px;display:flex;flex-direction:column;gap:10px}
+.gate2-card strong{font:600 18px "Space Grotesk",sans-serif}
+.gate2-card p{margin:0;font-size:14px;color:var(--cp-ink2)}
+.gate2-card ul{margin:0 0 6px;padding-left:18px;font-size:13px;line-height:1.7;color:var(--cp-muted)}
+.gate2-card .cp-btn{margin-top:auto;align-self:flex-start}
+.gate2-extra .gate-h2{margin:0 0 6px;font:600 clamp(24px,2.6vw,32px) "Space Grotesk",sans-serif;letter-spacing:-.03em;color:var(--cp-ink)}
+.gate2-extra .gate-sub{margin:0 0 24px;color:var(--cp-ink2)}
+.gate2-extra .gate-sabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.gate2-extra .gate-sab{background:var(--cp-surface)!important;border:1px solid var(--cp-line)!important;border-radius:14px!important;box-shadow:none!important;padding:20px!important;color:var(--cp-ink)!important}
+.gate2-extra .gate-sab strong{font-size:16px}
+.gate2-extra .gate-sab p{color:var(--cp-ink2)!important;font-size:14px}
+.gate2-extra .gate-sab-cost{color:var(--cp-accent)!important;background:var(--cp-accent-soft)!important;border-radius:6px!important;font-weight:600}
+.gate2-extra .gate-teams{display:flex;flex-wrap:wrap;gap:10px}
+.gate2-extra .gate-team{background:var(--cp-surface)!important;border:1px solid var(--cp-line)!important;border-radius:10px!important;color:var(--cp-ink)!important;box-shadow:inset 3px 0 0 var(--c)!important}

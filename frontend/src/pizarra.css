@@ -82,7 +82,7 @@
 @media (max-width:760px){
   .pz-btn{min-width:40px; height:40px}
   .pz-top{max-width:calc(100% - 76px)}
-  .has-ai-fab .pz-bottom{left:104px; transform:none; max-width:calc(100% - 116px)}
+  .has-ai-fab .pz-bottom{left:12px; right:84px; transform:none; max-width:none}
 }
 
 /* ---------- Nombre del trabajo (barra superior) ---------- */

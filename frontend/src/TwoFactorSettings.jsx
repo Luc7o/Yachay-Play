@@ -83,7 +83,7 @@ export function TwoFactorSettings({ user, onUserUpdate }) {
 
   return (
     <section className="tl-box tl-form">
-      <h2>🛡️ Verificación en dos pasos <span className={`ax-badge ${activo ? "on" : "off"}`}>{activo ? "Activada" : "Desactivada"}</span></h2>
+      <h2>Verificación en dos pasos <span className={`ax-badge ${activo ? "on" : "off"}`}>{activo ? "Activada" : "Desactivada"}</span></h2>
       {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
 
       {fase === "inicio" && (

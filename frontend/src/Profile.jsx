@@ -45,7 +45,7 @@ function EditarDatos({ user, onUserUpdate }) {
   }
   return (
     <section className="tl-box tl-form">
-      <h2>✏️ Mis datos</h2>
+      <h2>Mis datos</h2>
       {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
       <label>Nombre</label>
       <input type="text" maxLength={40} value={nombre} onChange={(e) => setNombre(e.target.value)} />
@@ -79,7 +79,7 @@ function CrearClavePorCorreo({ user }) {
   }
   return (
     <section className="tl-box tl-form">
-      <h2>🔒 Crear contraseña</h2>
+      <h2>Crear contraseña</h2>
       <p className="ax-step">
         Tu cuenta entra con Google. Si quieres entrar también con tu correo y una contraseña, te enviamos un enlace a <b>{user.email}</b> para crearla.
       </p>
@@ -121,7 +121,7 @@ function CambiarClave({ user, onUserUpdate }) {
   }
   return (
     <section className="tl-box tl-form">
-      <h2>🔒 {sinClave ? "Crear contraseña" : "Cambiar contraseña"}</h2>
+      <h2>{sinClave ? "Crear contraseña" : "Cambiar contraseña"}</h2>
       {sinClave && <p className="ax-step">Tu cuenta entra con Google. Si quieres, crea una contraseña para poder entrar también con tu correo.</p>}
       {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
       {!sinClave && (
@@ -169,7 +169,7 @@ function VerificarCorreo({ user }) {
   }
   return (
     <section className="tl-box tl-form">
-      <h2>✉️ Confirma tu correo</h2>
+      <h2>Confirma tu correo</h2>
       <p className="ax-step">Enviamos un enlace a <strong>{user.email}</strong>. Confírmalo para proteger tu cuenta y poder recuperarla.</p>
       {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
       <div className="tl-actions">
@@ -198,7 +198,7 @@ function Sesiones() {
   }
   return (
     <section className="tl-box tl-form">
-      <h2>💻 Sesiones abiertas</h2>
+      <h2>Sesiones abiertas</h2>
       <p className="ax-step">¿Entraste desde un computador compartido o sospechas que alguien usa tu cuenta? Cierra la sesión en todos los demás dispositivos.</p>
       {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
       <div className="tl-actions">
@@ -214,7 +214,7 @@ function Ranking() {
   useEffect(() => {
     api.profileRanking().then(setR).catch(() => setR({ total: 0, top: [], me: null }));
   }, []);
-  if (!r) return <section className="tl-box"><h2>🏅 Ranking de estudiantes</h2><p className="tl-empty">Cargando…</p></section>;
+  if (!r) return <section className="tl-box"><h2>Ranking de estudiantes</h2><p className="tl-empty">Cargando…</p></section>;
   const meFuera = r.me && !r.top.some((f) => f.me);
   const fila = (f) => (
     <tr key={f.position} className={f.me ? "pf-me" : ""}>
@@ -227,7 +227,7 @@ function Ranking() {
   );
   return (
     <section className="tl-box">
-      <h2>🏅 Ranking de estudiantes</h2>
+      <h2>Ranking de estudiantes</h2>
       {r.top.length === 0 ? (
         <p className="tl-empty">Todavía no hay estudiantes en el ranking. Termina una partida con tu cuenta iniciada para aparecer.</p>
       ) : (
@@ -280,9 +280,9 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
           <div className="pf-avatar">{user.name.trim().charAt(0).toUpperCase()}</div>
           <div className="pf-info">
             <h1>{user.name}</h1>
-            <p>✉️ {user.email}</p>
+            <p>{user.email}</p>
             <p>
-              <span className={"tl-pill " + (esDocente ? "" : "warn")}>{esDocente ? "👩‍🏫 Docente" : "🎒 Estudiante"}</span>
+              <span className={"tl-pill " + (esDocente ? "" : "warn")}>{esDocente ? "Docente" : "Estudiante"}</span>
               {data?.user.created_at && <span style={{ marginLeft: 8 }}>Miembro desde {fecha(data.user.created_at)}</span>}
             </p>
           </div>
@@ -306,8 +306,8 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
               <Tarjeta titulo="Estudiantes con cuenta" valor={d.students} nota="que jugaron en tus partidas" />
             </div>
             <div className="pf-links" style={{ marginBottom: 16 }}>
-              <button className="tl-btn ghost" onClick={onOpenStats}>📊 Ver mis estadísticas</button>
-              <button className="tl-btn ghost" onClick={onOpenQuestions}>📚 Mis preguntas</button>
+              <button className="tl-btn ghost" onClick={onOpenStats}>Ver mis estadísticas</button>
+              <button className="tl-btn ghost" onClick={onOpenQuestions}>Mis preguntas</button>
             </div>
           </>
         )}
@@ -321,7 +321,7 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
               <Tarjeta titulo="Precisión (Ludo)" valor={total ? `${Math.round((e.correct / total) * 100)}%` : "—"} nota={total ? `${e.correct} de ${total} respuestas` : ""} />
             </div>
             <section className="tl-box" style={{ marginBottom: 16 }}>
-              <h2>🎖️ Mis logros ({e.badges.filter((b) => b.unlocked).length}/{e.badges.length})</h2>
+              <h2>Mis logros ({e.badges.filter((b) => b.unlocked).length}/{e.badges.length})</h2>
               <div className="pf-badges">
                 {e.badges.map((b) => (
                   <div key={b.id} className={"pf-badge " + (b.unlocked ? "on" : "off")}>
@@ -332,7 +332,7 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
               </div>
             </section>
             <div className="pf-links" style={{ marginBottom: 16 }}>
-              <button className="tl-btn ghost" onClick={onOpenStats}>📊 Ver mi historial de partidas</button>
+              <button className="tl-btn ghost" onClick={onOpenStats}>Ver mi historial de partidas</button>
             </div>
             <div style={{ marginBottom: 16 }}><Ranking /></div>
           </>

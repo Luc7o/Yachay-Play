@@ -10,8 +10,14 @@ import { api, getToken } from "./api";
 // y se refresca cuando App avisa que alguien inició o cerró sesión mediante
 // el evento "yachay-auth-changed".
 // ============================================================================
-const IMG_CABEZA = "/asistente-cabeza.png"; // burbuja flotante + avatar en los mensajes
-const IMG_CUERPO = "/asistente-cuerpo.jpg"; // banner del chat abierto
+// Diseño "Campus": sin mascota; un ícono de trazo en el botón y en los mensajes.
+// (Las imágenes /asistente-cabeza.png y /asistente-cuerpo.jpg siguen en public/ por si se quieren volver a usar.)
+const IconoIA = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M4 5h16v11H9l-5 4z" />
+    <path d="M12 7.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z" fill="currentColor" stroke="none" />
+  </svg>
+);
 
 export function AssistantFab() {
   const [role, setRole] = useState(null); // null = todavía no se sabe / no hay sesión
@@ -96,10 +102,9 @@ export function AssistantFab() {
       {open && (
         <div className="ai-panel">
           <div className="ai-panel-head">
-            <img className="ai-hero" src={IMG_CUERPO} alt="Yachay, tu asistente" />
             <div className="ai-head-bar">
-              <span>Asistente IA <small>· solo docentes</small></span>
-              <button onClick={() => setOpen(false)} aria-label="Cerrar">✕</button>
+              <span className="ai-head-title"><span className="ai-head-ico"><IconoIA /></span>Asistente IA <small>· solo docentes</small></span>
+              <button onClick={() => setOpen(false)} aria-label="Cerrar el asistente">✕</button>
             </div>
           </div>
 
@@ -112,13 +117,13 @@ export function AssistantFab() {
             )}
             {messages.map((m, i) => (
               <div key={i} className={"ai-row " + m.role}>
-                {m.role === "assistant" && <img className="ai-avatar" src={IMG_CABEZA} alt="" />}
+                {m.role === "assistant" && <span className="ai-avatar"><IconoIA /></span>}
                 <div className={"ai-msg " + m.role}>{m.content}</div>
               </div>
             ))}
             {loading && (
               <div className="ai-row assistant">
-                <img className="ai-avatar" src={IMG_CABEZA} alt="" />
+                <span className="ai-avatar"><IconoIA /></span>
                 <div className="ai-msg assistant ai-typing">Escribiendo…</div>
               </div>
             )}
@@ -131,16 +136,23 @@ export function AssistantFab() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Escribe tu pregunta…"
+              aria-label="Tu pregunta para el asistente"
               maxLength={2000}
               disabled={loading}
             />
-            <button type="submit" disabled={loading || !input.trim()}>➤</button>
+            <button type="submit" disabled={loading || !input.trim()} aria-label="Enviar">➤</button>
           </form>
         </div>
       )}
 
-      <button className={"ai-fab" + (open ? " is-open" : "")} onClick={() => setOpen((o) => !o)} title="Asistente IA para docentes">
-        {open ? <span className="ai-fab-x">✕</span> : <img src={IMG_CABEZA} alt="Asistente IA" />}
+      <button
+        className={"ai-fab" + (open ? " is-open" : "")}
+        onClick={() => setOpen((o) => !o)}
+        title="Asistente IA para docentes"
+        aria-label={open ? "Cerrar el asistente IA" : "Abrir el asistente IA"}
+        aria-expanded={open}
+      >
+        {open ? <span className="ai-fab-x" aria-hidden="true">✕</span> : <IconoIA />}
       </button>
     </div>
   );

@@ -11,7 +11,7 @@
 // está cargado y no cambia de lugar.
 //
 // Si agregas un CSS nuevo, ponlo aquí, en el lugar que le corresponda.
-// main.jsx importa: styles.css -> este archivo -> gamesDark.css -> aulaFinal.css -> campus.css
+// main.jsx importa: styles.css -> este archivo -> gamesDark.css -> aulaFinal.css -> campus.css -> campusJuegos.css
 // ============================================================================
 import "./authAnim.css";
 import "./authExtras.css";

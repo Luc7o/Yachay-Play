@@ -1,6 +1,6 @@
-// Grupo de botones para elegir un valor (mismo patrón que en la configuración de Ludo)
+// Piezas compartidas del Crucigrama — diseño "Campus" (mismas que la configuración de Ludo).
 export const Step = ({ n, t, d }) => (
-  <div className="preview-step">
+  <div className="cfg2-howstep">
     <b>{n}</b>
     <div>
       <strong>{t}</strong>
@@ -9,16 +9,17 @@ export const Step = ({ n, t, d }) => (
   </div>
 );
 
-export function Options({ value, options, onChange, format }) {
+// Grupo de botones para elegir un valor
+export function Options({ value, options, onChange, format, label }) {
   return (
-    <div className="cfg-chips" role="radiogroup">
+    <div className="cp-opts" role="radiogroup" aria-label={label}>
       {options.map((o) => (
         <button
           type="button"
           key={o}
           role="radio"
           aria-checked={o === value}
-          className={"cfg-chip" + (o === value ? " on" : "")}
+          className={o === value ? "on" : ""}
           onClick={() => onChange(o)}
         >
           {format ? format(o) : o}

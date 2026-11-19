@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { Brand } from "../Brand";
+import { Marca } from "../campusUi";
 import { mmss } from "./helpers";
 import { CwLeaderboard } from "./CwTeacherLive";
 
@@ -75,9 +75,9 @@ export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubm
 
   const rivales = live.leaderboard.filter((p) => p.id !== myId && !p.finished);
   const SABOTAJES = [
-    { type: "freeze", icon: "🧊", label: "Congelar", cost: 35 },
-    { type: "fog", icon: "🌫️", label: "Niebla", cost: 25 },
-    { type: "steal", icon: "💰", label: "Robar", cost: 50 },
+    { type: "freeze", icon: <IconoCongelar />, label: "Congelar", cost: 35 },
+    { type: "fog", icon: <IconoNiebla />, label: "Niebla", cost: 25 },
+    { type: "steal", icon: <IconoRobar />, label: "Robar", cost: 50 },
   ];
 
   function lanzarSabotaje(type, cost) {
@@ -89,10 +89,13 @@ export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubm
   }
 
   return (
-    <div className="app cw-play-page">
-      <header className="ref-topbar">
-        <Brand subtitle={live.name} onClick={goHome} />
-        <div className="cw-timer">⏱️ {mmss(live.endsAt - now)}</div>
+    <div className="cp cp-proj cw-play-page cwp">
+      <header className="stu-top">
+        <Marca onClick={goHome} label="Volver al inicio de YachayPlay" />
+        <div className={"eg-time" + (live.endsAt - now < 60000 ? " poco" : "")}>
+          <span>Tiempo</span>
+          <b role="timer" aria-live="off">{mmss(live.endsAt - now)}</b>
+        </div>
       </header>
 
       <div className="cw-toasts" role="status" aria-live="polite">
@@ -101,7 +104,7 @@ export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubm
 
       <main className="cw-play-main">
         <section className="cw-board-col">
-          {congelado && <div className="cw-overlay">🧊 Congelado: {mmss(me.frozenUntil - now)}</div>}
+          {congelado && <div className="cw-overlay" role="alert">Congelado: {mmss(me.frozenUntil - now)}</div>}
           <div className="cw-grid-wrap">
             <div
               className="cw-grid"
@@ -124,22 +127,23 @@ export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubm
 
           {activeClue && (
             <div className="cw-answer-bar">
-              <b>{activeClue.number}.</b> {conNiebla ? "🌫️ Niebla activa…" : activeClue.clue} <small>({activeClue.length})</small>
+              <b>{activeClue.number}.</b> {conNiebla ? "Niebla activa…" : activeClue.clue} <small>({activeClue.length})</small>
               <div className="cw-answer-row">
                 <input
                   ref={inputRef}
-                  className="cw-answer-input"
+                  aria-label={`Respuesta para la pista ${activeClue.number}`}
+                  className="cp-input cw-answer-input"
                   value={guess}
                   maxLength={activeClue.length}
                   disabled={congelado}
                   onChange={(e) => setGuess(e.target.value.toUpperCase())}
                   onKeyDown={(e) => e.key === "Enter" && enviar()}
                 />
-                <button className="join-btn" style={{ margin: 0, width: "auto", padding: "10px 20px" }} disabled={congelado || !guess} onClick={enviar}>
+                <button type="button" className="cp-btn primary" disabled={congelado || !guess} onClick={enviar}>
                   Enviar
                 </button>
               </div>
-              {feedback && <p className={feedback.ok ? "join-status ok" : "join-error"}>{feedback.msg}</p>}
+              {feedback && <p className={feedback.ok ? "cp-msg ok" : "cp-msg error"} role="status">{feedback.msg}</p>}
             </div>
           )}
         </section>
@@ -153,7 +157,7 @@ export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubm
           </div>
 
           <div className="cw-energy">
-            <span>⚡ Energía <b>{me?.energy || 0}</b></span>
+            <span>Energía <b>{me?.energy || 0}</b></span>
             <div className="cw-energy-bar"><i style={{ width: `${me?.energy || 0}%` }} /></div>
           </div>
 
@@ -161,7 +165,7 @@ export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubm
             <p className="cw-side-title">Elige a tu rival</p>
             <div className="cw-rivals">
               {rivales.map((p) => (
-                <button key={p.id} className={"cw-rival" + (target === p.id ? " on" : "")} onClick={() => setTarget(p.id)}>
+                <button type="button" key={p.id} aria-pressed={target === p.id} className={"cw-rival" + (target === p.id ? " on" : "")} onClick={() => setTarget(p.id)}>
                   {p.name} <small>{p.score} pts</small>
                 </button>
               ))}
@@ -169,8 +173,8 @@ export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubm
             </div>
             <div className="cw-sabo-btns">
               {SABOTAJES.map((s) => (
-                <button key={s.type} className="cw-sabo-btn" disabled={(me?.energy || 0) < s.cost} onClick={() => lanzarSabotaje(s.type, s.cost)}>
-                  <span>{s.icon}</span> {s.label}<small>{s.cost}⚡</small>
+                <button type="button" key={s.type} className="cw-sabo-btn" disabled={(me?.energy || 0) < s.cost} onClick={() => lanzarSabotaje(s.type, s.cost)}>
+                  <span aria-hidden="true">{s.icon}</span> {s.label}<small>{s.cost} de energía</small>
                 </button>
               ))}
             </div>
@@ -179,16 +183,20 @@ export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubm
           <div className="cw-side-title">Pistas horizontales</div>
           <ul className="cw-clue-list">
             {across.map((c) => (
-              <li key={c.id} className={solvedMap[c.id] ? "done" : activeId === c.id ? "active" : ""} onClick={() => elegirPista(c)}>
-                <b>{c.number}.</b> {conNiebla && !solvedMap[c.id] ? "🌫️ ???" : c.clue} <small>({c.length})</small>
+              <li key={c.id} className={solvedMap[c.id] ? "done" : activeId === c.id ? "active" : ""}>
+                <button type="button" className="cwp-clue" disabled={!!solvedMap[c.id]} aria-pressed={activeId === c.id} onClick={() => elegirPista(c)}>
+                  <b>{c.number}.</b> {conNiebla && !solvedMap[c.id] ? "???" : c.clue} <small>({c.length})</small>
+                </button>
               </li>
             ))}
           </ul>
           <div className="cw-side-title">Pistas verticales</div>
           <ul className="cw-clue-list">
             {down.map((c) => (
-              <li key={c.id} className={solvedMap[c.id] ? "done" : activeId === c.id ? "active" : ""} onClick={() => elegirPista(c)}>
-                <b>{c.number}.</b> {conNiebla && !solvedMap[c.id] ? "🌫️ ???" : c.clue} <small>({c.length})</small>
+              <li key={c.id} className={solvedMap[c.id] ? "done" : activeId === c.id ? "active" : ""}>
+                <button type="button" className="cwp-clue" disabled={!!solvedMap[c.id]} aria-pressed={activeId === c.id} onClick={() => elegirPista(c)}>
+                  <b>{c.number}.</b> {conNiebla && !solvedMap[c.id] ? "???" : c.clue} <small>({c.length})</small>
+                </button>
               </li>
             ))}
           </ul>
@@ -199,4 +207,16 @@ export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubm
       </main>
     </div>
   );
+}
+
+// Íconos de trazo de los sabotajes (diseño "Campus": sin emojis)
+const trazo = { fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" };
+function IconoCongelar() {
+  return <svg viewBox="0 0 20 20" width="18" height="18"><path d="M10 2v16M3 6l14 8M17 6L3 14" {...trazo} /><path d="M8 3.5l2 1.5 2-1.5M8 16.5l2-1.5 2 1.5" {...trazo} /></svg>;
+}
+function IconoNiebla() {
+  return <svg viewBox="0 0 20 20" width="18" height="18"><path d="M3 7h11M5 10.5h12M3 14h10" {...trazo} /></svg>;
+}
+function IconoRobar() {
+  return <svg viewBox="0 0 20 20" width="18" height="18"><circle cx="10" cy="10" r="7" {...trazo} /><path d="M12.2 7.6c-.5-.7-1.3-1-2.2-1-1.2 0-2.1.6-2.1 1.6 0 2.2 4.4 1.2 4.4 3.5 0 1-.9 1.7-2.3 1.7-1 0-1.9-.4-2.4-1.1M10 5.4v1.2M10 13.4v1.2" {...trazo} /></svg>;
 }

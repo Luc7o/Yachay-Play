@@ -206,9 +206,9 @@ function Crear({ goHome, onCrear, cargando, onSalas }) {
         <h1>Presentaciones en vivo</h1>
         <p className="es-muted">Tus estudiantes crean sus presentaciones aquí mismo, solos o en equipo, y tú las ves en tiempo real. Sin Meet y sin compartir pantalla.</p>
         <label htmlFor="es-n">Nombre de la actividad</label>
-        <input id="es-n" value={name} maxLength={60} placeholder="Ej. Exposición de animales — 3.º A" onChange={(e) => setName(e.target.value)} />
+        <input id="es-n" value={name} maxLength={60} placeholder="Ej. Exposición: modelos de regresión — Sección B" onChange={(e) => setName(e.target.value)} />
         <label htmlFor="es-t">Consigna para los estudiantes (opcional)</label>
-        <textarea id="es-t" value={task} maxLength={500} placeholder="Ej. Presenta un animal en 5 diapositivas: dónde vive, qué come y un dato curioso." onChange={(e) => setTask(e.target.value)} />
+        <textarea id="es-t" value={task} maxLength={500} placeholder="Ej. En 5 diapositivas presenten el problema, el método, los resultados y una conclusión." onChange={(e) => setTask(e.target.value)} />
         {error && <p className="es-err" role="alert">{error}</p>}
         <button className="es-btn big" disabled={cargando} onClick={async () => setError(await onCrear(name, task))}>{cargando ? "Creando…" : "Crear sala"}</button>
       </section>

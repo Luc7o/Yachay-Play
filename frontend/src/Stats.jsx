@@ -47,7 +47,7 @@ function VistaDocente({ d }) {
 
       <div className="tl-grid">
         <section className="tl-box">
-          <h2>🏆 Victorias por equipo (Ludo)</h2>
+          <h2>Victorias por equipo (Ludo)</h2>
           {Object.keys(ludo.winsByColor).length === 0 ? (
             <p className="tl-empty">Aún no hay partidas con ganador.</p>
           ) : (
@@ -65,7 +65,7 @@ function VistaDocente({ d }) {
         </section>
 
         <section className="tl-box">
-          <h2>🧠 Preguntas que más se fallan</h2>
+          <h2>Preguntas que más se fallan</h2>
           {ludo.hardQuestions.length === 0 ? (
             <p className="tl-empty">Se mostrarán cuando una pregunta se haya jugado al menos 2 veces.</p>
           ) : (
@@ -85,7 +85,7 @@ function VistaDocente({ d }) {
 
       <div className="tl-grid">
         <section className="tl-box">
-          <h2>🎲 Últimas partidas de Ludo</h2>
+          <h2>Últimas partidas de Ludo</h2>
           {ludo.recent.length === 0 ? (
             <p className="tl-empty">Todavía no has creado partidas de Ludo.</p>
           ) : (
@@ -108,7 +108,7 @@ function VistaDocente({ d }) {
         </section>
 
         <section className="tl-box">
-          <h2>🔤 Crucigramas</h2>
+          <h2>Crucigramas</h2>
           {crossword.recent.length === 0 ? (
             <p className="tl-empty">Todavía no has creado crucigramas.</p>
           ) : (
@@ -121,7 +121,7 @@ function VistaDocente({ d }) {
                 {g.status !== "ended" ? (
                   <span className="tl-pill warn">{g.status === "playing" ? "en juego" : "en espera"}</span>
                 ) : g.winner ? (
-                  <span className="tl-pill win">🏆 {g.winner}</span>
+                  <span className="tl-pill win">{g.winner}</span>
                 ) : (
                   <span className="tl-pill">sin ganador</span>
                 )}
@@ -130,7 +130,7 @@ function VistaDocente({ d }) {
           )}
           {crossword.top.length > 0 && (
             <>
-              <h3 style={{ marginTop: 14 }}>⭐ Mejores puntajes</h3>
+              <h3 style={{ marginTop: 14 }}>Mejores puntajes</h3>
               {crossword.top.map((p, i) => (
                 <div className="tl-row" key={p.name}>
                   <span><b>{i + 1}. {p.name}</b><small>{p.games} {p.games === 1 ? "partida" : "partidas"}</small></span>
@@ -160,7 +160,7 @@ function VistaEstudiante({ d }) {
       </div>
       <div className="tl-grid">
         <section className="tl-box">
-          <h2>🎲 Mis partidas de Ludo</h2>
+          <h2>Mis partidas de Ludo</h2>
           {ludo.length === 0 ? (
             <p className="tl-empty">Aquí aparecerán las partidas que juegues con tu cuenta iniciada.</p>
           ) : (
@@ -175,14 +175,14 @@ function VistaEstudiante({ d }) {
                       Equipo {COLORES[g.team]?.nombre} · {plural(g.correct, "acierto", "aciertos")}, {plural(g.incorrect, "fallo", "fallos")} · {fecha(g.created_at)}
                     </small>
                   </span>
-                  {g.phase !== "finished" ? <span className="tl-pill warn">en curso</span> : gano ? <span className="tl-pill win">🏆 Ganó</span> : <span className="tl-pill">Terminó</span>}
+                  {g.phase !== "finished" ? <span className="tl-pill warn">en curso</span> : gano ? <span className="tl-pill win">Ganó</span> : <span className="tl-pill">Terminó</span>}
                 </div>
               );
             })
           )}
         </section>
         <section className="tl-box">
-          <h2>🔤 Mis crucigramas</h2>
+          <h2>Mis crucigramas</h2>
           {crossword.length === 0 ? (
             <p className="tl-empty">Aquí aparecerán tus crucigramas jugados con tu cuenta.</p>
           ) : (
@@ -192,7 +192,7 @@ function VistaEstudiante({ d }) {
                   <b>{g.name}</b>
                   <small>{plural(g.solved_count, "palabra", "palabras")} · {g.score} pts · {fecha(g.created_at)}</small>
                 </span>
-                {g.status !== "ended" ? <span className="tl-pill warn">en curso</span> : g.won ? <span className="tl-pill win">🏆 Ganó</span> : <span className="tl-pill">Terminó</span>}
+                {g.status !== "ended" ? <span className="tl-pill warn">en curso</span> : g.won ? <span className="tl-pill win">Ganó</span> : <span className="tl-pill">Terminó</span>}
               </div>
             ))
           )}
@@ -221,7 +221,7 @@ export function StatsPage({ user, goHome }) {
       </header>
       <main className="tl-main">
         <button className="tl-back" onClick={goHome}>← Volver al inicio</button>
-        <h1 className="tl-title">{esDocente ? "📊 Estadísticas de tus clases" : "📊 Mis resultados"}</h1>
+        <h1 className="tl-title">{esDocente ? "Estadísticas de tus clases" : "Mis resultados"}</h1>
         <p className="tl-sub">
           {esDocente
             ? "Resumen de las partidas que has creado: quién ganó, cuántos jugaron y qué preguntas cuestan más."

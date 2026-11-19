@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Brand } from "../Brand";
+import { Marca, BotonTema } from "../campusUi";
 
 // ============================================================================
-// ESTUDIANTE: unirse con el código
+// CRUCIGRAMA · UNIRSE (estudiante) — diseño "Campus", como el ingreso de Ludo.
+// Props sin cambios.
 // ============================================================================
 export function CwStudentJoin({ goHome, prefillName, onJoin, error, initialCode = "" }) {
   const [codeInput, setCodeInput] = useState(initialCode);
@@ -10,34 +11,45 @@ export function CwStudentJoin({ goHome, prefillName, onJoin, error, initialCode 
   const listo = codeInput.trim().length === 6 && name.trim().length > 0;
 
   return (
-    <div className="app join-page">
-      <header className="ref-topbar"><Brand subtitle="Crucigrama Relámpago" onClick={goHome} /></header>
-      <main className="join-main">
-        <aside className="join-guide">
-          <img src="/mascota-explica.png" alt="" />
-          <p>¡Escribe el código de tu docente y prepárate para competir!</p>
-        </aside>
-        <section className="join-card">
-          <span className="hero-eyebrow">CRUCIGRAMA RELÁMPAGO</span>
-          <h1>Unirme al reto</h1>
-          <label className="join-label" htmlFor="cw-code"><span className="cfg-num">1</span> Código de partida</label>
-          <input
-            id="cw-code"
-            className="join-code"
-            value={codeInput}
-            onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            placeholder="000000"
-            inputMode="numeric"
-            maxLength={6}
-          />
-          <label className="join-label" htmlFor="cw-name"><span className="cfg-num">2</span> Tu nombre</label>
-          <input id="cw-name" className="join-name" value={name} maxLength={30} onChange={(e) => setName(e.target.value)} placeholder="Ej. Andrea" />
-          {error && <p className="join-error">{error}</p>}
-          <button className="join-btn" disabled={!listo} onClick={() => onJoin(codeInput, name)}>
-            ¡Entrar a competir! ⚡
-          </button>
-          <button className="back-link" onClick={goHome}>← Volver al inicio</button>
-        </section>
+    <div className="cp stu-page">
+      <header className="stu-top">
+        <Marca onClick={goHome} label="Volver al inicio de YachayPlay" />
+        <div className="stu-top-right"><BotonTema /></div>
+      </header>
+      <main className="stu-main">
+        <form
+          className="stu-card"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (listo) onJoin(codeInput, name);
+          }}
+        >
+          <div>
+            <span className="cp-eyebrow">Crucigrama relámpago</span>
+            <h1>Únete al reto</h1>
+            <p className="stu-lead">Escribe el código de tu docente y prepárate para competir.</p>
+          </div>
+          <div className="cp-field">
+            <label htmlFor="cw-code">Código</label>
+            <input
+              id="cw-code"
+              className="cp-input stu-code"
+              value={codeInput}
+              onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="000000"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={6}
+            />
+          </div>
+          <div className="cp-field">
+            <label htmlFor="cw-name">Tu nombre</label>
+            <input id="cw-name" className="cp-input" value={name} maxLength={30} autoComplete="name" onChange={(e) => setName(e.target.value)} placeholder="Ej. Andrea" />
+          </div>
+          {error && <p className="cp-msg error" role="alert">{error}</p>}
+          <button type="submit" className="cp-btn primary lg cp-full" disabled={!listo}>Entrar a competir</button>
+          <button type="button" className="cp-btn quiet" onClick={goHome}>← Volver al inicio</button>
+        </form>
       </main>
     </div>
   );

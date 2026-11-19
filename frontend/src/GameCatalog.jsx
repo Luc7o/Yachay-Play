@@ -55,6 +55,7 @@ const CATALOGO = [
   { id: "crucigrama", glyph: "▦", name: "Crucigrama Relámpago", desc: "Resuelve el crucigrama contra el reloj y compite con tus rivales.", ok: true },
   { id: "palabra", glyph: "⚡", name: "Palabra Relámpago", desc: "Completa letras, compite por puntos y gana antes de que se acabe el tiempo.", ok: true },
   { id: "estudio", glyph: "▤", name: "Presentaciones en vivo", desc: "Crea tu presentación solo o en equipo; el docente la ve en vivo.", ok: true, bd: "Crear sala", be: "Unirme con código" },
+  { id: "evaluacion", glyph: "✔", name: "Evaluación rápida", desc: "Preguntas en vivo para medir qué entendió el grupo, con resultados al instante.", ok: true, bd: "Crear evaluación", be: "Unirme con código" },
   { id: "quiz", glyph: "❓", name: "Quiz", desc: "Preguntas de opción múltiple." },
   { id: "sino", glyph: "✓", name: "Sí o No", desc: "Afirmaciones de verdadero o falso." },
   { id: "adivinanza", glyph: "✦", name: "Adivinanza", desc: "Pistas para descifrar conceptos." },
@@ -67,6 +68,7 @@ const HERRAMIENTAS = [
   { id: "cronometro", glyph: "⏱", name: "Cronómetro de actividad", desc: "Controla la duración de ejercicios y dinámicas.", boton: "Abrir cronómetro", color: "" },
   { id: "ruleta", glyph: "◉", name: "Ruleta de sorteos", desc: "Elige estudiantes o equipos al azar.", boton: "Abrir ruleta", color: "blue" },
   { id: "pizarra", glyph: "✎", name: "Pizarra digital", desc: "Explica ideas y conceptos visualmente.", boton: "Abrir pizarra", color: "yellow" },
+  { id: "evaluacion", glyph: "✔", name: "Evaluación rápida", desc: "Lanza preguntas en vivo y mira cuántos aciertan, pregunta por pregunta.", boton: "Crear evaluación", color: "yellow" },
   { id: "estudio", glyph: "▤", name: "Presentaciones en vivo", desc: "Tus estudiantes crean presentaciones y tú las ves en tiempo real, sin Meet.", boton: "Crear sala", color: "blue" },
 ];
 

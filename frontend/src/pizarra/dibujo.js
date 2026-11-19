@@ -2,6 +2,25 @@ import { CONFIG, TAU } from "./config";
 import { fondoDe, colorReal, fuenteTexto } from "./utils";
 import { vertices } from "./geometria";
 
+// ---------------- Imágenes pegadas ----------------
+// Se guardan como texto (data URL) dentro del objeto; aquí se convierten una sola vez
+// en un elemento <img> para poder pintarlas rápido en cada cuadro.
+const imagenes = new Map(); // src -> HTMLImageElement
+let alCargarImagen = null;
+export function ponerAlCargarImagen(f) {
+  alCargarImagen = f;
+}
+function imagenDe(src) {
+  let im = imagenes.get(src);
+  if (!im) {
+    im = new Image();
+    im.onload = () => alCargarImagen && alCargarImagen();
+    im.src = src;
+    imagenes.set(src, im);
+  }
+  return im;
+}
+
 // ---------------- Dibujo ----------------
 export function trazar(ctx, o, oscuro) {
   const col = colorReal(o.color, oscuro);
@@ -53,8 +72,14 @@ export function trazar(ctx, o, oscuro) {
       }
       break;
     }
+    case "img": {
+      const im = imagenDe(o.src);
+      if (im.complete && im.naturalWidth) ctx.drawImage(im, Math.min(o.x1, o.x2), Math.min(o.y1, o.y2), Math.abs(o.x2 - o.x1), Math.abs(o.y2 - o.y1));
+      break;
+    }
     case "rect":
     case "tri":
+    case "diamond":
     case "ellipse": {
       ctx.beginPath();
       if (o.type === "ellipse") {
@@ -103,6 +128,10 @@ export function pintarFondo(ctx, W, H, idFondo) {
     for (let x = 0; x <= W; x += g) linea(x + 0.5, 0, x + 0.5, H);
     for (let y = 0; y <= H; y += g) linea(0, y + 0.5, W, y + 0.5);
     ctx.stroke();
+  }
+  if (f.id === "puntos") {
+    ctx.fillStyle = "#B7C6D8";
+    for (let x = g; x < W; x += g) for (let y = g; y < H; y += g) ctx.fillRect(x - 1, y - 1, 2.4, 2.4);
   }
   if (f.id === "rayas") {
     ctx.strokeStyle = "#D6E2F0";

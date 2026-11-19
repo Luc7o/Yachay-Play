@@ -7,6 +7,7 @@
 .pz-canvas{position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; user-select:none; -webkit-user-select:none; cursor:crosshair}
 .pz-canvas.pz-c-mover{cursor:default}
 .pz-canvas.pz-c-texto{cursor:text}
+.pz-canvas.pz-c-laser{cursor:none}
 .pz-canvas.pz-c-borrador,.pz-canvas.pz-c-lapiz,.pz-canvas.pz-c-marcador{cursor:none} /* se dibuja una vista previa del pincel */
 .pz-hint{
   position:absolute; left:50%; top:26%; transform:translate(-50%,-50%); pointer-events:none; text-align:center;

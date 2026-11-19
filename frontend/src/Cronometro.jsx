@@ -62,6 +62,16 @@ function leerGuardado() {
   }
 }
 
+// Listas guardadas por la Ruleta (para cargar los turnos de las exposiciones)
+function leerListasRuleta() {
+  try {
+    const d = JSON.parse(localStorage.getItem("yachayplay.ruleta.v1") || "null");
+    return (d && Array.isArray(d.listas) ? d.listas : []).filter((l) => l && Array.isArray(l.items) && l.items.length);
+  } catch {
+    return [];
+  }
+}
+
 export function Cronometro({ goHome }) {
   const guardado = useRef(leerGuardado()).current;
   const [minutos, setMinutos] = useState(String(guardado.min ?? 5));
@@ -69,6 +79,13 @@ export function Cronometro({ goHome }) {
   const [actividad, setActividad] = useState(guardado.actividad ?? "");
   const [sonido, setSonido] = useState(guardado.sonido !== false);
   const [mascota, setMascota] = useState(guardado.mascota !== false);
+  // Modo exposiciones: turnos (grupos/estudiantes), minutos de exposición y de preguntas
+  const [modo, setModo] = useState(guardado.modo === "expo" ? "expo" : "simple");
+  const [turnosTxt, setTurnosTxt] = useState(guardado.turnos ?? "");
+  const [minExpo, setMinExpo] = useState(String(guardado.minExpo ?? 10));
+  const [minPreg, setMinPreg] = useState(String(guardado.minPreg ?? 3));
+  const [turnoIdx, setTurnoIdx] = useState(guardado.turnoIdx ?? 0);
+  const [fase, setFase] = useState(guardado.fase === "preg" ? "preg" : "expo"); // expo | preg
 
   // El reloj vive fuera de esta pantalla (cronometroStore.js)
   const { estado, total, restante } = useCronometro(); // estado: idle | running | paused | done
@@ -78,10 +95,23 @@ export function Cronometro({ goHome }) {
   const [aviso, setAviso] = useState(""); // texto para lectores de pantalla
 
   const textareaRef = useRef(null);
-  const sinMensaje = actividad.trim() === ""; // sin mensaje: en pantalla limpia el número ocupa todo y va al centro
 
-  // Duración que marcan las casillas de minutos y segundos
-  const duracionElegida = (aNumero(minutos, 0, 99) * 60 + aNumero(segundos, 0, 59)) * 1000;
+  // ---- Modo exposiciones: qué turno y qué fase (exposición o preguntas) toca ----
+  const esExpo = modo === "expo";
+  const turnos = turnosTxt.split(/\r?\n/).map((t) => t.trim()).filter(Boolean).slice(0, 100);
+  const idx = Math.min(turnoIdx, Math.max(0, turnos.length - 1));
+  const msExpo = aNumero(minExpo, 0, 99) * 60000;
+  const msPreg = aNumero(minPreg, 0, 99) * 60000;
+  const msFase = (f) => (f === "preg" ? msPreg : msExpo);
+  const etiquetaTurno = (i, f) => (turnos.length ? `${f === "preg" ? "Preguntas · " : ""}${turnos[i]} (${i + 1}/${turnos.length})` : "Agrega los turnos");
+  const actividadMostrada = esExpo ? etiquetaTurno(idx, fase) : actividad;
+  const hayMas = esExpo && (idx + 1 < turnos.length || (fase === "expo" && msPreg > 0));
+  const listasRuleta = esExpo ? leerListasRuleta() : [];
+
+  const sinMensaje = actividadMostrada.trim() === ""; // sin mensaje: en pantalla limpia el número ocupa todo y va al centro
+
+  // Duración que marcan las casillas de minutos y segundos (o la fase del turno en modo exposiciones)
+  const duracionElegida = esExpo ? msFase(fase) : (aNumero(minutos, 0, 99) * 60 + aNumero(segundos, 0, 59)) * 1000;
   const mostrado = estado === "idle" ? duracionElegida : restante;
   const duracionTotal = estado === "idle" ? duracionElegida : total;
   const proporcion = duracionTotal > 0 ? Math.max(0, Math.min(1, mostrado / duracionTotal)) : 0;
@@ -125,12 +155,44 @@ export function Cronometro({ goHome }) {
   // El conteo corre en cronometroStore.js (con la hora del sistema), así sigue
   // aunque se salga de esta pantalla.
   function iniciar() {
-    if (duracionElegida <= 0) return;
+    if (duracionElegida <= 0 || (esExpo && !turnos.length)) return;
     prepararAudio();
-    cronometro.iniciar(duracionElegida, { actividad });
+    cronometro.iniciar(duracionElegida, { actividad: actividadMostrada });
     // Modo proyección automático: sin controles y en pantalla completa
     setLimpio(true);
     entrarPantallaCompleta();
+  }
+  // Modo exposiciones: arranca de una vez el turno i en la fase f
+  function arrancarTurno(i, f) {
+    setTurnoIdx(i);
+    setFase(f);
+    const ms = msFase(f);
+    if (ms <= 0) return;
+    prepararAudio();
+    cronometro.iniciar(ms, { actividad: etiquetaTurno(i, f) });
+    setLimpio(true);
+    entrarPantallaCompleta();
+  }
+  function reiniciarTurnos() {
+    cronometro.reiniciar();
+    setTurnoIdx(0);
+    setFase("expo");
+    setLimpio(false);
+    salirPantallaCompleta();
+  }
+  // Siguiente: de la exposición pasa a las preguntas y luego al turno siguiente; tras el último, termina
+  function siguiente() {
+    if (!esExpo || !turnos.length) return;
+    if (fase === "expo" && msPreg > 0) return arrancarTurno(idx, "preg");
+    if (idx + 1 < turnos.length) return arrancarTurno(idx + 1, "expo");
+    reiniciarTurnos();
+  }
+  function cargarDeRuleta(id) {
+    const l = listasRuleta.find((x) => x.id === id);
+    if (!l) return;
+    setTurnosTxt(l.items.join("\n"));
+    setTurnoIdx(0);
+    setFase("expo");
   }
   function pausar() {
     cronometro.pausar();
@@ -162,8 +224,8 @@ export function Cronometro({ goHome }) {
   }, []);
   // La ventanita muestra la actividad escrita
   useEffect(() => {
-    cronometro.ajustar({ actividad });
-  }, [actividad]);
+    cronometro.ajustar({ actividad: actividadMostrada });
+  }, [actividadMostrada]);
 
   // Que la pantalla no se apague mientras corre (si el navegador lo permite)
   useEffect(() => {
@@ -199,7 +261,7 @@ export function Cronometro({ goHome }) {
 
   // ---------------- Atajos de teclado ----------------
   const accionesRef = useRef({});
-  accionesRef.current = { alternar, alternarPantallaCompleta, limpio, setLimpio, mascota, setMascota };
+  accionesRef.current = { alternar, alternarPantallaCompleta, limpio, setLimpio, mascota, setMascota, siguiente };
   useEffect(() => {
     const alPulsar = (e) => {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -214,6 +276,7 @@ export function Cronometro({ goHome }) {
       } else if (e.key === "f" || e.key === "F") a.alternarPantallaCompleta();
       else if (e.key === "c" || e.key === "C") a.setLimpio(!a.limpio);
       else if (e.key === "m" || e.key === "M") a.setMascota(!a.mascota);
+      else if (e.key === "n" || e.key === "N") a.siguiente();
     };
     document.addEventListener("keydown", alPulsar);
     return () => document.removeEventListener("keydown", alPulsar);
@@ -224,12 +287,15 @@ export function Cronometro({ goHome }) {
     try {
       localStorage.setItem(
         CONFIG.clave,
-        JSON.stringify({ actividad, min: aNumero(minutos, 0, 99), sec: aNumero(segundos, 0, 59), sonido, mascota })
+        JSON.stringify({
+          actividad, min: aNumero(minutos, 0, 99), sec: aNumero(segundos, 0, 59), sonido, mascota,
+          modo, turnos: turnosTxt, minExpo: aNumero(minExpo, 0, 99), minPreg: aNumero(minPreg, 0, 99), turnoIdx: idx, fase,
+        })
       );
     } catch {
       /* si el navegador no deja guardar, no pasa nada */
     }
-  }, [actividad, minutos, segundos, sonido, mascota]);
+  }, [actividad, minutos, segundos, sonido, mascota, modo, turnosTxt, minExpo, minPreg, idx, fase]);
 
   // La caja de la actividad crece según lo que se escriba. Si el texto es tan largo que
   // no cabe en el alto máximo, la letra se achica sola (hasta un mínimo legible) en vez de
@@ -257,7 +323,7 @@ export function Cronometro({ goHome }) {
     ajustar();
     window.addEventListener("resize", ajustar);
     return () => window.removeEventListener("resize", ajustar);
-  }, [actividad, limpio]);
+  }, [actividadMostrada, limpio]);
 
   // ---------------- Casillas de tiempo ----------------
   const bloqueado = estado === "running" || estado === "paused";
@@ -275,7 +341,7 @@ export function Cronometro({ goHome }) {
     estado === "running" ? CONFIG.textos.pausar : estado === "paused" ? CONFIG.textos.continuar : estado === "done" ? CONFIG.textos.otraVez : CONFIG.textos.iniciar;
 
   return (
-    <div className={"app hr-page hr-timer" + (limpio ? " is-limpio" : "") + (limpio && sinMensaje ? " sin-mensaje" : "")} data-estado={visual} style={{ "--hr-escala": escalaPorTexto(actividad) }}>
+    <div className={"app hr-page hr-timer" + (limpio ? " is-limpio" : "") + (limpio && sinMensaje ? " sin-mensaje" : "")} data-estado={visual} style={{ "--hr-escala": escalaPorTexto(actividadMostrada) }}>
       {!limpio && (
         <header className="ref-topbar">
           <Brand subtitle="Cronómetro de actividad" onClick={irAlInicio} />
@@ -287,13 +353,14 @@ export function Cronometro({ goHome }) {
         {/* Actividad: cuadro visible y cómodo para escribir */}
         {!(limpio && sinMensaje) && (
         <div className="hr-activity-wrap">
-          {!limpio && <span className="hr-activity-label" aria-hidden="true">✏️ Actividad para los alumnos</span>}
+          {!limpio && <span className="hr-activity-label" aria-hidden="true">{esExpo ? "🎤 Turno actual" : "✏️ Actividad para los alumnos"}</span>}
           <textarea
             ref={textareaRef}
             className="hr-activity"
             rows={2}
-            value={actividad}
-            onChange={(e) => setActividad(e.target.value)}
+            value={actividadMostrada}
+            readOnly={esExpo}
+            onChange={(e) => !esExpo && setActividad(e.target.value)}
             placeholder={limpio ? "" : "Escribe aquí la actividad o el mensaje…"}
             aria-label="Actividad que deben realizar los alumnos"
             maxLength={500}
@@ -303,6 +370,11 @@ export function Cronometro({ goHome }) {
 
         <div className="hr-time" role="timer" aria-live="off">{formato(mostrado)}</div>
         <p className="hr-msg" aria-hidden="true">{estado === "done" ? CONFIG.textos.fin : ""}</p>
+        {esExpo && turnos.length > 0 && (
+          <p className="hr-sig" aria-hidden="true">
+            {hayMas ? `Sigue: ${fase === "expo" && msPreg > 0 ? "preguntas" : turnos[idx + 1]}` : "Último turno"}
+          </p>
+        )}
 
         <div
           className="hr-progress"
@@ -320,6 +392,39 @@ export function Cronometro({ goHome }) {
 
       {!limpio && (
         <section className="hr-controls" aria-label="Controles del cronómetro">
+          <div className="hr-chips hr-modos" role="group" aria-label="Modo del cronómetro">
+            <button className={"hr-chip" + (!esExpo ? " on" : "")} aria-pressed={!esExpo} disabled={bloqueado} onClick={() => setModo("simple")}>⏱ Simple</button>
+            <button className={"hr-chip" + (esExpo ? " on" : "")} aria-pressed={esExpo} disabled={bloqueado} onClick={() => setModo("expo")}>🎤 Exposiciones</button>
+          </div>
+
+          {esExpo ? (
+          <div className="hr-set hr-expo">
+            <label className="hr-field hr-turnos">
+              <span>Turnos (uno por línea: grupo o estudiante)</span>
+              <textarea rows={4} value={turnosTxt} disabled={bloqueado} placeholder={"Grupo 1\nGrupo 2\nGrupo 3"}
+                onChange={(e) => { setTurnosTxt(e.target.value); setTurnoIdx(0); setFase("expo"); }} />
+            </label>
+            <label className="hr-field">
+              <span>Exposición (min)</span>
+              <input type="number" inputMode="numeric" min={0} max={99} value={minExpo} disabled={bloqueado}
+                onChange={(e) => cambiarTiempo(setMinExpo, e.target.value)} onBlur={() => setMinExpo(String(aNumero(minExpo, 0, 99)))} />
+            </label>
+            <label className="hr-field">
+              <span>Preguntas (min, 0 = sin)</span>
+              <input type="number" inputMode="numeric" min={0} max={99} value={minPreg} disabled={bloqueado}
+                onChange={(e) => cambiarTiempo(setMinPreg, e.target.value)} onBlur={() => setMinPreg(String(aNumero(minPreg, 0, 99)))} />
+            </label>
+            {listasRuleta.length > 0 && (
+              <label className="hr-field">
+                <span>Cargar turnos desde la Ruleta</span>
+                <select value="" disabled={bloqueado} onChange={(e) => cargarDeRuleta(e.target.value)}>
+                  <option value="">Elegir lista…</option>
+                  {listasRuleta.map((l) => <option key={l.id} value={l.id}>{l.nombre} ({l.items.length})</option>)}
+                </select>
+              </label>
+            )}
+          </div>
+          ) : (
           <div className="hr-set">
             <label className="hr-field">
               <span>Minutos</span>
@@ -355,12 +460,15 @@ export function Cronometro({ goHome }) {
               ))}
             </div>
           </div>
+          )}
 
           <div className="hr-actions">
-            <button className="hr-btn hr-primary" onClick={alternar} disabled={estado === "idle" && duracionElegida <= 0} title="Barra espaciadora">
+            <button className="hr-btn hr-primary" onClick={alternar} disabled={(estado === "idle" || estado === "done") && (duracionElegida <= 0 || (esExpo && !turnos.length))} title="Barra espaciadora">
               {etiquetaInicio}
             </button>
+            {esExpo && <button className="hr-btn" onClick={siguiente} disabled={!turnos.length || estado === "idle"} title="Tecla N">{hayMas ? "⏭ Siguiente" : "🏁 Terminar"}</button>}
             <button className="hr-btn" onClick={reiniciar}>↺ Reiniciar</button>
+            {esExpo && <button className="hr-btn" onClick={reiniciarTurnos} disabled={bloqueado}>⟲ Turnos desde el inicio</button>}
             <span className="hr-tools">
               <button className="hr-icon" aria-pressed={sonido} aria-label="Sonido" title={sonido ? "Sonido activado" : "Sonido apagado"}
                 onClick={() => { prepararAudio(); setSonido(!sonido); if (!sonido) nota(880, 0, 0.12, 0.3); }}>
@@ -382,6 +490,9 @@ export function Cronometro({ goHome }) {
             <button aria-label={estado === "running" ? "Pausar" : "Continuar"} title={estado === "running" ? "Pausar (barra espaciadora)" : "Continuar (barra espaciadora)"} onClick={alternar}>
               {estado === "running" ? "⏸" : "▶"}
             </button>
+          )}
+          {esExpo && estado !== "idle" && (
+            <button aria-label={hayMas ? "Siguiente" : "Terminar"} title={hayMas ? "Siguiente (N)" : "Terminar (N)"} onClick={siguiente}>{hayMas ? "⏭" : "🏁"}</button>
           )}
           {estado !== "idle" && (
             <button aria-label="Reiniciar" title="Detener y volver a configurar" onClick={reiniciar}>↺</button>

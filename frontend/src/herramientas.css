@@ -231,3 +231,20 @@
   .hr-page .hr-activity{max-height:24vh; min-height:2.6em} .hr-activity-label{display:none}
 }
 @media (prefers-reduced-motion: reduce){ .hr-page *{animation:none !important; transition:none !important} }
+
+/* ---- Formar grupos ---- */
+.hr-grupos{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; margin:16px 0 12px}
+.hr-grupo{background:var(--hr-field); border:1px solid var(--hr-line); border-radius:14px; padding:12px 14px}
+.hr-grupo h3{margin:0 0 6px; font-size:1rem; color:var(--hr-bar)}
+.hr-grupo-tema{margin:0 0 8px; font-size:.88rem; font-weight:700; color:var(--hr-fg)}
+.hr-grupo ul{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:4px}
+.hr-grupo li{font-size:.95rem; display:flex; align-items:center; gap:6px}
+.hr-lider{font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:#fff; background:var(--hr-bar); border-radius:999px; padding:1px 8px}
+
+/* ---- Cronómetro: modo exposiciones ---- */
+.hr-modos{margin-bottom:10px}
+.hr-chip.on{background:var(--hr-bar); color:#fff; border-color:var(--hr-bar)}
+.hr-sig{margin:0; font-size:clamp(.95rem,1.8vw,1.4rem); font-weight:700; color:var(--hr-muted)}
+.hr-expo{align-items:flex-start}
+.hr-turnos{flex:1 1 260px}
+.hr-turnos textarea{font:inherit; font-size:.95rem; color:var(--hr-fg); background:var(--hr-field); border:1px solid var(--hr-line); border-radius:10px; padding:8px 12px; resize:vertical; width:100%}

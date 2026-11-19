@@ -19,7 +19,7 @@ export const LIMITS = { maxQuestions: 30, minOptions: 2, maxOptions: 4, minSecon
 const BASE_POINTS = 100; // por acertar
 const SPEED_POINTS = 50; // extra por responder rápido (proporcional al tiempo que sobraba)
 
-const code6 = () => String(Math.floor(100000 + Math.random() * 900000));
+const code6 = () => String(crypto.randomInt(100000, 1000000)); // crypto: códigos no predecibles
 const clean = (s, n) => String(s ?? "").replace(/\s+/g, " ").trim().slice(0, n);
 
 // Valida y limpia las preguntas que manda el docente. Devuelve { questions } o { error }.
@@ -153,9 +153,11 @@ export function tick(room) {
 }
 
 // ------------------------------ vistas públicas ------------------------------
+// Solo cuentan las preguntas ya cerradas (points != null): si contara la que sigue
+// abierta, el puesto delataría si la opción marcada es la correcta.
 function ranking(room) {
   return [...room.players.values()]
-    .map((p) => ({ id: p.id, name: p.name, score: p.score, correct: Object.entries(p.answers).filter(([i, a]) => a.choice === room.questions[i]?.correct).length }))
+    .map((p) => ({ id: p.id, name: p.name, score: p.score, correct: Object.entries(p.answers).filter(([i, a]) => a.points != null && a.choice === room.questions[i]?.correct).length }))
     .sort((a, b) => b.score - a.score || b.correct - a.correct || a.name.localeCompare(b.name))
     .map((r, i) => ({ ...r, rank: i + 1 }));
 }

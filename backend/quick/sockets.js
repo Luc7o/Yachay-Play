@@ -11,7 +11,8 @@ const key = (code) => `qz:${code}`;
 function requireOwner(socket, room) {
   const u = socket.data.user;
   if (!u || u.role !== "docente") return "Inicia sesión como docente para controlar esta evaluación.";
-  if (room.ownerId && room.ownerId !== u.id) return "Esta evaluación pertenece a otro docente.";
+  // Sin dueño (el docente borró su cuenta): nadie la controla; antes podía cualquier docente.
+  if (room.ownerId !== u.id) return room.ownerId ? "Esta evaluación pertenece a otro docente." : "Ya no hay un docente a cargo.";
   return null;
 }
 

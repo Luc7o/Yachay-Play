@@ -25,9 +25,24 @@ if (!process.env.DATABASE_URL) {
 // COUNT(*) llega como bigint (texto) en Postgres; lo convertimos a número normal.
 pg.types.setTypeParser(20, (v) => Number(v));
 
+// TLS hacia la base de datos. Por defecto SE VERIFICA el certificado (Neon usa
+// certificados públicos, así que funciona sin configurar nada). Sin verificar,
+// alguien en medio de la red podría hacerse pasar por la base de datos.
+//  - DB_SSL_CA: certificado raíz en PEM (p. ej. el de Supabase) para verificar contra él.
+//  - DB_SSL_INSECURE=true: último recurso, cifra pero NO verifica (como antes).
+function sslConfig() {
+  if (/localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL)) return false;
+  if (process.env.DB_SSL_CA) return { rejectUnauthorized: true, ca: process.env.DB_SSL_CA.replace(/\\n/g, "\n") };
+  if (process.env.DB_SSL_INSECURE === "true") {
+    console.warn("[SEGURIDAD] DB_SSL_INSECURE=true: la conexión a la base de datos no verifica el certificado.");
+    return { rejectUnauthorized: false };
+  }
+  return { rejectUnauthorized: true };
+}
+
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: /localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL) ? false : { rejectUnauthorized: false }, // Supabase exige SSL
+  ssl: sslConfig(),
   max: 10,
 });
 pool.on("error", (e) => console.error("Error en la conexión a la base de datos:", e.message));

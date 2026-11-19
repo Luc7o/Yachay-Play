@@ -59,7 +59,7 @@ Yachay-Play/
 │   ├── server.js          Servidor, rutas de Ludo y sockets de la partida
 │   ├── db.js              Conexión a PostgreSQL
 │   ├── env.js             Carga el archivo .env
-│   ├── schema.sql         Tablas de la base de datos (ejecutar una vez)
+│   ├── schema.sql         Referencia del esquema inicial (NO ejecutar; usa npm run migrate)
 │   ├── auth.js            Rutas y middlewares de login/registro
 │   ├── authCore.js        Usuarios, contraseñas y tokens
 │   ├── seed.js            Cuentas demo para desarrollo
@@ -97,7 +97,13 @@ Necesitas **Node 20 o superior** y una **base de datos de pruebas** en PostgreSQ
 > ⚠️ **Nunca uses la base de datos de producción para probar.** Crea un proyecto aparte en Neon o Supabase (por ejemplo `yachayplay-dev`).
 
 ### 1. Base de datos
-Abre el editor SQL de tu base de pruebas y ejecuta todo el contenido de `backend/schema.sql`.
+Pon la cadena de conexión de tu base de pruebas en `backend/.env` (`DATABASE_URL`) y crea las tablas con las migraciones:
+```bash
+cd backend
+npm install
+npm run migrate
+```
+(No uses `backend/schema.sql`: es solo una referencia del estado inicial y está desactualizado.)
 
 ### 2. Backend
 ```bash
@@ -145,7 +151,7 @@ El servidor de Vite está abierto a la red local (`host: true`), así que puedes
 
 ## Despliegue (producción)
 
-1. **Base de datos:** ejecuta `backend/schema.sql` una sola vez.
+1. **Base de datos:** corre `npm run migrate` (desde `backend/`, con `DATABASE_URL` apuntando a producción) antes de cada despliegue que traiga migraciones nuevas.
 2. **Backend** (Render, Railway o Fly.io): carpeta `backend`, build `npm install`, start `npm start`. Variables:
 
    | Variable | Valor |

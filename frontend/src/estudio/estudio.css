@@ -191,3 +191,12 @@
   .es-code{font-size:38px;letter-spacing:5px}
 }
 .es-row{align-items:center}
+
+/* Unirse: elegir si se trabaja solo, se crea un equipo o se une a uno con código */
+.es-label{display:block;font-weight:700;margin-top:12px}
+.es-modo{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
+.es-modo button{flex:1 1 auto;min-height:44px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--es-line);background:var(--es-surface);color:var(--es-ink);font:inherit;font-weight:700;cursor:pointer}
+.es-modo button.on{border-color:var(--es-primary);background:color-mix(in srgb,var(--es-primary) 12%,var(--es-surface));color:var(--es-primary)}
+.es-modo button:focus-visible{outline:3px solid var(--es-primary);outline-offset:2px}
+.es-teamcode{font-size:13px;color:var(--es-muted);font-weight:600;white-space:nowrap}
+.es-teamcode b{letter-spacing:2px;color:var(--es-primary)}

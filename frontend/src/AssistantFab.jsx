@@ -31,12 +31,17 @@ export function AssistantFab() {
         .then(({ user }) => setRole(user?.role || null))
         .catch(() => setRole(null));
     }
+    // "storage" salta con CUALQUIER clave (la Ruleta, el tema, el cronómetro...):
+    // solo nos importa cuando cambia el token de sesión en otra pestaña.
+    const alCambiarStorage = (e) => {
+      if (e.key === null || e.key === "yachay_token") revisar();
+    };
     revisar();
     window.addEventListener("yachay-auth-changed", revisar);
-    window.addEventListener("storage", revisar); // por si hay otra pestaña abierta
+    window.addEventListener("storage", alCambiarStorage);
     return () => {
       window.removeEventListener("yachay-auth-changed", revisar);
-      window.removeEventListener("storage", revisar);
+      window.removeEventListener("storage", alCambiarStorage);
     };
   }, []);
 
@@ -45,6 +50,15 @@ export function AssistantFab() {
   useEffect(() => {
     document.body.classList.toggle("has-ai-fab", role === "docente");
     return () => document.body.classList.remove("has-ai-fab");
+  }, [role]);
+
+  // Al cerrar sesión (o cambiar de cuenta) se borra la conversación: en una PC
+  // compartida del aula, el siguiente docente no debe ver el chat del anterior.
+  useEffect(() => {
+    setMessages([]);
+    setInput("");
+    setError("");
+    setOpen(false);
   }, [role]);
 
   useEffect(() => {
@@ -61,7 +75,11 @@ export function AssistantFab() {
     setError("");
     setLoading(true);
     try {
-      const { reply } = await api.assistantChat(historial);
+      // Solo los últimos 20 mensajes: el historial completo crecía sin tope en cada envío.
+      // (Y que empiece con un mensaje del docente, como espera la API del modelo.)
+      const recorte = historial.slice(-20);
+      if (recorte[0]?.role === "assistant") recorte.shift();
+      const { reply } = await api.assistantChat(recorte);
       setMessages((m) => [...m, { role: "assistant", content: reply }]);
     } catch (err) {
       setError(err.message);

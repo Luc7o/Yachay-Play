@@ -12,7 +12,6 @@
 import { Router } from "express";
 import db from "./db.js";
 import { hashPassword, verifyPassword, publicUser, signToken, findUserById, validatePassword } from "./authCore.js";
-import { verificarSegundoPaso } from "./twoFactor.js";
 
 export const profileRouter = Router();
 export const PUNTOS_VICTORIA = 10;
@@ -25,46 +24,60 @@ function requireUser(req, res, next) {
 profileRouter.use(requireUser);
 
 // ----------------------------- ranking -----------------------------
-async function filasRanking() {
+// COUNT(DISTINCT g.id): una misma cuenta unida varias veces a la misma partida
+// cuenta como UNA partida jugada (y una sola victoria), no N.
+// Los puntos y el puesto se calculan en SQL y solo vuelven el top 10 + la fila propia
+// (antes se traían TODOS los estudiantes y se ordenaban en JS en cada visita al perfil).
+export async function ranking(miId, limite = 10) {
   const filas = await db
     .prepare(
       `WITH ludo AS (
-         SELECT p.user_id, COUNT(*)::int AS played,
-                COUNT(*) FILTER (WHERE g.winner_team = p.team)::int AS won
+         SELECT p.user_id, COUNT(DISTINCT g.id)::int AS played,
+                COUNT(DISTINCT g.id) FILTER (WHERE g.winner_team = p.team)::int AS won
            FROM players p JOIN games g ON g.id = p.game_id
           WHERE p.user_id IS NOT NULL AND g.phase = 'finished'
           GROUP BY p.user_id),
        cw AS (
-         SELECT p.user_id, COUNT(*)::int AS played,
-                COUNT(*) FILTER (WHERE g.winner_player_id = p.id)::int AS won
+         SELECT p.user_id, COUNT(DISTINCT g.id)::int AS played,
+                COUNT(DISTINCT g.id) FILTER (WHERE g.winner_player_id = p.id)::int AS won
            FROM crossword_players p JOIN crossword_games g ON g.id = p.game_id
           WHERE p.user_id IS NOT NULL AND g.status = 'ended'
-          GROUP BY p.user_id)
-       SELECT u.id, u.name,
-              COALESCE(l.played, 0) + COALESCE(c.played, 0) AS played,
-              COALESCE(l.won, 0) + COALESCE(c.won, 0) AS won
-         FROM users u
-         LEFT JOIN ludo l ON l.user_id = u.id
-         LEFT JOIN cw c ON c.user_id = u.id
-        WHERE u.role = 'estudiante' AND COALESCE(l.played, 0) + COALESCE(c.played, 0) > 0`
+          GROUP BY p.user_id),
+       base AS (
+         SELECT u.id, u.name,
+                COALESCE(l.played, 0) + COALESCE(c.played, 0) AS played,
+                COALESCE(l.won, 0) + COALESCE(c.won, 0) AS won
+           FROM users u
+           LEFT JOIN ludo l ON l.user_id = u.id
+           LEFT JOIN cw c ON c.user_id = u.id
+          WHERE u.role = 'estudiante' AND COALESCE(l.played, 0) + COALESCE(c.played, 0) > 0),
+       puntos AS (
+         SELECT *, won * ? + played * ? AS points FROM base),
+       ordenado AS (
+         SELECT *, ROW_NUMBER() OVER (ORDER BY points DESC, won DESC, name) AS position,
+                COUNT(*) OVER () AS total
+           FROM puntos)
+       SELECT id, name, played, won, points::int AS points, position::int AS position, total::int AS total
+         FROM ordenado
+        WHERE position <= ? OR id = ?
+        ORDER BY position`
     )
-    .all();
-  return filas
-    .map((f) => ({ ...f, points: f.won * PUNTOS_VICTORIA + f.played * PUNTOS_PARTIDA }))
-    .sort((a, b) => b.points - a.points || b.won - a.won || a.name.localeCompare(b.name, "es"));
+    .all(PUNTOS_VICTORIA, PUNTOS_PARTIDA, limite, miId);
+  const total = filas[0]?.total ?? 0;
+  const yo = filas.find((f) => f.id === miId) || null;
+  return { total, top: filas.filter((f) => f.position <= limite), yo };
 }
 
 // En el ranking público solo se muestra el nombre (nunca el correo).
-const aPublico = (f, i, miId) => ({ position: i + 1, name: f.name, played: f.played, won: f.won, points: f.points, me: f.id === miId });
+const aPublico = (f, miId) => ({ position: f.position, name: f.name, played: f.played, won: f.won, points: f.points, me: f.id === miId });
 
 profileRouter.get("/ranking", async (req, res) => {
   try {
-    const filas = await filasRanking();
-    const idx = filas.findIndex((f) => f.id === req.user.id);
+    const r = await ranking(req.user.id);
     res.json({
-      total: filas.length,
-      top: filas.slice(0, 10).map((f, i) => aPublico(f, i, req.user.id)),
-      me: idx >= 0 ? aPublico(filas[idx], idx, req.user.id) : null,
+      total: r.total,
+      top: r.top.map((f) => aPublico(f, req.user.id)),
+      me: r.yo ? aPublico(r.yo, req.user.id) : null,
     });
   } catch (e) {
     console.error("Error en ranking:", e.message);
@@ -90,7 +103,9 @@ function logros({ played, won, correct, incorrect, cwBest, jugoLudo, jugoCw }) {
 // ----------------------------- perfil -----------------------------
 profileRouter.get("/", async (req, res) => {
   try {
-    const u = await db.prepare("SELECT id, name, email, role, created_at FROM users WHERE id = ?").get(req.user.id);
+    // SELECT * (vía findUserById): publicUser necesita totp_enabled, email_verified_at y
+    // password_hash para calcular sus banderas; con solo 5 columnas salían siempre falsas.
+    const u = await findUserById(req.user.id);
     const base = { user: { ...publicUser(u), created_at: u.created_at } };
 
     if (u.role === "docente") {
@@ -130,8 +145,7 @@ profileRouter.get("/", async (req, res) => {
     const correct = ludo.reduce((a, g) => a + g.correct, 0);
     const incorrect = ludo.reduce((a, g) => a + g.incorrect, 0);
     const cwBest = cw.reduce((m, g) => Math.max(m, g.solved_count), 0);
-    const filas = await filasRanking();
-    const idx = filas.findIndex((f) => f.id === u.id);
+    const r = await ranking(u.id, 0); // solo hace falta la fila propia y el total
 
     res.json({
       ...base,
@@ -141,8 +155,8 @@ profileRouter.get("/", async (req, res) => {
         correct,
         incorrect,
         points: won * PUNTOS_VICTORIA + played * PUNTOS_PARTIDA,
-        rank: idx >= 0 ? idx + 1 : null,
-        totalRanked: filas.length,
+        rank: r.yo ? r.yo.position : null,
+        totalRanked: r.total,
         badges: logros({ played, won, correct, incorrect, cwBest, jugoLudo: ludo.length > 0, jugoCw: cw.length > 0 }),
       },
     });
@@ -167,9 +181,13 @@ profileRouter.patch("/", async (req, res) => {
 
 // ----------------------------- cambiar / crear contraseña -----------------------------
 // - Cuenta con contraseña: se pide la actual.
-// - Cuenta creada con Google (aún sin contraseña): se puede CREAR una sin pedir la actual (no existe);
-//   si tiene verificación en dos pasos, se pide un código para confirmar que es la persona.
+// - Cuenta creada con Google (aún sin contraseña): NO se crea aquí; se manda un enlace al correo
+//   (POST /api/auth/password-link) para que solo la cree quien controla ese correo.
 const intentos = new Map(); // userId -> { n, inicio }: 5 intentos fallidos cada 10 minutos
+setInterval(() => {
+  const limite = Date.now() - 10 * 60 * 1000;
+  for (const [k, v] of intentos) if (v.inicio < limite) intentos.delete(k);
+}, 10 * 60 * 1000).unref();
 profileRouter.post("/password", async (req, res) => {
   const actual = String(req.body?.currentPassword || "");
   const nueva = String(req.body?.newPassword || "");
@@ -187,10 +205,8 @@ profileRouter.post("/password", async (req, res) => {
   try {
     const u = await db.prepare("SELECT password_hash FROM users WHERE id = ?").get(req.user.id);
     if (u.password_hash === "google") {
-      if (req.user.totp_enabled && !(await verificarSegundoPaso(req.user, req.body?.code))) {
-        fallar();
-        return res.status(401).json({ error: "Escribe un código válido de tu app de autenticación." });
-      }
+      // Crear la primera contraseña va por enlace al correo (POST /api/auth/password-link).
+      return res.status(400).json({ error: "Tu cuenta entra con Google: pide el enlace a tu correo para crear una contraseña." });
     } else if (!(await verifyPassword(actual, u.password_hash))) {
       fallar();
       return res.status(401).json({ error: "La contraseña actual no es correcta." });

@@ -62,7 +62,7 @@ export const api = {
   verifyEmail: (token) => request("/api/auth/verify-email", { method: "POST", body: JSON.stringify({ token }) }),
   resendVerification: () => request("/api/auth/resend-verification", { method: "POST", body: "{}" }),
   logoutAll: () => request("/api/auth/logout-all", { method: "POST", body: "{}" }),
-  twoFactorSetup: () => request("/api/auth/2fa/setup", { method: "POST", body: "{}" }),
+  twoFactorSetup: (password) => request("/api/auth/2fa/setup", { method: "POST", body: JSON.stringify({ password }) }),
   twoFactorEnable: (code) => request("/api/auth/2fa/enable", { method: "POST", body: JSON.stringify({ code }) }),
   twoFactorDisable: (code, password) => request("/api/auth/2fa/disable", { method: "POST", body: JSON.stringify({ code, password }) }),
   twoFactorNewCodes: (code) => request("/api/auth/2fa/recovery-codes", { method: "POST", body: JSON.stringify({ code }) }),
@@ -79,6 +79,7 @@ export const api = {
   profile: () => request("/api/profile"),
   profileRanking: () => request("/api/profile/ranking"),
   profileName: (name) => request("/api/profile", { method: "PATCH", body: JSON.stringify({ name }) }),
+  passwordLink: () => request("/api/auth/password-link", { method: "POST", body: "{}" }),
   profilePassword: (currentPassword, newPassword, code) =>
     request("/api/profile/password", { method: "POST", body: JSON.stringify({ currentPassword, newPassword, code }) }),
   // Estadísticas (docente: sus partidas; estudiante: su historial)

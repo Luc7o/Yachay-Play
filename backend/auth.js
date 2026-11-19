@@ -4,6 +4,7 @@
 //   POST /api/auth/login           correo + contraseña  (si tiene 2FA responde { needs2FA, challenge })
 //   POST /api/auth/login/2fa       2.º paso: { challenge, code }  (código de la app o de recuperación)
 //   POST /api/auth/google          entrar / crear cuenta con Google (también pasa por el 2FA si está activo)
+//   POST /api/auth/password-link   (con sesión, cuenta de Google) enlace al correo para crear contraseña
 //   POST /api/auth/forgot          pedir enlace para restablecer contraseña (responde siempre igual)
 //   POST /api/auth/reset           { token, password } -> nueva contraseña (cierra las demás sesiones)
 //   POST /api/auth/verify-email    { token } -> confirma el correo (enlace que llega al registrarse)
@@ -66,6 +67,11 @@ function crearLimite(max, ventanaMs) {
       a.n += 1;
       return a.n > max;
     },
+    // Solo consulta si ya se llegó al tope, sin sumar un intento.
+    lleno: (clave) => {
+      const a = mapa.get(clave);
+      return !!a && Date.now() - a.inicio <= ventanaMs && a.n >= max;
+    },
     reiniciar: (clave) => mapa.delete(clave),
   };
 }
@@ -111,7 +117,14 @@ authRouter.post("/register", ruta(async (req, res) => {
   const { error, data } = validateRegistration(req.body || {});
   if (error) return res.status(400).json({ error });
   if (await findUserByEmail(data.email)) return res.status(409).json({ error: "Ya existe una cuenta con ese correo." });
-  const user = await createUser(data);
+  let user;
+  try {
+    user = await createUser(data);
+  } catch (e) {
+    // Dos registros simultáneos con el mismo correo: el segundo choca con el índice único.
+    if (e.code === "23505") return res.status(409).json({ error: "Ya existe una cuenta con ese correo." });
+    throw e;
+  }
   enviarEnlaceVerificacion(user).catch((e) => console.error("No se pudo enviar la verificación:", e.message)); // sin await: no retrasa el registro
   res.status(201).json({ token: signToken(user), user: publicUser(user) });
 }));
@@ -120,11 +133,19 @@ authRouter.post("/login", ruta(async (req, res) => {
   const email = String(req.body?.email || "").trim().toLowerCase();
   const password = String(req.body?.password || "");
   if (password.length > 200) return res.status(401).json({ error: "Correo o contraseña incorrectos." }); // evita gastar CPU con textos enormes
-  if (limLogin.excedido(`${req.ip}|${email}`) || limLoginCorreo.excedido(email)) return res.status(429).json({ error: MSG_LIMITE });
+  // Por correo solo se MIRA el contador aquí (sin sumar): suma únicamente cuando la
+  // contraseña falla. Así un intento correcto del dueño no gasta cupo, y quien solo
+  // conoce el correo necesita 30 fallos reales para bloquearlo, no 30 peticiones cualesquiera.
+  if (limLogin.excedido(`${req.ip}|${email}`) || limLoginCorreo.lleno(email)) return res.status(429).json({ error: MSG_LIMITE });
   const user = await findUserByEmail(email);
   // Siempre verificamos un hash (aunque el correo no exista) para no delatar qué correos están registrados.
-  const ok = await verifyPassword(password, user ? user.password_hash : DUMMY_HASH);
-  if (!user || !ok) return res.status(401).json({ error: "Correo o contraseña incorrectos." });
+  // Las cuentas solo-Google ("google") también pasan por scrypt, para no distinguirse por el tiempo de respuesta.
+  const soloGoogle = user?.password_hash === "google";
+  const ok = (await verifyPassword(password, user && !soloGoogle ? user.password_hash : DUMMY_HASH)) && !soloGoogle;
+  if (!user || !ok) {
+    limLoginCorreo.excedido(email); // cuenta el fallo
+    return res.status(401).json({ error: "Correo o contraseña incorrectos." });
+  }
   limLogin.reiniciar(`${req.ip}|${email}`);
   limLoginCorreo.reiniciar(email);
   await upgradeHashIfNeeded(user, password); // si el hash era de la versión anterior, se re-guarda con los parámetros nuevos
@@ -183,20 +204,34 @@ authRouter.get("/demo", (_req, res) => {
 
 // ------------------------------ recuperar contraseña ------------------------------
 // Siempre responde lo mismo, exista o no el correo (así no se puede averiguar quién tiene cuenta).
+// Genera un enlace de un solo uso (30 min) para poner contraseña y lo manda al correo.
+async function mandarEnlaceClave(user, { crear = false } = {}) {
+  const token = crypto.randomBytes(32).toString("base64url");
+  await db.prepare("UPDATE password_resets SET used_at = now() WHERE user_id = ? AND used_at IS NULL").run(user.id); // solo vale el último enlace
+  await db
+    .prepare("INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, now() + interval '30 minutes')")
+    .run(user.id, sha256(token));
+  return enviarRecuperacion({ to: user.email, name: user.name, token, crear });
+}
+
+// Cuenta creada con Google que quiere una contraseña: ya no se crea directo desde la sesión
+// (con un token robado alguien se quedaría con acceso permanente). Se manda un enlace al correo,
+// así solo la crea quien controla ese correo.
+authRouter.post("/password-link", requireSession, ruta(async (req, res) => {
+  if (req.user.password_hash !== "google") return res.status(400).json({ error: "Tu cuenta ya tiene contraseña. Cámbiala desde el formulario." });
+  if (limOlvide.excedido(req.user.email)) return res.status(429).json({ error: MSG_LIMITE });
+  await mandarEnlaceClave(req.user, { crear: true });
+  res.json({ ok: true, message: `Te enviamos un enlace a ${req.user.email} para crear tu contraseña. Vale 30 minutos; revisa también la carpeta de spam.` });
+}));
+
 authRouter.post("/forgot", ruta(async (req, res) => {
   const email = String(req.body?.email || "").trim().toLowerCase().slice(0, 120);
   const generico = { ok: true, message: "Si ese correo tiene una cuenta, te enviamos un enlace para crear una nueva contraseña. Revisa también la carpeta de spam." };
   if (limOlvideIp.excedido(req.ip) || limOlvide.excedido(email)) return res.status(429).json({ error: MSG_LIMITE });
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return res.json(generico);
   const user = await findUserByEmail(email);
-  if (user) {
-    const token = crypto.randomBytes(32).toString("base64url");
-    await db.prepare("UPDATE password_resets SET used_at = now() WHERE user_id = ? AND used_at IS NULL").run(user.id); // solo vale el último enlace
-    await db
-      .prepare("INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, now() + interval '30 minutes')")
-      .run(user.id, sha256(token));
-    enviarRecuperacion({ to: user.email, name: user.name, token }).catch(() => {}); // sin await: tiempos iguales
-  }
+  // Sin await: la respuesta tarda lo mismo exista o no el correo (no delata qué correos tienen cuenta).
+  if (user) mandarEnlaceClave(user).catch((e) => console.error("No se pudo enviar el enlace de recuperación:", e.message));
   res.json(generico);
 }));
 
@@ -226,7 +261,13 @@ authRouter.post("/reset", ruta(async (req, res) => {
 
 // ------------------------------ verificación en dos pasos (2FA) ------------------------------
 authRouter.post("/2fa/setup", requireSession, ruta(async (req, res) => {
+  if (limDosPasos.excedido(req.user.id)) return res.status(429).json({ error: MSG_LIMITE });
   if (req.user.totp_enabled) return res.status(400).json({ error: "La verificación en dos pasos ya está activada." });
+  // Volver a pedir la contraseña: si no, con un token robado se podría activar el 2FA,
+  // quedarse con los códigos de recuperación y dejar fuera al dueño para siempre.
+  if (req.user.password_hash !== "google" && !(await verifyPassword(String(req.body?.password || ""), req.user.password_hash))) {
+    return res.status(401).json({ error: "La contraseña no es correcta." });
+  }
   const secreto = nuevoSecreto();
   await db.prepare("UPDATE users SET totp_secret = ?, totp_last_step = NULL WHERE id = ?").run(cifrar(secreto), req.user.id);
   const otpauth = urlOtpauth(req.user.email, secreto);

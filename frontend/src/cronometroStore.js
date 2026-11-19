@@ -59,7 +59,7 @@ function revisar() {
 }
 function arrancar() {
   clearInterval(reloj);
-  reloj = setInterval(revisar, 100);
+  reloj = setInterval(revisar, 200); // suficiente para mm:ss y la barra; 100 ms re-renderizaba de más
 }
 function parar() {
   clearInterval(reloj);

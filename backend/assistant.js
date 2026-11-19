@@ -20,6 +20,11 @@ pregunta es un docente con poco tiempo entre clases.`;
 // --- límite de uso: cuida la cuota gratuita (20 mensajes / hora por docente) ---
 const USOS_POR_HORA = 20;
 const usos = new Map(); // userId -> { n, inicio }
+// Limpia las entradas viejas cada 10 min (si no, el mapa crecía para siempre).
+setInterval(() => {
+  const limite = Date.now() - 60 * 60 * 1000;
+  for (const [k, v] of usos) if (v.inicio < limite) usos.delete(k);
+}, 10 * 60 * 1000).unref();
 function demasiados(userId) {
   const ahora = Date.now();
   const u = usos.get(userId);
@@ -76,6 +81,7 @@ assistantRouter.post("/chat", requireTeacher, async (req, res) => {
           contents,
           generationConfig: { maxOutputTokens: 1000 },
         }),
+        signal: AbortSignal.timeout(30_000), // que no quede colgada si Gemini no responde
       }
     );
     const data = await r.json().catch(() => ({}));
@@ -84,7 +90,8 @@ assistantRouter.post("/chat", requireTeacher, async (req, res) => {
         return res.status(429).json({ error: "El asistente alcanzó su límite gratuito por ahora. Prueba de nuevo en unos minutos." });
       }
       console.error("Gemini error:", r.status, data?.error?.message);
-      return res.status(502).json({ error: data?.error?.message || "El asistente no pudo responder." });
+      // El detalle de Gemini queda solo en la consola; al cliente, un mensaje genérico.
+      return res.status(502).json({ error: "El asistente no pudo responder. Prueba de nuevo en un momento." });
     }
     const texto = (data.candidates?.[0]?.content?.parts || [])
       .map((p) => p.text || "")

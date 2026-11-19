@@ -2,7 +2,7 @@
 // GUARDADO DE "PRESENTACIONES EN VIVO" EN LA BASE DE DATOS
 // ============================================================================
 // - La tabla se crea sola al arrancar (CREATE TABLE IF NOT EXISTS): no hay que
-//   ejecutar nada a mano. (También está copiada en schema.sql, como referencia.)
+//   ejecutar nada a mano. (También está en migrations/0001_baseline.sql.)
 // - Las salas viven en memoria; cada 4 segundos se guardan las que cambiaron.
 // - Si la base falla, la clase en vivo sigue funcionando y solo se avisa en consola.
 // - Al arrancar el servidor se recuperan las salas de las últimas 24 horas.

@@ -95,7 +95,7 @@ export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubm
         <div className="cw-timer">⏱️ {mmss(live.endsAt - now)}</div>
       </header>
 
-      <div className="cw-toasts">
+      <div className="cw-toasts" role="status" aria-live="polite">
         {toasts.map((t) => <div key={t.id} className="cw-toast">{t.texto}</div>)}
       </div>
 

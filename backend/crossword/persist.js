@@ -28,12 +28,30 @@ function encolar(room, descripcion, tarea) {
   });
 }
 
+// Cierra en la BD las partidas que ya no viven en memoria (abandonadas hace más de 12 h).
+// Si quedaban "vivas", retenían su código por el índice único crossword_code_live_idx
+// y una partida nueva con ese código fallaba al guardarse (sin que nadie se enterara).
+const cerrarAbandonadas = () =>
+  db
+    .prepare("UPDATE crossword_games SET status = 'ended', end_reason = COALESCE(end_reason, 'abandoned'), ended_at = COALESCE(ended_at, now()) WHERE status <> 'ended' AND created_at <= now() - interval '12 hours'")
+    .run();
+
+const insertarPartida = (room) =>
+  db
+    .prepare("INSERT INTO crossword_games (id, code, name, minutes, owner_id, grid) VALUES (?,?,?,?,?,?::jsonb)")
+    .run(room.id, room.code, room.name, room.minutes, room.ownerId || null, JSON.stringify(room.grid));
+
 hooks.onCreate = (room) =>
-  encolar(room, "crear partida", () =>
-    db
-      .prepare("INSERT INTO crossword_games (id, code, name, minutes, owner_id, grid) VALUES (?,?,?,?,?,?::jsonb)")
-      .run(room.id, room.code, room.name, room.minutes, room.ownerId || null, JSON.stringify(room.grid))
-  );
+  encolar(room, "crear partida", async () => {
+    try {
+      await insertarPartida(room);
+    } catch (e) {
+      if (e.code !== "23505") throw e;
+      // Código ocupado en la BD por una partida vieja: se cierra la vieja y se reintenta.
+      await cerrarAbandonadas();
+      await insertarPartida(room);
+    }
+  });
 
 hooks.onPlayer = (room, p) =>
   encolar(room, "nuevo jugador", () =>
@@ -90,6 +108,7 @@ hooks.onReset = (room) =>
 
 // Recupera las partidas no terminadas. Se llama una vez al arrancar el servidor.
 export async function restoreCrosswordRooms() {
+  await cerrarAbandonadas().catch((e) => console.error("[crucigrama] no se pudieron cerrar partidas viejas:", e.message));
   const partidas = await db.prepare("SELECT * FROM crossword_games WHERE status <> 'ended' AND created_at > now() - interval '12 hours'").all();
   const recuperadas = [];
   for (const g of partidas) {

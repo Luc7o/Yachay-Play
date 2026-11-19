@@ -798,3 +798,11 @@
 .pr-fullscreen .pr-prompt .pr-entry.pr-tiled-entry {
   transform: translateY(-14px);
 }
+
+/* Accesibilidad: foco visible con teclado (otras reglas quitaban el outline también en :focus-visible). */
+.pr-page button:focus-visible,
+.pr-page a:focus-visible,
+.pr-page [tabindex]:focus-visible {
+  outline: 3px solid #53e8cf !important;
+  outline-offset: 2px !important;
+}

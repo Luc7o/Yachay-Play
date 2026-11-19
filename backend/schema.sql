@@ -1,4 +1,10 @@
--- Esquema de YachayPlay (PostgreSQL: Neon o Supabase). Ejecutar una sola vez.
+-- ⚠️ NO EJECUTES ESTE ARCHIVO para crear la base de datos: está DESACTUALIZADO.
+-- Es solo una referencia del estado inicial (igual a migrations/0001_baseline.sql) y le faltan
+-- las columnas y tablas de 2FA, verificación de correo, recuperación de contraseña, etc.
+-- Para crear o actualizar la base usa las migraciones, desde backend/:
+--     npm run migrate
+--
+-- Esquema inicial de YachayPlay (PostgreSQL: Neon o Supabase).
 CREATE TABLE IF NOT EXISTS users (
   id            text PRIMARY KEY,
   name          text NOT NULL,

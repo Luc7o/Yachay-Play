@@ -59,12 +59,12 @@ async function request(path, options = {}) {
 
 export const api = {
   // Cuentas
-  register: ({ name, email, password, role, acceptTerms }) =>
-    request("/api/auth/register", { method: "POST", body: JSON.stringify({ name, email, password, role, acceptTerms }) }),
+  register: ({ name, email, password, role, acceptTerms, confirmAge }) =>
+    request("/api/auth/register", { method: "POST", body: JSON.stringify({ name, email, password, role, acceptTerms, confirmAge }) }),
   login: (email, password) => request("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
   login2fa: (challenge, code) => request("/api/auth/login/2fa", { method: "POST", body: JSON.stringify({ challenge, code }) }),
-  google: (credential, role, acceptTerms) =>
-    request("/api/auth/google", { method: "POST", body: JSON.stringify({ credential, role, acceptTerms }) }),
+  google: (credential, role, acceptTerms, confirmAge) =>
+    request("/api/auth/google", { method: "POST", body: JSON.stringify({ credential, role, acceptTerms, confirmAge }) }),
   forgotPassword: (email) => request("/api/auth/forgot", { method: "POST", body: JSON.stringify({ email }) }),
   resetPassword: (token, password) => request("/api/auth/reset", { method: "POST", body: JSON.stringify({ token, password }) }),
   verifyEmail: (token) => request("/api/auth/verify-email", { method: "POST", body: JSON.stringify({ token }) }),

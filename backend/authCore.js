@@ -165,7 +165,12 @@ export function validatePassword(p, email) {
 }
 
 // Devuelve { error } con un mensaje en español, o { data } con los datos limpios.
-export function validateRegistration({ name, email, password, role, acceptTerms }) {
+// Texto de la casilla de edad (el mismo que muestra el formulario). Coincide con los
+// Términos y la Política de Privacidad: un menor puede usar YachayPlay con autorización
+// de sus padres o tutores (la ley peruana la exige por debajo de los 14 años).
+export const MSG_EDAD = "Confirma que tienes 14 años o más, o que cuentas con la autorización de tus padres o tutores.";
+
+export function validateRegistration({ name, email, password, role, acceptTerms, confirmAge }) {
   const n = String(name || "").trim().replace(/\s+/g, " ");
   const e = String(email || "").trim().toLowerCase();
   const p = String(password || "");
@@ -175,6 +180,7 @@ export function validateRegistration({ name, email, password, role, acceptTerms 
   if (errClave) return { error: errClave };
   if (!ROLES.includes(role)) return { error: "Elige si eres docente o estudiante." };
   if (acceptTerms !== true) return { error: "Debes aceptar los Términos y Condiciones y la Política de Privacidad." };
+  if (confirmAge !== true) return { error: MSG_EDAD };
   return { data: { name: n, email: e, password: p, role, termsAccepted: true } };
 }
 

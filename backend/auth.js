@@ -167,9 +167,9 @@ authRouter.post("/login/2fa", ruta(async (req, res) => {
   res.json({ token: signToken(fresco), user: publicUser(fresco), recoveryLeft: await codigosRestantes(userId) });
 }));
 
-// Iniciar sesión / crear cuenta con Google. Body: { credential, role?, acceptTerms? }
+// Iniciar sesión / crear cuenta con Google. Body: { credential, role?, acceptTerms?, confirmAge? }
 // - Si el correo ya tiene cuenta, entra (con 2FA si lo tiene activo).
-// - Si no tiene y falta el rol o aceptar los términos, responde { needsRole: true } para que el frontend lo pida.
+// - Si no tiene y falta el rol, aceptar los términos o confirmar la edad, responde { needsRole: true } para que el frontend lo pida.
 authRouter.post("/google", ruta(async (req, res) => {
   if (limGoogle.excedido(`${req.ip}|google`)) return res.status(429).json({ error: MSG_LIMITE });
   const g = await verifyGoogleToken(req.body?.credential);
@@ -177,7 +177,9 @@ authRouter.post("/google", ruta(async (req, res) => {
   let user = await findUserByEmail(g.email);
   if (!user) {
     const role = req.body?.role;
-    if (!ROLES.includes(role) || req.body?.acceptTerms !== true) return res.json({ needsRole: true, email: g.email, name: g.name });
+    if (!ROLES.includes(role) || req.body?.acceptTerms !== true || req.body?.confirmAge !== true) {
+      return res.json({ needsRole: true, email: g.email, name: g.name });
+    }
     user = await createGoogleUser({ name: g.name, email: g.email, role, termsAccepted: true });
   } else if (!user.email_verified_at) {
     // Hay una cuenta con contraseña cuyo correo NUNCA se verificó. Alguien pudo haberla creado con el correo ajeno

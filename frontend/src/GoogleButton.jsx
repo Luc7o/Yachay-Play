@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from "react";
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+// Sin ID de cliente (p. ej. en local) no hay botón de Google: quien lo use puede ocultar su separador.
+export const googleDisponible = !!CLIENT_ID;
 let scriptPromise = null;
 let inicializado = false;
 let manejador = null;
@@ -42,7 +44,7 @@ export function GoogleButton({ onCredential }) {
           theme: "outline",
           size: "large",
           text: "continue_with",
-          shape: "pill",
+          shape: "rectangular",
           locale: "es",
           width: 280,
         });

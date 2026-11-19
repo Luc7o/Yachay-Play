@@ -78,7 +78,7 @@ export function Cronometro({ goHome }) {
   const [segundos, setSegundos] = useState(String(guardado.sec ?? 0));
   const [actividad, setActividad] = useState(guardado.actividad ?? "");
   const [sonido, setSonido] = useState(guardado.sonido !== false);
-  const [mascota, setMascota] = useState(guardado.mascota !== false);
+  const [mascota, setMascota] = useState(guardado.mascota === true); // diseño "Campus": apagada salvo que el docente la encienda
   // Modo exposiciones: turnos (grupos/estudiantes), minutos de exposición y de preguntas
   const [modo, setModo] = useState(guardado.modo === "expo" ? "expo" : "simple");
   const [turnosTxt, setTurnosTxt] = useState(guardado.turnos ?? "");

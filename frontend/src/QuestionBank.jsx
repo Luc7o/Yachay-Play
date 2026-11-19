@@ -17,14 +17,14 @@ function PreguntaItem({ q, onEdit, onToggle, onDelete }) {
       <p>{q.question}</p>
       <ol type="A">
         {q.options.map((o, i) => (
-          <li key={i} className={i === q.answerIndex ? "right" : ""}>{o}{i === q.answerIndex ? " ✔" : ""}</li>
+          <li key={i} className={i === q.answerIndex ? "right" : ""}>{o}{i === q.answerIndex ? " · correcta" : ""}</li>
         ))}
       </ol>
       {onEdit && (
         <div className="tl-q-actions">
-          <button className="tl-link" onClick={() => onEdit(q)}>✏️ Editar</button>
-          <button className="tl-link" onClick={() => onToggle(q)}>{q.active === false ? "✅ Activar" : "⏸️ Desactivar"}</button>
-          <button className="tl-link danger" onClick={() => onDelete(q)}>🗑️ Borrar</button>
+          <button className="tl-link" onClick={() => onEdit(q)}>Editar</button>
+          <button className="tl-link" onClick={() => onToggle(q)}>{q.active === false ? "Activar" : "Desactivar"}</button>
+          <button className="tl-link danger" onClick={() => onDelete(q)}>Borrar</button>
         </div>
       )}
     </div>
@@ -131,7 +131,7 @@ export function QuestionBankPage({ goHome }) {
       </header>
       <main className="tl-main">
         <button className="tl-back" onClick={goHome}>← Volver al inicio</button>
-        <h1 className="tl-title">📚 Mis preguntas</h1>
+        <h1 className="tl-title">Mis preguntas</h1>
         <p className="tl-sub">
           Crea tus propias preguntas de opción múltiple. En tus partidas de Ludo se usan junto con el banco oficial.
           Las preguntas oficiales no se pueden editar.
@@ -140,7 +140,7 @@ export function QuestionBankPage({ goHome }) {
         {ok && <div className="tl-ok">{ok}</div>}
 
         <section className="tl-box tl-form" style={{ marginBottom: 16 }}>
-          <h2>{editId ? "✏️ Editar pregunta" : "➕ Nueva pregunta"}</h2>
+          <h2>{editId ? "Editar pregunta" : "Nueva pregunta"}</h2>
           <label>Tema</label>
           <input type="text" maxLength={60} value={form.topic} onChange={(e) => set("topic", e.target.value)} placeholder="Ej.: Revolución Industrial" />
           <label>Nivel</label>

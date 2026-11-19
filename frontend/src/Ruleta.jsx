@@ -85,7 +85,7 @@ function cargar() {
   }
   if (!listas.length) listas = CONFIG.listasDeEjemplo.map((s) => ({ id: uid(), nombre: s.nombre, items: [...s.items] }));
   const activa = listas.some((l) => l.id === d?.activa) ? d.activa : listas[0].id;
-  return { listas, activa, quitar: d?.quitar !== false, sonido: d?.sonido !== false, mascota: d?.mascota !== false };
+  return { listas, activa, quitar: d?.quitar !== false, sonido: d?.sonido !== false, mascota: d?.mascota === true }; // diseño "Campus": apagada salvo que el docente la encienda
 }
 
 // ---------------- Colores ----------------

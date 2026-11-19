@@ -1,27 +1,48 @@
-import { Brand } from "../Brand";
+import { Marca } from "../campusUi";
 import { CwLeaderboard } from "./CwTeacherLive";
 import { CwBoardPlay } from "./CwBoardPlay";
 
 // ============================================================================
-// ESTUDIANTE: sala (espera → jugando → resultados)
+// CRUCIGRAMA · SALA DEL ESTUDIANTE (espera → jugando → resultados)
+// Diseño "Campus", modo proyección (como Ludo en el celular). Props sin cambios.
 // ============================================================================
+function Marco({ live, goHome, children }) {
+  return (
+    <div className="cp cp-proj stu-page">
+      <header className="stu-top">
+        <Marca onClick={goHome} label="Volver al inicio de YachayPlay" />
+        <button type="button" className="cp-btn ghost" onClick={goHome}>Salir</button>
+      </header>
+      <main className="stu-main">
+        <span className="cp-eyebrow">Crucigrama relámpago · {live.name}</span>
+        {children}
+      </main>
+    </div>
+  );
+}
+
 export function CwStudentRoom({ live, now, myId, code, solvedMap, toasts, goHome, onSubmit, onSabotage }) {
   if (!live) return null;
 
   if (live.status === "lobby") {
     return (
-      <div className="app join-page">
-        <header className="ref-topbar"><Brand subtitle={live.name} onClick={goHome} /></header>
-        <main className="join-main" style={{ gridTemplateColumns: "1fr" }}>
-          <section className="join-card" style={{ textAlign: "center" }}>
-            <span className="hero-eyebrow">ESPERANDO AL DOCENTE</span>
-            <h1>¡Ya estás dentro! 🎉</h1>
-            <p className="cfg-lead">Código: <b>{code}</b> — el docente iniciará la partida en cualquier momento.</p>
-            <CwLeaderboard board={live.leaderboard} />
-            <button className="back-link" onClick={goHome}>← Volver al inicio</button>
-          </section>
-        </main>
-      </div>
+      <Marco live={live} goHome={goHome}>
+        <div className="stu-card">
+          <span className="cp-live">Partida {code}</span>
+          <h1>Ya estás dentro</h1>
+          <div className="stu-wait-box">
+            <span className="stu-pulse" aria-hidden="true" />
+            <div>
+              <strong>Espera a tu docente</strong>
+              <p>Iniciará la partida en cualquier momento. Todos resuelven el mismo crucigrama, cada uno en su celular.</p>
+            </div>
+          </div>
+        </div>
+        <div className="stu-card">
+          <h2>En la sala</h2>
+          <CwLeaderboard board={live.leaderboard} />
+        </div>
+      </Marco>
     );
   }
 
@@ -31,37 +52,28 @@ export function CwStudentRoom({ live, now, myId, code, solvedMap, toasts, goHome
     const completada = live.endReason === "completed";
     const yoGane = live.winnerId === myId; // gana quien completó primero, o quien tiene más puntos
     const ganador = live.leaderboard.find((p) => p.id === live.winnerId);
+    const motivo = completada ? "Crucigrama completado" : live.endReason === "teacher" ? "Tu docente finalizó la partida" : "Se acabó el tiempo";
     return (
-      <div className="app join-page">
-        <header className="ref-topbar"><Brand subtitle={live.name} onClick={goHome} /></header>
-        <main className="join-main" style={{ gridTemplateColumns: "1fr" }}>
-          <section className="join-card" style={{ textAlign: "center" }}>
-            <span className="hero-eyebrow">
-              {completada ? "¡CRUCIGRAMA COMPLETADO!" : live.endReason === "teacher" ? "EL DOCENTE FINALIZÓ LA PARTIDA" : "¡SE ACABÓ EL TIEMPO!"}
-            </span>
-            <img
-              className="result-mascot"
-              src={yoGane ? "/mascota-gana.png" : "/mascota-pierde.png"}
-              alt={yoGane ? "Mascota de YachayPlay celebrando con un trofeo" : "Mascota de YachayPlay animando a seguir intentando"}
-            />
-            <h1>{yoGane ? "🥇 ¡Ganaste!" : ganador ? `Quedaste en el puesto ${puesto}` : "Nadie sumó puntos"}</h1>
-            {yoGane && (
-              <p className="cfg-lead">{completada ? "¡Completaste todo el crucigrama primero!" : "¡Terminaste con más puntos que todos!"}</p>
-            )}
-            {!yoGane && ganador && (
-              <p className="cfg-lead">
-                {completada
-                  ? <><b>{ganador.name}</b> completó el crucigrama primero y cerró la partida.</>
-                  : <><b>{ganador.name}</b> ganó con más puntos ({ganador.score} pts).</>}
-              </p>
-            )}
-            {!yoGane && ganador && <p className="cfg-lead">¡Buen intento! Con la práctica llegarás al primer lugar.</p>}
-            <p className="cfg-lead">Tu puntaje: <b>{yo?.score ?? 0} pts</b></p>
-            <CwLeaderboard board={live.leaderboard} showMedals />
-            <button className="back-link" onClick={goHome}>← Volver al inicio</button>
-          </section>
-        </main>
-      </div>
+      <Marco live={live} goHome={goHome}>
+        <div className="stu-card fin-hero" style={{ "--tc": yoGane ? "#3DD6B8" : "#2F3B37" }}>
+          <span className="cp-eyebrow">{motivo}</span>
+          <h1>{yoGane ? "¡Ganaste!" : ganador ? `Quedaste en el puesto ${puesto}` : "Nadie sumó puntos"}</h1>
+          {yoGane && <p>{completada ? "Completaste todo el crucigrama primero." : "Terminaste con más puntos que todos."}</p>}
+          {!yoGane && ganador && (
+            <p>
+              {completada
+                ? <><b>{ganador.name}</b> completó el crucigrama primero y cerró la partida.</>
+                : <><b>{ganador.name}</b> ganó con más puntos ({ganador.score} pts).</>}
+            </p>
+          )}
+          <p>Tu puntaje: <b>{yo?.score ?? 0} pts</b></p>
+        </div>
+        <div className="stu-card">
+          <h2>Marcador final</h2>
+          <CwLeaderboard board={live.leaderboard} showMedals />
+        </div>
+        <button type="button" className="cp-btn primary lg" onClick={goHome}>Volver al inicio</button>
+      </Marco>
     );
   }
 

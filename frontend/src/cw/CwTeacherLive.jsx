@@ -59,7 +59,7 @@ export function CwTeacherLive({ live, ended }) {
 
       <div className="cw-teacher-grid-row">
         <div className="cw-board-panel">
-          <h3>🧩 Tablero compartido</h3>
+          <h3>Tablero compartido</h3>
           <p className="cw-board-sub">Mismo crucigrama para todos; cada quien lo llena a su ritmo.</p>
           <div className="cw-grid-wrap">
             <div
@@ -104,7 +104,7 @@ export function CwTeacherLive({ live, ended }) {
           </div>
 
           <div className="cw-panel-card">
-            <div className="cw-side-title">📜 Actividad reciente</div>
+            <div className="cw-side-title">Actividad reciente</div>
             <div className="cw-panel-scroll cw-activity-scroll">
               <CwActivityLog log={live.log} />
             </div>
@@ -149,7 +149,7 @@ export function CwClueProgress({ c, total }) {
 }
 
 export function CwLeaderboard({ board, showMedals }) {
-  const medal = (i) => (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`);
+  const medal = (i) => `${i + 1}.`;
   return (
     <div className="cw-leaderboard">
       {board.map((p, i) => (

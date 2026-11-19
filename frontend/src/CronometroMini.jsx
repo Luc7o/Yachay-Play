@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { cronometro, useCronometro, formatoTiempo } from "./cronometroStore";
 import "./cronometroMini.css";
 
@@ -14,7 +14,14 @@ export const EVENTO_ABRIR = "yachay-abrir-herramienta";
 
 export function CronometroMini() {
   const c = useCronometro();
-  if (c.estado === "idle" || c.abierto || c.oculto) return null;
+  const visible = !(c.estado === "idle" || c.abierto || c.oculto);
+  // Marca <body> mientras la ventanita está a la vista: el botón del asistente IA
+  // (misma esquina) sube para no taparla.
+  useEffect(() => {
+    document.body.classList.toggle("has-cm-mini", visible);
+    return () => document.body.classList.remove("has-cm-mini");
+  }, [visible]);
+  if (!visible) return null;
 
   const prop = c.total > 0 ? Math.max(0, Math.min(1, c.restante / c.total)) : 0;
   let visual = "normal";

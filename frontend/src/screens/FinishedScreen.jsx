@@ -1,80 +1,66 @@
 import { Brand } from "../Brand";
 import { COLORS, TURN_ORDER } from "../constants";
 
+// ============================================================================
+// LUDO · RESULTADOS — diseño "Campus", modo proyección (docente y estudiante).
+// Props sin cambios.
+// ============================================================================
 export function FinishedScreen({ teams, gameName, winner, activeTeams = TURN_ORDER, isEngineer, myTeam, resetGame, newGame, changeDevice }) {
   const equipos = activeTeams.length ? activeTeams : TURN_ORDER;
   const ranking = [...equipos].sort((a, b) => teams[b].score - teams[a].score);
   // Si alguien llegó a la META gana por tablero; si no, gana el de más puntos.
   const champion = winner || ranking[0];
   // Si quien mira es un estudiante (tiene equipo propio), le mostramos SU
-  // resultado personal (ganó/perdió) además del resultado general. El
-  // docente no tiene equipo, así que sigue viendo solo el resultado objetivo.
+  // resultado personal además del resultado general.
   const miResultado = myTeam ? { gane: myTeam === champion, puesto: ranking.indexOf(myTeam) + 1 } : null;
+  const campeon = COLORS[champion];
+
   return (
-    <div className="app reference-theme">
-      <header className="ref-topbar">
-        <Brand subtitle={<>Partida finalizada • {gameName}</>} />
-        <div className="ref-controls">
+    <div className="cp cp-proj">
+      <header className="proj-top">
+        <Brand />
+        <div className="proj-top-info">
+          <span className="cp-eyebrow">Ludo por equipos · partida terminada</span>
+          <strong>{gameName}</strong>
+        </div>
+        <div className="eg-actions">
           {isEngineer && (
             <>
-              <button className="ref-green" onClick={resetGame}>
-                🔄 Reiniciar partida
-              </button>
-              <button className="ref-yellow" onClick={newGame}>
-                ➕ Crear partida nueva
-              </button>
+              <button type="button" className="cp-btn ghost" onClick={resetGame}>Jugar otra ronda</button>
+              <button type="button" className="cp-btn ghost" onClick={newGame}>Partida nueva</button>
             </>
           )}
-          <button className="ref-secondary small" onClick={changeDevice}>
-            Volver al inicio
-          </button>
+          <button type="button" className="cp-btn primary" onClick={changeDevice}>Volver al inicio</button>
         </div>
       </header>
-      <main className="ref-content">
-        <div className="ref-card wide finished-card">
-          <span className="eyebrow">RESULTADOS FINALES</span>
-          {miResultado && (
-            <img
-              className="finished-mascot"
-              src={miResultado.gane ? "/mascota-gana.png" : "/mascota-pierde.png"}
-              alt={miResultado.gane ? "Mascota de YachayPlay celebrando con un trofeo" : "Mascota de YachayPlay un poco triste"}
-            />
-          )}
+
+      <main className="proj-main fin-main">
+        <section className="cp-card fin-hero" style={{ "--tc": campeon.hex }}>
+          <span className="cp-eyebrow">Resultados finales</span>
           <h1>
             {miResultado
               ? miResultado.gane
-                ? "🎉 ¡Tu equipo ganó!"
-                : `Tu equipo quedó en el puesto #${miResultado.puesto}`
-              : <>🏆 Equipo {COLORS[champion].name} gana la partida</>}
+                ? "¡Tu equipo ganó!"
+                : `Tu equipo quedó en el puesto ${miResultado.puesto}`
+              : <>Gana el equipo <span className="fin-team"><i aria-hidden="true" />{campeon.name}</span></>}
           </h1>
-          <p className="muted">
-            {miResultado && !miResultado.gane && <>El equipo {COLORS[champion].name} se llevó la victoria. </>}
-            {winner
-              ? "Llegó a la META con una de sus fichas."
-              : "Ganó por puntaje acumulado (nadie llegó a la meta)."}
+          <p>
+            {miResultado && !miResultado.gane && <>El equipo {campeon.name} se llevó la victoria. </>}
+            {winner ? "Llegó a la meta con una de sus fichas." : "Ganó por puntaje acumulado (nadie llegó a la meta)."}
           </p>
-          <div className="score-grid finished-grid">
-            {ranking.map((t, i) => (
-              <div
-                className={"score-card" + (myTeam === t ? " mine" : "")}
-                key={t}
-                style={{ borderTopColor: COLORS[t].hex }}
-              >
-                <span>
-                  #{i + 1} {COLORS[t].name}
-                  {myTeam === t && " (tú)"}
-                </span>
-                <strong>{teams[t].score} / 20</strong>
-                <small>
-                  {teams[t].correct} correctas • {teams[t].incorrect} incorrectas
-                </small>
-              </div>
-            ))}
-          </div>
-        </div>
+        </section>
+
+        <ol className="fin-ranking">
+          {ranking.map((t, i) => (
+            <li key={t} className={"cp-card fin-row" + (myTeam === t ? " mine" : "") + (t === champion ? " top" : "")} style={{ "--tc": COLORS[t].hex }}>
+              <span className="fin-pos">{i + 1}</span>
+              <span className="fin-name"><i aria-hidden="true" />{COLORS[t].name}{myTeam === t && <small> · tu equipo</small>}</span>
+              <span className="fin-stats">{teams[t].correct} correctas · {teams[t].incorrect} incorrectas</span>
+              <strong className="fin-score">{teams[t].score}<small> / 20</small></strong>
+            </li>
+          ))}
+        </ol>
       </main>
     </div>
   );
 }
-
-// ==================== Pantallas del docente ====================

@@ -3,6 +3,10 @@ import { Brand } from "../Brand";
 import { COLORS, TURN_ORDER } from "../constants";
 import { Step } from "./SetupScreen";
 
+// ============================================================================
+// LUDO · SALA DE ESPERA (docente, para proyectar) — diseño "Campus", modo proyección
+// (oscuro siempre: .cp-proj en campusJuegos.css). Props sin cambios.
+// ============================================================================
 export function LobbyScreen({ gameName, gameCode, teams, activeTeams = TURN_ORDER, connectedByTeam, players = [], startGame, newGame, changeDevice }) {
   if (!activeTeams.length) activeTeams = TURN_ORDER;
   const [copied, setCopied] = useState(false);
@@ -14,6 +18,7 @@ export function LobbyScreen({ gameName, gameCode, teams, activeTeams = TURN_ORDE
   // Dirección a la que entran los estudiantes (con el código ya incluido)
   const joinUrl = `${window.location.origin}/?role=student&code=${gameCode}`;
   const esLocal = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  const codigo = String(gameCode);
   async function copiarEnlace() {
     try {
       await navigator.clipboard.writeText(joinUrl);
@@ -25,135 +30,89 @@ export function LobbyScreen({ gameName, gameCode, teams, activeTeams = TURN_ORDE
   }
 
   return (
-    <div className="app wait-page">
-      <header className="ref-topbar">
-        <Brand subtitle={<>Sala de espera • {gameName}</>} />
-        <div className="ref-controls">
-          <div className="time-box">
-            <span>CÓDIGO</span>
-            <b>{gameCode}</b>
-          </div>
-          <button className="ref-yellow" onClick={changeDevice}>
-            Salir al inicio
-          </button>
+    <div className="cp cp-proj">
+      <header className="proj-top">
+        <Brand />
+        <div className="proj-top-info">
+          <span className="cp-eyebrow">Ludo por equipos · sala de espera</span>
+          <strong>{gameName}</strong>
         </div>
+        <button type="button" className="cp-btn ghost" onClick={changeDevice}>Salir al inicio</button>
       </header>
 
-      <main className="wait-main">
-        <section className="wait-left">
-          <span className="hero-eyebrow">SALA DE ESPERA · LUDO EDUCATIVO</span>
-          <h1 className="wait-title">{gameName}</h1>
-
-          {/* Código para proyectar */}
-          <div className="wait-code-panel">
-            <span className="wait-code-label">CÓDIGO DE PARTIDA</span>
-            <div className="wait-code-digits" aria-label={`Código ${gameCode}`}>
-              {String(gameCode).split("").map((d, i) => (
-                <span key={i}>{d}</span>
-              ))}
+      <main className="proj-main">
+        <section className="proj-stage" aria-labelledby="proj-t">
+          <div className="cp-card proj-hero">
+            <div className="proj-hero-copy">
+              <span className="cp-live">Sala abierta</span>
+              <h1 id="proj-t">Entren en <b>{window.location.host}</b> con este código</h1>
+              <p>Desde el celular o la laptop. La partida empieza cuando la inicies.</p>
+              {esLocal && (
+                <p className="proj-warn">
+                  Estás en «localhost»: los celulares no podrán abrirlo. Abre esta página con la IP de tu computadora (por ejemplo, http://192.168.1.10:5173).
+                </p>
+              )}
+              <div>
+                <button type="button" className="cp-btn ghost" onClick={copiarEnlace}>{copied ? "Enlace copiado" : "Copiar enlace directo"}</button>
+              </div>
             </div>
-            <p className="wait-code-how">
-              Entra desde el celular a <b>{window.location.host}</b> y escribe este código.
-            </p>
-            {esLocal && (
-              <p className="wait-code-warn">
-                ⚠️ Estás en “localhost”: los celulares no podrán abrirlo. Abre esta página con la IP de tu computadora
-                (por ejemplo, http://192.168.1.10:5173).
-              </p>
-            )}
-            <button className="wait-copy" onClick={copiarEnlace}>
-              {copied ? "✓ ¡Enlace copiado!" : "🔗 Copiar enlace directo"}
-            </button>
+            <div className="proj-code" aria-label={`Código ${codigo.split("").join(" ")}`}>
+              <span>Código</span>
+              <strong>{codigo.length === 6 ? `${codigo.slice(0, 3)} ${codigo.slice(3)}` : codigo}</strong>
+            </div>
           </div>
 
-          {/* Avance de conexión */}
-          <div className="wait-progress">
-            <div className="wait-progress-top">
-              <strong>
-                {totalConnected} de {totalSlots} estudiantes conectados
-              </strong>
-              <span>{pct}%</span>
+          <div className="cp-card cp-panel">
+            <div className="proj-progress-top">
+              <h2>En la sala</h2>
+              <span>{totalConnected} de {totalSlots} estudiantes · {pct}%</span>
             </div>
-            <div className="wait-bar">
+            <div className="proj-bar" role="progressbar" aria-label="Estudiantes conectados" aria-valuemin={0} aria-valuemax={totalSlots} aria-valuenow={totalConnected}>
               <i style={{ width: pct + "%" }} />
             </div>
+            <div className="proj-teams">
+              {activeTeams.map((t) => {
+                const miembros = players.filter((p) => p.team === t);
+                const completo = miembros.length >= teams[t].slots;
+                return (
+                  <div className={"proj-team" + (completo ? " full" : "")} key={t} style={{ "--tc": COLORS[t].hex }}>
+                    <div className="proj-team-head">
+                      <i aria-hidden="true" />
+                      <strong>{COLORS[t].name}</strong>
+                      <span>{connectedByTeam[t] || 0} / {teams[t].slots}{completo ? " · completo" : ""}</span>
+                    </div>
+                    <div className="proj-members">
+                      {miembros.map((p) => (
+                        <span className="proj-member" key={p.id}>{p.name}</span>
+                      ))}
+                      {Array.from({ length: Math.max(0, teams[t].slots - miembros.length) }, (_, i) => (
+                        <span className="proj-member empty" key={"e" + i}>esperando…</span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {totalConnected === 0 && <p className="cp-help">Aún no hay estudiantes conectados. Puedes iniciar cuando quieras, pero conviene esperar.</p>}
           </div>
 
-          {/* Equipos con los nombres de quienes ya entraron */}
-          <div className="wait-teams">
-            {activeTeams.map((t) => {
-              const miembros = players.filter((p) => p.team === t);
-              const completo = miembros.length >= teams[t].slots;
-              return (
-                <div
-                  className={"wait-team" + (completo ? " full" : "")}
-                  key={t}
-                  style={{ "--tc": COLORS[t].hex, "--ts": COLORS[t].soft }}
-                >
-                  <div className="wait-team-head">
-                    <i className="cfg-team-dot" />
-                    <strong>{COLORS[t].name}</strong>
-                    <span className="wait-team-count">
-                      {connectedByTeam[t] || 0} / {teams[t].slots}
-                    </span>
-                  </div>
-                  <div className="wait-members">
-                    {miembros.map((p) => (
-                      <span className="wait-member" key={p.id}>
-                        {p.name}
-                      </span>
-                    ))}
-                    {Array.from({ length: Math.max(0, teams[t].slots - miembros.length) }, (_, i) => (
-                      <span className="wait-member empty" key={"e" + i}>
-                        esperando…
-                      </span>
-                    ))}
-                  </div>
-                  {completo && <small className="wait-full-tag">✓ Equipo completo</small>}
-                </div>
-              );
-            })}
-          </div>
-
-          {totalConnected === 0 && (
-            <p className="wait-empty-note">Aún no hay estudiantes conectados. Puedes iniciar cuando quieras, pero conviene esperar.</p>
-          )}
-
-          <div className="wait-actions">
-            <button className="wait-start" onClick={startGame}>
-              Iniciar partida ▶
-            </button>
-            <button className="wait-new" onClick={newGame}>
-              ➕ Crear partida nueva
-            </button>
+          <div className="proj-actions">
+            <button type="button" className="cp-btn primary lg" onClick={startGame}>Iniciar partida</button>
+            <button type="button" className="cp-btn ghost lg" onClick={newGame}>Crear partida nueva</button>
           </div>
         </section>
 
-        <aside className="wait-side">
-          <div className="cfg-guide">
-            <img src="/mascota-explica.png" alt="" />
-            <p>Cuando tus estudiantes estén listos, pulsa “Iniciar partida”.</p>
-          </div>
-
-          <div className="cfg-how">
-            <h3>Cómo se unen los estudiantes</h3>
-            <Step n="1" t="Abren la dirección" d="Desde el navegador de su celular, en la misma red Wi-Fi." />
+        <aside className="proj-side" aria-label="Cómo se unen los estudiantes">
+          <div className="cp-card cp-panel">
+            <h2>Cómo se unen</h2>
+            <Step n="1" t="Abren la dirección" d="Desde el navegador de su celular." />
             <Step n="2" t="Escriben el código" d="Son 6 números; los ven en esta pantalla." />
             <Step n="3" t="Eligen su equipo" d="Y esperan a que empiece el juego." />
           </div>
-
-          <div className="wait-phone">
-            <span className="eyebrow">ASÍ LO VERÁN EN EL CELULAR</span>
-            <div className="phone-preview">
-              <div className="phone-screen">
-                <div className="phone-brand"><img className="phone-logo" src="/logo-aula.png" alt="YachayPlay" /></div>
-                <div className="phone-code-label">Código</div>
-                <div className="phone-code">{gameCode}</div>
-                <div className="phone-mini-field">Nombre del alumno</div>
-                <div className="phone-mini-field">Elegir equipo</div>
-                <div className="phone-mini-button">UNIRME A LA PARTIDA</div>
-              </div>
-            </div>
+          <div className="cp-card cp-panel">
+            <h2>Enlace directo</h2>
+            <p>Si lo compartes por el chat de la clase, el código ya va incluido.</p>
+            <code className="proj-url">{joinUrl}</code>
           </div>
         </aside>
       </main>

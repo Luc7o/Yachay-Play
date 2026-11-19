@@ -1,5 +1,5 @@
 import React from "react";
-import { Brand } from "./Brand";
+import { Marca, BotonTema } from "./campusUi";
 import "./gate.css";
 
 // ============================================================================
@@ -13,6 +13,10 @@ import "./gate.css";
 // No sabe nada de sesiones ni de sockets: solo avisa con onLogin / onRegister /
 // onGuest / onBack, igual que las pantallas que reemplaza.
 // ============================================================================
+// Quita un emoji al inicio de un texto ("🏁 Carrera individual" → "Carrera individual"):
+// el diseño "Campus" no usa emojis, pero así los textos que llegan por props siguen sirviendo.
+const sinEmoji = (t) => (typeof t === "string" ? t.replace(/^[^\p{L}\p{N}]+/u, "").trim() : t);
+
 export function GameGate({
   theme = "ludo",
   subtitle,
@@ -21,7 +25,7 @@ export function GameGate({
   description,
   tags = [],
   stats = [], // [{ value, label }]
-  mascot, // { src, alt }
+  mascot, // (ya no se muestra: diseño "Campus" sin mascota)
   preview, // vista previa del juego (LudoPreview / CrosswordPreview)
   loginPoints = [],
   registerPoints = [],
@@ -36,102 +40,100 @@ export function GameGate({
   onBack,
 }) {
   return (
-    <div className={`app gate-page gate-${theme}`}>
-      <header className="ref-topbar">
-        <Brand subtitle={subtitle} onClick={onBack} />
+    <div className={`cp cp-landing gate2 gate-${theme}`}>
+      <header className="cp-pubhead">
+        <div className="cp-wrap">
+          <Marca onClick={onBack} label="Volver al inicio de YachayPlay" />
+          {subtitle && <span className="gate2-sub">{subtitle}</span>}
+          <div className="cp-pubauth" style={{ marginLeft: "auto" }}>
+            <BotonTema />
+            <button type="button" className="cp-btn quiet" onClick={onBack}>← Volver</button>
+          </div>
+        </div>
       </header>
 
-      <main className="gate-main">
-        <button className="back-link" onClick={onBack}>← Volver al inicio</button>
-
+      <main>
         {/* ------------------------------ HERO ------------------------------ */}
-        <section className="gate-hero">
-          <div className="gate-hero-text">
-            <span className="gate-eyebrow">{eyebrow}</span>
-            <h1>{title}</h1>
-            <p>{description}</p>
-            <div className="gate-tags">
-              {tags.map((t) => <span key={t}>{t}</span>)}
-            </div>
+        <section className="cp-wrap cp-hero gate2-hero" aria-labelledby="gate2-t">
+          <div className="cp-hero-copy">
+            <span className="cp-eyebrow accent" style={{ alignSelf: "flex-start" }}>{sinEmoji(eyebrow)}</span>
+            <h1 id="gate2-t">{title}</h1>
+            <p className="cp-hero-lead">{description}</p>
+            {tags.length > 0 && (
+              <ul className="gate2-tags">
+                {tags.map((t) => <li key={t} className="cp-chip">{sinEmoji(t)}</li>)}
+              </ul>
+            )}
             {stats.length > 0 && (
-              <dl className="gate-stats">
-                {stats.map((s) => (
-                  <div key={s.label}>
-                    <dt>{s.value}</dt>
-                    <dd>{s.label}</dd>
+              <dl className="gate2-stats">
+                {stats.map((st) => (
+                  <div key={st.label}>
+                    <dt>{st.value}</dt>
+                    <dd>{st.label}</dd>
                   </div>
                 ))}
               </dl>
             )}
           </div>
-
-          <div className="gate-stage">
-            <span className="gate-orb o1" aria-hidden="true" />
-            <span className="gate-orb o2" aria-hidden="true" />
-            <span className="gate-orb o3" aria-hidden="true" />
-            <div className="gate-stage-card" aria-hidden="true">{preview}</div>
-            {mascot && <img className="gate-mascot" src={mascot.src} alt={mascot.alt} />}
+          <div className="cp-hero-art gate2-art" aria-hidden="true">
+            <div className="gate2-preview">{preview}</div>
           </div>
         </section>
 
         {/* ------------------------- ENTRAR / CREAR CUENTA ------------------------- */}
-        <h2 className="gate-h2">Entra a tu cuenta para jugar</h2>
-        <p className="gate-sub">Elige cómo quieres entrar. Solo te tomará un minuto.</p>
-
-        <div className="gate-cards">
-          <article className="gate-card gate-card-login" onClick={onLogin}>
-            <span className="gate-card-icon" aria-hidden="true">🔑</span>
-            <strong>Ya tengo cuenta</strong>
-            <span className="gate-card-desc">Inicia sesión y entrarás directo a tu panel.</span>
-            <ul className="gate-points">
-              {loginPoints.map((p) => <li key={p}>{p}</li>)}
-            </ul>
-            <button type="button" className="gate-card-cta">Iniciar sesión →</button>
-          </article>
-
-          <article className="gate-card gate-card-register" onClick={onRegister}>
-            <span className="gate-card-icon" aria-hidden="true">✨</span>
-            <strong>Soy nuevo</strong>
-            <span className="gate-card-desc">Crea tu cuenta gratis y empieza a jugar.</span>
-            <ul className="gate-points">
-              {registerPoints.map((p) => <li key={p}>{p}</li>)}
-            </ul>
-            <button type="button" className="gate-card-cta">Crear cuenta →</button>
-          </article>
-        </div>
-
-        <div className="gate-guest">
-          <div className="gate-guest-code" aria-hidden="true">
-            {[0, 1, 2, 3, 4, 5].map((i) => <i key={i}>{i === 0 ? "" : "•"}</i>)}
+        <section className="cp-section alt" aria-labelledby="gate2-entrar">
+          <div className="cp-wrap">
+            <div className="cp-section-head">
+              <h2 id="gate2-entrar">Entra para jugar</h2>
+              <p>Elige cómo quieres entrar. Solo te tomará un minuto.</p>
+            </div>
+            <div className="cp-grid">
+              <div className="cp-card gate2-card">
+                <strong>Ya tengo cuenta</strong>
+                <p>Inicia sesión y entrarás directo a tu panel.</p>
+                <ul>{loginPoints.map((pt) => <li key={pt}>{pt}</li>)}</ul>
+                <button type="button" className="cp-btn primary" onClick={onLogin}>Iniciar sesión</button>
+              </div>
+              <div className="cp-card gate2-card">
+                <strong>Soy nuevo</strong>
+                <p>Crea tu cuenta gratis y empieza a jugar.</p>
+                <ul>{registerPoints.map((pt) => <li key={pt}>{pt}</li>)}</ul>
+                <button type="button" className="cp-btn ghost" onClick={onRegister}>Crear cuenta</button>
+              </div>
+              <div className="cp-card gate2-card">
+                <strong>{guestText}</strong>
+                <p>Entra sin cuenta con los 6 dígitos que proyecta tu docente.</p>
+                <ul><li>No necesitas registrarte</li><li>La partida no queda en un historial</li></ul>
+                <button type="button" className="cp-btn ghost" onClick={onGuest}>Entrar como invitado</button>
+              </div>
+            </div>
           </div>
-          <div className="gate-guest-text">
-            <strong>{guestText}</strong>
-            <small>Entra sin cuenta con los 6 dígitos que proyecta tu docente.</small>
-          </div>
-          <button type="button" onClick={onGuest}>Entrar como invitado →</button>
-        </div>
+        </section>
 
         {/* ----------------------------- CÓMO SE JUEGA ----------------------------- */}
         {steps.length > 0 && (
-          <>
-            <h2 className="gate-h2">{stepsTitle}</h2>
-            <ol className="gate-steps">
-              {steps.map((s, i) => (
-                <li key={s.t}>
-                  <span className="gate-step-n">{i + 1}</span>
-                  <span className="gate-step-icon" aria-hidden="true">{s.icon}</span>
-                  <strong>{s.t}</strong>
-                  <p>{s.d}</p>
-                </li>
-              ))}
-            </ol>
-          </>
+          <section className="cp-section" aria-labelledby="gate2-pasos">
+            <div className="cp-wrap">
+              <div className="cp-section-head"><h2 id="gate2-pasos">{stepsTitle}</h2></div>
+              <ol className="ch-steps">
+                {steps.map((st, k) => (
+                  <li key={st.t} className="cp-card cp-step">
+                    <span>{String(k + 1).padStart(2, "0")}</span>
+                    <strong>{st.t}</strong>
+                    <p>{st.d}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
         )}
 
-        {extra}
+        {extra && <section className="cp-section alt gate2-extra"><div className="cp-wrap">{extra}</div></section>}
       </main>
 
-      {footer && <footer className="build-mark">{footer}</footer>}
+      {footer && (
+        <footer className="cp-foot"><div className="cp-wrap"><span>{footer}</span></div></footer>
+      )}
     </div>
   );
 }
@@ -166,7 +168,7 @@ export function LudoPreview() {
         <span className="pv-goal">META</span>
       </div>
       <div className="pv-bar">
-        <span className="pv-dice">🎲</span>
+        <span className="pv-dice" aria-hidden="true">6</span>
         <span>
           <b>¡Responde y avanza!</b>
           <small>Solo avanzas si aciertas</small>
@@ -210,7 +212,7 @@ export function CrosswordPreview() {
       <div className="pv-cw-board">{celdas}</div>
       <p className="pv-clue"><b>2 ↓</b> Máquina de Watt que impulsó la industria</p>
       <div className="pv-energy">
-        <span>⚡ Energía</span>
+        <span>Energía</span>
         <span className="pv-energy-bar"><i /></span>
       </div>
     </div>
@@ -241,9 +243,9 @@ export function LudoTeamsExtra() {
 
 // Crucigrama: los tres sabotajes (mismos costos y duraciones que el motor del juego).
 const SABOTAJES = [
-  { icon: "🧊", name: "Congelar", cost: 35, text: "El rival no puede responder por 5 segundos." },
-  { icon: "🌫️", name: "Niebla", cost: 25, text: "Le ocultas sus pistas por 6 segundos." },
-  { icon: "💰", name: "Robar puntos", cost: 50, text: "Le quitas hasta 40 puntos." },
+  { icon: "", name: "Congelar", cost: 35, text: "El rival no puede responder por 5 segundos." },
+  { icon: "", name: "Niebla", cost: 25, text: "Le ocultas sus pistas por 6 segundos." },
+  { icon: "", name: "Robar puntos", cost: 50, text: "Le quitas hasta 40 puntos." },
 ];
 
 export function CrosswordSabotagesExtra() {
@@ -254,10 +256,9 @@ export function CrosswordSabotagesExtra() {
       <div className="gate-sabs">
         {SABOTAJES.map((s) => (
           <div key={s.name} className="gate-sab">
-            <span className="gate-sab-icon" aria-hidden="true">{s.icon}</span>
-            <strong>{s.name}</strong>
+                        <strong>{s.name}</strong>
             <p>{s.text}</p>
-            <span className="gate-sab-cost">⚡ {s.cost} de energía</span>
+            <span className="gate-sab-cost">{s.cost} de energía</span>
           </div>
         ))}
       </div>

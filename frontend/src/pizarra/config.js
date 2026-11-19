@@ -12,6 +12,7 @@ export const CONFIG = {
     { id: "blanco", nombre: "Blanco", color: "#FFFFFF", oscuro: false },
     { id: "cuadro", nombre: "Cuadriculado", color: "#FFFFFF", oscuro: false },
     { id: "rayas", nombre: "Rayado", color: "#FFFFFF", oscuro: false },
+    { id: "puntos", nombre: "Punteado (esquemas)", color: "#FFFFFF", oscuro: false },
     { id: "plano", nombre: "Plano cartesiano", color: "#FFFFFF", oscuro: false },
     { id: "verde", nombre: "Pizarra verde", color: "#1F4D3A", oscuro: true },
     { id: "oscuro", nombre: "Pizarra negra", color: "#000000", oscuro: true },
@@ -28,16 +29,17 @@ export const FORMAS = [
   { id: "rect", nombre: "Rectángulo" },
   { id: "ellipse", nombre: "Óvalo" },
   { id: "tri", nombre: "Triángulo" },
+  { id: "diamond", nombre: "Rombo (decisión)" },
 ];
 
-export const ES_FORMA = new Set(["line", "arrow", "rect", "ellipse", "tri"]);
+export const ES_FORMA = new Set(["line", "arrow", "rect", "ellipse", "tri", "diamond"]);
 
-export const CON_RELLENO = new Set(["rect", "ellipse", "tri"]);
+export const CON_RELLENO = new Set(["rect", "ellipse", "tri", "diamond"]);
 
 // ---------------- Textos de ayuda y medidas en vivo ----------------
-export const NOMBRES_HERR = { mover: "Seleccionar", lapiz: "Lápiz", marcador: "Marcador", borrador: "Borrador", texto: "Texto", forma: "Forma" };
+export const NOMBRES_HERR = { mover: "Seleccionar", lapiz: "Lápiz", marcador: "Marcador", borrador: "Borrador", texto: "Texto", forma: "Forma", laser: "Puntero láser" };
 
-export const NOMBRES_OBJ = { pen: "Trazo", hl: "Resaltado", line: "Línea", arrow: "Flecha", rect: "Rectángulo", ellipse: "Óvalo", tri: "Triángulo", text: "Texto" };
+export const NOMBRES_OBJ = { pen: "Trazo", hl: "Resaltado", line: "Línea", arrow: "Flecha", rect: "Rectángulo", ellipse: "Óvalo", tri: "Triángulo", diamond: "Rombo", img: "Imagen", text: "Texto" };
 
 export const AYUDA = {
   mover: "Toca un dibujo para seleccionarlo y arrástralo",
@@ -46,4 +48,5 @@ export const AYUDA = {
   borrador: "Mantén presionado y pasa por lo que quieras borrar",
   texto: "Haz clic donde quieras escribir",
   forma: "Arrastra para dibujar · Shift = proporcional",
+  laser: "Mueve el puntero para señalar sin dibujar · tecla L",
 };

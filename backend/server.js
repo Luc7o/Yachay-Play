@@ -21,6 +21,9 @@ import { purgeOldRooms } from "./crossword/engine.js";
 import { slidesRouter } from "./slides/routes.js";
 import { attachSlidesSocket, startSlidesCleanup } from "./slides/sockets.js";
 import { startSlidesPersistence } from "./slides/persist.js";
+import { quickRouter } from "./quick/routes.js";
+import { attachQuizSocket, quizTick } from "./quick/sockets.js";
+import { purgeOldRooms as purgeOldQuizzes } from "./quick/engine.js";
 
 // Guarda en la base de datos SIN frenar el juego en tiempo real: si falla, solo se avisa en consola.
 const bg = (promesa) => promesa.catch((e) => console.error("Error de base de datos:", e.message));
@@ -68,6 +71,7 @@ app.use(express.json({ limit: "1mb" }));
 app.use(authOptional); // deja el usuario de la sesión (si hay) en req.user
 app.use("/api/auth", authRouter);
 app.use("/api/crossword-games", crosswordRouter); // juego nuevo: Crucigrama Relámpago
+app.use("/api/quick-quizzes", quickRouter); // Evaluación rápida (preguntas en vivo)
 app.use("/api/slides", slidesRouter); // Presentaciones en vivo (docente ve las de sus estudiantes)
 app.use("/api/assistant", assistantRouter); // asistente IA, solo para docentes
 app.use("/api/profile", profileRouter); // perfil, ranking y logros
@@ -437,6 +441,7 @@ io.on("connection", (socket) => {
 // Crucigrama Relámpago: escucha sus propios eventos "cw:*" en cada conexión
 // (aparte de todo el bloque de Ludo de aquí abajo, para no mezclarlos).
 io.on("connection", (socket) => attachCrosswordSocket(io, socket));
+io.on("connection", (socket) => attachQuizSocket(io, socket)); // Evaluación rápida (eventos "qz:*")
 io.on("connection", (socket) => attachSlidesSocket(io, socket)); // Presentaciones en vivo (eventos "ss:*")
 
 io.on("connection", (socket) => {
@@ -729,6 +734,7 @@ setInterval(() => {
 
 // El reloj del crucigrama es independiente del de Ludo (partidas distintas, ambas en memoria).
 setInterval(() => crosswordTick(io), 1000);
+setInterval(() => quizTick(io), 1000); // reloj de la Evaluación rápida
 
 // Limpieza cada 10 min: las partidas de más de 12 h salen de la memoria (el Map crecía sin límite).
 setInterval(() => {
@@ -740,6 +746,7 @@ setInterval(() => {
     }
   }
   purgeOldRooms(limite);
+  purgeOldQuizzes(limite);
 }, 10 * 60 * 1000);
 
 const PORT = process.env.PORT || 4000;

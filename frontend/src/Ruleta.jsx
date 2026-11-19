@@ -521,6 +521,61 @@ export function Ruleta({ goHome }) {
     }
   }
 
+  // ============================================================================
+  // FORMAR GRUPOS DE TRABAJO (para proyectos y exposiciones)
+  // Reparte una lista en grupos equilibrados (tamaños que difieren como máximo en 1),
+  // con líder y tema al azar si se pide.
+  // ============================================================================
+  const [grupoLista, setGrupoLista] = useState(inicial.current.listas[0].id);
+  const [grupoModo, setGrupoModo] = useState("cantidad"); // cantidad | tamano
+  const [grupoNum, setGrupoNum] = useState(4);
+  const [grupoLider, setGrupoLider] = useState(true);
+  const [grupoTema, setGrupoTema] = useState(""); // id de la lista de temas ("" = sin tema)
+  const [grupos, setGrupos] = useState(null); // [{ n, miembros, lider, tema }]
+  const [avisoGrupos, setAvisoGrupos] = useState("");
+  const grupoListaId = idsValidos.includes(grupoLista) ? grupoLista : listas[0].id;
+  const grupoTemaId = idsValidos.includes(grupoTema) && grupoTema !== grupoListaId ? grupoTema : "";
+
+  function formarGrupos() {
+    const lista = listas.find((l) => l.id === grupoListaId);
+    const total = lista.items.length;
+    setGrupos(null);
+    if (total < 2) return setAvisoGrupos("La lista necesita al menos 2 integrantes.");
+    const num = Math.max(1, Math.floor(Number(grupoNum) || 0));
+    const cuantos = grupoModo === "cantidad" ? Math.min(num, total) : Math.max(1, Math.ceil(total / Math.min(num, total)));
+    const base = mezclar(lista.items);
+    const resultado = Array.from({ length: cuantos }, (_, i) => ({ n: i + 1, miembros: [], lider: "", tema: "" }));
+    base.forEach((nombre, i) => resultado[i % cuantos].miembros.push(nombre)); // reparto en ronda: quedan equilibrados
+    if (grupoLider) resultado.forEach((g) => { g.lider = g.miembros[azarEntero(g.miembros.length)]; });
+    const temas = grupoTemaId ? listas.find((l) => l.id === grupoTemaId).items : [];
+    if (temas.length) {
+      let cola = [];
+      resultado.forEach((g) => {
+        if (!cola.length) cola = mezclar(temas); // si hay menos temas que grupos, se vuelven a repartir
+        g.tema = cola.pop();
+      });
+    }
+    const tamanos = [...new Set(resultado.map((g) => g.miembros.length))].sort((a, b) => a - b);
+    const detalle = tamanos.length === 1 ? `de ${plural(tamanos[0], "integrante", "integrantes")}` : `de ${tamanos[0]} a ${tamanos[tamanos.length - 1]} integrantes`;
+    const avisoTema = temas.length && temas.length < cuantos ? ` Hay menos temas (${temas.length}) que grupos: algunos se repiten.` : "";
+    setAvisoGrupos(`${plural(cuantos, "grupo", "grupos")} ${detalle}.${avisoTema}`);
+    setGrupos(resultado);
+    prepararAudio();
+    campanilla();
+  }
+  async function copiarGrupos() {
+    if (!grupos) return;
+    const hayTema = grupos.some((g) => g.tema);
+    const encabezado = ["Grupo", "Integrantes", grupoLider ? "Líder" : null, hayTema ? "Tema" : null].filter(Boolean).join("\t");
+    const filas = grupos.map((g) => [g.n, g.miembros.join(", "), grupoLider ? g.lider : null, hayTema ? g.tema : null].filter((v) => v !== null).join("\t"));
+    try {
+      await navigator.clipboard.writeText([encabezado, ...filas].join("\n"));
+      setAvisoGrupos("Grupos copiados. Puedes pegarlos en Excel o en un documento.");
+    } catch {
+      setAvisoGrupos("No se pudo copiar. Selecciona el texto y cópialo a mano.");
+    }
+  }
+
   const sinElementos = pool.length === 0;
   const hayCambios = pool.length !== activa.items.length || pool.some((v, i) => v !== activa.items[i]) || historial.length > 0;
 
@@ -536,6 +591,7 @@ export function Ruleta({ goHome }) {
           <div className="hr-tabs" role="tablist" aria-label="Secciones de la ruleta">
             <button role="tab" aria-selected={pestana === "ruleta"} className={"hr-tab" + (pestana === "ruleta" ? " on" : "")} onClick={() => setPestana("ruleta")}>🎡 Ruleta</button>
             <button role="tab" aria-selected={pestana === "repartir"} className={"hr-tab" + (pestana === "repartir" ? " on" : "")} onClick={() => setPestana("repartir")}>🎲 Repartir listas</button>
+            <button role="tab" aria-selected={pestana === "grupos"} className={"hr-tab" + (pestana === "grupos" ? " on" : "")} onClick={() => setPestana("grupos")}>👥 Formar grupos</button>
           </div>
           <span className="hr-tools">
             {pestana === "ruleta" && (
@@ -651,6 +707,66 @@ export function Ruleta({ goHome }) {
                   </table>
                 </div>
                 <div className="hr-row"><button className="hr-btn hr-sm" onClick={copiarTabla}>📋 Copiar tabla</button></div>
+              </>
+            )}
+          </section>
+        )}
+
+        {pestana === "grupos" && (
+          <section className="hr-card hr-repartir" aria-label="Formar grupos de trabajo">
+            <h2>Formar grupos de trabajo</h2>
+            <p className="hr-muted">Divide una lista en grupos equilibrados. Opcionalmente asigna un líder y un tema a cada grupo.</p>
+            <div className="hr-reparto-controles">
+              <div>
+                <label className="hr-label" htmlFor="hr-g-lista">Lista de estudiantes</label>
+                <select id="hr-g-lista" value={grupoListaId} onChange={(e) => setGrupoLista(e.target.value)}>
+                  {listas.map((l) => <option key={l.id} value={l.id}>{l.nombre || "Sin nombre"} ({l.items.length})</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="hr-label" htmlFor="hr-g-modo">Dividir por</label>
+                <select id="hr-g-modo" value={grupoModo} onChange={(e) => setGrupoModo(e.target.value)}>
+                  <option value="cantidad">Cantidad de grupos</option>
+                  <option value="tamano">Integrantes por grupo</option>
+                </select>
+              </div>
+              <div>
+                <label className="hr-label" htmlFor="hr-g-num">{grupoModo === "cantidad" ? "¿Cuántos grupos?" : "¿Cuántos por grupo?"}</label>
+                <input id="hr-g-num" type="number" min="1" max="100" value={grupoNum} onChange={(e) => setGrupoNum(e.target.value)} />
+              </div>
+              <div>
+                <label className="hr-label" htmlFor="hr-g-tema">Tema por grupo (opcional)</label>
+                <select id="hr-g-tema" value={grupoTemaId} onChange={(e) => setGrupoTema(e.target.value)}>
+                  <option value="">Sin tema</option>
+                  {listas.filter((l) => l.id !== grupoListaId).map((l) => <option key={l.id} value={l.id}>{l.nombre || "Sin nombre"}</option>)}
+                </select>
+              </div>
+              <button className="hr-btn hr-primary" onClick={formarGrupos}>Formar grupos</button>
+            </div>
+            <label className="hr-check">
+              <input type="checkbox" checked={grupoLider} onChange={(e) => setGrupoLider(e.target.checked)} />
+              Elegir un líder al azar en cada grupo
+            </label>
+            {avisoGrupos && <p className="hr-aviso" role="status">{avisoGrupos}</p>}
+            {grupos && (
+              <>
+                <div className="hr-grupos">
+                  {grupos.map((g) => (
+                    <article key={g.n} className="hr-grupo">
+                      <h3>Grupo {g.n}</h3>
+                      {g.tema && <p className="hr-grupo-tema">📌 {g.tema}</p>}
+                      <ul>
+                        {g.miembros.map((m, i) => (
+                          <li key={i}>{m}{grupoLider && m === g.lider && <span className="hr-lider">líder</span>}</li>
+                        ))}
+                      </ul>
+                    </article>
+                  ))}
+                </div>
+                <div className="hr-row">
+                  <button className="hr-btn hr-sm" onClick={copiarGrupos}>📋 Copiar grupos</button>
+                  <button className="hr-btn hr-sm" onClick={formarGrupos}>🔁 Volver a sortear</button>
+                </div>
               </>
             )}
           </section>

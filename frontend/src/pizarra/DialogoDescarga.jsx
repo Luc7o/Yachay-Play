@@ -75,6 +75,7 @@ export function DialogoDescarga({ vista, nombreInicial, paginas, ocupado, onCanc
 export function muestraFondo(f) {
   const l = "#C3D3E6";
   if (f.id === "cuadro") return { backgroundColor: f.color, backgroundImage: `linear-gradient(${l} 1px,transparent 1px),linear-gradient(90deg,${l} 1px,transparent 1px)` };
+  if (f.id === "puntos") return { backgroundColor: f.color, backgroundImage: "radial-gradient(#8FA6BF 1.2px,transparent 1.6px)", backgroundSize: "8px 8px" };
   if (f.id === "rayas") return { backgroundColor: f.color, backgroundImage: `linear-gradient(${l} 1px,transparent 1px)` };
   if (f.id === "plano") return { backgroundColor: f.color, backgroundImage: `linear-gradient(#334155 0 0),linear-gradient(#334155 0 0),linear-gradient(${l} 1px,transparent 1px),linear-gradient(90deg,${l} 1px,transparent 1px)`, backgroundSize: "100% 2px,2px 100%,8px 8px,8px 8px", backgroundPosition: "0 50%,50% 0,0 0,0 0", backgroundRepeat: "no-repeat,no-repeat,repeat,repeat" };
   return { backgroundColor: f.color };

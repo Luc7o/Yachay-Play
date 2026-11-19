@@ -29,6 +29,20 @@ export const ICONOS = {
   rect: <rect x="4" y="5" width="16" height="14" rx="1" />,
   ellipse: <ellipse cx="12" cy="12" rx="9" ry="6.5" />,
   tri: <path d="M12 4l9 16H3z" />,
+  diamond: <path d="M12 3l9 9-9 9-9-9z" />,
+  imagen: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="9" cy="10" r="1.6" />
+      <path d="M21 16l-5-5-8 8" />
+    </>
+  ),
+  laser: (
+    <>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" />
+    </>
+  ),
   deshacer: (
     <>
       <path d="M3 7v6h6" />

@@ -50,6 +50,7 @@ export function vertices(o) {
   const y1 = Math.min(o.y1, o.y2);
   const y2 = Math.max(o.y1, o.y2);
   if (o.type === "tri") return [[(x1 + x2) / 2, y1], [x2, y2], [x1, y2]];
+  if (o.type === "diamond") return [[(x1 + x2) / 2, y1], [x2, (y1 + y2) / 2], [(x1 + x2) / 2, y2], [x1, (y1 + y2) / 2]];
   return [[x1, y1], [x2, y1], [x2, y2], [x1, y2]]; // rect
 }
 
@@ -69,7 +70,8 @@ export function toca(o, x, y, tol) {
     case "arrow":
       return distSegmento(x, y, o.x1, o.y1, o.x2, o.y2) <= tol + o.w / 2 + 2;
     case "rect":
-    case "tri": {
+    case "tri":
+    case "diamond": {
       const b = cajaDe({ ...o, w: 0 });
       if (o.fill && x >= b.x - tol && x <= b.x + b.w + tol && y >= b.y - tol && y <= b.y + b.h + tol) return true;
       const v = vertices(o);
@@ -89,6 +91,7 @@ export function toca(o, x, y, tol) {
       const m = Math.min(rx, ry);
       return o.fill ? d <= 1 + tol / m : Math.abs(d - 1) * m <= tol + o.w / 2 + 2;
     }
+    case "img":
     case "text": {
       const b = cajaDe(o);
       return x >= b.x - tol && x <= b.x + b.w + tol && y >= b.y - tol && y <= b.y + b.h + tol;

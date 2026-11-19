@@ -17,6 +17,7 @@ import { EVENTO_ABRIR } from "./CronometroMini";
 import { Ruleta } from "./Ruleta";
 import { Pizarra } from "./Pizarra";
 import { Estudio } from "./estudio/Estudio";
+import { Evaluacion } from "./quiz/Evaluacion";
 import { BUILD_VERSION } from "./constants";
 import { ChooserScreen } from "./screens/ChooserScreen";
 import { LoadingScreen } from "./screens/LoadingScreen";
@@ -455,6 +456,16 @@ function App() {
     if (catalogGame === "estudio") {
       return (
         <Estudio
+          user={user}
+          goHome={() => setCatalogGame(null)}
+          onLogin={() => setAuthScreen("login")}
+          onRegister={() => setAuthScreen("register")}
+        />
+      );
+    }
+    if (catalogGame === "evaluacion") {
+      return (
+        <Evaluacion
           user={user}
           goHome={() => setCatalogGame(null)}
           onLogin={() => setAuthScreen("login")}

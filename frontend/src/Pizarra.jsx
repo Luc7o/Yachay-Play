@@ -4,7 +4,7 @@ import { CONFIG, TAU, FORMAS, CON_RELLENO, NOMBRES_HERR, NOMBRES_OBJ, AYUDA } fr
 import { uid, fondoDe, colorReal, hoy, medidaForma } from "./pizarra/utils";
 import { Icono } from "./pizarra/Iconos";
 import { medirTexto, cajaDe, toca, mover, restringir } from "./pizarra/geometria";
-import { dibujarEscena } from "./pizarra/dibujo";
+import { dibujarEscena, ponerAlCargarImagen } from "./pizarra/dibujo";
 import { paginaNueva, cargar } from "./pizarra/estado";
 import { renderPagina, aBlob, bajar, crearPDF } from "./pizarra/exportar";
 import { DialogoDescarga, muestraFondo } from "./pizarra/DialogoDescarga";
@@ -54,6 +54,7 @@ export function Pizarra({ goHome }) {
   const [vivo, setVivo] = useState(""); // lo que se está haciendo ahora mismo
 
   const canvasRef = useRef(null);
+  const archivoRef = useRef(null); // selector de archivos oculto (insertar imagen)
   const stageRef = useRef(null);
   const taRef = useRef(null);
   const rafRef = useRef(0);
@@ -186,6 +187,23 @@ export function Pizarra({ goHome }) {
       ctx.stroke();
       ctx.restore();
     }
+    // puntero láser: un punto rojo que sigue al mouse o al dedo, sin dejar marca
+    if (herrRef.current === "laser" && hv) {
+      const halo = ctx.createRadialGradient(hv.x, hv.y, 0, hv.x, hv.y, 26);
+      halo.addColorStop(0, "rgba(255,40,40,.95)");
+      halo.addColorStop(0.25, "rgba(255,40,40,.55)");
+      halo.addColorStop(1, "rgba(255,40,40,0)");
+      ctx.save();
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(hv.x, hv.y, 26, 0, TAU);
+      ctx.fill();
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.arc(hv.x, hv.y, 3, 0, TAU);
+      ctx.fill();
+      ctx.restore();
+    }
     // medidas de la forma mientras se dibuja
     if (gs && gs.tipo === "forma" && tempRef.current) {
       const t = tempRef.current;
@@ -216,6 +234,10 @@ export function Pizarra({ goHome }) {
     });
   }
   useEffect(pedir); // se vuelve a pintar después de cada cambio
+  useEffect(() => {
+    ponerAlCargarImagen(() => pedir()); // una imagen recién cargada se pinta apenas está lista
+    return () => ponerAlCargarImagen(null);
+  }, []);
 
   useEffect(() => {
     const el = stageRef.current;
@@ -330,6 +352,9 @@ export function Pizarra({ goHome }) {
       setVivo(o ? `${NOMBRES_OBJ[o.type] || "Elemento"} seleccionado` : "");
     } else if (herr === "texto") {
       gestoRef.current = { tipo: "texto", x0: x, y0: y };
+    } else if (herr === "laser") {
+      gestoRef.current = { tipo: "laser" }; // solo señala: no crea ningún objeto
+      setSeleccion(null);
     }
     pedir();
   }
@@ -422,11 +447,11 @@ export function Pizarra({ goHome }) {
   }
   function cambiarColor(c) {
     setColor(c);
-    if (objSel && herr === "mover") aplicar(pagina.objs.map((o) => (o.id === objSel.id ? { ...o, color: colorReal(c, oscuro) } : o)));
+    if (objSel && objSel.type !== "img" && herr === "mover") aplicar(pagina.objs.map((o) => (o.id === objSel.id ? { ...o, color: colorReal(c, oscuro) } : o)));
   }
   function cambiarGrosor(i) {
     setGrosor(i);
-    if (objSel && herr === "mover") {
+    if (objSel && objSel.type !== "img" && herr === "mover") {
       const n = CONFIG.grosores[i];
       aplicar(pagina.objs.map((o) => (o.id === objSel.id ? (o.type === "text" ? { ...o, size: n.t } : { ...o, w: n.w }) : o)));
     }
@@ -529,6 +554,71 @@ export function Pizarra({ goHome }) {
     }
   }
 
+  // ---------------- Imágenes (pegar, arrastrar o elegir un archivo) ----------------
+  // La imagen se reduce a un máximo de 1000 px para que la pizarra siga ligera y se pueda guardar.
+  function leerImagen(archivo) {
+    return new Promise((ok, fallo) => {
+      if (!archivo || !/^image\/(png|jpe?g|gif|webp)$/.test(archivo.type)) return fallo(new Error("tipo"));
+      if (archivo.size > 12 * 1024 * 1024) return fallo(new Error("grande"));
+      const url = URL.createObjectURL(archivo);
+      const im = new Image();
+      im.onload = () => {
+        URL.revokeObjectURL(url);
+        const k = Math.min(1, 1000 / Math.max(im.naturalWidth, im.naturalHeight));
+        const w = Math.max(1, Math.round(im.naturalWidth * k));
+        const h = Math.max(1, Math.round(im.naturalHeight * k));
+        const cv = document.createElement("canvas");
+        cv.width = w;
+        cv.height = h;
+        const cx = cv.getContext("2d");
+        cx.drawImage(im, 0, 0, w, h);
+        let src = cv.toDataURL("image/png");
+        if (src.length > 900000) {
+          // muy pesada (foto): se guarda como JPEG sobre fondo blanco
+          cx.globalCompositeOperation = "destination-over";
+          cx.fillStyle = "#FFFFFF";
+          cx.fillRect(0, 0, w, h);
+          src = cv.toDataURL("image/jpeg", 0.82);
+        }
+        ok({ src, w, h });
+      };
+      im.onerror = () => {
+        URL.revokeObjectURL(url);
+        fallo(new Error("lectura"));
+      };
+      im.src = url;
+    });
+  }
+  async function insertarImagen(archivo) {
+    if (textoRef.current) confirmarTexto();
+    try {
+      const { src, w, h } = await leerImagen(archivo);
+      const c = canvasRef.current;
+      const k = Math.min(1, (c.clientWidth * 0.55) / w, (c.clientHeight * 0.7) / h);
+      const ancho = w * k;
+      const alto = h * k;
+      const x1 = (c.clientWidth - ancho) / 2;
+      const y1 = (c.clientHeight - alto) / 2;
+      const obj = { id: uid(), type: "img", src, color: "#000000", w: 0, x1, y1, x2: x1 + ancho, y2: y1 + alto };
+      aplicar([...pag().objs, obj]);
+      setHerr("mover");
+      setSeleccion(obj.id);
+      avisar("Imagen agregada · arrástrala para moverla y cambia su tamaño con «Imagen +/−»");
+    } catch (e) {
+      avisar(e.message === "tipo" ? "Solo se pueden insertar imágenes PNG, JPG, GIF o WebP." : e.message === "grande" ? "La imagen es muy pesada (máximo 12 MB)." : "No se pudo leer la imagen.");
+    }
+  }
+  function escalarImagen(factor) {
+    if (!objSel || objSel.type !== "img") return;
+    const cx = (objSel.x1 + objSel.x2) / 2;
+    const cy = (objSel.y1 + objSel.y2) / 2;
+    const w = Math.abs(objSel.x2 - objSel.x1) * factor;
+    const h = Math.abs(objSel.y2 - objSel.y1) * factor;
+    const maxW = (canvasRef.current ? canvasRef.current.clientWidth : 1200) * 1.5;
+    if (w < 40 || h < 40 || w > maxW) return;
+    aplicar(pagina.objs.map((o) => (o.id === objSel.id ? { ...o, x1: cx - w / 2, y1: cy - h / 2, x2: cx + w / 2, y2: cy + h / 2 } : o)));
+  }
+
   // Pantalla completa / modo proyección
   const puedePantallaCompleta = typeof document !== "undefined" && !!document.fullscreenEnabled;
   function alternarEnfoque() {
@@ -574,7 +664,7 @@ export function Pizarra({ goHome }) {
 
   // ---------------- Atajos de teclado ----------------
   const accionesRef = useRef({});
-  accionesRef.current = { deshacer, rehacer, borrarSeleccion, elegirHerramienta, setMenu, objSel, abrirDescarga };
+  accionesRef.current = { deshacer, rehacer, borrarSeleccion, elegirHerramienta, setMenu, objSel, abrirDescarga, insertarImagen };
   useEffect(() => {
     const alPulsar = (e) => {
       const t = e.target;
@@ -596,12 +686,27 @@ export function Pizarra({ goHome }) {
       if (e.altKey) return;
       if ((e.key === "Delete" || e.key === "Backspace") && a.objSel) { e.preventDefault(); a.borrarSeleccion(); return; }
       if (e.key === "Escape") { a.setMenu(null); return; }
-      const mapa = { v: "mover", p: "lapiz", h: "marcador", e: "borrador", t: "texto" };
+      const mapa = { v: "mover", p: "lapiz", h: "marcador", e: "borrador", t: "texto", l: "laser" };
       const h = mapa[e.key.toLowerCase()];
       if (h) { e.preventDefault(); a.elegirHerramienta(h); }
     };
     document.addEventListener("keydown", alPulsar);
     return () => document.removeEventListener("keydown", alPulsar);
+  }, []);
+
+  // Ctrl+V con una imagen en el portapapeles (p. ej. una captura de pantalla)
+  useEffect(() => {
+    const alPegar = (e) => {
+      const et = e.target && e.target.tagName;
+      if (et === "INPUT" || et === "TEXTAREA" || dialogoRef.current) return;
+      const f = [...((e.clipboardData && e.clipboardData.files) || [])].find((x) => x.type.startsWith("image/"));
+      if (f) {
+        e.preventDefault();
+        accionesRef.current.insertarImagen(f);
+      }
+    };
+    document.addEventListener("paste", alPegar);
+    return () => document.removeEventListener("paste", alPegar);
   }, []);
 
   // ---------------- Interfaz ----------------
@@ -642,7 +747,18 @@ export function Pizarra({ goHome }) {
         </header>
       )}
 
-      <main className="pz-stage" ref={stageRef}>
+      <main
+        className="pz-stage"
+        ref={stageRef}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          const f = [...e.dataTransfer.files].find((x) => x.type.startsWith("image/"));
+          if (f) {
+            e.preventDefault();
+            insertarImagen(f);
+          }
+        }}
+      >
         <canvas
           ref={canvasRef}
           className={"pz-canvas pz-c-" + herr}
@@ -692,6 +808,19 @@ export function Pizarra({ goHome }) {
           <Btn n="marcador" titulo="Marcador resaltador (H)" activo={herr === "marcador"} onClick={() => elegirHerramienta("marcador")} />
           <Btn n="borrador" titulo="Borrador (E)" activo={herr === "borrador"} onClick={() => elegirHerramienta("borrador")} />
           <Btn n="texto" titulo="Texto (T)" activo={herr === "texto"} onClick={() => elegirHerramienta("texto")} />
+          <Btn n="imagen" titulo="Insertar imagen (también puedes pegarla con Ctrl+V o arrastrarla)" onClick={() => archivoRef.current && archivoRef.current.click()} />
+          <Btn n="laser" titulo="Puntero láser (L)" activo={herr === "laser"} onClick={() => elegirHerramienta("laser")} />
+          <input
+            ref={archivoRef}
+            type="file"
+            accept="image/png,image/jpeg,image/gif,image/webp"
+            hidden
+            onChange={(e) => {
+              const f = e.target.files && e.target.files[0];
+              e.target.value = ""; // permite elegir el mismo archivo otra vez
+              if (f) insertarImagen(f);
+            }}
+          />
           <div className="pz-anchor">
             <Btn n={herr === "forma" ? forma : "formas"} titulo="Formas y flechas" activo={herr === "forma"} onClick={() => setMenu(menu === "formas" ? null : "formas")} />
             {menu === "formas" && (
@@ -711,6 +840,12 @@ export function Pizarra({ goHome }) {
           <div className="pz-panel pz-group">
             <Btn n="deshacer" titulo="Deshacer (Ctrl+Z)" disabled={!hp.undo.length} onClick={deshacer} />
             <Btn n="rehacer" titulo="Rehacer (Ctrl+Y)" disabled={!hp.redo.length} onClick={rehacer} />
+            {objSel && objSel.type === "img" && (
+              <>
+                <button className="pz-btn pz-txt" title="Reducir la imagen" onClick={() => escalarImagen(0.85)}>Imagen −</button>
+                <button className="pz-btn pz-txt" title="Agrandar la imagen" onClick={() => escalarImagen(1.18)}>Imagen +</button>
+              </>
+            )}
             {objSel && <Btn n="basura" titulo="Borrar lo seleccionado (Supr)" onClick={borrarSeleccion} />}
             <button className="pz-btn pz-txt" title="Limpiar toda la página (se puede deshacer)" disabled={!pagina.objs.length} onClick={limpiarPagina}>Limpiar</button>
           </div>
@@ -745,7 +880,7 @@ export function Pizarra({ goHome }) {
         <div className={"pz-estado" + (vivo ? " pz-vivo-on" : "")} aria-live="polite">
           <Icono n={herr === "forma" ? forma : herr} size={16} />
           <b>{NOMBRES_HERR[herr]}{herr === "forma" ? ": " + formaActual.nombre : ""}</b>
-          {herr !== "mover" && herr !== "borrador" && (
+          {herr !== "mover" && herr !== "borrador" && herr !== "laser" && (
             <>
               <i className="pz-dot" style={{ background: colorReal(colorMostrado, oscuro) }} />
               <span>{g.nombre}</span>

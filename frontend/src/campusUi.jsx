@@ -3,15 +3,18 @@ import React, { useState } from "react";
 // ============================================================================
 // PIEZAS COMPARTIDAS DEL DISEÑO "CAMPUS" (ver campus.css)
 // Íconos de trazo (sin emojis), la marca y el botón de tema claro/oscuro.
+// Logo "Tocapu": la Y escalonada de los textiles andinos (tocapus). Sus colores salen de
+// --cp-logo-bg / --cp-logo-fg (campus.css), así se adapta a claro, oscuro y proyección.
 // ============================================================================
 
 const trazo = { fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" };
 
 export const Icono = {
   marca: () => (
-    <svg viewBox="0 0 26 26" aria-hidden="true">
-      <path d="M9 1h8v8h8v8h-8v8H9v-8H1V9h8z" fill="none" stroke="currentColor" strokeWidth="2" />
-      <rect x="11" y="11" width="4" height="4" fill="currentColor" />
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="1" y="1" width="30" height="30" rx="8" fill="var(--cp-logo-bg)" />
+      <path d="M8 9h4v4h4v4h4v-4h4V9" fill="none" stroke="var(--cp-logo-fg)" strokeWidth="2.6" strokeLinejoin="round" />
+      <path d="M16 17v7" stroke="var(--cp-logo-fg)" strokeWidth="2.6" strokeLinecap="round" />
     </svg>
   ),
   check: () => <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9.5l4 4 8-9" {...trazo} strokeWidth="2" /></svg>,

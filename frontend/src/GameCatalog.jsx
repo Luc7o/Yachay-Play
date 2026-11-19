@@ -359,6 +359,7 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
 
           {/* Muestra del producto (ilustrativa) */}
           <div className="cp-hero-art" aria-hidden="true">
+            <img className="cp-condor cp-hero-condor" src="/condor-512.png" alt="" width="512" height="512" />
             <div className="cp-card cp-demo">
               <div className="cp-demo-head">
                 <div>

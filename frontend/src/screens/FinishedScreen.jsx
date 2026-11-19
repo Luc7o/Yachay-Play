@@ -35,7 +35,8 @@ export function FinishedScreen({ teams, gameName, winner, activeTeams = TURN_ORD
       </header>
 
       <main className="proj-main fin-main">
-        <section className="cp-card fin-hero" style={{ "--tc": campeon.hex }}>
+        <section className="cp-card fin-hero con-condor" style={{ "--tc": campeon.hex }}>
+          <img className={"cp-condor fin-condor" + (miResultado && !miResultado.gane ? " casi" : "")} src="/condor-512.png" alt="" aria-hidden="true" width="512" height="512" />
           <span className="cp-eyebrow">Resultados finales</span>
           <h1>
             {miResultado

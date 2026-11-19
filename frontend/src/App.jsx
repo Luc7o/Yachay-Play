@@ -10,6 +10,7 @@ import { cronometro } from "./cronometroStore";
 import { EVENTO_ABRIR } from "./CronometroMini";
 import { BUILD_VERSION } from "./constants";
 import { setClaseDestino, limpiarClaseDestino } from "./claseDestino";
+import { Marca } from "./campusUi";
 import { ChooserScreen } from "./screens/ChooserScreen";
 import { LoadingScreen } from "./screens/LoadingScreen";
 import { FinishedScreen } from "./screens/FinishedScreen";
@@ -395,8 +396,8 @@ function App() {
   // Mientras se valida la sesión guardada mostramos una pantalla de carga breve
   if (!authReady) {
     return (
-      <div className="app splash">
-        <img src="/logo-aula.png" alt="YachayPlay" />
+      <div className="cp app splash cp-splash" role="status" aria-label="Cargando YachayPlay">
+        <Marca />
       </div>
     );
   }

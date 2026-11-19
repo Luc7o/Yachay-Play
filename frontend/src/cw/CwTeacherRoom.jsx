@@ -152,7 +152,8 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
         </div>
       </Barra>
       <main className="proj-main cwr-main">
-        <section className="cp-card fin-hero" style={{ "--tc": "#3DD6B8" }}>
+        <section className="cp-card fin-hero con-condor" style={{ "--tc": "#8FA0F0" }}>
+          <img className="cp-condor fin-condor" src="/condor-512.png" alt="" aria-hidden="true" width="512" height="512" />
           <span className="cp-eyebrow">Resultados · {motivo}</span>
           <h1>{ganador ? <>Ganó {ganador.name}</> : "Terminó sin ganador"}</h1>
           <p>

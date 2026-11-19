@@ -211,7 +211,8 @@ function Lista({ user, onAbrir, onEntrar }) {
         {clases === null ? (
           <p className="cp-muted">Cargando…</p>
         ) : clases.length === 0 ? (
-          <div className="cp-card cp-panel cp-empty">
+          <div className="cp-card cp-panel cp-empty con-condor">
+            <img className="cp-condor" src="/condor-256.png" alt="" aria-hidden="true" width="256" height="256" />
             <p>{esDocente ? "Todavía no tienes clases. Crea la primera para compartir su código con tus estudiantes." : "Aún no estás inscrito en ninguna clase."}</p>
           </div>
         ) : (

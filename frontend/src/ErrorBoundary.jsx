@@ -70,5 +70,5 @@ const styles = {
   h1: { margin: "10px 0", color: "#b91c1c" },
   p: { color: "#475569", fontSize: 13, lineHeight: 1.6 },
   pre: { background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: 12, fontSize: 11, color: "#991b1b", textAlign: "left", overflowX: "auto", margin: "14px 0" },
-  btn: { border: 0, borderRadius: 9, background: "#00796f", color: "#fff", padding: "12px 18px", fontWeight: 800, cursor: "pointer" },
+  btn: { border: 0, borderRadius: 9, background: "#1E2A5A", color: "#fff", padding: "12px 18px", fontWeight: 800, cursor: "pointer" },
 };

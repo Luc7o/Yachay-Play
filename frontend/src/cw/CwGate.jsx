@@ -24,10 +24,6 @@ export function CwGate({ onLogin, onRegister, onGuest, onBack }) {
         { value: "3–20", label: "minutos de duración" },
         { value: "3", label: "sabotajes para usar" },
       ]}
-      mascot={{
-        src: "/mascota-gana.png",
-        alt: "Mascota de YachayPlay, un dragón andino con chullo, celebrando con un trofeo",
-      }}
       preview={<CrosswordPreview />}
       loginPoints={[
         "Los docentes crean el crucigrama y proyectan el código",

@@ -197,7 +197,7 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
 
         {lista.length === 0 ? (
           <div className="es-empty">
-            <img src="/mascota-explica.png" alt="" />
+            <img src="/condor-256.png" alt="" />
             <p>Esperando a los estudiantes…<br />Cuando entren, verás aquí sus presentaciones en vivo.</p>
           </div>
         ) : (

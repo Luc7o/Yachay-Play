@@ -11,7 +11,7 @@ import { api, getToken } from "./api";
 // el evento "yachay-auth-changed".
 // ============================================================================
 // Diseño "Campus": sin mascota; un ícono de trazo en el botón y en los mensajes.
-// (Las imágenes /asistente-cabeza.png y /asistente-cuerpo.jpg siguen en public/ por si se quieren volver a usar.)
+// (La mascota actual es el cóndor, /condor-*.png; aquí no se usa.)
 const IconoIA = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M4 5h16v11H9l-5 4z" />

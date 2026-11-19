@@ -404,5 +404,7 @@
 }
 @media (prefers-reduced-motion:reduce){.fin-condor{animation:none}}
 /* En fondos oscuros el contorno añil se pierde: borde crema tipo sticker */
-:root[data-theme="dark"] .cp-condor,.cp-proj .cp-condor{filter:drop-shadow(1.5px 0 0 #F7EFE2) drop-shadow(-1.5px 0 0 #F7EFE2) drop-shadow(0 1.5px 0 #F7EFE2) drop-shadow(0 -1.5px 0 #F7EFE2) drop-shadow(0 10px 18px rgb(0 0 0 / .35))}
+:root[data-theme="dark"] .cp-condor,.cp-proj .cp-condor,:root[data-theme="dark"] .hr-mascot,:root[data-theme="dark"] .hr-lateral-mascota,:root[data-theme="dark"] .es-empty img{filter:drop-shadow(1.5px 0 0 #F7EFE2) drop-shadow(-1.5px 0 0 #F7EFE2) drop-shadow(0 1.5px 0 #F7EFE2) drop-shadow(0 -1.5px 0 #F7EFE2) drop-shadow(0 10px 18px rgb(0 0 0 / .35))}
 :root[data-theme="dark"] .fin-condor.casi,.cp-proj .fin-condor.casi{filter:saturate(.75) drop-shadow(1.5px 0 0 #F7EFE2) drop-shadow(-1.5px 0 0 #F7EFE2) drop-shadow(0 1.5px 0 #F7EFE2) drop-shadow(0 -1.5px 0 #F7EFE2)}
+.hr-icon-condor{display:block;width:22px;height:22px;pointer-events:none}
+.hr-icon[aria-pressed="false"] .hr-icon-condor{filter:grayscale(1);opacity:.55}

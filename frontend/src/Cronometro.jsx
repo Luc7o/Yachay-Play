@@ -21,10 +21,10 @@ import "./herramientas.css";
 const CONFIG = {
   // Imagen de la mascota según el estado (rutas dentro de frontend/public/)
   mascota: {
-    normal: "/mascota-explica.png",
-    aviso: "/mascota-explica.png", // queda el 30 % o menos
-    urgente: "/mascota-explica.png", // queda el 10 % o menos
-    fin: "/mascota-gana.png", // terminó el tiempo
+    normal: "/condor-256.png",
+    aviso: "/condor-256.png", // queda el 30 % o menos
+    urgente: "/condor-256.png", // queda el 10 % o menos
+    fin: "/condor-256.png", // terminó el tiempo
   },
   avisoEn: 0.3, // el fondo se pone amarillo cuando queda el 30 % o menos
   urgenteEn: 0.1, // y rojo cuando queda el 10 % o menos
@@ -474,7 +474,7 @@ export function Cronometro({ goHome }) {
                 onClick={() => { prepararAudio(); setSonido(!sonido); if (!sonido) nota(880, 0, 0.12, 0.3); }}>
                 {sonido ? "🔊" : "🔇"}
               </button>
-              <button className="hr-icon" aria-pressed={mascota} aria-label="Mostrar mascota" title="Mostrar u ocultar la mascota (M)" onClick={() => setMascota(!mascota)}>🐉</button>
+              <button className="hr-icon" aria-pressed={mascota} aria-label="Mostrar mascota" title="Mostrar u ocultar la mascota (M)" onClick={() => setMascota(!mascota)}><img className="hr-icon-condor" src="/condor-256.png" alt="" width="22" height="22" /></button>
               {puedePantallaCompleta && (
                 <button className="hr-icon" aria-pressed={pantallaCompleta} aria-label="Pantalla completa" title="Pantalla completa (F)" onClick={alternarPantallaCompleta}>⛶</button>
               )}

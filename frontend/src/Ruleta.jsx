@@ -16,15 +16,15 @@ import "./herramientas.css";
 
 const CONFIG = {
   // Imágenes de la mascota (rutas dentro de frontend/public/)
-  mascota: { espera: "/mascota-explica.png", ganador: "/mascota-gana.png" },
+  mascota: { espera: "/condor-256.png", ganador: "/condor-256.png" },
 
   // Colores de los segmentos: tonos suaves de la paleta de la marca. El color del
   // texto (blanco u oscuro) se elige solo para que siempre se lea bien.
-  paleta: ["#00796F", "#A3F3DB", "#347BEA", "#EAF8F5", "#00A99A", "#A7F1DC", "#1A75C9", "#62E9C6"],
-  textoOscuro: "#0B2A31",
-  aro: "#143841", // borde exterior de la ruleta
-  centro: "#143841",
-  flecha: "#F5B700",
+  paleta: ["#1E2A5A", "#F3E3CF", "#C2502D", "#C9D0F0", "#3D52A0", "#F6C3A8", "#8A3A1E", "#F2D49A"],
+  textoOscuro: "#161A2E",
+  aro: "#1E2A5A", // borde exterior de la ruleta
+  centro: "#1E2A5A",
+  flecha: "#E07A4F",
 
   segundosDeGiro: 5,
   maxElementos: 300, // límite por lista, para que la ruleta siga legible
@@ -168,7 +168,7 @@ export function dibujarRuleta(canvas, items, giro, resaltado) {
   if (n === 0) {
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, TAU);
-    ctx.fillStyle = "#E6EEF7";
+    ctx.fillStyle = "#EFEDE7";
     ctx.fill();
     ctx.fillStyle = CONFIG.aro;
     ctx.textAlign = "center";
@@ -597,7 +597,7 @@ export function Ruleta({ goHome }) {
             {pestana === "ruleta" && (
               <button className="hr-icon" aria-pressed={soloRuleta} aria-label="Ocultar listas" title={soloRuleta ? "Mostrar listas" : "Ocultar listas (ruleta más grande)"} onClick={() => setSoloRuleta(!soloRuleta)}>◧</button>
             )}
-            <button className="hr-icon" aria-pressed={mascota} aria-label="Mostrar mascota" title="Mostrar u ocultar la mascota" onClick={() => setMascota(!mascota)}>🐉</button>
+            <button className="hr-icon" aria-pressed={mascota} aria-label="Mostrar mascota" title="Mostrar u ocultar la mascota" onClick={() => setMascota(!mascota)}><img className="hr-icon-condor" src="/condor-256.png" alt="" width="22" height="22" /></button>
             <button className="hr-icon" aria-pressed={sonido} aria-label="Sonido" title={sonido ? "Sonido activado" : "Sonido apagado"} onClick={() => { prepararAudio(); setSonido(!sonido); }}>{sonido ? "🔊" : "🔇"}</button>
           </span>
         </div>

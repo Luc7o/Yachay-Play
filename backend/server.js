@@ -3,6 +3,7 @@ import express from "express";
 import "./env.js"; // carga backend/.env antes que cualquier otro módulo
 import cors from "cors";
 import http from "http";
+import crypto from "node:crypto";
 import { Server } from "socket.io";
 import { nanoid, customAlphabet } from "nanoid";
 import db from "./db.js";
@@ -11,7 +12,7 @@ import { statsRouter } from "./stats.js";
 import { profileRouter } from "./profile.js";
 import { GOAL_STEP, SAFE_INDEXES, ringIndexForStep } from "./board.js";
 import { authRouter, authOptional, requireTeacher } from "./auth.js";
-import { userFromToken } from "./authCore.js";
+import { userFromToken, getAuthSecret } from "./authCore.js";
 import { seedDemoUsers } from "./seed.js";
 import { crosswordRouter } from "./crossword/routes.js";
 import { restoreCrosswordRooms } from "./crossword/persist.js";
@@ -48,7 +49,11 @@ function persistFinish(game, reason) {
 process.on("unhandledRejection", (e) => console.error("Promesa sin manejar:", e));
 
 const app = express();
-app.set("trust proxy", 1); // detrás de un proxy (Render, Railway...) req.ip debe ser la IP real
+// Cuántos proxies hay delante (Render/Railway/Fly: 1; Cloudflare + Render: 2; ninguno: 0).
+// Si el número no coincide, req.ip sale mal: o se puede falsificar con X-Forwarded-For
+// (y saltarse los límites por IP) o todos los usuarios comparten la IP del proxy.
+const PROXIES = Number.parseInt(process.env.TRUST_PROXY ?? "1", 10);
+app.set("trust proxy", Number.isInteger(PROXIES) && PROXIES >= 0 ? PROXIES : 1);
 const ORIGENES = (process.env.CORS_ORIGIN || "").split(",").map((o) => o.trim()).filter(Boolean);
 // Avisos de configuración insegura o incompleta (solo en producción).
 if (process.env.NODE_ENV === "production") {
@@ -191,6 +196,20 @@ startSlidesCleanup();
 const cuentasNuevas = await seedDemoUsers();
 if (cuentasNuevas.length) console.log(`Cuentas de prueba creadas: ${cuentasNuevas.join(", ")}`);
 
+// Llave privada de cada jugador de Ludo. Los ids de los jugadores son públicos
+// (salen en el estado de la partida), así que para actuar por un jugador hay
+// que presentar esta llave, que solo recibe quien se unió con /join.
+// Es un HMAC del id: no hay que guardarla y sigue sirviendo tras reiniciar el servidor.
+function llaveJugador(playerId) {
+  return crypto.createHmac("sha256", getAuthSecret()).update(`ludo-player:${playerId}`).digest("base64url");
+}
+function llaveValida(playerId, llave) {
+  if (typeof playerId !== "string" || typeof llave !== "string") return false;
+  const a = Buffer.from(llave);
+  const b = Buffer.from(llaveJugador(playerId));
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
 function publicState(game) {
   const { currentQuestion, ownerId, createdAt, ...rest } = game; // no exponemos el id del docente
   return {
@@ -314,6 +333,14 @@ app.post("/api/games/:code/join", async (req, res) => {
     return res.status(400).json({ error: "El equipo ya está completo" });
   }
 
+  // Una cuenta = un lugar por partida: si ya se unió (p. ej. desde otro celular),
+  // recupera su mismo jugador en vez de crear otro (evita inflar el ranking).
+  if (req.user?.id) {
+    const previo = await db.prepare("SELECT id FROM players WHERE game_id = ? AND user_id = ? LIMIT 1").get(game.id, req.user.id);
+    const enMemoria = previo && game.players.find((p) => p.id === previo.id);
+    if (enMemoria) return res.json({ playerId: enMemoria.id, playerKey: llaveJugador(enMemoria.id), code: game.code, team: enMemoria.team });
+  }
+
   const playerId = nanoid();
   try {
     await db.prepare("INSERT INTO players (id, game_id, team, name, user_id) VALUES (?,?,?,?,?)").run(playerId, game.id, team, name, req.user?.id || null);
@@ -330,7 +357,7 @@ app.post("/api/games/:code/join", async (req, res) => {
   game.positions[playerId] = -1;
 
   broadcast(game.code);
-  res.json({ playerId, code: game.code });
+  res.json({ playerId, playerKey: llaveJugador(playerId), code: game.code });
 });
 
 // Preguntas disponibles (sin la respuesta correcta): oficiales + las del docente si hay sesión.
@@ -369,10 +396,35 @@ function rollDice(game, code, lanzadoPor) {
   broadcast(code);
 }
 
+// Orden barajado de preguntas por partida. Antes salían siempre en el mismo orden
+// (ORDER BY id), así que quien ya había jugado se sabía las respuestas.
+// Va en un WeakMap, fuera de `game`, para que no viaje en publicState.
+const ordenPreguntas = new WeakMap(); // game -> { ids: [...], i }
+function siguientePregunta(game) {
+  const pool = poolFor(game.ownerId);
+  if (!pool.length) return null;
+  let o = ordenPreguntas.get(game);
+  if (!o || o.i >= o.ids.length) {
+    const ids = pool.map((q) => q.id);
+    for (let i = ids.length - 1; i > 0; i--) {
+      const j = crypto.randomInt(i + 1);
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+    }
+    o = { ids, i: 0 };
+    ordenPreguntas.set(game, o);
+  }
+  // Si el docente borró una pregunta a mitad de partida, se salta.
+  while (o.i < o.ids.length) {
+    const q = pool.find((x) => x.id === o.ids[o.i++]);
+    if (q) return q;
+  }
+  ordenPreguntas.delete(game);
+  return siguientePregunta(game);
+}
+
 /** Muestra la pregunta del turno. */
 function startQuestion(game, code) {
-  const pool = poolFor(game.ownerId);
-  game.currentQuestion = pool[(game.turnCounter - 1) % pool.length];
+  game.currentQuestion = siguientePregunta(game);
   game.lastResult = null;
   setPhase(game, "question", game.answerTimeLimit);
   broadcast(code);
@@ -455,6 +507,9 @@ io.on("connection", (socket) => {
   socket.on("engineer:start-game", ({ code }) => {
     const game = teacherGame(socket, code);
     if (!game) return;
+    // Solo desde la sala de espera: si no, se reiniciaría el turno a mitad de partida
+    // o se reabriría una partida ya terminada.
+    if (game.phase !== "lobby") return;
     game.phase = "playing";
     // El primer turno lo toma el primer equipo elegible.
     game.currentTeamIndex = TEAM_COLORS.indexOf(eligibleTeams(game)[0]);
@@ -504,9 +559,10 @@ io.on("connection", (socket) => {
   // ------------------------------------------------------------------
   // EL ALUMNO LANZA EL DADO desde su celular
   // ------------------------------------------------------------------
-  socket.on("player:roll-dice", ({ code, playerId }) => {
+  socket.on("player:roll-dice", ({ code, playerId, playerKey }) => {
     const game = games.get(code);
     if (!game || game.phase !== "playing" || game.turnPhase !== "roll") return;
+    if (!llaveValida(playerId, playerKey)) return socket.emit("error-message", "Vuelve a unirte a la partida para poder jugar.");
 
     const player = game.players.find((p) => p.id === playerId);
     if (!player || player.team !== TEAM_COLORS[game.currentTeamIndex]) return;
@@ -515,9 +571,11 @@ io.on("connection", (socket) => {
   });
 
   // Cualquier estudiante del equipo en turno puede responder; vale la primera respuesta
-  socket.on("team:answer", ({ code, playerId, optionIndex }) => {
+  socket.on("team:answer", ({ code, playerId, playerKey, optionIndex }) => {
     const game = games.get(code);
-    if (!game || game.turnPhase !== "question" || !game.currentQuestion) return;
+    if (!game || game.phase !== "playing" || game.turnPhase !== "question" || !game.currentQuestion) return;
+    if (!llaveValida(playerId, playerKey)) return socket.emit("error-message", "Vuelve a unirte a la partida para poder jugar.");
+    if (!Number.isInteger(optionIndex)) return;
 
     const currentTeam = TEAM_COLORS[game.currentTeamIndex];
     const player = game.players.find((p) => p.id === playerId);
@@ -535,10 +593,11 @@ io.on("connection", (socket) => {
 
   socket.on("engineer:end-game", ({ code }) => {
     const game = teacherGame(socket, code);
-    if (!game) return;
+    if (!game || game.phase === "finished") return;
     game.phase = "finished";
     game.timerRunning = false;
     game.awaitingAnswer = false;
+    game.currentQuestion = null;
     persistFinish(game, "teacher");
     broadcast(code);
   });
@@ -554,6 +613,7 @@ io.on("connection", (socket) => {
     game.timerSeconds = game.durationMinutes * 60;
     game.timerRunning = false;
     game.currentQuestion = null;
+    ordenPreguntas.delete(game); // la nueva ronda baraja otra vez
     game.lastDice = null;
     game.rolledBy = null;
     game.lastResult = null;
@@ -701,6 +761,7 @@ setInterval(() => {
       if (game.timerSeconds === 0) {
         game.timerRunning = false;
         game.phase = "finished";
+        game.currentQuestion = null;
         persistFinish(game, "time");
         broadcast(code);
         return;

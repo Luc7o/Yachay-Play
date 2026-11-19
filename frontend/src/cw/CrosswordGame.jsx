@@ -78,7 +78,7 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
     if (!guardado || view !== "student-join") return;
     socket.emit(
       "cw:join-room",
-      { code: guardado.code, playerId: guardado.playerId, name: user?.name || "" },
+      { code: guardado.code, playerId: guardado.playerId, secret: guardado.secret, name: user?.name || "" },
       (ack) => {
         if (ack?.ok) {
           setMyId(ack.playerId);
@@ -92,6 +92,30 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // --- volver a entrar a la sala si se corta la red (celular bloqueado, cambio de Wi-Fi...) ---
+  // Al reconectar, el servidor ve un socket nuevo que no está en ninguna sala.
+  const viewRef = useRef(view);
+  viewRef.current = view;
+  useEffect(() => {
+    function onReconnect() {
+      const v = viewRef.current;
+      if (v === "student-room") {
+        const guardado = loadJSON(LS_STUDENT);
+        if (!guardado) return;
+        socket.emit(
+          "cw:join-room",
+          { code: guardado.code, playerId: guardado.playerId, secret: guardado.secret, name: user?.name || "" },
+          (ack) => ack?.ok && setLive(ack.state)
+        );
+      } else if (v === "teacher-room") {
+        const codigo = loadJSON(LS_TEACHER);
+        if (codigo) socket.emit("cw:watch-room", { code: codigo }, (ack) => ack?.ok && setLive(ack.state));
+      }
+    }
+    socket.on("connect", onReconnect);
+    return () => socket.off("connect", onReconnect);
+  }, [user]);
 
   // --- escuchar el estado en vivo del servidor ---
   useEffect(() => {
@@ -212,7 +236,7 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
             if (ack?.ok) {
               setMyId(ack.playerId);
               setCode(codigo);
-              saveJSON(LS_STUDENT, { code: codigo, playerId: ack.playerId });
+              saveJSON(LS_STUDENT, { code: codigo, playerId: ack.playerId, secret: ack.secret });
               setLive(ack.state);
               setView("student-room");
             } else setError(ack?.error || "No se pudo unir a la partida.");

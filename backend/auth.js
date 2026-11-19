@@ -66,6 +66,11 @@ function crearLimite(max, ventanaMs) {
       a.n += 1;
       return a.n > max;
     },
+    // Solo consulta si ya se llegó al tope, sin sumar un intento.
+    lleno: (clave) => {
+      const a = mapa.get(clave);
+      return !!a && Date.now() - a.inicio <= ventanaMs && a.n >= max;
+    },
     reiniciar: (clave) => mapa.delete(clave),
   };
 }
@@ -120,11 +125,17 @@ authRouter.post("/login", ruta(async (req, res) => {
   const email = String(req.body?.email || "").trim().toLowerCase();
   const password = String(req.body?.password || "");
   if (password.length > 200) return res.status(401).json({ error: "Correo o contraseña incorrectos." }); // evita gastar CPU con textos enormes
-  if (limLogin.excedido(`${req.ip}|${email}`) || limLoginCorreo.excedido(email)) return res.status(429).json({ error: MSG_LIMITE });
+  // Por correo solo se MIRA el contador aquí (sin sumar): suma únicamente cuando la
+  // contraseña falla. Así un intento correcto del dueño no gasta cupo, y quien solo
+  // conoce el correo necesita 30 fallos reales para bloquearlo, no 30 peticiones cualesquiera.
+  if (limLogin.excedido(`${req.ip}|${email}`) || limLoginCorreo.lleno(email)) return res.status(429).json({ error: MSG_LIMITE });
   const user = await findUserByEmail(email);
   // Siempre verificamos un hash (aunque el correo no exista) para no delatar qué correos están registrados.
   const ok = await verifyPassword(password, user ? user.password_hash : DUMMY_HASH);
-  if (!user || !ok) return res.status(401).json({ error: "Correo o contraseña incorrectos." });
+  if (!user || !ok) {
+    limLoginCorreo.excedido(email); // cuenta el fallo
+    return res.status(401).json({ error: "Correo o contraseña incorrectos." });
+  }
   limLogin.reiniciar(`${req.ip}|${email}`);
   limLoginCorreo.reiniciar(email);
   await upgradeHashIfNeeded(user, password); // si el hash era de la versión anterior, se re-guarda con los parámetros nuevos
@@ -226,7 +237,13 @@ authRouter.post("/reset", ruta(async (req, res) => {
 
 // ------------------------------ verificación en dos pasos (2FA) ------------------------------
 authRouter.post("/2fa/setup", requireSession, ruta(async (req, res) => {
+  if (limDosPasos.excedido(req.user.id)) return res.status(429).json({ error: MSG_LIMITE });
   if (req.user.totp_enabled) return res.status(400).json({ error: "La verificación en dos pasos ya está activada." });
+  // Volver a pedir la contraseña: si no, con un token robado se podría activar el 2FA,
+  // quedarse con los códigos de recuperación y dejar fuera al dueño para siempre.
+  if (req.user.password_hash !== "google" && !(await verifyPassword(String(req.body?.password || ""), req.user.password_hash))) {
+    return res.status(401).json({ error: "La contraseña no es correcta." });
+  }
   const secreto = nuevoSecreto();
   await db.prepare("UPDATE users SET totp_secret = ?, totp_last_step = NULL WHERE id = ?").run(cifrar(secreto), req.user.id);
   const otpauth = urlOtpauth(req.user.email, secreto);

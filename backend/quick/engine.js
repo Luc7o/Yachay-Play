@@ -153,9 +153,11 @@ export function tick(room) {
 }
 
 // ------------------------------ vistas públicas ------------------------------
+// Solo cuentan las preguntas ya cerradas (points != null): si contara la que sigue
+// abierta, el puesto delataría si la opción marcada es la correcta.
 function ranking(room) {
   return [...room.players.values()]
-    .map((p) => ({ id: p.id, name: p.name, score: p.score, correct: Object.entries(p.answers).filter(([i, a]) => a.choice === room.questions[i]?.correct).length }))
+    .map((p) => ({ id: p.id, name: p.name, score: p.score, correct: Object.entries(p.answers).filter(([i, a]) => a.points != null && a.choice === room.questions[i]?.correct).length }))
     .sort((a, b) => b.score - a.score || b.correct - a.correct || a.name.localeCompare(b.name))
     .map((r, i) => ({ ...r, rank: i + 1 }));
 }

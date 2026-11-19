@@ -93,6 +93,8 @@ function App() {
   const [studentName, setStudentName] = useState("");
   const [studentTeam, setStudentTeam] = useState("rojo");
   const [playerId, setPlayerId] = useState(() => localStorage.getItem("ludo_player_id") || null);
+  // Llave privada que da el servidor al unirse: sin ella no se puede tirar el dado ni responder.
+  const [playerKey, setPlayerKey] = useState(() => localStorage.getItem("ludo_player_key") || null);
   const [studentGameCode, setStudentGameCode] = useState(() => localStorage.getItem("ludo_game_code") || "");
   const [joinError, setJoinError] = useState("");
   const [gameInfo, setGameInfo] = useState(null); // datos de la partida antes de unirse
@@ -183,8 +185,14 @@ function App() {
   }, []);
 
   // Unirse a la sala de socket cada vez que tengamos un código de partida
+  // y otra vez cada vez que el socket se reconecta (celular bloqueado, cambio de red...):
+  // el socket nuevo no está en ninguna sala y la partida se vería congelada.
   useEffect(() => {
-    if (gameCode) socket.emit("join-room", { code: gameCode });
+    if (!gameCode) return;
+    const entrar = () => socket.emit("join-room", { code: gameCode });
+    entrar();
+    socket.on("connect", entrar);
+    return () => socket.off("connect", entrar);
   }, [gameCode]);
 
   // Cuando el alumno termina de escribir el código, buscamos la partida para
@@ -223,11 +231,13 @@ function App() {
   function clearGameSession() {
     localStorage.removeItem("ludo_mode");
     localStorage.removeItem("ludo_player_id");
+    localStorage.removeItem("ludo_player_key");
     localStorage.removeItem("ludo_game_code");
     localStorage.removeItem("ludo_engineer_code");
     setMode(null);
     setServerState(null);
     setPlayerId(null);
+    setPlayerKey(null);
     setStudentGameCode("");
     setEngineerGameCode("");
   }
@@ -296,8 +306,10 @@ function App() {
   async function submitJoin() {
     setJoinError("");
     try {
-      const { playerId: pid } = await api.joinGame(joinCode.trim(), studentName.trim(), studentTeam);
+      const { playerId: pid, playerKey: llave } = await api.joinGame(joinCode.trim(), studentName.trim(), studentTeam);
       setPlayerId(pid);
+      setPlayerKey(llave);
+      localStorage.setItem("ludo_player_key", llave);
       setStudentGameCode(joinCode.trim());
       localStorage.setItem("ludo_player_id", pid);
       localStorage.setItem("ludo_game_code", joinCode.trim());
@@ -319,7 +331,7 @@ function App() {
   }
   // El ALUMNO lanza el dado desde su celular
   function playerRollDice() {
-    socket.emit("player:roll-dice", { code: gameCode, playerId });
+    socket.emit("player:roll-dice", { code: gameCode, playerId, playerKey });
   }
   function endGame() {
     socket.emit("engineer:end-game", { code: gameCode });
@@ -351,7 +363,7 @@ function App() {
   function submitAnswer(index) {
     if (selected !== null || !playerId) return;
     setSelected(index);
-    socket.emit("team:answer", { code: gameCode, playerId, optionIndex: index });
+    socket.emit("team:answer", { code: gameCode, playerId, playerKey, optionIndex: index });
   }
 
   const connectedByTeam = useMemo(() => {

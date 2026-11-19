@@ -25,18 +25,20 @@ function requireUser(req, res, next) {
 profileRouter.use(requireUser);
 
 // ----------------------------- ranking -----------------------------
+// COUNT(DISTINCT g.id): una misma cuenta unida varias veces a la misma partida
+// cuenta como UNA partida jugada (y una sola victoria), no N.
 async function filasRanking() {
   const filas = await db
     .prepare(
       `WITH ludo AS (
-         SELECT p.user_id, COUNT(*)::int AS played,
-                COUNT(*) FILTER (WHERE g.winner_team = p.team)::int AS won
+         SELECT p.user_id, COUNT(DISTINCT g.id)::int AS played,
+                COUNT(DISTINCT g.id) FILTER (WHERE g.winner_team = p.team)::int AS won
            FROM players p JOIN games g ON g.id = p.game_id
           WHERE p.user_id IS NOT NULL AND g.phase = 'finished'
           GROUP BY p.user_id),
        cw AS (
-         SELECT p.user_id, COUNT(*)::int AS played,
-                COUNT(*) FILTER (WHERE g.winner_player_id = p.id)::int AS won
+         SELECT p.user_id, COUNT(DISTINCT g.id)::int AS played,
+                COUNT(DISTINCT g.id) FILTER (WHERE g.winner_player_id = p.id)::int AS won
            FROM crossword_players p JOIN crossword_games g ON g.id = p.game_id
           WHERE p.user_id IS NOT NULL AND g.status = 'ended'
           GROUP BY p.user_id)
@@ -90,7 +92,9 @@ function logros({ played, won, correct, incorrect, cwBest, jugoLudo, jugoCw }) {
 // ----------------------------- perfil -----------------------------
 profileRouter.get("/", async (req, res) => {
   try {
-    const u = await db.prepare("SELECT id, name, email, role, created_at FROM users WHERE id = ?").get(req.user.id);
+    // SELECT * (vía findUserById): publicUser necesita totp_enabled, email_verified_at y
+    // password_hash para calcular sus banderas; con solo 5 columnas salían siempre falsas.
+    const u = await findUserById(req.user.id);
     const base = { user: { ...publicUser(u), created_at: u.created_at } };
 
     if (u.role === "docente") {

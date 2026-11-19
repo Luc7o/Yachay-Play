@@ -85,6 +85,20 @@ export function joinStudent(room, { id, name, team, userId }) {
   return { student, entry };
 }
 
+const MAX_IMAGENES_DECK = 6 * 1024 * 1024; // caracteres de dataURL por presentación (~4,5 MB de imagen)
+const MAX_IMAGENES_SALA = 40 * 1024 * 1024; // entre todas las presentaciones de la sala
+
+function pesoImagenes(deck) {
+  let total = 0;
+  for (const sl of deck?.slides || []) for (const el of sl.elements || []) if (el.type === "image" && typeof el.src === "string") total += el.src.length;
+  return total;
+}
+// Solo hace falta medir cuando el cambio puede agregar imágenes (nuevo elemento,
+// nueva diapositiva o edición de un elemento); mover o borrar nunca hace crecer.
+function opPuedeCrecer(op) {
+  return op.t !== "slide-" && op.t !== "el-" && op.t !== "slide>";
+}
+
 // Un estudiante edita SU presentación. Devuelve la operación ya limpia para reenviarla.
 export function studentOp(room, studentId, rawOp) {
   const st = room.students.get(studentId);
@@ -94,7 +108,17 @@ export function studentOp(room, studentId, rawOp) {
   const op = limpiarOp(rawOp);
   if (!op) return { error: "Cambio no válido." };
   const entry = room.decks.get(st.deckKey);
-  entry.deck = aplicarOp(entry.deck, op);
+  const nuevo = aplicarOp(entry.deck, op);
+  // Tope de memoria: las imágenes viajan como dataURL dentro del deck, y sin límite
+  // total un estudiante podría subir cientos de MB (40 diapositivas × 60 imágenes).
+  if (nuevo !== entry.deck && opPuedeCrecer(op)) {
+    const delDeck = pesoImagenes(nuevo);
+    if (delDeck > MAX_IMAGENES_DECK) return { error: "La presentación ya tiene demasiadas imágenes. Quita alguna o usa imágenes más livianas." };
+    let deLaSala = delDeck;
+    for (const e of room.decks.values()) if (e !== entry) deLaSala += pesoImagenes(e.deck);
+    if (deLaSala > MAX_IMAGENES_SALA) return { error: "La sala llegó a su límite de imágenes. Pide al docente que revise." };
+  }
+  entry.deck = nuevo;
   entry.updatedAt = st.lastSeen = Date.now();
   avisar(room);
   return { op, entry };

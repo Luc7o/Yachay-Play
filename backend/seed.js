@@ -14,9 +14,9 @@ export const DEMO_USERS = [
   { name: "Estudiante Demo", email: "estudiante@yachayplay.com", password: "Estudiante123", role: "estudiante" },
 ];
 
-// En producción quedan APAGADAS salvo que pongas SEED_DEMO_USERS=true (las claves son públicas).
-export const demoEnabled = () =>
-  process.env.NODE_ENV === "production" ? process.env.SEED_DEMO_USERS === "true" : process.env.SEED_DEMO_USERS !== "false";
+// Quedan APAGADAS salvo que pongas SEED_DEMO_USERS=true (las claves son públicas).
+// Antes dependían de NODE_ENV: si el hosting no lo definía, se creaban en producción.
+export const demoEnabled = () => process.env.SEED_DEMO_USERS === "true";
 
 // Devuelve los correos de las cuentas que se acaban de crear.
 export async function seedDemoUsers() {

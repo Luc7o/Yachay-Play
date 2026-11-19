@@ -8,12 +8,27 @@
 //
 // server.js solo necesita 3 líneas para usar esto (ver el comentario al final).
 // ============================================================================
+import crypto from "node:crypto";
 import { nanoid } from "nanoid";
 import { getRoom, addPlayer, startRoom, endRoom, resetRoom, submitAnswer, useSabotage, publicRoomState, tick, rooms } from "./engine.js";
 
 const roomKey = (code) => `cw:${code}`;
 
 // Solo deja pasar si quien llama es el docente dueño de esa partida.
+function mismoSecreto(a, b) {
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  const x = Buffer.from(a);
+  const y = Buffer.from(b);
+  return x.length === y.length && crypto.timingSafeEqual(x, y);
+}
+
+// ¿Puede este socket retomar al jugador `existente`? Sí si trae su llave privada,
+// o si es la misma cuenta de estudiante que lo creó.
+function puedeRetomar(existente, secret, userId) {
+  if (existente.userId && userId && existente.userId === userId) return true;
+  return mismoSecreto(secret, existente.secret);
+}
+
 function requireOwner(socket, room) {
   const u = socket.data.user;
   if (!u || u.role !== "docente") return "Inicia sesión como docente para controlar esta partida.";
@@ -61,19 +76,28 @@ export function attachCrosswordSocket(io, socket) {
   });
 
   // --- Unirse (y volver a entrar tras recargar la página, con el mismo playerId) ---
-  socket.on("cw:join-room", ({ code, playerId, name } = {}, ack) => {
+  socket.on("cw:join-room", ({ code, playerId, secret, name } = {}, ack) => {
     const room = getRoom(String(code || "").trim());
     if (!room) return ack?.({ error: "No existe una partida con ese código." });
 
-    const id = playerId || nanoid();
-    const { player, error } = addPlayer(room, { id, name, userId: socket.data.user?.id || null });
+    const userId = socket.data.user?.id || null;
+    const existente = typeof playerId === "string" ? room.players.get(playerId) : null;
+    // Los ids salen en el marcador: sin la llave privada (o la misma cuenta)
+    // no se puede entrar como otro jugador.
+    if (existente && !puedeRetomar(existente, secret, userId)) {
+      return ack?.({ error: "No se pudo recuperar tu lugar en la partida. Vuelve a unirte con el código." });
+    }
+    const id = existente ? existente.id : nanoid();
+    const { player, error } = addPlayer(room, { id, name, userId });
     if (error) return ack?.({ error });
 
+    // Si el socket ya estaba en otra sala de crucigrama, salir de ella.
+    if (socket.data.cwCode && socket.data.cwCode !== room.code) socket.leave(roomKey(socket.data.cwCode));
     socket.join(roomKey(room.code));
     socket.data.cwCode = room.code;
     socket.data.cwPlayerId = player.id;
 
-    ack?.({ ok: true, playerId: player.id, state: publicRoomState(room, player.id) });
+    ack?.({ ok: true, playerId: player.id, secret: player.secret, state: publicRoomState(room, player.id) });
     broadcastCrossword(io, room.code);
   });
 

@@ -132,6 +132,9 @@ function nuevoJugador(id, name, userId = null) {
     id,
     name,
     userId, // cuenta del estudiante (null si entró como invitado)
+    // Llave privada para reconectar: el `id` es público (sale en el marcador),
+    // así que no basta para demostrar que eres ese jugador.
+    secret: crypto.randomBytes(24).toString("base64url"),
     score: 0,
     lastPointAt: 0, // cuándo sumó puntos por última vez: sirve de desempate
     streak: 0,
@@ -149,9 +152,9 @@ function nuevoJugador(id, name, userId = null) {
 export function addPlayer(room, { id, name, userId = null }) {
   if (!room) return { error: "La partida no existe." };
   if (room.status === "ended") return { error: "Esa partida ya terminó." };
-  const limpio = String(name || "").trim().slice(0, 30);
-  if (!limpio) return { error: "Escribe tu nombre." };
   if (!room.players.has(id)) {
+    const limpio = String(name || "").trim().slice(0, 30);
+    if (!limpio) return { error: "Escribe tu nombre." };
     room.players.set(id, nuevoJugador(id, limpio, userId));
     avisar("onPlayer", room, room.players.get(id));
     pushLog(room, `👋 ${limpio} se unió a la partida.`, "join");
@@ -192,6 +195,7 @@ function closeRoom(room, reason, forcedWinnerId = null) {
 
 export function startRoom(room, now = Date.now()) {
   if (!room) return { error: "La partida no existe." };
+  if (room.status !== "lobby") return { error: "La partida ya empezó o terminó; reiníciala para jugar otra ronda." };
   if (room.players.size === 0) return { error: "Nadie se ha unido todavía." };
   room.status = "playing";
   room.startedAt = now;
@@ -320,13 +324,14 @@ export function useSabotage(room, sourceId, targetId, type, now = Date.now()) {
   tick(room, now);
   if (!room || room.status !== "playing") return { error: "La partida no está en curso." };
   if (sourceId === targetId) return { error: "No puedes sabotearte a ti mismo." };
+  // Object.hasOwn: evita que "constructor", "toString"... (heredados del prototipo) pasen como sabotaje.
+  if (typeof type !== "string" || !Object.hasOwn(SABOTAGES, type)) return { error: "Ese sabotaje no existe." };
   const cfg = SABOTAGES[type];
-  if (!cfg) return { error: "Ese sabotaje no existe." };
   const source = room.players.get(sourceId);
   const target = room.players.get(targetId);
   if (!source || !target) return { error: "Jugador no encontrado." };
   if (target.finishedAt) return { error: "Ese rival ya terminó; ya no se le puede sabotear." };
-  if (source.energy < cfg.cost) return { error: "No tienes suficiente energía todavía." };
+  if (!Number.isFinite(source.energy) || source.energy < cfg.cost) return { error: "No tienes suficiente energía todavía." };
 
   source.energy -= cfg.cost;
   const result = { ok: true, type, targetId, sourceId };

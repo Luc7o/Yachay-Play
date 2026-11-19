@@ -56,7 +56,8 @@ export function TwoFactorSettings({ user, onUserUpdate }) {
     try { await fn(); } catch (e) { error(e.message); } finally { setCargando(false); }
   }
 
-  const empezar = () => ejecutar(async () => { setSetup(await api.twoFactorSetup()); setFase("configurar"); });
+  // Se pide la contraseña: con solo una sesión robada no se puede activar el 2FA y dejar fuera al dueño.
+  const empezar = () => ejecutar(async () => { setSetup(await api.twoFactorSetup(clave || undefined)); setClave(""); setFase("configurar"); });
 
   const activar = () => ejecutar(async () => {
     const r = await api.twoFactorEnable(codigo);
@@ -99,7 +100,15 @@ export function TwoFactorSettings({ user, onUserUpdate }) {
                 <button className="tl-btn ghost" onClick={() => { setMsg({ tipo: "", texto: "" }); setFase("desactivar"); }}>Desactivar</button>
               </>
             ) : (
-              <button className="tl-btn" disabled={cargando} onClick={empezar}>{cargando ? "Preparando…" : "Activar"}</button>
+              <>
+                {user.hasPassword && (
+                  <label>
+                    Tu contraseña actual
+                    <input type="password" autoComplete="current-password" value={clave} onChange={(e) => setClave(e.target.value)} />
+                  </label>
+                )}
+                <button className="tl-btn" disabled={cargando || (user.hasPassword && !clave)} onClick={empezar}>{cargando ? "Preparando…" : "Activar"}</button>
+              </>
             )}
           </div>
         </>

@@ -23,6 +23,24 @@ export async function borrarSala(id) {
   }
 }
 
+// Devuelve la sala de ese código: de la memoria o, si ya salió de ella (reinicio del servidor,
+// más de 24 h sin uso), la recupera de la base. Así los estudiantes pueden RETOMAR su trabajo
+// en una clase posterior con el mismo código.
+export async function obtenerSala(code) {
+  const c = String(code || "").trim();
+  const viva = rooms.get(c);
+  if (viva) return viva;
+  if (!/^\d{6}$/.test(c)) return null;
+  try {
+    const { rows } = await db.pool.query("SELECT data FROM slide_rooms WHERE code = $1 ORDER BY updated_at DESC LIMIT 1", [c]);
+    if (!rows.length) return null;
+    return rooms.get(c) || restaurar(rows[0].data);
+  } catch (e) {
+    if (e.code !== "42P01") console.error("[presentaciones] no se pudo recuperar la sala", c, e.message);
+    return null;
+  }
+}
+
 export async function startSlidesPersistence() {
   try {
     await db.pool.query(`

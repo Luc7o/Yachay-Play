@@ -13,6 +13,8 @@ export function ElementoVista({ el }) {
           lineHeight: 1.2,
           color: el.color,
           fontWeight: el.bold ? 800 : 500,
+          fontStyle: el.italic ? "italic" : "normal",
+          textDecoration: el.underline ? "underline" : "none",
           textAlign: el.align,
           whiteSpace: "pre-wrap",
           wordBreak: "break-word",

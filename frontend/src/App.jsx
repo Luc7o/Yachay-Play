@@ -12,6 +12,7 @@ import { BUILD_VERSION } from "./constants";
 import { setClaseDestino, limpiarClaseDestino } from "./claseDestino";
 import { Marca } from "./campusUi";
 import { ChooserScreen } from "./screens/ChooserScreen";
+import { JoinHub } from "./screens/JoinHub";
 import { LoadingScreen } from "./screens/LoadingScreen";
 import { FinishedScreen } from "./screens/FinishedScreen";
 import { SetupScreen } from "./ludo/SetupScreen";
@@ -66,6 +67,8 @@ function App() {
   const [toolPage, setToolPage] = useState(null); // null | "stats" | "questions" | "profile" | "clases" (pantallas del catálogo)
   const [claseAbierta, setClaseAbierta] = useState(null); // id de la clase a mostrar al abrir "Mis clases"
   const [codigoInicial, setCodigoInicial] = useState(""); // código para prellenar al entrar a un juego desde una clase
+  const [unirseHub, setUnirseHub] = useState(false); // pantalla "¿A qué te quieres unir?" (invitado / estudiante)
+  const [nombreInvitado, setNombreInvitado] = useState(""); // nombre escrito en esa pantalla, para no pedirlo de nuevo
 
   // La ventanita del cronómetro (fuera de App) pide abrir su pantalla con este evento.
   // No se ofrece durante una partida de Ludo, para no sacar a nadie de ella sin querer.
@@ -249,6 +252,33 @@ function App() {
     localStorage.setItem("ludo_mode", m);
   }
 
+  // "Unirme con código" / "Entrar como invitado": primero se elige a QUÉ se une (Ludo, Crucigrama,
+  // Presentación, Evaluación), porque cada uno tiene sus propios códigos.
+  function abrirUnirse(codigo = "") {
+    setCatalogGame(null);
+    setToolPage(null);
+    setCodigoInicial(typeof codigo === "string" ? codigo : "");
+    setUnirseHub(true);
+  }
+  // Ya eligió: se abre la pantalla de unirse de ese juego, con el nombre (y el código, si lo había) puestos.
+  function unirseA(juego, { code, name }) {
+    setUnirseHub(false);
+    setNombreInvitado(name);
+    setCodigoInicial(code);
+    if (juego === "ludo") {
+      setStudentName(name);
+      setJoinCode(code);
+      setCatalogGame("ludo");
+      chooseMode("student");
+      return;
+    }
+    selectGame(juego);
+  }
+  // El nombre escrito solo sirve mientras se está dentro del juego elegido.
+  useEffect(() => {
+    if (!catalogGame) setNombreInvitado("");
+  }, [catalogGame]);
+
   // Borra lo que quedó de una partida anterior (no toca la sesión de la cuenta).
   function clearGameSession() {
     localStorage.removeItem("ludo_mode");
@@ -256,6 +286,7 @@ function App() {
     localStorage.removeItem("ludo_player_key");
     localStorage.removeItem("ludo_game_code");
     localStorage.removeItem("ludo_engineer_code");
+    setUnirseHub(false);
     setMode(null);
     setServerState(null);
     setPlayerId(null);
@@ -480,7 +511,7 @@ function App() {
     if (id === "clases") setClaseAbierta(null);
     if (["stats", "questions", "profile", "planes", "contacto", "clases"].includes(id)) return setToolPage(id);
     setToolPage(null);
-    if (id === "join") return chooseMode("student");
+    if (id === "join") return abrirUnirse();
     setSeccion(id === "juegos" || id === "herramientas" ? id : "inicio");
   };
   // ---- Clases ----
@@ -551,8 +582,7 @@ function App() {
           onBack={() => setAuthScreen(null)}
           onGuest={() => {
             setAuthScreen(null);
-            setCatalogGame("ludo");
-            chooseMode("student");
+            abrirUnirse();
           }}
         />
       );
@@ -582,6 +612,19 @@ function App() {
         ? conMenu("questions", <QuestionBankPage goHome={volver} />)
         : conMenu("stats", <StatsPage user={user} goHome={volver} />);
     }
+    // Invitado o estudiante: primero elige a qué se une
+    if (unirseHub) {
+      return enMenu(
+        "join",
+        <JoinHub
+          user={user}
+          initialCode={codigoInicial}
+          initialName={nombreInvitado}
+          onPick={unirseA}
+          onBack={() => setUnirseHub(false)}
+        />
+      );
+    }
     // Herramientas para el docente: no necesitan cuenta ni servidor
     if (catalogGame === "cronometro") return <Cronometro goHome={changeDevice} />;
     if (catalogGame === "ruleta") return <Ruleta goHome={changeDevice} />;
@@ -591,6 +634,7 @@ function App() {
         <Estudio
           user={user}
           initialCode={codigoInicial}
+          initialName={nombreInvitado}
           goHome={() => setCatalogGame(null)}
           onLogin={() => setAuthScreen("login")}
           onRegister={() => setAuthScreen("register")}
@@ -602,18 +646,21 @@ function App() {
         <Evaluacion
           user={user}
           initialCode={codigoInicial}
+          initialName={nombreInvitado}
           goHome={() => setCatalogGame(null)}
           onLogin={() => setAuthScreen("login")}
           onRegister={() => setAuthScreen("register")}
         />
       );
     }
-    if (catalogGame === "palabra") return <PalabraRelampago goHome={() => setCatalogGame(null)} frame={(pagina) => enMenu("juegos", pagina, false)} />;
+    if (catalogGame === "palabra") return <PalabraRelampago goHome={() => setCatalogGame(null)} user={user} initialCode={codigoInicial} initialName={nombreInvitado} frame={(pagina) => enMenu("juegos", pagina, false)} />;
     if (catalogGame === "crucigrama") {
       return (
         <CrosswordGame
           user={user}
           initialCode={codigoInicial}
+          initialName={nombreInvitado}
+          startJoin={!!nombreInvitado}
           onLogin={() => setAuthScreen("login")}
           onRegister={() => setAuthScreen("register")}
           goHome={() => setCatalogGame(null)}
@@ -627,9 +674,9 @@ function App() {
           <GameCatalog
             onSelectGame={selectGame}
             onJoinWithCode={(codigo) => {
-              // Desde la portada o el inicio se puede escribir el código: llega prellenado.
-              if (typeof codigo === "string" && codigo) setJoinCode(codigo);
-              chooseMode("student");
+              // Desde la portada o el inicio se puede escribir el código: llega prellenado,
+              // pero antes hay que elegir a qué se une (Ludo, Crucigrama, Presentación, Evaluación).
+              abrirUnirse(codigo);
             }}
             buildVersion={BUILD_VERSION}
             user={user}

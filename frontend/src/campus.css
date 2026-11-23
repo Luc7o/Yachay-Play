@@ -408,3 +408,58 @@
 :root[data-theme="dark"] .fin-condor.casi,.cp-proj .fin-condor.casi{filter:saturate(.75) drop-shadow(1.5px 0 0 #F7EFE2) drop-shadow(-1.5px 0 0 #F7EFE2) drop-shadow(0 1.5px 0 #F7EFE2) drop-shadow(0 -1.5px 0 #F7EFE2)}
 .hr-icon-condor{display:block;width:22px;height:22px;pointer-events:none}
 .hr-icon[aria-pressed="false"] .hr-icon-condor{filter:grayscale(1);opacity:.55}
+
+
+/* ===== SOLUCIÓN 1: menú lateral fijo (solo escritorio) ===== */
+@media (min-width: 901px){
+  .cp-side{
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    gap: clamp(12px, 2.2vh, 22px);
+    padding-block: clamp(14px, 2.4vh, 22px);
+  }
+  .cp-side > *{ flex-shrink: 0; }
+  .cp-side-nav{
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  .cp-side-nav button{ min-height: clamp(36px, 5vh, 42px); }
+  .cp-side-foot{ margin-top: 0; }
+}
+
+/* ===== SOLUCIÓN 2: pantalla de Iniciar sesión / Crear cuenta ===== */
+@media (min-width: 901px){
+  .cp-auth-side{
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    gap: clamp(20px, 5vh, 40px);
+    padding-block: clamp(24px, 5vh, 40px);
+  }
+}
+.cp-auth-top{ margin-bottom: clamp(12px, 3vh, 28px); }
+.cp-auth-main{ padding-bottom: 32px; }
+.cp-auth-card{ gap: 16px; }
+.cp-auth-form{ gap: 12px; }
+.cp-auth-form h1{ font-size: 26px; }
+.cp-roles legend{ margin-bottom: 6px; }
+.cp-role{ padding: 10px 12px; }
+.cp-role small{ font-size: 11.5px; line-height: 1.35; }
+.cp-field{ gap: 4px; }
+.cp-field .cp-input{ min-height: 42px; }
+.cp-reglas{ margin-top: 2px; }
+.cp-auth-links{ padding-top: 14px; }
+
+/* Tarjeta de clase con botón de eliminar (docente) */
+.cp-tile-wrap{display:flex;flex-direction:column;gap:8px}
+.cp-tile-wrap .cp-tile{flex:1}
+.cp-tile-delete{align-self:flex-end}

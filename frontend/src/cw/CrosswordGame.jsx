@@ -23,12 +23,12 @@ import { CwStudentRoom } from "./CwStudentRoom";
 // Si App.jsx pasa `frame`, la configuración del docente se muestra dentro del menú lateral.
 export const conMarco = (frame, pagina) => (frame ? frame(pagina) : pagina);
 
-export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode = "", onGuestCode, frame }) {
+export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode = "", initialName = "", startJoin = false, onGuestCode, frame }) {
   // Si ya hay sesión, arrancamos directo en la pantalla de su rol (sin pasar
   // primero por "gate"): así no se alcanza a ver un parpadeo de esa pantalla
   // antes de que el useEffect de abajo la cambie.
   const [view, setView] = useState(() =>
-    initialCode
+    initialCode || startJoin
       ? "student-join" // llegó con un código (acceso de invitado): directo a unirse
       : user?.role === "docente" ? "teacher-setup" : user?.role === "estudiante" ? "student-join" : "gate"
   ); // gate | teacher-setup | teacher-room | student-join | student-room
@@ -238,7 +238,7 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
     return (
       <CwStudentJoin
         goHome={goHome}
-        prefillName={user?.name || ""}
+        prefillName={initialName || user?.name || ""}
         initialCode={initialCode}
         error={error}
         onJoin={(codigo, name) => {

@@ -120,7 +120,7 @@ function useSala(code, estadoInicial, reunir) {
 }
 
 // ============================================================================
-export function Evaluacion({ user, goHome, onLogin, onRegister, initialCode = "" }) {
+export function Evaluacion({ user, goHome, onLogin, onRegister, initialCode = "", initialName = "" }) {
   const esDocente = user?.role === "docente";
   const [sala, setSala] = useState(null); // docente: { code, state }
   const [alumno, setAlumno] = useState(null); // estudiante: { code, playerId, name, state }
@@ -158,7 +158,7 @@ export function Evaluacion({ user, goHome, onLogin, onRegister, initialCode = ""
     if (cargando) return <p className="qz-centro">Conectando…</p>;
     if (esDocente) return sala ? <VistaDocente key={sala.code} sala={sala} onNueva={salirDocente} /> : <Editor onCreada={(code, state) => { saveJSON(LS_DOCENTE, code); setSala({ code, state }); }} />;
     if (alumno) return <VistaAlumno key={alumno.code} alumno={alumno} onSalir={salirAlumno} />;
-    return <Unirse user={user} initialCode={initialCode} onLogin={onLogin} onRegister={onRegister} onEntrar={(g, state) => { saveJSON(LS_ALUMNO, g); setAlumno({ ...g, state }); }} />;
+    return <Unirse user={user} initialCode={initialCode} initialName={initialName} onLogin={onLogin} onRegister={onRegister} onEntrar={(g, state) => { saveJSON(LS_ALUMNO, g); setAlumno({ ...g, state }); }} />;
   };
 
   return (
@@ -385,9 +385,9 @@ function VistaDocente({ sala, onNueva }) {
 // ============================================================================
 // ESTUDIANTE
 // ============================================================================
-function Unirse({ user, onLogin, onRegister, onEntrar, initialCode = "" }) {
+function Unirse({ user, onLogin, onRegister, onEntrar, initialCode = "", initialName = "" }) {
   const [code, setCode] = useState(String(initialCode || "").replace(/\D/g, "").slice(0, 6));
-  const [name, setName] = useState(user?.name || "");
+  const [name, setName] = useState(initialName || user?.name || "");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const listo = code.length === 6 && name.trim().length > 0;

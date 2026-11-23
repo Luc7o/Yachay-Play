@@ -29,6 +29,9 @@ import { rooms as crosswordRooms } from "./crossword/engine.js";
 import { rooms as slidesRooms } from "./slides/engine.js";
 import { classesRouter, claseDelDocente } from "./classes/routes.js";
 import { registrarFuente } from "./classes/live.js";
+import { palabraRouter } from "./palabra/routes.js";
+import { attachPalabraSocket, palabraTick } from "./palabra/sockets.js";
+import { purgeOldRooms as purgeOldPalabra, rooms as palabraRooms } from "./palabra/engine.js";
 
 // Guarda en la base de datos SIN frenar el juego en tiempo real: si falla, solo se avisa en consola.
 const bg = (promesa) => promesa.catch((e) => console.error("Error de base de datos:", e.message));
@@ -88,6 +91,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/classes", classesRouter); // clases (curso + sección) del docente y sus estudiantes
 app.use("/api/crossword-games", crosswordRouter); // juego nuevo: Crucigrama Relámpago
 app.use("/api/quick-quizzes", quickRouter); // Evaluación rápida (preguntas en vivo)
+app.use("/api/palabra-games", palabraRouter); // Palabra relámpago en línea (estudiantes y docentes)
 app.use("/api/slides", slidesRouter); // Presentaciones en vivo (docente ve las de sus estudiantes)
 app.use("/api/assistant", assistantRouter); // asistente IA, solo para docentes
 app.use("/api/profile", profileRouter); // perfil, ranking y logros
@@ -254,6 +258,11 @@ registrarFuente(() =>
   [...quizRooms.values()]
     .filter((r) => r.classId && r.status !== "ended")
     .map((r) => ({ classId: r.classId, kind: "evaluacion", code: r.code, name: r.name, status: r.status, players: r.players.size }))
+);
+registrarFuente(() =>
+  [...palabraRooms.values()]
+    .filter((r) => r.classId && r.status !== "ended")
+    .map((r) => ({ classId: r.classId, kind: "palabra", code: r.code, name: r.name, status: r.status === "lobby" ? "lobby" : "playing", players: r.players.size }))
 );
 registrarFuente(() =>
   [...slidesRooms.values()]
@@ -533,6 +542,7 @@ io.on("connection", (socket) => {
 // (aparte de todo el bloque de Ludo de aquí abajo, para no mezclarlos).
 io.on("connection", (socket) => attachCrosswordSocket(io, socket));
 io.on("connection", (socket) => attachQuizSocket(io, socket)); // Evaluación rápida (eventos "qz:*")
+io.on("connection", (socket) => attachPalabraSocket(io, socket)); // Palabra relámpago (eventos "pr:*")
 io.on("connection", (socket) => attachSlidesSocket(io, socket)); // Presentaciones en vivo (eventos "ss:*")
 
 io.on("connection", (socket) => {
@@ -836,6 +846,7 @@ setInterval(() => {
 // El reloj del crucigrama es independiente del de Ludo (partidas distintas, ambas en memoria).
 setInterval(() => crosswordTick(io), 1000);
 setInterval(() => quizTick(io), 1000); // reloj de la Evaluación rápida
+setInterval(() => palabraTick(io), 500); // reloj de Palabra relámpago (medio segundo: turnos más precisos)
 
 // Limpieza cada 10 min: las partidas de más de 12 h salen de la memoria (el Map crecía sin límite).
 setInterval(() => {
@@ -848,6 +859,7 @@ setInterval(() => {
   }
   purgeOldRooms(limite);
   purgeOldQuizzes(limite);
+  purgeOldPalabra(limite);
 }, 10 * 60 * 1000);
 
 const PORT = process.env.PORT || 4000;

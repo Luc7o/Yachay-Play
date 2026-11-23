@@ -200,3 +200,30 @@
 .es-modo button:focus-visible{outline:3px solid var(--es-primary);outline-offset:2px}
 .es-teamcode{font-size:13px;color:var(--es-muted);font-weight:600;white-space:nowrap}
 .es-teamcode b{letter-spacing:2px;color:var(--es-primary)}
+
+/* ===== Atajos de teclado, aviso breve, pantalla negra/blanca al presentar ===== */
+.es-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;background:var(--es-ink);color:var(--es-surface);padding:10px 18px;border-radius:999px;font-weight:800;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:none}
+.es-atajos-bg{position:fixed;inset:0;z-index:70;background:rgba(10,15,20,.55);display:grid;place-items:center;padding:16px}
+.es-atajos{width:min(980px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--es-surface);color:var(--es-ink);border:1px solid var(--es-line);border-radius:16px;padding:20px 22px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.es-atajos-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.es-atajos-head h2{margin:0;font-size:22px}
+.es-atajos-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px 26px;margin-top:10px}
+.es-atajos-grid h3{margin:0 0 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--es-primary)}
+.es-atajos-grid ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.es-atajos-grid li{display:flex;flex-direction:column;gap:3px;font-size:14px;line-height:1.35}
+.es-atajos-grid kbd{align-self:flex-start;font:700 12px ui-monospace,Menlo,Consolas,monospace;background:var(--es-soft);border:1px solid var(--es-line);border-bottom-width:2px;border-radius:6px;padding:2px 7px;color:var(--es-ink)}
+.es-pres-tapa{position:absolute;inset:0}
+.es-pres-tapa.negra{background:#000}
+.es-pres-tapa.blanca{background:#fff}
+.es-pres-num{position:absolute;top:18px;right:18px;background:rgba(0,0,0,.7);color:#fff;padding:8px 14px;border-radius:10px;font-size:15px;z-index:2}
+.es-pres-num small{opacity:.7}
+
+/* Historial de presentaciones del estudiante */
+.es-hist{margin-top:22px;border-top:1px solid var(--es-line);padding-top:16px}
+.es-hist h2{margin:0 0 4px;font-size:18px}
+.es-hist-list{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.es-hist-item{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border:1px solid var(--es-line);border-radius:12px;padding:12px 14px;background:var(--es-surface)}
+.es-hist-main{min-width:0;flex:1 1 220px}
+.es-hist-main strong{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.es-hist-meta{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:3px;font-size:12.5px;color:var(--es-muted)}
+.es-hist-act{display:flex;gap:8px;align-items:center}

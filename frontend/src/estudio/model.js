@@ -37,7 +37,7 @@ const color = (v, def) => (typeof v === "string" && HEX.test(v) ? v : def);
 
 // ----------------------- fábricas -----------------------
 export function elementoTexto(over = {}) {
-  return { id: ids(), type: "text", x: 80, y: 80, w: 800, h: 90, text: "Escribe aquí", size: 36, color: "#1E2A5A", bold: false, align: "left", ...over };
+  return { id: ids(), type: "text", x: 80, y: 80, w: 800, h: 90, text: "Escribe aquí", size: 36, color: "#1E2A5A", bold: false, italic: false, underline: false, align: "left", ...over };
 }
 export function elementoForma(type, over = {}) {
   return { id: ids(), type, x: 360, y: 190, w: 240, h: 160, fill: "#00A996", ...over };
@@ -76,6 +76,8 @@ export function limpiarElemento(el) {
     out.size = num(el.size, 8, 200, 32);
     out.color = color(el.color, "#1E2A5A");
     out.bold = !!el.bold;
+    out.italic = !!el.italic;
+    out.underline = !!el.underline;
     out.align = ALINEA.includes(el.align) ? el.align : "left";
   } else if (el.type === "image") {
     if (typeof el.src !== "string" || el.src.length > LIMITES.imagen || !IMG.test(el.src)) return null;
@@ -95,6 +97,8 @@ function limpiarParche(p) {
   if ("color" in p) out.color = color(p.color, "#1E2A5A");
   if ("fill" in p) out.fill = color(p.fill, "#00A996");
   if ("bold" in p) out.bold = !!p.bold;
+  if ("italic" in p) out.italic = !!p.italic;
+  if ("underline" in p) out.underline = !!p.underline;
   if ("align" in p) out.align = ALINEA.includes(p.align) ? p.align : "left";
   return out;
 }

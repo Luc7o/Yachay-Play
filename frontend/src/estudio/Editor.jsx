@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { W, H, LIMITES, aplicarOp, diapositiva, elementoForma, elementoImagen, elementoTexto, nuevoId } from "./model";
+import { W, H, LIMITES, aplicarOp, diapositiva, elementoForma, elementoImagen, elementoTexto, limpiarElemento, nuevoId } from "./model";
 import { ElementoVista, SlideView } from "./SlideView";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -64,11 +64,17 @@ const PLANTILLAS = [["blanco", "En blanco"], ["titulo", "Portada"], ["contenido"
 //   onView     -> se llama al cambiar de diapositiva
 //   sidebar    -> contenido extra del panel derecho (p. ej. cuadro para comentar)
 // ============================================================================
-export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, sidebar, topLeft, topRight, aviso }) {
+export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, sidebar, topLeft, topRight, aviso, initialSlideId }) {
   const [sel, setSel] = useState(null); // id del elemento seleccionado
   const [editing, setEditing] = useState(null); // id del texto que se está escribiendo
-  const [slideId, setSlideId] = useState(deck.slides[0].id);
-  const [presentando, setPresentando] = useState(false);
+  const [slideId, setSlideId] = useState(() => (initialSlideId && deck.slides.some((s) => s.id === initialSlideId) ? initialSlideId : deck.slides[0].id));
+  const [presentando, setPresentando] = useState(null); // null = no se presenta; número = diapositiva de inicio
+  const [ayuda, setAyuda] = useState(false); // panel de atajos
+  const [toast, setToast] = useState("");
+  const toastTimer = useRef(null);
+  const redo = useRef([]);
+  const [redoN, setRedoN] = useState(0);
+  const pegados = useRef(0); // para que pegar varias veces seguidas no apile todo en el mismo lugar
   const [menuNueva, setMenuNueva] = useState(false);
   const [error, setError] = useState("");
   const [undoN, setUndoN] = useState(0);
@@ -108,7 +114,7 @@ export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, s
     const d = deckRef.current;
     if (guardarUndo) {
       const inv = inverso(d, op);
-      if (inv) { undo.current.push(inv); if (undo.current.length > 50) undo.current.shift(); setUndoN(undo.current.length); }
+      if (inv) { undo.current.push(inv); if (undo.current.length > 50) undo.current.shift(); setUndoN(undo.current.length); redo.current = []; setRedoN(0); }
     }
     const nuevo = aplicarOp(d, op);
     deckRef.current = nuevo;
@@ -119,7 +125,28 @@ export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, s
   const deshacer = () => {
     const inv = undo.current.pop();
     setUndoN(undo.current.length);
-    if (inv) commit(inv, { guardarUndo: false });
+    if (!inv) return;
+    const rehacerOp = inverso(deckRef.current, inv); // lo que hace falta para volver a como estaba antes de deshacer
+    if (rehacerOp) { redo.current.push(rehacerOp); setRedoN(redo.current.length); }
+    commit(inv, { guardarUndo: false });
+  };
+  const rehacer = () => {
+    const op = redo.current.pop();
+    setRedoN(redo.current.length);
+    if (!op) return;
+    const inv = inverso(deckRef.current, op);
+    if (inv) { undo.current.push(inv); setUndoN(undo.current.length); }
+    commit(op, { guardarUndo: false });
+  };
+  const avisarToast = (msg) => {
+    setToast(msg);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(""), 2200);
+  };
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
+  const irADiapositiva = (i) => {
+    const s = deck.slides[Math.max(0, Math.min(deck.slides.length - 1, i))];
+    if (s) { setSlideId(s.id); setSel(null); setEditing(null); }
   };
 
   // ---- acciones ----
@@ -165,17 +192,87 @@ export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, s
     }
   }
 
-  // ---- teclado ----
+  // ---- teclado: atajos como en Canva / PowerPoint / Google Slides (la lista completa está en "⌨ Atajos") ----
+  const cambiarTamano = (d) => elSel && elSel.type === "text" && patch(elSel.id, { size: Math.max(8, Math.min(200, elSel.size + d)) });
+  const alinear = (a) => elSel && elSel.type === "text" && patch(elSel.id, { align: a });
+  const orden = (z) => elSel && commit({ t: "el^", sid: slide.id, id: elSel.id, z });
+
   useEffect(() => {
     function onKey(e) {
-      if (presentando) return;
-      const enCampo = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !enCampo) { e.preventDefault(); deshacer(); return; }
-      if (enCampo || readOnly || !elSel) return;
-      if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); borrar(); }
-      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") { e.preventDefault(); duplicar(); }
-      else if (e.key === "Enter" && elSel.type === "text") { e.preventDefault(); setEditing(elSel.id); }
-      else if (e.key.startsWith("Arrow")) {
+      if (presentando !== null) return;
+      const activo = document.activeElement;
+      const enCampo = ["INPUT", "TEXTAREA", "SELECT"].includes(activo?.tagName) || !!activo?.isContentEditable;
+      const mod = e.ctrlKey || e.metaKey;
+      const k = (e.key || "").toLowerCase();
+
+      // Panel de atajos abierto: solo se cierra
+      if (ayuda) { if (e.key === "Escape" || e.key === "?" || (mod && e.key === "/")) { e.preventDefault(); setAyuda(false); } return; }
+
+      // Valen aunque se esté escribiendo
+      if (mod && k === "s") { e.preventDefault(); avisarToast("✔ Todo se guarda solo: no hace falta guardar."); return; }
+      if (e.key === "F5") { e.preventDefault(); setPresentando(e.shiftKey ? deck.slides.findIndex((s) => s.id === slide.id) : 0); return; }
+      if (mod && e.key === "Enter" && !enCampo) { e.preventDefault(); setPresentando(deck.slides.findIndex((s) => s.id === slide.id)); return; }
+      if (enCampo) return;
+
+      if (e.key === "?" || (mod && e.key === "/")) { e.preventDefault(); setAyuda(true); return; }
+      if (mod && k === "z" && !e.shiftKey) { e.preventDefault(); deshacer(); return; }
+      if (mod && (k === "y" || (k === "z" && e.shiftKey))) { e.preventDefault(); rehacer(); return; }
+
+      // Moverse entre diapositivas (también al mirar sin poder editar)
+      const iActual = deck.slides.findIndex((s) => s.id === slide.id);
+      if (e.key === "PageDown") { e.preventDefault(); irADiapositiva(iActual + 1); return; }
+      if (e.key === "PageUp") { e.preventDefault(); irADiapositiva(iActual - 1); return; }
+      if (e.key === "Home") { e.preventDefault(); irADiapositiva(0); return; }
+      if (e.key === "End") { e.preventDefault(); irADiapositiva(deck.slides.length - 1); return; }
+      if (!elSel && !mod && !e.altKey && e.key.startsWith("Arrow")) {
+        e.preventDefault();
+        irADiapositiva(iActual + (e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1));
+        return;
+      }
+      if (e.key === "Escape") { setSel(null); setEditing(null); return; }
+      if (e.key === "Tab" && slide.elements.length) {
+        e.preventDefault();
+        const n = slide.elements.length;
+        const i = slide.elements.findIndex((x) => x.id === sel);
+        setSel(slide.elements[(i + (e.shiftKey ? -1 : 1) + n) % n].id);
+        setEditing(null);
+        return;
+      }
+      if (readOnly) return;
+
+      // Diapositivas
+      if (mod && k === "m") { e.preventDefault(); nuevaDiapositiva("blanco"); return; }
+      if (e.altKey && e.shiftKey && (e.key === "ArrowUp" || e.key === "ArrowDown")) { e.preventDefault(); mover(slide, e.key === "ArrowUp" ? -1 : 1); return; }
+      if (mod && k === "d") { e.preventDefault(); if (elSel) duplicar(); else duplicarDiapositiva(slide); return; }
+
+      // Insertar con una tecla (como en Canva)
+      if (!mod && !e.altKey && !e.shiftKey && ["t", "r", "c"].includes(k)) {
+        e.preventDefault();
+        if (k === "t") addEl(elementoTexto(), true);
+        else if (k === "r") addEl(elementoForma("rect"));
+        else addEl(elementoForma("ellipse", { w: 200, h: 200 }));
+        return;
+      }
+      if (!elSel) return;
+
+      // Con un elemento seleccionado
+      if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); borrar(); return; }
+      if ((e.key === "Enter" || e.key === "F2") && elSel.type === "text") { e.preventDefault(); setEditing(elSel.id); return; }
+      if (mod && elSel.type === "text") {
+        if (k === "b" && !e.shiftKey) { e.preventDefault(); patch(elSel.id, { bold: !elSel.bold }); return; }
+        if (k === "i" && !e.shiftKey) { e.preventDefault(); patch(elSel.id, { italic: !elSel.italic }); return; }
+        if (k === "u" && !e.shiftKey) { e.preventDefault(); patch(elSel.id, { underline: !elSel.underline }); return; }
+        if (e.shiftKey && k === "l") { e.preventDefault(); alinear("left"); return; }
+        if (e.shiftKey && k === "e") { e.preventDefault(); alinear("center"); return; }
+        if (e.shiftKey && k === "r") { e.preventDefault(); alinear("right"); return; }
+        if (e.shiftKey && (e.key === ">" || e.key === ".")) { e.preventDefault(); cambiarTamano(4); return; }
+        if (e.shiftKey && (e.key === "<" || e.key === ",")) { e.preventDefault(); cambiarTamano(-4); return; }
+        if (!e.shiftKey && e.code === "BracketRight") { e.preventDefault(); cambiarTamano(2); return; }
+        if (!e.shiftKey && e.code === "BracketLeft") { e.preventDefault(); cambiarTamano(-2); return; }
+      }
+      if (mod && e.shiftKey && (e.key === "ArrowUp" || e.code === "BracketRight")) { e.preventDefault(); orden("front"); return; }
+      if (mod && e.shiftKey && (e.key === "ArrowDown" || e.code === "BracketLeft")) { e.preventDefault(); orden("back"); return; }
+      if (!mod && e.key.startsWith("Arrow")) {
         e.preventDefault();
         const p = e.shiftKey ? 20 : 4;
         patch(elSel.id, { x: elSel.x + (e.key === "ArrowRight" ? p : e.key === "ArrowLeft" ? -p : 0), y: elSel.y + (e.key === "ArrowDown" ? p : e.key === "ArrowUp" ? -p : 0) }, { guardarUndo: false });
@@ -183,6 +280,60 @@ export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, s
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  });
+
+  // ---- copiar / cortar / pegar (Ctrl+C, Ctrl+X, Ctrl+V): también entre salas y con imágenes o texto del portapapeles ----
+  useEffect(() => {
+    const MARCA = "yachayplay-el:";
+    const enCampo = () => ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
+    const onCopy = (e) => {
+      if (presentando !== null || enCampo() || !elSel) return;
+      e.preventDefault();
+      e.clipboardData.setData("text/plain", MARCA + JSON.stringify(elSel));
+      pegados.current = 0;
+      avisarToast("Copiado");
+    };
+    const onCut = (e) => {
+      if (presentando !== null || enCampo() || !elSel || readOnly) return;
+      onCopy(e);
+      borrar();
+    };
+    const onPaste = (e) => {
+      if (presentando !== null || enCampo() || readOnly) return;
+      const dt = e.clipboardData;
+      if (!dt) return;
+      const texto = dt.getData("text/plain") || "";
+      if (texto.startsWith(MARCA)) {
+        try {
+          const el = limpiarElemento(JSON.parse(texto.slice(MARCA.length)));
+          if (el) {
+            e.preventDefault();
+            const d = 24 * ++pegados.current;
+            addEl({ ...el, id: nuevoId(), x: el.x + d, y: el.y + d });
+            return;
+          }
+        } catch { /* no era uno de los nuestros: se trata como texto normal */ }
+      }
+      const img = [...(dt.files || [])].find((f) => f.type.startsWith("image/"));
+      if (img) {
+        e.preventDefault();
+        setError("");
+        leerImagen(img).then(({ src, w, h }) => addEl(elementoImagen(src, w, h))).catch((er) => setError(er.message));
+        return;
+      }
+      if (texto.trim()) {
+        e.preventDefault();
+        addEl(elementoTexto({ text: texto.slice(0, LIMITES.texto) }));
+      }
+    };
+    document.addEventListener("copy", onCopy);
+    document.addEventListener("cut", onCut);
+    document.addEventListener("paste", onPaste);
+    return () => {
+      document.removeEventListener("copy", onCopy);
+      document.removeEventListener("cut", onCut);
+      document.removeEventListener("paste", onPaste);
+    };
   });
 
   // ---- arrastrar y redimensionar ----
@@ -220,6 +371,7 @@ export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, s
       const antes = modo === "mover" ? { x: ini.x, y: ini.y } : { w: ini.w, h: ini.h };
       undo.current.push({ t: "el~", sid: slide.id, id: el.id, patch: antes });
       setUndoN(undo.current.length);
+      redo.current = []; setRedoN(0);
     };
     window.addEventListener("pointermove", mover);
     window.addEventListener("pointerup", soltar);
@@ -232,13 +384,16 @@ export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, s
 
   return (
     <div className="es-ed">
-      {presentando && <Presentar deck={deck} inicio={deck.slides.findIndex((s) => s.id === slide.id)} onSalir={() => setPresentando(false)} />}
+      {presentando !== null && <Presentar deck={deck} inicio={presentando} onSalir={() => setPresentando(null)} />}
+      {ayuda && <Atajos onCerrar={() => setAyuda(false)} />}
+      {toast && <div className="es-toast" role="status">{toast}</div>}
       <header className="es-top">
         <div className="es-top-l">{topLeft}</div>
         <div className="es-top-r">
           {topRight}
           <ThemeToggle />
-          <button className="es-btn" onClick={() => setPresentando(true)}>▶ Presentar</button>
+          <button className="es-btn ghost" onClick={() => setAyuda(true)} title="Atajos de teclado (?)">⌨ Atajos</button>
+          <button className="es-btn" onClick={() => setPresentando(Math.max(0, deck.slides.findIndex((s) => s.id === slide.id)))} title="Presentar desde esta diapositiva (Ctrl + Enter). Desde el inicio: F5">▶ Presentar</button>
         </div>
       </header>
       {aviso && <div className="es-aviso">{aviso}</div>}
@@ -252,6 +407,7 @@ export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, s
         <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={subirImagen} />
         <span className="es-sep" />
         <button className="es-t" disabled={bloqueado || !undoN} onClick={deshacer} title="Ctrl + Z">↶ Deshacer</button>
+        <button className="es-t" disabled={bloqueado || !redoN} onClick={rehacer} title="Ctrl + Y  (o Ctrl + Shift + Z)">↷ Rehacer</button>
         <label className="es-t es-color" title="Color de fondo de la diapositiva">
           Fondo <input type="color" disabled={bloqueado} value={slide.bg} onChange={(e) => commit({ t: "slide~", id: slide.id, bg: e.target.value })} />
         </label>
@@ -263,7 +419,9 @@ export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, s
                 <button className="es-t" onClick={() => patch(elSel.id, { size: Math.max(8, elSel.size - 4) })} aria-label="Letra más pequeña">A−</button>
                 <span className="es-num">{elSel.size}</span>
                 <button className="es-t" onClick={() => patch(elSel.id, { size: Math.min(200, elSel.size + 4) })} aria-label="Letra más grande">A+</button>
-                <button className={"es-t" + (elSel.bold ? " on" : "")} onClick={() => patch(elSel.id, { bold: !elSel.bold })}><b>N</b></button>
+                <button className={"es-t" + (elSel.bold ? " on" : "")} onClick={() => patch(elSel.id, { bold: !elSel.bold })} title="Negrita (Ctrl + B)"><b>N</b></button>
+                <button className={"es-t" + (elSel.italic ? " on" : "")} onClick={() => patch(elSel.id, { italic: !elSel.italic })} title="Cursiva (Ctrl + I)"><i>K</i></button>
+                <button className={"es-t" + (elSel.underline ? " on" : "")} onClick={() => patch(elSel.id, { underline: !elSel.underline })} title="Subrayado (Ctrl + U)"><u>S</u></button>
                 {["left", "center", "right"].map((a) => (
                   <button key={a} className={"es-t" + (elSel.align === a ? " on" : "")} onClick={() => patch(elSel.id, { align: a })} aria-label={"Alinear " + a}>{a === "left" ? "⇤" : a === "center" ? "↔" : "⇥"}</button>
                 ))}
@@ -334,10 +492,21 @@ export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, s
                         autoFocus
                         defaultValue={el.text}
                         maxLength={LIMITES.texto}
-                        style={{ fontSize: el.size, color: el.color, fontWeight: el.bold ? 800 : 500, textAlign: el.align }}
+                        style={{ fontSize: el.size, color: el.color, fontWeight: el.bold ? 800 : 500, fontStyle: el.italic ? "italic" : "normal", textDecoration: el.underline ? "underline" : "none", textAlign: el.align }}
                         onFocus={(e) => e.target.select()}
                         onPointerDown={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => { e.stopPropagation(); if (e.key === "Escape") e.currentTarget.blur(); }}
+                        onKeyDown={(e) => {
+                          e.stopPropagation();
+                          const m = e.ctrlKey || e.metaKey;
+                          const k = e.key.toLowerCase();
+                          if (e.key === "Escape" || (m && e.key === "Enter")) e.currentTarget.blur();
+                          else if (m && !e.shiftKey && k === "b") { e.preventDefault(); patch(el.id, { bold: !el.bold }); }
+                          else if (m && !e.shiftKey && k === "i") { e.preventDefault(); patch(el.id, { italic: !el.italic }); }
+                          else if (m && !e.shiftKey && k === "u") { e.preventDefault(); patch(el.id, { underline: !el.underline }); }
+                          else if (m && e.shiftKey && k === "l") { e.preventDefault(); patch(el.id, { align: "left" }); }
+                          else if (m && e.shiftKey && k === "e") { e.preventDefault(); patch(el.id, { align: "center" }); }
+                          else if (m && e.shiftKey && k === "r") { e.preventDefault(); patch(el.id, { align: "right" }); }
+                        }}
                         onBlur={(e) => { if (e.target.value !== el.text) patch(el.id, { text: e.target.value }); setEditing(null); }}
                       />
                     ) : (
@@ -368,16 +537,30 @@ export function Editor({ deck, setDeck, onOp, readOnly, comments = {}, onView, s
 
 // ---------- modo presentación a pantalla completa ----------
 function Presentar({ deck, inicio, onSalir }) {
-  const [i, setI] = useState(Math.max(0, inicio));
+  const total = deck.slides.length;
+  const [i, setI] = useState(Math.max(0, Math.min(total - 1, inicio)));
+  const [pantalla, setPantalla] = useState(null); // null | "negra" | "blanca"
+  const [num, setNum] = useState(""); // número escrito para saltar a una diapositiva
+  const numRef = useRef("");
   const [ancho, setAncho] = useState(window.innerWidth);
   const ref = useRef(null);
+  const ir = (n) => { setPantalla(null); setI(Math.max(0, Math.min(total - 1, n))); };
   useEffect(() => {
     ref.current?.requestFullscreen?.().catch(() => {});
     const onResize = () => setAncho(window.innerWidth);
+    const poner = (v) => { numRef.current = v; setNum(v); };
     const onKey = (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const k = e.key.toLowerCase();
       if (e.key === "Escape") onSalir();
-      else if (["ArrowRight", "ArrowDown", " ", "PageDown"].includes(e.key)) setI((n) => Math.min(deck.slides.length - 1, n + 1));
-      else if (["ArrowLeft", "ArrowUp", "PageUp"].includes(e.key)) setI((n) => Math.max(0, n - 1));
+      else if (/^[0-9]$/.test(e.key)) { poner((numRef.current + e.key).slice(0, 3)); }
+      else if (e.key === "Enter" && numRef.current) { const n = Number(numRef.current) - 1; poner(""); ir(n); }
+      else if ([ "ArrowRight", "ArrowDown", " ", "PageDown", "Enter" ].includes(e.key) || k === "n") { e.preventDefault(); poner(""); setPantalla(null); setI((n) => Math.min(total - 1, n + 1)); }
+      else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(e.key) || k === "p") { e.preventDefault(); poner(""); setPantalla(null); setI((n) => Math.max(0, n - 1)); }
+      else if (e.key === "Home") { e.preventDefault(); ir(0); }
+      else if (e.key === "End") { e.preventDefault(); ir(total - 1); }
+      else if (k === "b" || e.key === ".") setPantalla((p) => (p === "negra" ? null : "negra"));
+      else if (k === "w" || e.key === ",") setPantalla((p) => (p === "blanca" ? null : "blanca"));
     };
     const onFs = () => { if (!document.fullscreenElement) onSalir(); };
     window.addEventListener("resize", onResize);
@@ -392,13 +575,94 @@ function Presentar({ deck, inicio, onSalir }) {
   }, []); // eslint-disable-line
   const w = Math.min(ancho, (window.innerHeight * W) / H);
   return (
-    <div className="es-pres" ref={ref} onClick={() => setI((n) => Math.min(deck.slides.length - 1, n + 1))}>
-      <SlideView slide={deck.slides[i]} width={w} />
+    <div className="es-pres" ref={ref} onClick={() => { setNum(""); numRef.current = ""; setPantalla(null); setI((n) => Math.min(total - 1, n + 1)); }}>
+      {pantalla ? <div className={"es-pres-tapa " + pantalla} aria-label={pantalla === "negra" ? "Pantalla en negro" : "Pantalla en blanco"} /> : <SlideView slide={deck.slides[i]} width={w} />}
+      {num && <div className="es-pres-num" role="status">Ir a la diapositiva: <b>{num}</b> <small>(Enter)</small></div>}
       <div className="es-pres-bar" onClick={(e) => e.stopPropagation()}>
-        <button onClick={() => setI((n) => Math.max(0, n - 1))} disabled={i === 0} aria-label="Anterior">◀</button>
-        <span>{i + 1} / {deck.slides.length}</span>
-        <button onClick={() => setI((n) => Math.min(deck.slides.length - 1, n + 1))} disabled={i === deck.slides.length - 1} aria-label="Siguiente">▶</button>
+        <button onClick={() => ir(i - 1)} disabled={i === 0} aria-label="Anterior">◀</button>
+        <span>{i + 1} / {total}</span>
+        <button onClick={() => ir(i + 1)} disabled={i === total - 1} aria-label="Siguiente">▶</button>
         <button onClick={onSalir}>✕ Salir</button>
+      </div>
+    </div>
+  );
+}
+
+// ---------- panel de atajos de teclado ----------
+const GRUPOS_ATAJOS = [
+  ["General", [
+    ["Ctrl + Z", "Deshacer"],
+    ["Ctrl + Y  ·  Ctrl + Shift + Z", "Rehacer"],
+    ["Ctrl + C  ·  Ctrl + X  ·  Ctrl + V", "Copiar, cortar y pegar (también imágenes y texto de otras páginas)"],
+    ["Ctrl + D", "Duplicar el elemento (o la diapositiva si no hay uno elegido)"],
+    ["Supr  ·  Retroceso", "Borrar el elemento elegido"],
+    ["Tab  ·  Shift + Tab", "Elegir el siguiente / anterior elemento"],
+    ["Esc", "Quitar la selección"],
+    ["Ctrl + S", "Guardar (es automático)"],
+    ["?  ·  Ctrl + /", "Abrir o cerrar esta ayuda"],
+  ]],
+  ["Insertar", [
+    ["T", "Cuadro de texto"],
+    ["R", "Cuadro (rectángulo)"],
+    ["C", "Círculo"],
+    ["Ctrl + V", "Pegar una imagen copiada"],
+    ["Ctrl + M", "Nueva diapositiva"],
+  ]],
+  ["Texto", [
+    ["Enter  ·  F2  ·  doble clic", "Escribir en el texto elegido"],
+    ["Esc  ·  Ctrl + Enter", "Terminar de escribir"],
+    ["Ctrl + B", "Negrita"],
+    ["Ctrl + I", "Cursiva"],
+    ["Ctrl + U", "Subrayado"],
+    ["Ctrl + Shift + L  /  E  /  R", "Alinear a la izquierda / centro / derecha"],
+    ["Ctrl + Shift + >  ·  Ctrl + ]", "Letra más grande"],
+    ["Ctrl + Shift + <  ·  Ctrl + [", "Letra más pequeña"],
+  ]],
+  ["Mover y ordenar", [
+    ["Flechas", "Mover 4 px"],
+    ["Shift + flechas", "Mover 20 px"],
+    ["Ctrl + Shift + ↑  ·  Ctrl + Shift + ]", "Traer al frente"],
+    ["Ctrl + Shift + ↓  ·  Ctrl + Shift + [", "Enviar atrás"],
+  ]],
+  ["Diapositivas", [
+    ["Re Pág  ·  Av Pág", "Diapositiva anterior / siguiente"],
+    ["Flechas (sin elemento elegido)", "Diapositiva anterior / siguiente"],
+    ["Inicio  ·  Fin", "Primera / última diapositiva"],
+    ["Alt + Shift + ↑  ·  ↓", "Mover la diapositiva hacia arriba / abajo"],
+  ]],
+  ["Presentar", [
+    ["F5", "Presentar desde el inicio"],
+    ["Shift + F5  ·  Ctrl + Enter", "Presentar desde la diapositiva actual"],
+    ["→  ↓  Espacio  Enter  N", "Siguiente"],
+    ["←  ↑  Retroceso  P", "Anterior"],
+    ["Número + Enter", "Ir a esa diapositiva"],
+    ["B  ·  .", "Pantalla en negro (otra vez para volver)"],
+    ["W  ·  ,", "Pantalla en blanco (otra vez para volver)"],
+    ["Esc", "Salir de la presentación"],
+  ]],
+];
+
+function Atajos({ onCerrar }) {
+  return (
+    <div className="es-atajos-bg" onClick={onCerrar}>
+      <div className="es-atajos" role="dialog" aria-modal="true" aria-label="Atajos de teclado" onClick={(e) => e.stopPropagation()}>
+        <div className="es-atajos-head">
+          <h2>⌨ Atajos de teclado</h2>
+          <button className="es-btn ghost" onClick={onCerrar} autoFocus>Cerrar</button>
+        </div>
+        <p className="es-muted">En Mac usa ⌘ en lugar de Ctrl. Funcionan cuando no estás escribiendo dentro de un texto.</p>
+        <div className="es-atajos-grid">
+          {GRUPOS_ATAJOS.map(([titulo, filas]) => (
+            <section key={titulo}>
+              <h3>{titulo}</h3>
+              <ul>
+                {filas.map(([teclas, que]) => (
+                  <li key={teclas + que}><kbd>{teclas}</kbd><span>{que}</span></li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
       </div>
     </div>
   );

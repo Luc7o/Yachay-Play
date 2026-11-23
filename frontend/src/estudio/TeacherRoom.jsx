@@ -179,6 +179,7 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
               {room.status === "closed" ? (
                 <>
                   <span className="es-chip warn">Sala cerrada</span>
+                  <button className="es-btn" onClick={() => accion("ss:reopen")} title="Los estudiantes podrán entrar y seguir editando con el mismo código">↺ Reabrir para continuar</button>
                   <button className="es-btn danger" onClick={eliminar} disabled={eliminando}>{eliminando ? "Eliminando…" : "🗑 Eliminar sala"}</button>
                 </>
               ) : (

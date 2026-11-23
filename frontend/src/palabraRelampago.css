@@ -806,3 +806,29 @@
   outline: 3px solid #53e8cf !important;
   outline-offset: 2px !important;
 }
+
+/* ---- Modo individual (contrarreloj) ---- */
+.pr-config-solo{grid-template-columns:1fr}
+.pr-panel .pr-name-input{border:1px solid #addbd3;background:#f9fffd;color:#153d48;border-radius:13px;padding:15px;font:inherit;width:100%;box-sizing:border-box}
+.pr-night .pr-panel .pr-name-input{background:#0e0f12;color:#f6f7ff;border-color:#38404b}
+.pr-solo-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+.pr-solo-stats div{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 6px;border:1px solid #d8eae6;border-radius:13px}
+.pr-solo-stats strong{font-size:28px;line-height:1.1;color:#078f80}
+.pr-solo-stats span{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#628084}
+.pr-night .pr-solo-stats div{border-color:#2a3038}
+.pr-night .pr-solo-stats strong{color:#67f3d9}
+.pr-night .pr-solo-stats span{color:#a9c7d2}
+.pr-solo-words{justify-content:center;margin-top:14px}
+
+/* ---- Individual y En línea: formularios de la tarjeta de configuración ---- */
+.pr-panel .pr-name-input{border:1px solid #addbd3;background:#f9fffd;color:#153d48;border-radius:13px;padding:15px;font:inherit;width:100%;box-sizing:border-box}
+.pr-night .pr-panel .pr-name-input{background:#121518;color:#f6ffff;border-color:#39414b}
+.pr-online{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:14px;text-align:left}
+.pr-online-box{border:1px solid var(--pr-edge);border-radius:18px;padding:16px 18px}
+.pr-night .pr-online-box{border-color:#343b45}
+.pr-online-box h3{margin:0 0 6px}
+.pr-online-box .pr-primary{margin-top:6px}
+.pr-online-err{grid-column:1/-1}
+.pr-panel label.pr-check{flex-direction:row;align-items:flex-start;gap:9px;font-weight:600;margin:10px 0}
+.pr-check input{margin-top:3px}
+@media(max-width:820px){.pr-online{grid-template-columns:1fr}}

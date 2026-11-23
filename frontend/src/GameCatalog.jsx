@@ -87,7 +87,7 @@ function Tile({ icono: Ico, titulo, desc, cta, onClick, disabled, extra }) {
   );
 }
 
-const NOMBRE_TIPO = { ludo: "Ludo", crucigrama: "Crucigrama", evaluacion: "Evaluación", estudio: "Presentaciones" };
+const NOMBRE_TIPO = { ludo: "Ludo", crucigrama: "Crucigrama", palabra: "Palabra relámpago", evaluacion: "Evaluación", estudio: "Presentaciones" };
 
 // Resumen de "Mis clases" en el inicio: lo que está en vivo y las clases más recientes.
 // Si falla la petición (p. ej. backend sin la migración de clases), simplemente no se muestra.

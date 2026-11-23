@@ -20,8 +20,9 @@ export const TIPOS = {
   crucigrama: { nombre: "Crucigrama relámpago", icono: Icono.crucigrama },
   evaluacion: { nombre: "Evaluación rápida", icono: Icono.evaluacion },
   estudio: { nombre: "Presentaciones en vivo", icono: Icono.estudio },
+  palabra: { nombre: "Palabra relámpago", icono: Icono.palabra },
 };
-const LANZABLES = ["ludo", "crucigrama", "evaluacion", "estudio"];
+const LANZABLES = ["ludo", "crucigrama", "palabra", "evaluacion", "estudio"];
 const REFRESCO_MS = 15000; // cada cuánto se revisa qué está en vivo
 
 const fecha = (v) => {
@@ -137,6 +138,20 @@ function Lista({ user, onAbrir, onEntrar }) {
     }
   }
 
+  // "Eliminar" archiva la clase en el servidor: deja de listarse y su código deja de servir,
+  // pero las partidas ya jugadas se conservan en las estadísticas del docente.
+  async function eliminar(c) {
+    if (!window.confirm(`¿Eliminar «${c.name}»? Dejará de aparecer en tus clases y su código ya no servirá. Las partidas jugadas se conservan en tus estadísticas.`)) return;
+    setMsg({});
+    try {
+      await api.classArchive(c.id);
+      setMsg({ tipo: "ok", texto: `La clase «${c.name}» se eliminó.` });
+      await cargar();
+    } catch (err) {
+      setMsg({ tipo: "error", texto: err.message });
+    }
+  }
+
   const enVivo = (clases || []).flatMap((c) => c.live.map((a) => ({ ...a, clase: c.name })));
 
   return (
@@ -218,7 +233,8 @@ function Lista({ user, onAbrir, onEntrar }) {
         ) : (
           <div className="cp-tiles">
             {clases.map((c) => (
-              <button type="button" key={c.id} className={"cp-tile" + (c.live.length ? " is-live" : "")} onClick={() => onAbrir(c.id)}>
+              <div className="cp-tile-wrap" key={c.id}>
+              <button type="button" className={"cp-tile" + (c.live.length ? " is-live" : "")} onClick={() => onAbrir(c.id)}>
                 <span className="cp-tile-top">
                   <span className="cp-chip accent">{esDocente ? codigoBonito(c.code) : c.section || "Clase"}</span>
                   {c.live.length > 0 && <span className="cp-live">En vivo</span>}
@@ -232,6 +248,12 @@ function Lista({ user, onAbrir, onEntrar }) {
                   </span>
                 )}
               </button>
+              {esDocente && (
+                <button type="button" className="cp-btn quiet sm danger cp-tile-delete" onClick={() => eliminar(c)} aria-label={`Eliminar la clase ${c.name}`}>
+                  Eliminar clase
+                </button>
+              )}
+              </div>
             ))}
           </div>
         )}
@@ -433,11 +455,11 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
             type="button"
             className="cp-btn ghost danger"
             onClick={() =>
-              window.confirm(`¿Archivar «${clase.name}»? Dejará de aparecer en tus clases y su código ya no servirá. Las partidas jugadas se conservan en tus estadísticas.`) &&
+              window.confirm(`¿Eliminar «${clase.name}»? Dejará de aparecer en tus clases y su código ya no servirá. Las partidas jugadas se conservan en tus estadísticas.`) &&
               accion(() => api.classArchive(clase.id), null, { recargar: false }).then((bien) => bien && onVolver())
             }
           >
-            Archivar clase
+            Eliminar clase
           </button>
         ) : (
           <button

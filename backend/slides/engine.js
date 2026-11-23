@@ -73,7 +73,12 @@ function nuevoCodigoEquipo(room) {
 }
 
 export function joinStudent(room, { id, name, team, teamCode, userId }) {
-  const existente = id ? room.students.get(id) : null;
+  let existente = id ? room.students.get(id) : null;
+  // Con cuenta: si ya había entrado a esta sala (aunque sea desde otro dispositivo), recupera SU presentación.
+  // No aplica si ahora pide unirse a un equipo (con código o nombre de equipo).
+  if (!existente && userId && !teamCode && !team) {
+    existente = [...room.students.values()].find((s) => s.userId === userId && room.decks.has(s.deckKey)) || null;
+  }
   if (existente) return { student: existente, entry: room.decks.get(existente.deckKey) };
   if (room.status === "closed") return { error: "El docente cerró esta sala." };
   const nombre = nombreLimpio(name, 30);
@@ -159,6 +164,13 @@ export function setLocked(room, locked) {
 export function closeRoom(room) {
   room.status = "closed";
   room.locked = true;
+  avisar(room);
+}
+// El docente vuelve a abrir una sala cerrada (para continuar el trabajo en la siguiente clase).
+export function reopenRoom(room) {
+  room.status = "open";
+  room.locked = false;
+  room.lastUsed = Date.now();
   avisar(room);
 }
 

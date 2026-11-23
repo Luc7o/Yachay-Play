@@ -11,7 +11,7 @@ import { Router } from "express";
 import db from "../db.js";
 import { requireTeacher } from "../auth.js";
 import { createRoom, deleteRoom, getRoom, resumenLista, rooms, restaurar } from "./engine.js";
-import { borrarSala } from "./persist.js";
+import { borrarSala, obtenerSala } from "./persist.js";
 import { claseDelDocente } from "../classes/routes.js";
 
 export const slidesRouter = Router();
@@ -105,8 +105,52 @@ slidesRouter.delete("/mine/:id", requireTeacher, async (req, res) => {
   }
 });
 
-slidesRouter.get("/:code", (req, res) => {
-  const room = getRoom(req.params.code);
+// ---- Historial del estudiante (con cuenta): todas las presentaciones que ha hecho, en cualquier sala ----
+slidesRouter.get("/historial", async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: "Inicia sesión para ver tu historial." });
+  const uid = String(req.user.id);
+  const lista = new Map(); // código -> item
+  try {
+    const { rows } = await db.pool.query(
+      `SELECT r.code, r.status, r.updated_at, r.data->>'name' AS room_name, r.data->>'task' AS task,
+              s->>'id' AS student_id, s->>'name' AS student_name, s->>'deckKey' AS deck_key,
+              dd.d->>'name' AS deck_name, (dd.d->>'updatedAt')::bigint AS deck_updated,
+              COALESCE(jsonb_array_length(dd.d->'deck'->'slides'), 0) AS slides
+         FROM slide_rooms r
+        CROSS JOIN LATERAL jsonb_array_elements(r.data->'students') s
+        CROSS JOIN LATERAL (SELECT e AS d FROM jsonb_array_elements(r.data->'decks') e WHERE e->>'key' = s->>'deckKey' LIMIT 1) dd
+        WHERE s->>'userId' = $1
+        ORDER BY r.updated_at DESC LIMIT 50`,
+      [uid]
+    );
+    for (const r of rows) {
+      lista.set(r.code, {
+        code: r.code, roomName: r.room_name || "Presentaciones de la clase", task: r.task || "", status: r.status === "closed" ? "closed" : "open",
+        studentId: r.student_id, name: r.student_name || "", deckName: r.deck_name || "", teamCode: /^t:/.test(r.deck_key || "") ? r.deck_key.slice(2) : "",
+        slides: Number(r.slides), updatedAt: Number(r.deck_updated) || new Date(r.updated_at).getTime(),
+      });
+    }
+  } catch (e) {
+    console.error("[presentaciones] no se pudo leer el historial:", e.message);
+  }
+  // Lo que está en memoria es más reciente que la base (se guarda cada 4 s).
+  for (const room of rooms.values()) {
+    for (const st of room.students.values()) {
+      if (st.userId !== uid) continue;
+      const entry = room.decks.get(st.deckKey);
+      if (!entry) continue;
+      lista.set(room.code, {
+        code: room.code, roomName: room.name, task: room.task, status: room.status === "closed" ? "closed" : "open",
+        studentId: st.id, name: st.name, deckName: entry.name, teamCode: /^t:/.test(entry.key) ? entry.key.slice(2) : "",
+        slides: entry.deck?.slides?.length || 0, updatedAt: entry.updatedAt || room.createdAt,
+      });
+    }
+  }
+  res.json({ items: [...lista.values()].sort((a, b) => b.updatedAt - a.updatedAt) });
+});
+
+slidesRouter.get("/:code", async (req, res) => {
+  const room = await obtenerSala(req.params.code);
   if (!room) return res.status(404).json({ error: "No existe una sala con ese código." });
   res.json({ code: room.code, name: room.name, task: room.task, status: room.status, students: room.students.size });
 });

@@ -28,7 +28,6 @@ function EditarDatos({ user, onUserUpdate }) {
   const [nombre, setNombre] = useState(user.name);
   const [msg, setMsg] = useState({ tipo: "", texto: "" });
   const [guardando, setGuardando] = useState(false);
-  if (sinClave) return <CrearClavePorCorreo user={user} />;
 
   async function guardar() {
     setMsg({ tipo: "", texto: "" });
@@ -99,6 +98,8 @@ function CambiarClave({ user, onUserUpdate }) {
   const [codigo, setCodigo] = useState("");
   const [msg, setMsg] = useState({ tipo: "", texto: "" });
   const [guardando, setGuardando] = useState(false);
+  // Cuenta creada con Google (sin contraseña): se crea con un enlace al correo. Va después de los hooks.
+  if (sinClave) return <CrearClavePorCorreo user={user} />;
 
   async function guardar() {
     setMsg({ tipo: "", texto: "" });

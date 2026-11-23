@@ -1,18 +1,29 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { BASE_COUNT, checkWord, candidateFragments, loadExtraWords, normalizeWord, saveExtraWords } from './palabraDiccionario';
+import { PalabraSolo } from './palabra/PalabraSolo';
+import { OnlineRoom, OnlineSetup } from './palabra/PalabraOnline';
 import './palabraRelampago.css';
 
 const COLORS = ['#17c7b5','#4388ff','#b18aff','#ffc15d','#f383a6','#6ac9de','#a4d75c','#e1a7ff'];
-const DEFAULT_NAMES = { team: 'Equipo Menta, Equipo Azul, Equipo Violeta', individual: 'Andrea, Mateo, Lucía, Diego' };
+const DEFAULT_TEAMS = 'Equipo Menta, Equipo Azul, Equipo Violeta';
 const parseNames = value => [...new Set(value.split(/[,\n]/).map(x => x.trim()).filter(Boolean))].slice(0, 8);
 const POSITIONS = (i, length) => {
   const angle = -Math.PI / 2 + (i * 2 * Math.PI / length);
   return { left: `${50 + 43 * Math.cos(angle)}%`, top: `${50 + 43 * Math.sin(angle)}%` };
 };
 
-export function PalabraRelampago({ goHome, frame }) {
-  const [mode, setMode] = useState('team');
-  const [names, setNames] = useState(DEFAULT_NAMES.team);
+// Modalidades:
+//   individual -> una persona contra el reloj, 3 vidas (palabra/PalabraSolo.jsx)
+//   team       -> equipos en UN mismo dispositivo, el docente proyecta (este archivo)
+//   online     -> cada quien en su dispositivo, estudiantes o docente (palabra/PalabraOnline.jsx)
+// Agregar palabras al diccionario es SOLO para docentes; los estudiantes usan el diccionario base.
+export function PalabraRelampago({ goHome, frame, user = null, initialCode = '', initialName = '' }) {
+  const canEditDictionary = user?.role === 'docente';
+  const [mode, setMode] = useState(initialCode ? 'online' : 'individual');
+  const [screen, setScreen] = useState('setup'); // setup | solo | online
+  const [soloName, setSoloName] = useState(initialName || user?.name || '');
+  const [online, setOnline] = useState(null); // { code, name, host, hostPlays }
+  const [names, setNames] = useState(DEFAULT_TEAMS);
   const [seconds, setSeconds] = useState(20);
   const [maxRounds, setMaxRounds] = useState(20);
   const [players, setPlayers] = useState([]);
@@ -24,7 +35,7 @@ export function PalabraRelampago({ goHome, frame }) {
   const [used, setUsed] = useState([]);
   const [answer, setAnswer] = useState('');
   const [message, setMessage] = useState('');
-  const [extraWords, setExtraWords] = useState(() => loadExtraWords());
+  const [extraWords, setExtraWords] = useState(() => (canEditDictionary ? loadExtraWords() : []));
   const [vocabularyText, setVocabularyText] = useState('');
   const [vocabularyStatus, setVocabularyStatus] = useState('');
   const [showVocabulary, setShowVocabulary] = useState(false);
@@ -35,6 +46,15 @@ export function PalabraRelampago({ goHome, frame }) {
     document.documentElement.dataset.theme = next;
     try { window.localStorage.setItem('yp_theme', next); } catch { /* Almacenamiento opcional */ }
     setUiTheme(next);
+  };
+  useEffect(() => {
+    const nombre = (initialName || user?.name || '').trim();
+    if (initialCode && nombre) { setOnline({ code: initialCode, name: nombre, host: false, hostPlays: true }); setScreen('online'); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const startSolo = () => {
+    if (!soloName.trim()) { setMessage('Escribe tu nombre para empezar.'); return; }
+    setMessage(''); setScreen('solo');
   };
   const inputRef = useRef(null);
   const lockRef = useRef(false);
@@ -123,14 +143,19 @@ export function PalabraRelampago({ goHome, frame }) {
 
     <header className="pr-top"><div><span className="pr-kicker">YACHAYPLAY · JUEGO DE PALABRAS</span><h1><span className="pr-heading-bomb" aria-hidden="true">💣</span> Palabra Relámpago</h1><p>Encuentra las letras en cualquier parte de una palabra antes de que termine tu turno.</p></div><div className="pr-top-actions"><button type="button" className="pr-theme-switch" onClick={toggleUiTheme} aria-label={uiTheme==='dark'?'Cambiar a modo claro':'Cambiar a modo oscuro'}>{uiTheme==='dark'?'☀ Modo claro':'☾ Modo oscuro'}</button><button type="button" className="pr-back" onClick={goHome}>← Volver a juegos</button></div></header>
     {phase==='setup'&&<section className="pr-panel pr-setup">
-      <div className="pr-burst">CA <span>→</span> BO<strong>CA</strong>DO</div><h2>Prepara tu arena</h2><p>Organiza hasta 8 participantes. La flecha marcará el turno y todos verán sus puntos y vidas.</p>
-      <div className="pr-mode" role="group" aria-label="Modalidad"><button type="button" className={mode==='team'?'chosen':''} onClick={()=>{setMode('team');setNames(DEFAULT_NAMES.team)}}>👥 Equipos</button><button type="button" className={mode==='individual'?'chosen':''} onClick={()=>{setMode('individual');setNames(DEFAULT_NAMES.individual)}}>👤 Individual</button></div>
-      <label>{mode==='team'?'Nombres de los equipos':'Nombres de los jugadores'}<textarea value={names} onChange={e=>setNames(e.target.value)} rows={2} maxLength={250} placeholder="Separa los nombres con comas"/></label>
+      <div className="pr-burst">CA <span>→</span> BO<strong>CA</strong>DO</div><h2>Elige cómo jugar</h2><p>Solo contra el reloj, por equipos en una misma pantalla, o en línea con tus compañeros, cada quien desde su dispositivo.</p>
+      <div className="pr-mode" role="group" aria-label="Modalidad"><button type="button" className={mode==='individual'?'chosen':''} onClick={()=>{setMode('individual');setMessage('')}}>👤 Individual</button><button type="button" className={mode==='team'?'chosen':''} onClick={()=>{setMode('team');setMessage('')}}>👥 Equipos (una pantalla)</button><button type="button" className={mode==='online'?'chosen':''} onClick={()=>{setMode('online');setMessage('')}}>🌐 En línea</button></div>
+      {mode==='individual'&&<><label>Tu nombre<input className="pr-name-input" value={soloName} onChange={e=>setSoloName(e.target.value)} maxLength={30} placeholder="Escribe tu nombre" autoComplete="off"/></label>
+      <p className="pr-small">Juegas solo contra el reloj con <strong>3 vidas</strong>. La partida dura hasta que te quedes sin vidas: cada palabra tiene un tiempo que se va acortando a medida que aciertas. Si se acaba el tiempo o cambias las letras pierdes una vida. +10 puntos y los segundos que sobren por acierto · Sin palabras repetidas.</p></>}
+      {mode==='online'&&<OnlineSetup user={user} extraWords={extraWords} initialCode={initialCode} initialName={initialName} onEnter={info=>{setOnline(info);setScreen('online')}}/>}
+      {mode==='team'&&<><label>Nombres de los equipos<textarea value={names} onChange={e=>setNames(e.target.value)} rows={2} maxLength={250} placeholder="Separa los nombres con comas"/></label>
       <div className="pr-config"><label>Tiempo por turno<select value={seconds} onChange={e=>setSeconds(Number(e.target.value))}><option value={15}>15 segundos</option><option value={20}>20 segundos</option><option value={30}>30 segundos</option></select></label><label>Turnos máximos<select value={maxRounds} onChange={e=>setMaxRounds(Number(e.target.value))}><option value={12}>12 turnos</option><option value={20}>20 turnos</option><option value={32}>32 turnos</option><option value={48}>48 turnos</option></select></label></div>
-      <p className="pr-small">3 vidas por participante · +10 puntos y tiempo restante por acierto · Sin palabras repetidas · Contiene las letras en cualquier posición.</p>
-      <button type="button" className="pr-dict-toggle" onClick={()=>setShowVocabulary(v=>!v)} aria-expanded={showVocabulary}>📖 Diccionario: {BASE_COUNT.toLocaleString('es')} palabras base + {extraWords.length.toLocaleString('es')} personalizadas {showVocabulary?'−':'+'}</button>
-      {showVocabulary&&<div className="pr-vocabulary"><p>Agrega palabras específicas para tu clase o importa un <strong>.txt UTF-8</strong> (una palabra por línea o separadas por espacios). Se guardan en este navegador. Revisa previamente los términos: se consideran válidos automáticamente.</p><textarea rows={3} value={vocabularyText} onChange={e=>setVocabularyText(e.target.value)} placeholder="biotecnología&#10;fotosíntesis&#10;ecosistema"/><div className="pr-vocabulary-actions"><button className="pr-skip" type="button" onClick={()=>addWords(vocabularyText)} disabled={!vocabularyText.trim()}>Añadir palabras</button><label className="pr-import">Importar .txt<input type="file" accept=".txt,text/plain" onChange={e=>{importWords(e.target.files?.[0]);e.target.value='';}}/></label></div>{vocabularyStatus&&<p role="status">{vocabularyStatus}</p>}</div>}
-      {message&&<div className="pr-alert" role="alert">{message}</div>}<button className="pr-primary" onClick={start}>Entrar a la arena →</button>
+      <p className="pr-small">3 vidas por participante · +10 puntos y tiempo restante por acierto · Sin palabras repetidas · Contiene las letras en cualquier posición. Todos juegan en esta misma pantalla.</p></>}
+      {canEditDictionary
+        ?<button type="button" className="pr-dict-toggle" onClick={()=>setShowVocabulary(v=>!v)} aria-expanded={showVocabulary}>📖 Diccionario: {BASE_COUNT.toLocaleString('es')} palabras base + {extraWords.length.toLocaleString('es')} personalizadas {showVocabulary?'−':'+'}</button>
+        :<p className="pr-small">📖 Diccionario: {BASE_COUNT.toLocaleString('es')} palabras. Solo los docentes pueden agregar palabras nuevas.</p>}
+      {canEditDictionary&&showVocabulary&&<div className="pr-vocabulary"><p>Agrega palabras específicas para tu clase o importa un <strong>.txt UTF-8</strong> (una palabra por línea o separadas por espacios). Se guardan en este navegador. Revisa previamente los términos: se consideran válidos automáticamente.</p><textarea rows={3} value={vocabularyText} onChange={e=>setVocabularyText(e.target.value)} placeholder="biotecnología&#10;fotosíntesis&#10;ecosistema"/><div className="pr-vocabulary-actions"><button className="pr-skip" type="button" onClick={()=>addWords(vocabularyText)} disabled={!vocabularyText.trim()}>Añadir palabras</button><label className="pr-import">Importar .txt<input type="file" accept=".txt,text/plain" onChange={e=>{importWords(e.target.files?.[0]);e.target.value='';}}/></label></div>{vocabularyStatus&&<p role="status">{vocabularyStatus}</p>}</div>}
+      {message&&<div className="pr-alert" role="alert">{message}</div>}{mode==='individual'&&<button className="pr-primary" onClick={startSolo}>Empezar contrarreloj ⚡</button>}{mode==='team'&&<button className="pr-primary" onClick={start}>Entrar a la arena →</button>}
     </section>}
     {phase==='playing'&&<div className="pr-game pr-approved-game"><section className="pr-panel pr-board"><div className="pr-gamehead"><span>Ronda {round} de {maxRounds}</span><strong>Turno: {active?.name}</strong></div>
       <div className="pr-arena pr-approved-arena" aria-label="Arena de jugadores y turnos" onClick={() => { if (!pending) inputRef.current?.focus(); }}>
@@ -177,5 +202,11 @@ export function PalabraRelampago({ goHome, frame }) {
       </section><aside className="pr-panel pr-scores"><h2>🏆 Clasificación</h2>{sorted.map((p,i)=><div className={'pr-player '+(p.id===active?.id?'pr-current':'')} key={p.id}><span className="pr-score-dot" style={{background:p.color}}/><span>{i+1}. {p.name} {p.id===active?.id?'➜':''}</span><strong>{p.score} pts</strong><small>{'♥'.repeat(p.lives)}{'♡'.repeat(3-p.lives)}</small></div>)}<h3>Palabras utilizadas ({used.length})</h3><div className="pr-used">{used.length?used.slice(-18).map(w=><span key={w}>{w}</span>):'Todavía ninguna'}</div><p className="pr-small">Modalidad: {mode==='team'?'Equipos':'Individual'} · Diccionario: {BASE_COUNT+extraWords.length} entradas aproximadamente</p></aside></div>}
     {phase==='finished'&&<section className="pr-panel pr-finish"><div className="pr-burst">🏆</div><h2>¡Partida terminada!</h2><p>{sorted.filter(p=>p.score===winner?.score).length>1?'Empate en el primer lugar':'Ganador'}: <strong>{sorted.filter(p=>p.score===winner?.score).map(p=>p.name).join(' y ')}</strong> · {winner?.score} puntos</p>{sorted.map((p,i)=><div className="pr-rank" key={p.id}><span>{i+1}. {p.name}</span><strong>{p.score} puntos</strong></div>)}<button className="pr-primary" onClick={()=>{setPhase('setup');setMessage('')}}>Jugar otra vez</button></section>}
   </div>;
-  return frame?frame(content):content;
+  const overlay = screen==='solo'
+    ? <PalabraSolo name={soloName.trim()} extraWords={extraWords} onExit={()=>setScreen('setup')}/>
+    : screen==='online' && online
+      ? <OnlineRoom key={online.code} code={online.code} name={online.name} host={online.host} hostPlays={online.hostPlays} onExit={()=>{setScreen('setup');setOnline(null);}}/>
+      : null;
+  const page = <>{content}{overlay}</>;
+  return frame?frame(page):page;
 }

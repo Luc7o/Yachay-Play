@@ -13,6 +13,30 @@ import "./estudio.css";
 const LS_DOCENTE = "yachay_es_docente"; // código de la última sala del docente
 const LS_ALUMNO = "yachay_es_alumno"; // { code, studentId, name, team }
 
+// Historial en ESTE dispositivo (sirve también sin cuenta): las últimas presentaciones que se abrieron.
+// Con cuenta, además se pide al servidor, así se ve el historial desde cualquier dispositivo.
+const LS_HIST = "yachay_es_historial"; // [{ code, studentId, name, roomName, deckName, teamCode, slideId, visto }]
+const leerHist = () => {
+  const l = loadJSON(LS_HIST);
+  return Array.isArray(l) ? l.filter((x) => x && /^\d{6}$/.test(x.code || "")) : [];
+};
+function guardarHist(item) {
+  const todo = leerHist();
+  const previo = todo.find((x) => x.code === item.code);
+  const nuevo = { ...previo, ...item, visto: Date.now() };
+  const resto = todo.filter((x) => x.code !== item.code);
+  saveJSON(LS_HIST, [nuevo, ...resto].slice(0, 20));
+}
+const quitarHist = (code) => saveJSON(LS_HIST, leerHist().filter((x) => x.code !== code));
+const haceTiempo = (ms) => {
+  const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
+  if (s < 60) return "hace un momento";
+  if (s < 3600) return `hace ${Math.round(s / 60)} min`;
+  if (s < 86400) return `hace ${Math.round(s / 3600)} h`;
+  const d = Math.round(s / 86400);
+  return d === 1 ? "ayer" : `hace ${d} días`;
+};
+
 async function pedir(path, options = {}) {
   const token = getToken();
   let res;
@@ -38,7 +62,7 @@ async function pedir(path, options = {}) {
 //   Docente  -> crea una sala y ve en vivo las presentaciones de todos
 //   Alumno   -> entra con el código y crea su presentación (sola o en equipo)
 // ============================================================================
-export function Estudio({ user, goHome, onLogin, onRegister, initialCode = "" }) {
+export function Estudio({ user, goHome, onLogin, onRegister, initialCode = "", initialName = "" }) {
   const esDocente = user?.role === "docente";
   const [vista, setVista] = useState(() => (esDocente ? "revisando" : "join")); // revisando | salas | setup | docente | join | alumno | gate
   const [sala, setSala] = useState(null); // docente: { code, state }
@@ -134,14 +158,16 @@ export function Estudio({ user, goHome, onLogin, onRegister, initialCode = "" })
     }
   };
 
-  const entrar = (code, name, team, teamCode) =>
+  const entrar = (code, name, team, teamCode, studentIdConocido) =>
     new Promise((res) => {
-      const g = { code, studentId: loadJSON(LS_ALUMNO)?.code === code ? loadJSON(LS_ALUMNO).studentId : undefined, name, team, teamCode };
+      const guardado = leerHist().find((x) => x.code === code)?.studentId || (loadJSON(LS_ALUMNO)?.code === code ? loadJSON(LS_ALUMNO).studentId : undefined);
+      const g = { code, studentId: studentIdConocido || guardado, name, team, teamCode };
       emitConTiempoLimite("ss:join", g, (ack) => {
         if (!ack?.ok) return res(ack?.error || "No se pudo entrar.");
         // Desde ahora se reconecta con el código del equipo (no con el nombre, que crearía otro).
         const session = { ...g, studentId: ack.studentId, team: "", teamCode: ack.state?.teamCode || "" };
         saveJSON(LS_ALUMNO, session);
+        guardarHist({ code, studentId: ack.studentId, name: ack.state?.me?.name || name, roomName: ack.state?.name || "", deckName: ack.state?.deckName || "", teamCode: ack.state?.teamCode || "" });
         setAlumno({ session, state: ack.state });
         setVista("alumno");
         res("");
@@ -175,7 +201,7 @@ export function Estudio({ user, goHome, onLogin, onRegister, initialCode = "" })
   if (vista === "alumno" && alumno) return <SalaAlumno key={alumno.session.code} session={alumno.session} initial={alumno.state} onSalir={salirAlumno} />;
 
   if (vista === "setup") return <Crear goHome={goHome} cargando={cargando} onCrear={crear} onSalas={esDocente && salas?.length ? () => setVista("salas") : null} />;
-  return <Unirse goHome={goHome} user={user} initialCode={initialCode} onEntrar={entrar} onLogin={onLogin} onRegister={onRegister} />;
+  return <Unirse goHome={goHome} user={user} initialCode={initialCode} initialName={initialName} onEntrar={entrar} onLogin={onLogin} onRegister={onRegister} />;
 }
 
 // ---------- marco simple para las pantallas de formulario ----------
@@ -299,9 +325,9 @@ function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
   );
 }
 
-function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "" }) {
+function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "", initialName = "" }) {
   const [code, setCode] = useState(String(initialCode || "").replace(/\D/g, "").slice(0, 6));
-  const [name, setName] = useState(user?.name || "");
+  const [name, setName] = useState(initialName || user?.name || "");
   const [modo, setModo] = useState("solo"); // solo | crear | unirme
   const [team, setTeam] = useState("");
   const [teamCode, setTeamCode] = useState("");
@@ -311,6 +337,34 @@ function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "" 
     code.length === 6 &&
     name.trim().length > 0 &&
     (modo === "solo" || (modo === "crear" && team.trim().length > 0) || (modo === "unirme" && teamCode.length === 4));
+
+  // Historial: lo de este dispositivo + (con cuenta) lo del servidor, para retomar el trabajo en otra clase o dispositivo.
+  const [local, setLocal] = useState(leerHist);
+  const [delServidor, setDelServidor] = useState([]);
+  const [retomando, setRetomando] = useState("");
+  const [errorHist, setErrorHist] = useState("");
+  useEffect(() => {
+    if (!user) return undefined;
+    let vivo = true;
+    pedir("/api/slides/historial").then((r) => vivo && setDelServidor(r.items || [])).catch(() => {});
+    return () => { vivo = false; };
+  }, [user?.id]); // eslint-disable-line
+  const historial = (() => {
+    const m = new Map();
+    for (const l of local) m.set(l.code, { ...l, updatedAt: l.visto });
+    for (const s of delServidor) {
+      const l = m.get(s.code) || {};
+      m.set(s.code, { ...l, ...s, slideId: l.slideId, updatedAt: Math.max(s.updatedAt || 0, l.visto || 0) });
+    }
+    return [...m.values()].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, 15);
+  })();
+  const retomar = async (h) => {
+    setRetomando(h.code);
+    setErrorHist("");
+    const msg = await onEntrar(h.code, h.name || name.trim() || user?.name || "Estudiante", "", "", h.studentId);
+    if (msg) { setErrorHist(`«${h.roomName || h.code}»: ${msg}`); setRetomando(""); }
+  };
+  const olvidar = (h) => { quitarHist(h.code); setLocal(leerHist()); setDelServidor((l) => l.filter((x) => x.code !== h.code)); };
   return (
     <Pantalla goHome={goHome}>
       <section className="es-card-form">
@@ -346,6 +400,42 @@ function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "" 
         </button>
         {!user && (
           <p className="es-muted">¿Eres docente? <button className="es-link" onClick={onLogin}>Inicia sesión</button> o <button className="es-link" onClick={onRegister}>crea tu cuenta</button>.</p>
+        )}
+
+        {historial.length > 0 && (
+          <div className="es-hist">
+            <h2>Mis presentaciones</h2>
+            <p className="es-muted">
+              Retoma tu trabajo donde lo dejaste, sin volver a escribir el código.
+              {!user && " Sin cuenta, se guardan solo en este dispositivo."}
+            </p>
+            {errorHist && <p className="es-err" role="alert">{errorHist}</p>}
+            <ul className="es-hist-list">
+              {historial.map((h) => (
+                <li key={h.code} className="es-hist-item">
+                  <div className="es-hist-main">
+                    <strong>{h.roomName || "Sala " + h.code}</strong>
+                    <div className="es-hist-meta">
+                      {h.deckName && <span>{h.deckName}</span>}
+                      <span>Código {h.code}</span>
+                      {h.teamCode && <span>Equipo {h.teamCode}</span>}
+                      {h.slides ? <span>{h.slides} diapositiva{h.slides === 1 ? "" : "s"}</span> : null}
+                      {h.status === "closed" && <span>Sala cerrada (solo lectura)</span>}
+                      {h.updatedAt ? <span>{haceTiempo(h.updatedAt)}</span> : null}
+                    </div>
+                  </div>
+                  <div className="es-hist-act">
+                    <button className="es-btn" disabled={!!retomando} onClick={() => retomar(h)}>
+                      {retomando === h.code ? "Abriendo…" : h.status === "closed" ? "Ver" : "Retomar"}
+                    </button>
+                    {local.some((x) => x.code === h.code) && (
+                      <button className="es-btn ghost" disabled={!!retomando} onClick={() => olvidar(h)} title="Quitar de este dispositivo">Quitar</button>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </section>
     </Pantalla>
@@ -405,7 +495,11 @@ function SalaAlumno({ session, initial, onSalir }) {
       else { guardados.current++; setError(""); }
     });
   }, [resync]);
-  const onView = useCallback((slideId) => socket.emit("ss:view", { slideId }), []);
+  const onView = useCallback((slideId) => {
+    socket.emit("ss:view", { slideId });
+    guardarHist({ code: session.code, slideId }); // para volver a la misma diapositiva al retomar
+  }, [session.code]);
+  const slideInicial = useRef(leerHist().find((x) => x.code === session.code)?.slideId);
 
   const cerrada = room.status === "closed";
   const soloLectura = !conectado || room.locked || cerrada;
@@ -425,6 +519,7 @@ function SalaAlumno({ session, initial, onSalir }) {
         setDeck={setDeck}
         onOp={onOp}
         onView={onView}
+        initialSlideId={slideInicial.current}
         readOnly={soloLectura}
         comments={comments}
         aviso={aviso}

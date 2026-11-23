@@ -104,6 +104,9 @@ export const api = {
     request("/api/crossword-games", { method: "POST", body: JSON.stringify({ name, minutes, wordCount, ...conClaseDestino() }) }).then(olvidarDestino),
   crosswordGet: (code) => request(`/api/crossword-games/${code}`),
   // Clases (curso + sección)
+  // Palabra relámpago en línea (cualquier persona con sesión crea; las palabras extra y la clase solo las toma el servidor si es docente)
+  palabraCreate: (data) => request("/api/palabra-games", { method: "POST", body: JSON.stringify(data) }).then(olvidarDestino),
+  palabraGet: (code) => request(`/api/palabra-games/${encodeURIComponent(code)}`),
   classes: () => request("/api/classes"),
   classCreate: (name, section) => request("/api/classes", { method: "POST", body: JSON.stringify({ name, section }) }),
   classJoin: (code) => request("/api/classes/join", { method: "POST", body: JSON.stringify({ code }) }),

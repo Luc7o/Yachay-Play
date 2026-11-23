@@ -7,7 +7,8 @@
 //   ss:<código>                -> todos (avisos generales: bloqueo, cierre)
 // Los eventos empiezan con "ss:" para no chocar con los de Ludo ni Crucigrama.
 // ============================================================================
-import { addComment, closeRoom, getRoom, joinStudent, marcarUso, miembrosDe, rooms, setLocked, setPresence, studentOp, vistaDocente, vistaEstudiante, purgeOld, codigoDeEquipo } from "./engine.js";
+import { addComment, closeRoom, getRoom, joinStudent, marcarUso, miembrosDe, reopenRoom, rooms, setLocked, setPresence, studentOp, vistaDocente, vistaEstudiante, purgeOld, codigoDeEquipo } from "./engine.js";
+import { obtenerSala } from "./persist.js";
 
 const salaDocente = (code) => `ss:${code}:teacher`;
 const salaDeck = (code, key) => `ss:${code}:d:${key}`;
@@ -35,8 +36,8 @@ export function attachSlidesSocket(io, socket) {
   };
 
   // --- El docente abre el panel de su sala ---
-  socket.on("ss:watch", ({ code } = {}, ack) => {
-    const room = getRoom(code);
+  socket.on("ss:watch", async ({ code } = {}, ack) => {
+    const room = await obtenerSala(code);
     if (!room) return ack?.({ error: "No existe una sala con ese código." });
     const problema = requireOwner(socket, room);
     if (problema) return ack?.({ error: problema });
@@ -47,8 +48,8 @@ export function attachSlidesSocket(io, socket) {
   });
 
   // --- El estudiante entra (o vuelve a entrar tras recargar, con el mismo studentId) ---
-  socket.on("ss:join", ({ code, studentId, name, team, teamCode } = {}, ack) => {
-    const room = getRoom(code);
+  socket.on("ss:join", async ({ code, studentId, name, team, teamCode } = {}, ack) => {
+    const room = await obtenerSala(code);
     if (!room) return ack?.({ error: "No existe una sala con ese código." });
     // Freno para no adivinar códigos de equipo a fuerza de intentos.
     if ((socket.data.ssCodigosMalos || 0) >= 10) return ack?.({ error: "Demasiados códigos de equipo incorrectos. Recarga la página e inténtalo de nuevo." });
@@ -112,6 +113,16 @@ export function attachSlidesSocket(io, socket) {
     const problema = requireOwner(socket, room);
     if (problema) return ack?.({ error: problema });
     setLocked(room, locked);
+    ack?.({ ok: true });
+    io.to(salaTodos(room.code)).emit("ss:room", { locked: room.locked, status: room.status });
+  });
+
+  socket.on("ss:reopen", ({ code } = {}, ack) => {
+    const room = getRoom(code);
+    if (!room) return ack?.({ error: "No existe la sala." });
+    const problema = requireOwner(socket, room);
+    if (problema) return ack?.({ error: problema });
+    reopenRoom(room);
     ack?.({ ok: true });
     io.to(salaTodos(room.code)).emit("ss:room", { locked: room.locked, status: room.status });
   });

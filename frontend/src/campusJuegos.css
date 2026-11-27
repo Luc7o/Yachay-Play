@@ -1634,22 +1634,22 @@ body {
   gap: 12px;
 }
 .cp-proj .cw-stat-card {
-  background: var(--cp-surface) !important;
-  border: 1px solid var(--cp-line) !important;
-  border-radius: 14px !important;
-  padding: 14px 16px !important;
-  box-shadow: none !important;
-  color: var(--cp-ink) !important;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: none;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-stat-card span {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
   font-size: 12px;
 }
 .cp-proj .cw-stat-card b {
   font:
     600 24px "Space Grotesk",
     sans-serif;
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-stat-wide b {
   font-size: 15px;
@@ -1665,21 +1665,21 @@ body {
 .cp-proj .cw-board-panel {
   flex: 999 1 460px;
   min-width: 0;
-  background: var(--cp-surface) !important;
-  border: 1px solid var(--cp-line) !important;
-  border-radius: 14px !important;
-  box-shadow: none !important;
-  padding: 16px !important;
-  color: var(--cp-ink) !important;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 14px;
+  box-shadow: none;
+  padding: 16px;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-board-panel h3 {
   margin: 0 0 4px;
   font-size: 16px;
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-board-sub,
 .cp-proj .cw-heat-legend {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
   font-size: 13px;
 }
 .cp-proj .cw-side-col {
@@ -1690,67 +1690,67 @@ body {
   gap: 12px;
 }
 .cp-proj .cw-panel-card {
-  background: var(--cp-surface) !important;
-  border: 1px solid var(--cp-line) !important;
-  border-radius: 14px !important;
-  box-shadow: none !important;
-  padding: 14px 16px !important;
-  color: var(--cp-ink) !important;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 14px;
+  box-shadow: none;
+  padding: 14px 16px;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-side-title {
   font:
     600 12px Inter,
-    sans-serif !important;
+    sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
   margin: 4px 0 10px;
 }
 .cp-proj .cw-clue-list li {
-  color: var(--cp-ink2) !important;
-  border-color: var(--cp-line) !important;
+  color: var(--cp-ink2);
+  border-color: var(--cp-line);
   font-size: 13px;
 }
 .cp-proj .cw-clue-list li.done {
-  color: #8be3b4 !important;
+  color: #8be3b4;
 }
 .cp-proj .cw-clue-count,
 .cp-proj .cw-clue-list small {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
 }
 .cp-proj .cw-lb-bar {
-  background: var(--cp-surface2) !important;
+  background: var(--cp-surface2);
   border-radius: 3px;
 }
 .cp-proj .cw-lb-bar i {
-  background: var(--cp-accent) !important;
+  background: var(--cp-accent);
   border-radius: 3px;
 }
 .cp-proj .cw-lb-row {
-  border-bottom: 1px solid var(--cp-line) !important;
-  color: var(--cp-ink) !important;
+  border-bottom: 1px solid var(--cp-line);
+  color: var(--cp-ink);
   font-size: 14px;
 }
 .cp-proj .cw-lb-rank {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
 }
 .cp-proj .cw-lb-score {
   font-weight: 600;
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-lb-done {
-  color: #8be3b4 !important;
+  color: #8be3b4;
 }
 .cp-proj .cw-activity-list li {
-  color: var(--cp-ink2) !important;
-  border-color: var(--cp-line) !important;
+  color: var(--cp-ink2);
+  border-color: var(--cp-line);
   font-size: 13px;
 }
 .cp-proj .cw-activity-time {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
 }
 .cp-proj .muted {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
 }
 
 /* ---------------- 14. Crucigrama · tablero del estudiante (proyección) ---------------- */
@@ -1782,41 +1782,41 @@ body {
   gap: 12px;
 }
 .cwp .cw-grid {
-  background: #323a5a !important;
-  border-color: #323a5a !important;
-  border-radius: 10px !important;
+  background: #323a5a;
+  border-color: #323a5a;
+  border-radius: 10px;
 }
 .cwp .cw-cell {
-  background: #eef0f8 !important;
-  color: #161a2e !important;
+  background: #eef0f8;
+  color: #161a2e;
   font-family: "Space Grotesk", sans-serif;
 }
 .cwp .cw-cell.blank {
-  background: #1a1b1f !important;
+  background: #1a1b1f;
 }
 .cwp .cw-cell-num {
-  color: #5c6178 !important;
+  color: #5c6178;
 }
 .cwp .cw-overlay {
-  background: rgba(13, 18, 17, 0.86) !important;
+  background: rgba(13, 18, 17, 0.86);
   border-radius: 10px;
-  color: #b3bff6 !important;
+  color: #b3bff6;
   font:
     600 20px "Space Grotesk",
-    sans-serif !important;
+    sans-serif;
 }
 .cwp .cw-answer-bar {
-  background: var(--cp-surface) !important;
-  border: 1px solid var(--cp-line2) !important;
-  border-radius: 14px !important;
-  color: var(--cp-ink) !important;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line2);
+  border-radius: 14px;
+  color: var(--cp-ink);
   display: flex;
   flex-direction: column;
   gap: 10px;
-  box-shadow: none !important;
+  box-shadow: none;
 }
 .cwp .cw-answer-bar small {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
 }
 .cwp .cw-answer-row {
   display: flex;
@@ -1827,66 +1827,66 @@ body {
   min-width: 0;
   font:
     600 18px "Space Grotesk",
-    sans-serif !important;
+    sans-serif;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 .cwp .cw-mystats,
 .cwp .cw-energy,
 .cwp .cw-sabotage {
-  background: var(--cp-surface) !important;
-  border: 1px solid var(--cp-line) !important;
-  border-radius: 14px !important;
-  color: var(--cp-ink) !important;
-  box-shadow: none !important;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 14px;
+  color: var(--cp-ink);
+  box-shadow: none;
 }
 .cwp .cw-mystats b {
   font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
 }
 .cwp .cw-energy > span {
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink);
   font-weight: 600;
 }
 .cwp .cw-energy-bar {
-  background: var(--cp-surface2) !important;
-  border-radius: 4px !important;
+  background: var(--cp-surface2);
+  border-radius: 4px;
 }
 .cwp .cw-energy-bar i {
-  background: #f59e0b !important;
-  border-radius: 4px !important;
+  background: #f59e0b;
+  border-radius: 4px;
 }
 .cwp .cw-rival {
-  background: var(--cp-surface2) !important;
-  border: 1px solid var(--cp-line2) !important;
-  color: var(--cp-ink) !important;
-  border-radius: 10px !important;
-  font-weight: 600 !important;
+  background: var(--cp-surface2);
+  border: 1px solid var(--cp-line2);
+  color: var(--cp-ink);
+  border-radius: 10px;
+  font-weight: 600;
 }
 .cwp .cw-rival small {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
 }
 .cwp .cw-rival.on {
-  border-color: var(--cp-accent) !important;
-  background: var(--cp-accent-soft) !important;
+  border-color: var(--cp-accent);
+  background: var(--cp-accent-soft);
 }
 .cwp .cw-sabo-btn {
-  background: var(--cp-surface2) !important;
-  border: 1px solid var(--cp-line2) !important;
-  color: var(--cp-ink) !important;
-  border-radius: 10px !important;
+  background: var(--cp-surface2);
+  border: 1px solid var(--cp-line2);
+  color: var(--cp-ink);
+  border-radius: 10px;
   min-height: 44px;
-  font-weight: 600 !important;
+  font-weight: 600;
 }
 .cwp .cw-sabo-btn:not(:disabled):hover {
-  border-color: var(--cp-accent) !important;
+  border-color: var(--cp-accent);
 }
 .cwp .cw-sabo-btn:disabled {
   opacity: 0.45;
 }
 .cwp .cw-sabo-btn small {
   margin-left: auto;
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
   font-weight: 500;
 }
 .cwp .cw-sabo-btn span {
@@ -1902,9 +1902,9 @@ body {
   gap: 6px;
 }
 .cwp .cw-clue-list li {
-  padding: 0 !important;
-  background: none !important;
-  border: 0 !important;
+  padding: 0;
+  background: none;
+  border: 0;
   min-height: 0;
 }
 .cwp .cwp-clue {
@@ -1949,68 +1949,68 @@ body {
   cursor: default;
 }
 .cwp .cw-toast {
-  background: #161a2e !important;
-  color: #eef0f8 !important;
-  border: 1px solid #323a5a !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+  background: #161a2e;
+  color: #eef0f8;
+  border: 1px solid #323a5a;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 @media (max-width: 760px) {
   .cwp .cw-answer-bar {
-    position: fixed !important;
+    position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
-    border-radius: 14px 14px 0 0 !important;
-    border-width: 1px 0 0 !important;
+    border-radius: 14px 14px 0 0;
+    border-width: 1px 0 0;
   }
 }
 .cp-proj .cw-leaderboard {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  padding: 0 !important;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
 }
 .cp-proj .cw-lb-row {
-  background: transparent !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  padding: 10px 0 !important;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 10px 0;
 }
 .cp-proj .cw-lb-name {
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink);
   font-weight: 500;
 }
 .cp-proj .cw-clue-list li {
-  background: var(--cp-surface2) !important;
-  border: 1px solid var(--cp-line2) !important;
-  border-radius: 10px !important;
+  background: var(--cp-surface2);
+  border: 1px solid var(--cp-line2);
+  border-radius: 10px;
 }
 .cwp .cw-clue-list li {
-  background: none !important;
-  border: 0 !important;
+  background: none;
+  border: 0;
 }
 .cp-proj .cw-activity-list li {
-  background: var(--cp-surface2) !important;
-  border: 1px solid var(--cp-line) !important;
-  border-radius: 10px !important;
+  background: var(--cp-surface2);
+  border: 1px solid var(--cp-line);
+  border-radius: 10px;
 }
 .cp-proj .cw-grid-wrap {
-  background: transparent !important;
-  border: 0 !important;
-  padding: 0 !important;
-  box-shadow: none !important;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
 }
 .cp-proj .cw-clue-list li b,
 .cp-proj b.cw-cell-num {
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-clue-list li.done b {
-  color: #8be3b4 !important;
+  color: #8be3b4;
 }
 .cp-proj .cw-lb-row {
-  border: 0 !important;
-  border-bottom: 1px solid var(--cp-line) !important;
+  border: 0;
+  border-bottom: 1px solid var(--cp-line);
 }
 
 /* ---------------- 17. Palabra relámpago (fondo, paneles y acento; la arena y la bomba no se tocan) ---------------- */

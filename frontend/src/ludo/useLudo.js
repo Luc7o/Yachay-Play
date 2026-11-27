@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api";
 import { socket } from "../socket";
-import { useSalaEnVivo } from "../salaEnVivo";
 import { cronometro } from "../cronometroStore";
 
 // ============================================================================
@@ -75,30 +74,53 @@ export function useLudo({ user }) {
       .catch(() => {});
   }, [user?.id]);
 
-  // Estado de la partida que manda el servidor. Al reconectarse el socket (celular bloqueado,
-  // cambio de red...) se vuelve a entrar a la sala: el socket nuevo no está en ninguna.
-  const entrarASala = () => gameCode && socket.emit("join-room", { code: gameCode });
-  useSalaEnVivo({
-    eventos: {
-      state: (s) => {
-        setConnError("");
-        setServerState(s);
-        // Se sincroniza siempre con el servidor (así los +1m/-1m/+5m del docente se ven al instante).
-        setTimerSeconds(s.timerSeconds);
-        setPhaseSeconds(s.phaseSecondsLeft);
-        if (s.turnPhase !== "question") setSelected(null);
-      },
-      timer: (t) => setTimerSeconds(t),
-      // cuánto le queda a la fase actual del turno
-      "phase-timer": ({ seconds }) => setPhaseSeconds(seconds),
-      // "Partida no encontrada", etc.: sin esto el alumno se quedaba en "Conectando…" para siempre
-      "error-message": (msg) => setConnError(msg || "No se pudo conectar con la partida"),
-    },
-    alReconectar: entrarASala,
-  });
+  // Suscripción a los eventos de socket
   useEffect(() => {
-    entrarASala();
-  }, [gameCode]); // eslint-disable-line react-hooks/exhaustive-deps
+    function onState(s) {
+      setConnError("");
+      setServerState(s);
+      // Antes esto solo se actualizaba la PRIMERA vez ("prev === null"), así que
+      // cuando el docente sumaba/restaba tiempo con los botones +1m/-1m/+5m, el
+      // número en pantalla no cambiaba hasta que el reloj general empezara a
+      // correr. Ahora se sincroniza siempre con lo que diga el servidor.
+      setTimerSeconds(s.timerSeconds);
+      setPhaseSeconds(s.phaseSecondsLeft);
+      if (s.turnPhase !== "question") setSelected(null);
+    }
+    function onTimer(t) {
+      setTimerSeconds(t);
+    }
+    // El servidor avisa cada segundo cuánto le queda a la fase actual del turno
+    function onPhaseTimer({ seconds }) {
+      setPhaseSeconds(seconds);
+    }
+    // ¡Esto faltaba! Si el servidor dice "Partida no encontrada" el alumno se
+    // quedaba en "Conectando…" para siempre sin saber por qué.
+    function onErrorMessage(msg) {
+      setConnError(msg || "No se pudo conectar con la partida");
+    }
+    socket.on("error-message", onErrorMessage);
+    socket.on("state", onState);
+    socket.on("timer", onTimer);
+    socket.on("phase-timer", onPhaseTimer);
+    return () => {
+      socket.off("error-message", onErrorMessage);
+      socket.off("state", onState);
+      socket.off("timer", onTimer);
+      socket.off("phase-timer", onPhaseTimer);
+    };
+  }, []);
+
+  // Unirse a la sala de socket cada vez que tengamos un código de partida
+  // y otra vez cada vez que el socket se reconecta (celular bloqueado, cambio de red...):
+  // el socket nuevo no está en ninguna sala y la partida se vería congelada.
+  useEffect(() => {
+    if (!gameCode) return;
+    const entrar = () => socket.emit("join-room", { code: gameCode });
+    entrar();
+    socket.on("connect", entrar);
+    return () => socket.off("connect", entrar);
+  }, [gameCode]);
 
   // Cuando el alumno termina de escribir el código, buscamos la partida para
   // mostrarle SOLO los colores que realmente juegan y cuáles tienen cupo.

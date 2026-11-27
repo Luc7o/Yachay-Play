@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { IconoEnLinea } from "../campusUi";
 import { api } from "../api";
 import { socket } from "../socket";
+import { useSalaEnVivo } from "../salaEnVivo";
 import { conClaseDestino, limpiarClaseDestino, useClaseDestino } from "../claseDestino";
 import { Hearts, PalabraStage, StageFrame, useStageTheme } from "./PalabraStage";
 import { Button } from "../ui";
@@ -260,22 +261,20 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
     });
   }, [code, name, onlyWatches]);
 
+  useSalaEnVivo({
+    clave: entrar,
+    eventos: {
+      "pr:state": (s) => {
+        setOffset(s.now - Date.now());
+        setState(s);
+      },
+      "pr:typing": (t) => setTyping(t),
+    },
+    alReconectar: entrar, // si se cae la conexión, se vuelve a entrar con el mismo jugador
+  });
   useEffect(() => {
-    const onState = (s) => {
-      setOffset(s.now - Date.now());
-      setState(s);
-    };
-    const onTyping = (t) => setTyping(t);
-    socket.on("pr:state", onState);
-    socket.on("pr:typing", onTyping);
-    socket.on("connect", entrar); // si se cae la conexión, se vuelve a entrar con el mismo jugador
     if (socket.connected) entrar();
     else socket.connect();
-    return () => {
-      socket.off("pr:state", onState);
-      socket.off("pr:typing", onTyping);
-      socket.off("connect", entrar);
-    };
   }, [entrar]);
 
   // Reloj local para que los segundos bajen suave entre mensajes del servidor.

@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { IconoEnLinea } from "../campusUi";
 import { conClaseDestino, limpiarClaseDestino } from "../claseDestino";
 import { API_URL, getToken } from "../api";
-import { socket } from "../socket";
 import { Brand } from "../Brand";
 import { emitConTiempoLimite, loadJSON, saveJSON } from "../cw/helpers";
+import { useSalaEnVivo } from "../salaEnVivo";
 import "../herramientas.css";
 import "./quiz.css";
 import { Button } from "../ui";
@@ -132,16 +132,13 @@ function useSala(code, estadoInicial, reunir) {
   const [estado, setEstado] = useState(() => ({ ...estadoInicial, offset: estadoInicial.now - Date.now() }));
   const reunirRef = useRef(reunir);
   reunirRef.current = reunir;
-  useEffect(() => {
-    const alEstado = (st) => st?.code === code && setEstado({ ...st, offset: st.now - Date.now() });
-    const alConectar = () => emitConTiempoLimite(...reunirRef.current(), (ack) => ack?.state && alEstado(ack.state)); // tras un corte de red
-    socket.on("qz:state", alEstado);
-    socket.on("connect", alConectar);
-    return () => {
-      socket.off("qz:state", alEstado);
-      socket.off("connect", alConectar);
-    };
-  }, [code]);
+  const alEstado = (st) => st?.code === code && setEstado({ ...st, offset: st.now - Date.now() });
+  useSalaEnVivo({
+    clave: code,
+    eventos: { "qz:state": alEstado },
+    // tras un corte de red se vuelve a entrar a la sala
+    alReconectar: () => emitConTiempoLimite(...reunirRef.current(), (ack) => ack?.state && alEstado(ack.state)),
+  });
   return estado;
 }
 

@@ -5,6 +5,7 @@ import { API_URL, getToken } from "../api";
 import { socket } from "../socket";
 import { Brand } from "../Brand";
 import { emitConTiempoLimite, loadJSON, saveJSON } from "../cw/helpers";
+import { useSalaEnVivo } from "../salaEnVivo";
 import { aplicarOp } from "./model";
 import { Editor } from "./Editor";
 import { TeacherRoom, Miembros } from "./TeacherRoom";
@@ -733,7 +734,6 @@ function SalaAlumno({ session, initial, onSalir }) {
     task: initial.task,
     name: initial.name,
   });
-  const [conectado, setConectado] = useState(socket.connected);
   const [error, setError] = useState("");
   const deckKey = initial.deckKey;
   const guardados = useRef(0);
@@ -759,32 +759,18 @@ function SalaAlumno({ session, initial, onSalir }) {
     );
   }, [session]);
 
-  useEffect(() => {
-    const onOp = ({ op }) => setDeck((d) => aplicarOp(d, op));
-    const onComment = ({ key, sid, comment }) =>
-      key === deckKey && setComments((c) => ({ ...c, [sid]: [...(c[sid] || []), comment] }));
-    const onMembers = ({ members }) => setMembers(members);
-    const onRoom = ({ locked, status }) => setRoom((r) => ({ ...r, locked, status }));
-    const volver = () => {
-      setConectado(true);
-      resync();
-    };
-    const caer = () => setConectado(false);
-    socket.on("ss:op", onOp);
-    socket.on("ss:comment", onComment);
-    socket.on("ss:members", onMembers);
-    socket.on("ss:room", onRoom);
-    socket.on("connect", volver);
-    socket.on("disconnect", caer);
-    return () => {
-      socket.off("ss:op", onOp);
-      socket.off("ss:comment", onComment);
-      socket.off("ss:members", onMembers);
-      socket.off("ss:room", onRoom);
-      socket.off("connect", volver);
-      socket.off("disconnect", caer);
-    };
-  }, [deckKey, resync]);
+  // Al reconectar se pide otra vez la versión oficial del servidor.
+  const { conectado } = useSalaEnVivo({
+    clave: deckKey,
+    eventos: {
+      "ss:op": ({ op }) => setDeck((d) => aplicarOp(d, op)),
+      "ss:comment": ({ key, sid, comment }) =>
+        key === deckKey && setComments((c) => ({ ...c, [sid]: [...(c[sid] || []), comment] })),
+      "ss:members": ({ members }) => setMembers(members),
+      "ss:room": ({ locked, status }) => setRoom((r) => ({ ...r, locked, status })),
+    },
+    alReconectar: resync,
+  });
 
   const onOp = useCallback(
     (op) => {

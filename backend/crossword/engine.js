@@ -12,8 +12,11 @@
 import crypto from "node:crypto";
 import { generateCrossword } from "./generate.js";
 import { DEFAULT_WORDS, normalizeAnswer } from "./words.js";
+import { crearRegistro } from "../live/salas.js";
+import { limpiarNombre, nuevoSecreto } from "../live/jugadores.js";
 
-export const rooms = new Map(); // code -> room
+const registro = crearRegistro();
+export const rooms = registro.salas; // code -> room
 
 // ------------------------- ganchos de persistencia -------------------------
 // El motor sigue sin saber nada de bases de datos: solo avisa "pasó esto" y, si
@@ -38,10 +41,6 @@ export const SABOTAGES = {
   steal: { cost: 50, label: "Robar puntos", desc: "Le quitas hasta 40 puntos.", stealAmount: 40 },
 };
 
-function code6() {
-  return String(crypto.randomInt(100000, 1000000)); // crypto: códigos no predecibles
-}
-
 // -------------------------- historial de actividad --------------------------
 // Fila de eventos legible para el docente: quién saboteó a quién, quién se
 // unió, quién terminó... Nunca incluye respuestas ni nada que un estudiante
@@ -55,14 +54,10 @@ function pushLog(room, text, type = "info") {
 export function createRoom({ name, ownerId, classId = null, minutes = 8, wordCount = 12 }) {
   const bank = shuffle(DEFAULT_WORDS).slice(0, Math.max(6, Math.min(wordCount, DEFAULT_WORDS.length)));
   const grid = generateCrossword(bank);
-  let code;
-  do {
-    code = code6();
-  } while (rooms.has(code));
 
   const room = {
     id: crypto.randomUUID(),
-    code,
+    code: registro.nuevoCodigo(), // 6 dígitos, único en memoria (si choca en la BD, ver persist.js)
     name: (name || "Crucigrama Relámpago").trim().slice(0, 60),
     ownerId,
     classId, // clase a la que pertenece (o null)
@@ -78,7 +73,7 @@ export function createRoom({ name, ownerId, classId = null, minutes = 8, wordCou
     log: [],
     logSeq: 0,
   };
-  rooms.set(code, room);
+  registro.guardar(room);
   avisar("onCreate", room);
   return room;
 }
@@ -106,18 +101,13 @@ export function restoreRoom({ id, code, name, ownerId, classId = null, minutes, 
     logSeq: 0,
   };
   for (const p of players) room.players.set(p.id, nuevoJugador(p.id, p.name, p.userId));
-  rooms.set(code, room);
-  return room;
+  return registro.guardar(room);
 }
 
 // Quita de la memoria las salas creadas antes de `limiteMs` (timestamp).
-export function purgeOldRooms(limiteMs) {
-  for (const [code, room] of rooms) if (room.createdAt < limiteMs) rooms.delete(code);
-}
+export const purgeOldRooms = (limiteMs) => registro.purgarViejas(limiteMs);
 
-export function getRoom(code) {
-  return rooms.get(code) || null;
-}
+export const getRoom = registro.obtener; // acepta el código con espacios alrededor
 
 function shuffle(arr) {
   const a = [...arr];
@@ -136,7 +126,7 @@ function nuevoJugador(id, name, userId = null) {
     userId, // cuenta del estudiante (null si entró como invitado)
     // Llave privada para reconectar: el `id` es público (sale en el marcador),
     // así que no basta para demostrar que eres ese jugador.
-    secret: crypto.randomBytes(24).toString("base64url"),
+    secret: nuevoSecreto(),
     score: 0,
     lastPointAt: 0, // cuándo sumó puntos por última vez: sirve de desempate
     streak: 0,
@@ -155,9 +145,7 @@ export function addPlayer(room, { id, name, userId = null }) {
   if (!room) return { error: "La partida no existe." };
   if (room.status === "ended") return { error: "Esa partida ya terminó." };
   if (!room.players.has(id)) {
-    const limpio = String(name || "")
-      .trim()
-      .slice(0, 30);
+    const limpio = limpiarNombre(name);
     if (!limpio) return { error: "Escribe tu nombre." };
     room.players.set(id, nuevoJugador(id, limpio, userId));
     avisar("onPlayer", room, room.players.get(id));

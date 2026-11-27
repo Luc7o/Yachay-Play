@@ -8,7 +8,6 @@
 //
 // server.js solo necesita 3 líneas para usar esto (ver el comentario al final).
 // ============================================================================
-import crypto from "node:crypto";
 import { nanoid } from "nanoid";
 import {
   getRoom,
@@ -22,48 +21,30 @@ import {
   tick,
   rooms,
 } from "./engine.js";
+import { crearGuardDueno, crearAccionesDeAnfitrion } from "../live/dueno.js";
+import { enviarVistas } from "../live/difusion.js";
+import { reanudar } from "../live/jugadores.js";
 
 const roomKey = (code) => `cw:${code}`;
 
-// Solo deja pasar si quien llama es el docente dueño de esa partida.
-function mismoSecreto(a, b) {
-  if (typeof a !== "string" || typeof b !== "string") return false;
-  const x = Buffer.from(a);
-  const y = Buffer.from(b);
-  return x.length === y.length && crypto.timingSafeEqual(x, y);
-}
-
-// ¿Puede este socket retomar al jugador `existente`? Sí si trae su llave privada,
-// o si es la misma cuenta de estudiante que lo creó.
-function puedeRetomar(existente, secret, userId) {
-  if (existente.userId && userId && existente.userId === userId) return true;
-  return mismoSecreto(secret, existente.secret);
-}
-
-function requireOwner(socket, room) {
-  const u = socket.data.user;
-  if (!u || u.role !== "docente") return "Inicia sesión como docente para controlar esta partida.";
-  // Sin dueño (el docente borró su cuenta): nadie la controla; antes podía cualquier docente.
-  if (room.ownerId !== u.id)
-    return room.ownerId ? "Esta partida pertenece a otro docente." : "Ya no hay un docente a cargo.";
-  return null;
-}
+// Solo deja pasar si quien llama es el docente dueño de esa partida (ver live/dueno.js).
+const problemaDeDueno = crearGuardDueno({
+  sinSesion: "Inicia sesión como docente para controlar esta partida.",
+  otro: "Esta partida pertenece a otro docente.",
+  sinDueno: "Ya no hay un docente a cargo.",
+});
+const requireOwner = (socket, room) => problemaDeDueno(socket.data.user, room);
 
 // Manda a CADA socket conectado a la sala su propia vista (no una sola para todos).
 export async function broadcastCrossword(io, code) {
   const room = getRoom(code);
   if (!room) return;
   tick(room);
-  let sockets;
-  try {
-    sockets = await io.in(roomKey(code)).fetchSockets();
-  } catch {
-    return; // io de prueba sin fetchSockets: no pasa nada, solo no hay eco en vivo
-  }
-  for (const s of sockets) {
-    if (!s.data.cwCode) continue; // ni jugador ni docente observando: no pertenece a esta sala
-    s.emit("cw:state", publicRoomState(room, s.data.cwPlayerId || null));
-  }
+  await enviarVistas(io, roomKey(code), {
+    evento: "cw:state",
+    pertenece: (data) => !!data.cwCode, // ni jugador ni docente observando: no pertenece a esta sala
+    vista: (data) => publicRoomState(room, data.cwPlayerId || null),
+  });
 }
 
 // Revisa el reloj de todas las partidas activas (llamarlo 1 vez por segundo desde server.js).
@@ -76,7 +57,7 @@ export function crosswordTick(io) {
 export function attachCrosswordSocket(io, socket) {
   // --- El docente observa su propia sala (no juega, solo mira el marcador en vivo) ---
   socket.on("cw:watch-room", ({ code } = {}, ack) => {
-    const room = getRoom(String(code || "").trim());
+    const room = getRoom(code);
     if (!room) return ack?.({ error: "No existe una partida con ese código." });
     const problema = requireOwner(socket, room);
     if (problema) return ack?.({ error: problema });
@@ -90,14 +71,19 @@ export function attachCrosswordSocket(io, socket) {
 
   // --- Unirse (y volver a entrar tras recargar la página, con el mismo playerId) ---
   socket.on("cw:join-room", ({ code, playerId, secret, name } = {}, ack) => {
-    const room = getRoom(String(code || "").trim());
+    const room = getRoom(code);
     if (!room) return ack?.({ error: "No existe una partida con ese código." });
 
     const userId = socket.data.user?.id || null;
-    const existente = typeof playerId === "string" ? room.players.get(playerId) : null;
     // Los ids salen en el marcador: sin la llave privada (o la misma cuenta)
     // no se puede entrar como otro jugador.
-    if (existente && !puedeRetomar(existente, secret, userId)) {
+    const { jugador: existente, rechazado } = reanudar(room.players, {
+      id: playerId,
+      secreto: secret,
+      userId,
+      exigirLlave: true,
+    });
+    if (rechazado) {
       return ack?.({ error: "No se pudo recuperar tu lugar en la partida. Vuelve a unirte con el código." });
     }
     const id = existente ? existente.id : nanoid();
@@ -114,44 +100,17 @@ export function attachCrosswordSocket(io, socket) {
     broadcastCrossword(io, room.code);
   });
 
-  // --- El docente inicia la partida ---
-  socket.on("cw:start", ({ code } = {}, ack) => {
-    const room = getRoom(String(code || "").trim());
-    if (!room) return ack?.({ error: "No existe esa partida." });
-    const problema = requireOwner(socket, room);
-    if (problema) return ack?.({ error: problema });
-
-    const r = startRoom(room);
-    if (r.error) return ack?.({ error: r.error });
-    ack?.({ ok: true });
-    broadcastCrossword(io, room.code);
+  // --- Acciones del docente dueño: iniciar, terminar antes de tiempo y reiniciar ---
+  // (startRoom/endRoom/resetRoom devuelven { ok: true } o { error }: el ack es el mismo de antes)
+  const docente = crearAccionesDeAnfitrion(socket, {
+    buscar: ({ code }) => getRoom(code),
+    noExiste: "No existe esa partida.",
+    problema: (room) => requireOwner(socket, room),
+    despues: (room) => broadcastCrossword(io, room.code),
   });
-
-  // --- El docente termina la partida antes de tiempo ---
-  socket.on("cw:end", ({ code } = {}, ack) => {
-    const room = getRoom(String(code || "").trim());
-    if (!room) return ack?.({ error: "No existe esa partida." });
-    const problema = requireOwner(socket, room);
-    if (problema) return ack?.({ error: problema });
-
-    const r = endRoom(room);
-    if (r.error) return ack?.({ error: r.error });
-    ack?.({ ok: true });
-    broadcastCrossword(io, room.code);
-  });
-
-  // --- El docente reinicia la partida (mismo código, marcador en cero) ---
-  socket.on("cw:reset", ({ code } = {}, ack) => {
-    const room = getRoom(String(code || "").trim());
-    if (!room) return ack?.({ error: "No existe esa partida." });
-    const problema = requireOwner(socket, room);
-    if (problema) return ack?.({ error: problema });
-
-    const r = resetRoom(room);
-    if (r.error) return ack?.({ error: r.error });
-    ack?.({ ok: true });
-    broadcastCrossword(io, room.code);
-  });
+  docente("cw:start", (room) => startRoom(room));
+  docente("cw:end", (room) => endRoom(room));
+  docente("cw:reset", (room) => resetRoom(room)); // mismo código, marcador en cero
 
   // --- Un estudiante responde una palabra ---
   socket.on("cw:submit", ({ placementId, guess } = {}, ack) => {
@@ -189,5 +148,5 @@ export function attachCrosswordSocket(io, socket) {
 //   ...
 //   app.use("/api/crossword-games", crosswordRouter);
 //   io.on("connection", (socket) => attachCrosswordSocket(io, socket));
-//   setInterval(() => crosswordTick(io), 1000);
+//   reloj.registrar("crucigrama", 1000, () => crosswordTick(io)); // reloj único (live/reloj.js)
 // ----------------------------------------------------------------------------

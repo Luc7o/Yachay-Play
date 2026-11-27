@@ -1690,53 +1690,14 @@
 }
 .cp-shell .sh-content h1,
 .cp-shell .sh-content h2,
-.cp-shell .sh-content h3,
-.cp-shell .sh-content .tl-title {
+.cp-shell .sh-content h3 {
   font-family: var(--cp-display);
   letter-spacing: -0.025em;
   font-weight: 600;
 }
-.cp-shell .sh-content .tl-title {
-  font-size: 32px;
-  margin-top: 0;
-}
-.cp-shell .sh-content .tl-box,
-.cp-shell .sh-content .pfl-head,
-.cp-shell .sh-content .tl-card,
-.cp-shell .sh-content .ip-grid article {
+.cp-shell .sh-content .pfl-head {
   border-radius: 14px;
   box-shadow: none;
-}
-.cp-shell .sh-content .tl-card {
-  border-top-width: 1px;
-  border-top-color: var(--line);
-}
-.cp-shell .sh-content .tl-btn,
-.cp-shell .sh-content .ip-grid button {
-  border-radius: 10px;
-  font-family: var(--cp-text);
-  font-weight: 600;
-}
-.cp-shell .sh-content .tl-btn {
-  background: var(--cp-accent);
-  color: var(--cp-on-accent);
-}
-.cp-shell .sh-content .tl-btn.ghost {
-  background: var(--cp-surface);
-  color: var(--cp-ink);
-  border: 1px solid var(--cp-line2);
-}
-.cp-shell .sh-content .tl-pill {
-  border-radius: 6px;
-}
-.cp-shell .sh-content .tl-form input[type="text"],
-.cp-shell .sh-content .tl-form input[type="password"],
-.cp-shell .sh-content .tl-form select,
-.cp-shell .sh-content .tl-form textarea {
-  border-radius: 10px;
-  background: var(--cp-surface);
-  border-color: var(--cp-line2);
-  color: var(--cp-ink);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2048,45 +2009,6 @@
   scroll-margin-top: 76px;
 }
 
-/* Planes / Ayuda: mismo encabezado que el resto de pantallas del panel (antes: título enorme y más aire) */
-.cp-shell .sh-content .ip-page {
-  padding: 0 0 40px;
-  min-height: 0;
-}
-.cp-shell .sh-content .ip-kicker {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--cp-muted);
-}
-.cp-shell .sh-content .ip-page h1 {
-  font-size: 32px;
-  margin: 6px 0 9px;
-}
-.cp-shell .sh-content .ip-lead {
-  font-size: 15px;
-  margin: 0;
-  color: var(--cp-ink2);
-}
-.cp-shell .sh-content .ip-grid {
-  margin-top: 28px;
-  gap: 16px;
-}
-.cp-shell .sh-content .ip-grid article {
-  padding: 24px;
-}
-.cp-shell .sh-content .ip-grid article > span {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--cp-muted);
-}
-.cp-shell .sh-content .ip-grid h2 {
-  font-size: 20px;
-  margin: 8px 0;
-}
-
 /* ========================================================================
    COLOR POR ACTIVIDAD
    Cada juego y herramienta tiene su tono (--tono). En modo claro son tonos
@@ -2153,27 +2075,4 @@
 }
 .cp-cta .cp-btn:hover {
   background: #f7b898;
-}
-
-/* Estadísticas y perfil: cada número con su color */
-.sh-content .tl-cards > .tl-card:nth-child(4n + 1) strong {
-  color: var(--cp-terra);
-}
-.sh-content .tl-cards > .tl-card:nth-child(4n + 2) strong {
-  color: #1d4ed8;
-}
-.sh-content .tl-cards > .tl-card:nth-child(4n + 3) strong {
-  color: #15803d;
-}
-.sh-content .tl-cards > .tl-card:nth-child(4n + 4) strong {
-  color: #6d28d9;
-}
-:root[data-theme="dark"] .sh-content .tl-cards > .tl-card:nth-child(4n + 2) strong {
-  color: #7aa7ff;
-}
-:root[data-theme="dark"] .sh-content .tl-cards > .tl-card:nth-child(4n + 3) strong {
-  color: #5fd38d;
-}
-:root[data-theme="dark"] .sh-content .tl-cards > .tl-card:nth-child(4n + 4) strong {
-  color: #b49bff;
 }

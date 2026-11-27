@@ -362,12 +362,6 @@
   color: #edeff2;
   border-color: #348777;
 }
-.sh-content .tl-error {
-  color: #b91c1c;
-}
-.sh-content .tl-tab.on {
-  color: #05292c;
-}
 
 :root:not([data-theme="dark"]) .pa-home-cta-actions .pa-primary {
   background: #fff;
@@ -385,10 +379,6 @@
 .cfg-team[style*="10b981" i] .cfg-chip.on,
 .cfg-team[style*="eab308" i] .cfg-chip.on {
   color: #0b2a31;
-}
-
-:root:not([data-theme="dark"]) .sh-content .tl-pill {
-  color: #00665c;
 }
 :root[data-theme="dark"] .cfg-chip:not(.on) {
   background: var(--surface2);

@@ -2013,30 +2013,8 @@ body {
   border-bottom: 1px solid var(--cp-line) !important;
 }
 
-/* ---------------- 15. Herramientas y Evaluación (tokens --hr-*) ---------------- */
-/* Siguen el tema de la APP (data-theme), no el del sistema operativo. Los estados del
-   cronómetro (aviso / urgente / fin) conservan sus colores: van con más especificidad. */
-.hr-page {
-  --hr-bg: var(--cp-bg);
-  --hr-fg: var(--cp-ink);
-  --hr-muted: var(--cp-muted);
-  --hr-card: var(--cp-surface);
-  --hr-line: var(--cp-line);
-  --hr-field: var(--cp-surface);
-  --hr-track: var(--cp-surface2);
-  --hr-bar: var(--cp-accent);
-  --hr-time: var(--cp-ink);
-  font-family: Inter, system-ui, sans-serif;
-}
-.hr-page h1,
-.hr-page h2,
-.hr-page h3 {
-  font-family: "Space Grotesk", Inter, sans-serif;
-  letter-spacing: -0.02em;
-}
-.hr-page :focus-visible {
-  outline-color: var(--cp-accent);
-}
+/* ---------------- 15. Herramientas y Evaluación ---------------- */
+/* Los tokens --hr-* apuntan a ui/tokens.css desde herramientas.css. */
 .hr-btn {
   border-radius: 10px !important;
   font-family: Inter, sans-serif !important;
@@ -2047,19 +2025,6 @@ body {
   background: var(--cp-accent) !important;
   border-color: var(--cp-accent) !important;
   color: var(--cp-on-accent) !important;
-}
-.hr-card {
-  border-radius: 14px !important;
-  box-shadow: none !important;
-}
-.hr-page input,
-.hr-page select,
-.hr-page textarea {
-  border-radius: 10px;
-  font-family: Inter, sans-serif;
-}
-.hr-time {
-  font-family: "Space Grotesk", Inter, sans-serif;
 }
 
 /* ---------------- 16. Presentaciones en vivo (tokens --es-*) ---------------- */

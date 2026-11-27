@@ -2,25 +2,20 @@ import { lazy, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useBlocker, useLocation, useNavigate } from "react-router-dom";
 import { base, leerRuta } from "./rutas";
 import { api, getToken, setToken } from "./api";
-import { socket, reconnectSocket } from "./socket";
+import { reconnectSocket } from "./socket";
 import { AuthScreen } from "./AuthScreen";
 import { ForgotPasswordScreen, ResetPasswordScreen, TwoFactorStep, VerifyEmailScreen } from "./AuthExtras";
 import { GameCatalog } from "./GameCatalog";
 import { AppShell } from "./AppShell";
 import { InfoPage } from "./InfoPages";
-import { cronometro } from "./cronometroStore";
 import { EVENTO_ABRIR } from "./CronometroMini";
 import { BUILD_VERSION } from "./constants";
 import { setClaseDestino, limpiarClaseDestino } from "./claseDestino";
 import { Marca } from "./campusUi";
 import { ChooserScreen } from "./screens/ChooserScreen";
 import { JoinHub } from "./screens/JoinHub";
-import { LoadingScreen } from "./screens/LoadingScreen";
-import { FinishedScreen } from "./screens/FinishedScreen";
-import { SetupScreen } from "./ludo/SetupScreen";
-import { LobbyScreen } from "./ludo/LobbyScreen";
-import { EngineerGame } from "./ludo/EngineerGame";
-import { StudentJoin, StudentWaiting, StudentGame } from "./ludo/Student";
+import { useLudo } from "./ludo/useLudo";
+import { LudoPantallas } from "./ludo/LudoPantallas";
 
 // Pantallas que se cargan bajo demanda: un alumno que entra a Ludo desde el celular
 // ya no descarga la Pizarra, la Ruleta, el Estudio, etc. (el Suspense está en main.jsx).
@@ -38,17 +33,7 @@ const Estudio = diferido(() => import("./estudio/Estudio"), "Estudio");
 const Evaluacion = diferido(() => import("./quiz/Evaluacion"), "Evaluacion");
 const ClasesPage = diferido(() => import("./clases/Clases"), "ClasesPage");
 
-// localStorage puede estar bloqueado (modo privado, políticas del colegio): sin try, la app se caía.
-function leerLocal(clave) {
-  try {
-    return localStorage.getItem(clave);
-  } catch {
-    return null;
-  }
-}
-
 function App() {
-  const [mode, setMode] = useState(() => leerLocal("ludo_mode") || null);
   // Qué pantalla se ve lo dice la ruta (ver rutas.js); aquí solo se lee.
   const location = useLocation();
   const navigate = useNavigate();
@@ -74,18 +59,15 @@ function App() {
     window.addEventListener(EVENTO_ABRIR, abrir);
     return () => window.removeEventListener(EVENTO_ABRIR, abrir);
   }, []);
-  useEffect(() => {
-    cronometro.ajustar({ oculto: !!mode }); // con una partida de Ludo en pantalla, la ventanita se esconde
-  }, [mode]);
 
   // --- Cuenta: quién es el usuario y qué rol tiene (se elige una sola vez al registrarse) ---
   const [user, setUser] = useState(null); // { id, name, email, role: "docente" | "estudiante" }
   const [authReady, setAuthReady] = useState(() => !getToken()); // false mientras se valida la sesión guardada
+  // Ludo: estado, sockets y acciones viven en useLudo (ludo/useLudo.js)
+  const ludo = useLudo({ user });
+  const { mode, setMode, chooseMode, engineerGameCode, studentGameCode, setStudentName, setJoinCode } = ludo;
   const authScreen = ruta.auth || null; // "login" | "register" (#/entrar, #/registro)
   const setAuthScreen = (t) => navigate(t === "login" ? "/entrar" : t === "register" ? "/registro" : "/");
-  const [tab, setTab] = useState("game");
-  const [selected, setSelected] = useState(null);
-  const [bank, setBank] = useState([]);
   const [challenge2fa, setChallenge2fa] = useState(null); // 2.º paso del login (cuenta con 2FA)
   const olvide = !!ruta.olvide; // #/olvide
   // Enlaces del correo (#/restablecer/<token>, #/verificar/<token>): el token se guarda en memoria
@@ -95,34 +77,6 @@ function App() {
   useEffect(() => {
     if (ruta.restablecer || ruta.verificar) navigate("/", { replace: true });
   }, []); // eslint-disable-line
-
-  // --- Ingeniero: configuración inicial ---
-  const [gameName, setGameName] = useState("Historia de la Ingeniería");
-  const [counts, setCounts] = useState({ rojo: 1, verde: 1, amarillo: 1, azul: 0 }); // 0 = ese color no juega
-  const [minutes, setMinutes] = useState(30); // duración de la partida
-  const [answerSeconds, setAnswerSeconds] = useState(20); // segundos para responder
-  const [rollSeconds, setRollSeconds] = useState(15); // segundos para lanzar el dado
-  const [setupError, setSetupError] = useState("");
-  const [engineerGameCode, setEngineerGameCode] = useState(() => leerLocal("ludo_engineer_code") || "");
-
-  // --- Estudiante: ingreso ---
-  const [joinCode, setJoinCode] = useState("");
-  const [studentName, setStudentName] = useState("");
-  const [studentTeam, setStudentTeam] = useState("rojo");
-  const [playerId, setPlayerId] = useState(() => leerLocal("ludo_player_id") || null);
-  // Llave privada que da el servidor al unirse: sin ella no se puede tirar el dado ni responder.
-  const [playerKey, setPlayerKey] = useState(() => leerLocal("ludo_player_key") || null);
-  const [studentGameCode, setStudentGameCode] = useState(() => leerLocal("ludo_game_code") || "");
-  const [joinError, setJoinError] = useState("");
-  const [gameInfo, setGameInfo] = useState(null); // datos de la partida antes de unirse
-  const [connError, setConnError] = useState(""); // "la partida ya no existe", etc.
-
-  const gameCode = mode === "student" ? studentGameCode : engineerGameCode;
-
-  // --- Estado compartido recibido del servidor ---
-  const [serverState, setServerState] = useState(null);
-  const [timerSeconds, setTimerSeconds] = useState(null);
-  const [phaseSeconds, setPhaseSeconds] = useState(null);
 
   // Al abrir la app: si hay una sesión guardada, comprobamos que siga siendo válida.
   useEffect(() => {
@@ -142,17 +96,9 @@ function App() {
     if (mode === "engineer" && user?.role !== "docente") changeDevice();
   }, [authReady, user, mode]); // eslint-disable-line
 
-  // Con cuenta de estudiante, el nombre ya viene escrito.
-  useEffect(() => {
-    if (user && !studentName) setStudentName(user.name);
-  }, [user]); // eslint-disable-line
-
   // Leer parámetros de la URL (para el enlace/QR que reciben los estudiantes)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const codeParam = params.get("code");
-    const roleParam = params.get("role");
-    if (codeParam) setJoinCode(codeParam);
+    const roleParam = new URLSearchParams(window.location.search).get("role");
     if (roleParam === "student" && !mode) {
       setMode("student");
       navigate("/ludo", { replace: true });
@@ -170,94 +116,6 @@ function App() {
     }
     if (ruta.ludo && !mode && user) chooseMode(user.role === "docente" ? "engineer" : "student");
   }, [authReady, ruta.ludo]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Banco de preguntas visible en el panel del docente (oficiales + las suyas, si hay sesión)
-  useEffect(() => {
-    api
-      .questions()
-      .then(setBank)
-      .catch(() => {});
-  }, [user?.id]);
-
-  // Suscripción a los eventos de socket
-  useEffect(() => {
-    function onState(s) {
-      setConnError("");
-      setServerState(s);
-      // Antes esto solo se actualizaba la PRIMERA vez ("prev === null"), así que
-      // cuando el docente sumaba/restaba tiempo con los botones +1m/-1m/+5m, el
-      // número en pantalla no cambiaba hasta que el reloj general empezara a
-      // correr. Ahora se sincroniza siempre con lo que diga el servidor.
-      setTimerSeconds(s.timerSeconds);
-      setPhaseSeconds(s.phaseSecondsLeft);
-      if (s.turnPhase !== "question") setSelected(null);
-    }
-    function onTimer(t) {
-      setTimerSeconds(t);
-    }
-    // El servidor avisa cada segundo cuánto le queda a la fase actual del turno
-    function onPhaseTimer({ seconds }) {
-      setPhaseSeconds(seconds);
-    }
-    // ¡Esto faltaba! Si el servidor dice "Partida no encontrada" el alumno se
-    // quedaba en "Conectando…" para siempre sin saber por qué.
-    function onErrorMessage(msg) {
-      setConnError(msg || "No se pudo conectar con la partida");
-    }
-    socket.on("error-message", onErrorMessage);
-    socket.on("state", onState);
-    socket.on("timer", onTimer);
-    socket.on("phase-timer", onPhaseTimer);
-    return () => {
-      socket.off("error-message", onErrorMessage);
-      socket.off("state", onState);
-      socket.off("timer", onTimer);
-      socket.off("phase-timer", onPhaseTimer);
-    };
-  }, []);
-
-  // Unirse a la sala de socket cada vez que tengamos un código de partida
-  // y otra vez cada vez que el socket se reconecta (celular bloqueado, cambio de red...):
-  // el socket nuevo no está en ninguna sala y la partida se vería congelada.
-  useEffect(() => {
-    if (!gameCode) return;
-    const entrar = () => socket.emit("join-room", { code: gameCode });
-    entrar();
-    socket.on("connect", entrar);
-    return () => socket.off("connect", entrar);
-  }, [gameCode]);
-
-  // Cuando el alumno termina de escribir el código, buscamos la partida para
-  // mostrarle SOLO los colores que realmente juegan y cuáles tienen cupo.
-  useEffect(() => {
-    const code = joinCode.trim();
-    if (mode !== "student" || playerId || code.length !== 6) {
-      setGameInfo(null);
-      return;
-    }
-    let cancelado = false;
-    api
-      .getGame(code)
-      .then((info) => !cancelado && setGameInfo(info))
-      .catch(() => !cancelado && setGameInfo(null));
-    return () => {
-      cancelado = true;
-    };
-  }, [joinCode, mode, playerId]);
-
-  // Si el color elegido deja de tener cupo, saltamos al primero disponible
-  useEffect(() => {
-    if (!gameInfo) return;
-    const libres = gameInfo.activeTeams.filter(
-      (t) => gameInfo.players.filter((p) => p.team === t).length < gameInfo.teams[t].slots,
-    );
-    if (libres.length && !libres.includes(studentTeam)) setStudentTeam(libres[0]);
-  }, [gameInfo]); // eslint-disable-line
-
-  function chooseMode(m) {
-    setMode(m);
-    localStorage.setItem("ludo_mode", m);
-  }
 
   // "Unirme con código" / "Entrar como invitado": primero se elige a QUÉ se une (Ludo, Crucigrama,
   // Presentación, Evaluación), porque cada uno tiene sus propios códigos.
@@ -286,17 +144,7 @@ function App() {
   // Borra lo que quedó de una partida anterior (no toca la sesión de la cuenta).
   function clearGameSession() {
     salidaElegidaRef.current = true; // salir a propósito (botón o menú): sin pedir confirmación
-    localStorage.removeItem("ludo_mode");
-    localStorage.removeItem("ludo_player_id");
-    localStorage.removeItem("ludo_player_key");
-    localStorage.removeItem("ludo_game_code");
-    localStorage.removeItem("ludo_engineer_code");
-    setMode(null);
-    setServerState(null);
-    setPlayerId(null);
-    setPlayerKey(null);
-    setStudentGameCode("");
-    setEngineerGameCode("");
+    ludo.limpiar();
   }
 
   // "Salir" / "Volver al inicio": deja la partida y vuelve al catálogo (la cuenta sigue abierta).
@@ -350,98 +198,6 @@ function App() {
   const juegoAntesDeEntrarRef = useRef(null); // juego elegido sin sesión, para seguir en él al entrar
   const saliendoDeLudoRef = useRef(false);
   const salidaElegidaRef = useRef(false); // true mientras se sale de Ludo con un botón de la propia app
-  const [creating, setCreating] = useState(false);
-  async function createGame() {
-    if (creating) return; // evita doble clic mientras se espera al servidor
-    setCreating(true);
-    setSetupError("");
-    try {
-      const { code } = await api.createGame(gameName, counts, { minutes, answerSeconds, rollSeconds });
-      setEngineerGameCode(code);
-      localStorage.setItem("ludo_engineer_code", code);
-    } catch (e) {
-      setSetupError(e.message || "No se pudo crear la partida. Revisa que el backend esté corriendo.");
-    } finally {
-      setCreating(false);
-    }
-  }
-
-  async function submitJoin() {
-    setJoinError("");
-    try {
-      const { playerId: pid, playerKey: llave } = await api.joinGame(joinCode.trim(), studentName.trim(), studentTeam);
-      setPlayerId(pid);
-      setPlayerKey(llave);
-      localStorage.setItem("ludo_player_key", llave);
-      setStudentGameCode(joinCode.trim());
-      localStorage.setItem("ludo_player_id", pid);
-      localStorage.setItem("ludo_game_code", joinCode.trim());
-    } catch (e) {
-      setJoinError(e.message);
-    }
-  }
-
-  function startGame() {
-    socket.emit("engineer:start-game", { code: gameCode });
-  }
-  function toggleTimer() {
-    socket.emit("engineer:toggle-timer", { code: gameCode });
-  }
-  // El DOCENTE ya no lanza el dado ni pasa de turno: el servidor lo hace solo.
-  // Esto queda solo como válvula de escape si un turno se traba.
-  function skipTurn() {
-    socket.emit("engineer:skip-turn", { code: gameCode });
-  }
-  // El ALUMNO lanza el dado desde su celular
-  function playerRollDice() {
-    socket.emit("player:roll-dice", { code: gameCode, playerId, playerKey });
-  }
-  function endGame() {
-    socket.emit("engineer:end-game", { code: gameCode });
-  }
-  // El docente suma o resta tiempo al reloj de la partida (en segundos)
-  function addTime(seconds) {
-    socket.emit("engineer:add-time", { code: gameCode, seconds });
-  }
-  // Devuelve el reloj a la duración elegida al crear la partida
-  function resetTimer() {
-    socket.emit("engineer:reset-timer", { code: gameCode });
-  }
-  // ADMIN: vuelve a crear la partida con el MISMO código. Los alumnos
-  // conectados no tienen que volver a ingresar; solo se reinicia todo.
-  function resetGame() {
-    if (
-      !window.confirm("¿Reiniciar la partida? Se borran fichas, puntajes e historial (los alumnos siguen conectados).")
-    )
-      return;
-    socket.emit("engineer:reset-game", { code: gameCode });
-  }
-  // ADMIN: cierra esta partida y vuelve a la pantalla de configuración
-  // para crear una partida nueva, con código nuevo.
-  function newGame() {
-    if (
-      !window.confirm(
-        "¿Crear una partida totalmente nueva? Se generará otro código y los alumnos deberán volver a ingresar.",
-      )
-    )
-      return;
-    socket.emit("engineer:end-game", { code: gameCode });
-    localStorage.removeItem("ludo_engineer_code");
-    setEngineerGameCode("");
-    setServerState(null);
-    setTimerSeconds(null);
-  }
-  function submitAnswer(index) {
-    if (selected !== null || !playerId) return;
-    setSelected(index);
-    socket.emit("team:answer", { code: gameCode, playerId, playerKey, optionIndex: index });
-  }
-
-  const connectedByTeam = useMemo(() => {
-    const r = { rojo: 0, verde: 0, amarillo: 0, azul: 0 };
-    if (serverState) serverState.players.forEach((p) => (r[p.team] = (r[p.team] || 0) + 1));
-    return r;
-  }, [serverState]);
 
   // Salir de una partida de Ludo en curso con las flechas del navegador: se pide confirmación.
   const bloqueo = useBlocker(
@@ -458,7 +214,7 @@ function App() {
       clearGameSession();
       bloqueo.proceed();
     } else bloqueo.reset();
-  }, [bloqueo]);
+  }, [bloqueo]); // eslint-disable-line react-hooks/exhaustive-deps
   // Al dejar la ruta de Ludo (flechas, menú), se suelta la partida guardada.
   useEffect(() => {
     if (!ruta.ludo && mode && bloqueo.state === "unblocked" && authReady && saliendoDeLudoRef.current)
@@ -750,149 +506,8 @@ function App() {
     );
   }
 
-  if (mode === "engineer") {
-    if (!gameCode) {
-      return enMenu(
-        "juegos",
-        <SetupScreen
-          gameName={gameName}
-          setGameName={setGameName}
-          counts={counts}
-          setCounts={setCounts}
-          minutes={minutes}
-          setMinutes={setMinutes}
-          answerSeconds={answerSeconds}
-          setAnswerSeconds={setAnswerSeconds}
-          rollSeconds={rollSeconds}
-          setRollSeconds={setRollSeconds}
-          createGame={createGame}
-          setupError={setupError}
-          creating={creating}
-          goHome={changeDevice}
-        />,
-      );
-    }
-    if (!serverState) return <LoadingScreen code={gameCode} error={connError} onReset={changeDevice} />;
-
-    if (serverState.phase === "lobby") {
-      return (
-        <>
-          <LobbyScreen
-            gameName={serverState.name}
-            gameCode={gameCode}
-            teams={serverState.teams}
-            activeTeams={serverState.activeTeams}
-            connectedByTeam={connectedByTeam}
-            players={serverState.players}
-            startGame={startGame}
-            newGame={newGame}
-            changeDevice={changeDevice}
-          />
-        </>
-      );
-    }
-
-    if (serverState.phase === "finished") {
-      return (
-        <FinishedScreen
-          teams={serverState.teams}
-          gameName={serverState.name}
-          winner={serverState.winner}
-          activeTeams={serverState.activeTeams}
-          isEngineer
-          resetGame={resetGame}
-          newGame={newGame}
-          changeDevice={changeDevice}
-        />
-      );
-    }
-
-    return (
-      <>
-        <EngineerGame
-          tab={tab}
-          setTab={setTab}
-          serverState={serverState}
-          timerSeconds={timerSeconds}
-          phaseSeconds={phaseSeconds}
-          toggleTimer={toggleTimer}
-          addTime={addTime}
-          resetTimer={resetTimer}
-          skipTurn={skipTurn}
-          endGame={endGame}
-          resetGame={resetGame}
-          newGame={newGame}
-          positions={serverState.positions}
-          bank={bank}
-          changeDevice={changeDevice}
-        />
-      </>
-    );
-  }
-
-  // mode === "student"
-  if (!playerId) {
-    return (
-      <StudentJoin
-        joinCode={joinCode}
-        setJoinCode={setJoinCode}
-        studentName={studentName}
-        setStudentName={setStudentName}
-        studentTeam={studentTeam}
-        setStudentTeam={setStudentTeam}
-        submitJoin={submitJoin}
-        joinError={joinError}
-        gameInfo={gameInfo}
-        goHome={changeDevice}
-        onLogin={() => {
-          changeDevice();
-          setAuthScreen("login");
-        }}
-        onRegister={() => {
-          changeDevice();
-          setAuthScreen("register");
-        }}
-        isLogged={!!user}
-      />
-    );
-  }
-  if (!serverState) return <LoadingScreen code={gameCode} error={connError} onReset={changeDevice} />;
-
-  if (serverState.phase === "lobby") {
-    return (
-      <StudentWaiting
-        gameCode={gameCode}
-        studentName={studentName}
-        studentTeam={studentTeam}
-        changeDevice={changeDevice}
-      />
-    );
-  }
-
-  if (serverState.phase === "finished") {
-    return (
-      <FinishedScreen
-        teams={serverState.teams}
-        gameName={serverState.name}
-        winner={serverState.winner}
-        activeTeams={serverState.activeTeams}
-        myTeam={studentTeam}
-        changeDevice={changeDevice}
-      />
-    );
-  }
-
   return (
-    <StudentGame
-      serverState={serverState}
-      playerId={playerId}
-      selected={selected}
-      phaseSeconds={phaseSeconds}
-      positions={serverState.positions}
-      submitAnswer={submitAnswer}
-      rollDice={playerRollDice}
-      changeDevice={changeDevice}
-    />
+    <LudoPantallas ludo={ludo} user={user} changeDevice={changeDevice} enMenu={enMenu} setAuthScreen={setAuthScreen} />
   );
 }
 

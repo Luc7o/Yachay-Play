@@ -1,3 +1,4 @@
+// @ts-check
 // ============================================================================
 // NÚCLEO DE AUTENTICACIÓN (sin Express, solo módulos de Node)
 // ============================================================================
@@ -145,6 +146,11 @@ export async function userFromToken(token) {
 }
 
 // ------------------------------ usuarios ------------------------------
+/**
+ * Lo que el frontend ve de un usuario (tipo compartido: shared/types/api.ts → PublicUser).
+ * @param {any} u fila de la tabla users
+ * @returns {import("../shared/types/api").PublicUser}
+ */
 export const publicUser = (u) => ({
   id: u.id,
   name: u.name,

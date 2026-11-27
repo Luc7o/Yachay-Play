@@ -1,0 +1,17 @@
+{
+  // El backend sigue en JavaScript. tsc solo revisa los archivos que empiezan con
+  // `// @ts-check`, usando los tipos compartidos de ../shared/types vía JSDoc.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["**/*.js", "../shared/types"],
+  "exclude": ["node_modules", "**/*.test.js"]
+}

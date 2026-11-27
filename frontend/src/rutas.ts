@@ -27,15 +27,32 @@ export const SECCIONES_PANEL = ["inicio", "juegos", "herramientas"];
 export const PAGINAS_PANEL = ["stats", "questions", "profile", "planes", "contacto", "clases"];
 const TOKEN = /^[A-Za-z0-9_-]{20,100}$/;
 
+/** Qué pantalla corresponde a una dirección. */
+export interface Ruta {
+  enPanel: boolean;
+  seccion: string | null;
+  pagina: string | null;
+  claseId: string | null;
+  juego: string | null;
+  ludo: boolean;
+  unirse: boolean;
+  portada?: boolean;
+  desconocida?: boolean;
+  auth?: "login" | "register";
+  olvide?: boolean;
+  restablecer?: string;
+  verificar?: string;
+}
+
 // Convierte la ruta en "qué pantalla mostrar". Nada de esto vive en el estado de React.
-export function leerRuta(pathname) {
+export function leerRuta(pathname: string): Ruta {
   const partes = pathname
     .replace(/^\/+|\/+$/g, "")
     .split("/")
     .filter(Boolean);
   const enPanel = partes[0] === "app";
   const [a, b] = enPanel ? partes.slice(1) : partes;
-  const r = { enPanel, seccion: null, pagina: null, claseId: null, juego: null, ludo: false, unirse: false };
+  const r: Ruta = { enPanel, seccion: null, pagina: null, claseId: null, juego: null, ludo: false, unirse: false };
 
   if (!enPanel && a === "restablecer" && TOKEN.test(b || "")) return { ...r, restablecer: b };
   if (!enPanel && a === "verificar" && TOKEN.test(b || "")) return { ...r, verificar: b };
@@ -54,4 +71,4 @@ export function leerRuta(pathname) {
 }
 
 // Prefijo de las rutas que existen con y sin sesión.
-export const base = (user) => (user ? "/app" : "");
+export const base = (user: unknown): string => (user ? "/app" : "");

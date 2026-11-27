@@ -1,5 +1,6 @@
 import { Brand } from "../Brand";
 import { COLORS, TURN_ORDER } from "../constants";
+import { Button } from "../ui";
 
 // ============================================================================
 // LUDO · RESULTADOS — diseño "Campus", modo proyección (docente y estudiante).
@@ -36,17 +37,15 @@ export function FinishedScreen({
         <div className="eg-actions">
           {isEngineer && (
             <>
-              <button type="button" className="cp-btn ghost" onClick={resetGame}>
+              <Button variant="ghost" onClick={resetGame}>
                 Jugar otra ronda
-              </button>
-              <button type="button" className="cp-btn ghost" onClick={newGame}>
+              </Button>
+              <Button variant="ghost" onClick={newGame}>
                 Partida nueva
-              </button>
+              </Button>
             </>
           )}
-          <button type="button" className="cp-btn primary" onClick={changeDevice}>
-            Volver al inicio
-          </button>
+          <Button onClick={changeDevice}>Volver al inicio</Button>
         </div>
       </header>
 

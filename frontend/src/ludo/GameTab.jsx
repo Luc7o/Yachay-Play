@@ -2,6 +2,7 @@ import { GOAL_STEP } from "../board";
 import { COLORS } from "../constants";
 import { Dice } from "./Dice";
 import { LudoBoard } from "./LudoBoard";
+import { Button } from "../ui";
 
 // Texto que explica en qué momento del turno estamos (lo ven docente y alumnos)
 export function phaseMessage({ turnPhase, currentTeam, phaseSeconds, dice, rolledBy, lastResult }) {
@@ -82,9 +83,9 @@ export function GameTab({
           <p className="cp-help">
             La partida avanza sola: el estudiante lanza el dado desde su celular y el turno cambia automáticamente.
           </p>
-          <button type="button" className="cp-btn ghost sm" onClick={skipTurn}>
+          <Button variant="ghost" size="sm" onClick={skipTurn}>
             Saltar turno (solo si algo se traba)
-          </button>
+          </Button>
         </div>
 
         <div className="cp-card cp-panel eg-question">

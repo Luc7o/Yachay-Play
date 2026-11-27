@@ -3,6 +3,7 @@ import { Marca, BotonTema } from "../campusUi";
 import { Dice } from "./Dice";
 import { describeMove } from "./GameTab";
 import { LudoBoard } from "./LudoBoard";
+import { Button } from "../ui";
 
 // ============================================================================
 // LUDO · PANTALLAS DEL ESTUDIANTE (celular) — diseño "Campus" (campusJuegos.css, "stu")
@@ -54,9 +55,9 @@ export function StudentJoin({
           <>
             <BotonTema />
             {!isLogged && onLogin && (
-              <button type="button" className="cp-btn quiet" onClick={onLogin}>
+              <Button variant="quiet" onClick={onLogin}>
                 Iniciar sesión
-              </button>
+              </Button>
             )}
           </>
         }
@@ -162,9 +163,9 @@ export function StudentJoin({
               {joinError}
             </p>
           )}
-          <button type="submit" className="cp-btn primary lg cp-full" disabled={!puedeUnirse}>
+          <Button size="lg" className="cp-full" type="submit" disabled={!puedeUnirse}>
             Entrar a la partida
-          </button>
+          </Button>
           {!isLogged && onRegister && (
             <p className="cp-help stu-center">
               Con una cuenta, la partida queda en tu historial.{" "}
@@ -186,9 +187,9 @@ export function StudentWaiting({ gameCode, studentName, studentTeam, changeDevic
       <Barra
         onHome={changeDevice}
         derecha={
-          <button type="button" className="cp-btn ghost" onClick={changeDevice}>
+          <Button variant="ghost" onClick={changeDevice}>
             Salir
-          </button>
+          </Button>
         }
       />
       <main className="stu-main">
@@ -258,9 +259,9 @@ export function StudentGame({
             {isMyTurn ? (
               <>
                 <h2>¡Es tu turno!</h2>
-                <button type="button" className="cp-btn primary lg cp-full" onClick={rollDice}>
+                <Button size="lg" className="cp-full" onClick={rollDice}>
                   Lanzar el dado
-                </button>
+                </Button>
                 <p className="cp-help">
                   Si nadie lanza en <b>{quedan} s</b>, el sistema lo lanza por ustedes.
                 </p>
@@ -379,9 +380,9 @@ export function StudentGame({
           <LudoBoard players={serverState.players} positions={positions} activeTeams={serverState.activeTeams} small />
         </section>
 
-        <button type="button" className="cp-btn ghost" onClick={changeDevice}>
+        <Button variant="ghost" onClick={changeDevice}>
           Salir de la partida
-        </button>
+        </Button>
       </main>
     </div>
   );

@@ -79,3 +79,33 @@ test("Ludo: el estudiante entra con el enlace y aparece en la sala del docente",
   await expect(page.locator(".cp-proj")).toBeVisible();
   await expect(page.getByText("Luis")).toBeVisible();
 });
+
+test("reconexión: si el estudiante pierde la red, vuelve a la sala y sigue jugando", async ({ page, browser }) => {
+  await entrarComoDocente(page);
+  await page.goto("/#/app/juego/evaluacion");
+  await page.getByLabel("Texto de la pregunta 1").fill("¿Capital del Perú?");
+  await page.getByLabel("Opción A de la pregunta 1").fill("Lima");
+  await page.getByLabel("Opción B de la pregunta 1").fill("Cusco");
+  await page.getByLabel("Marcar la opción A como correcta").click();
+  await page.getByRole("button", { name: /Crear sala \(1 pregunta\)/ }).click();
+  const codigo = (await page.locator(".qz-codigo").getAttribute("aria-label")).replace(/\D/g, "");
+
+  const contexto = await browser.newContext();
+  const alumno = await contexto.newPage();
+  await alumno.goto("/#/juego/evaluacion");
+  await alumno.getByPlaceholder("000000").fill(codigo);
+  await alumno.getByPlaceholder("Nombre y apellido").fill("Rosa Mamani");
+  await alumno.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page.getByText("Rosa Mamani")).toBeVisible();
+
+  // Se corta la red del estudiante; mientras tanto el docente inicia la evaluación
+  await contexto.setOffline(true);
+  await alumno.waitForTimeout(1500);
+  await page.getByRole("button", { name: /Iniciar/ }).click();
+  await contexto.setOffline(false);
+
+  // Al volver la red, el socket se reconecta, re-entra a la sala y recibe la pregunta en curso
+  await alumno.getByRole("button", { name: /^Lima$/ }).click({ timeout: 20_000 });
+  await page.getByRole("button", { name: "Ver resultados" }).click();
+  await expect(page.getByRole("table")).toContainText("Rosa Mamani");
+});

@@ -5,21 +5,29 @@
 // solo deja sonar después de un clic o tecla del usuario, por eso se llama a
 // prepararAudio() dentro de los botones (Iniciar, Girar, etc.).
 // ============================================================================
-let ctx = null;
+let audio: AudioContext | null = null;
+type ConWebkit = typeof window & { webkitAudioContext?: typeof AudioContext };
 
 export function prepararAudio() {
   try {
-    const AC = window.AudioContext || window.webkitAudioContext;
+    const AC = window.AudioContext || (window as ConWebkit).webkitAudioContext;
     if (!AC) return;
-    ctx = ctx || new AC();
-    if (ctx.state === "suspended") ctx.resume();
+    audio = audio || new AC();
+    if (audio.state === "suspended") audio.resume();
   } catch {
     /* sin sonido: la herramienta sigue funcionando */
   }
 }
 
 // Una nota: frecuencia (Hz), cuándo empieza (s desde ahora), cuánto dura (s) y volumen (0-1).
-export function nota(frecuencia, inicio, duracion, volumen, tipo = "sine") {
+export function nota(
+  frecuencia: number,
+  inicio: number,
+  duracion: number,
+  volumen: number,
+  tipo: OscillatorType = "sine",
+) {
+  const ctx = audio;
   if (!ctx) return;
   try {
     const t = ctx.currentTime + inicio;

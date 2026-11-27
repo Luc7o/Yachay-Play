@@ -14,7 +14,7 @@ import "./aulaFinal.css";
 import "./campus.css"; // diseño "Campus": va el ÚLTIMO para ganar sobre los estilos antiguos
 import "./campusJuegos.css"; // diseño "Campus" para juegos y herramientas (después de campus.css)
 import "./ui/dispositivos.css"; // celular y proyector (va al final)
-import "./theme.js";
+import "./theme";
 
 // Una sola ruta que lo atrapa todo: App lee la dirección (ver rutas.js) y decide la pantalla.
 // createHashRouter (y no BrowserRouter) para conservar las direcciones con "#" de siempre.

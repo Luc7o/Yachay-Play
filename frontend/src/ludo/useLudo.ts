@@ -3,6 +3,25 @@ import { api } from "../api";
 import { socket } from "../socket";
 import { useSalaEnVivo } from "../salaEnVivo";
 import { cronometro } from "../cronometroStore";
+import type { Equipo } from "../constants";
+import type { PublicUser } from "../../../shared/types/api";
+
+/** Lo que el alumno ve de una partida antes de unirse (GET /api/games/:code). */
+interface InfoPartida {
+  activeTeams: Equipo[];
+  players: { team: Equipo }[];
+  teams: Record<Equipo, { slots: number }>;
+  [dato: string]: unknown;
+}
+/** Estado de la partida que manda el servidor (evento "state"). Las pantallas leen el resto. */
+type EstadoLudo = {
+  players: { team: Equipo }[];
+  turnPhase?: string;
+  timerSeconds?: number | null;
+  phaseSecondsLeft?: number | null;
+} & Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+type Modo = "student" | "engineer" | null;
+const mensaje = (e: unknown) => (e instanceof Error ? e.message : "");
 
 // ============================================================================
 // LUDO: todo el estado de una partida (docente o estudiante), la conexión por
@@ -11,7 +30,7 @@ import { cronometro } from "../cronometroStore";
 // ============================================================================
 
 // localStorage puede estar bloqueado (modo privado, políticas del colegio): sin try, la app se caía.
-function leerLocal(clave) {
+function leerLocal(clave: string): string | null {
   try {
     return localStorage.getItem(clave);
   } catch {
@@ -19,18 +38,18 @@ function leerLocal(clave) {
   }
 }
 
-export function useLudo({ user }) {
-  const [mode, setMode] = useState(() => leerLocal("ludo_mode") || null);
+export function useLudo({ user }: { user: PublicUser | null }) {
+  const [mode, setMode] = useState<Modo>(() => (leerLocal("ludo_mode") as Modo) || null);
   const [tab, setTab] = useState("game");
-  const [selected, setSelected] = useState(null);
-  const [bank, setBank] = useState([]);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [bank, setBank] = useState<Record<string, unknown>[]>([]);
   useEffect(() => {
     cronometro.ajustar({ oculto: !!mode }); // con una partida de Ludo en pantalla, la ventanita se esconde
   }, [mode]);
 
   // --- Ingeniero: configuración inicial ---
   const [gameName, setGameName] = useState("Historia de la Ingeniería");
-  const [counts, setCounts] = useState({ rojo: 1, verde: 1, amarillo: 1, azul: 0 }); // 0 = ese color no juega
+  const [counts, setCounts] = useState<Record<Equipo, number>>({ rojo: 1, verde: 1, amarillo: 1, azul: 0 }); // 0 = ese color no juega
   const [minutes, setMinutes] = useState(30); // duración de la partida
   const [answerSeconds, setAnswerSeconds] = useState(20); // segundos para responder
   const [rollSeconds, setRollSeconds] = useState(15); // segundos para lanzar el dado
@@ -40,21 +59,21 @@ export function useLudo({ user }) {
   // --- Estudiante: ingreso ---
   const [joinCode, setJoinCode] = useState("");
   const [studentName, setStudentName] = useState("");
-  const [studentTeam, setStudentTeam] = useState("rojo");
-  const [playerId, setPlayerId] = useState(() => leerLocal("ludo_player_id") || null);
+  const [studentTeam, setStudentTeam] = useState<Equipo>("rojo");
+  const [playerId, setPlayerId] = useState<string | null>(() => leerLocal("ludo_player_id") || null);
   // Llave privada que da el servidor al unirse: sin ella no se puede tirar el dado ni responder.
-  const [playerKey, setPlayerKey] = useState(() => leerLocal("ludo_player_key") || null);
+  const [playerKey, setPlayerKey] = useState<string | null>(() => leerLocal("ludo_player_key") || null);
   const [studentGameCode, setStudentGameCode] = useState(() => leerLocal("ludo_game_code") || "");
   const [joinError, setJoinError] = useState("");
-  const [gameInfo, setGameInfo] = useState(null); // datos de la partida antes de unirse
+  const [gameInfo, setGameInfo] = useState<InfoPartida | null>(null); // datos de la partida antes de unirse
   const [connError, setConnError] = useState(""); // "la partida ya no existe", etc.
 
   const gameCode = mode === "student" ? studentGameCode : engineerGameCode;
 
   // --- Estado compartido recibido del servidor ---
-  const [serverState, setServerState] = useState(null);
-  const [timerSeconds, setTimerSeconds] = useState(null);
-  const [phaseSeconds, setPhaseSeconds] = useState(null);
+  const [serverState, setServerState] = useState<EstadoLudo | null>(null);
+  const [timerSeconds, setTimerSeconds] = useState<number | null>(null);
+  const [phaseSeconds, setPhaseSeconds] = useState<number | null>(null);
 
   // Con cuenta de estudiante, el nombre ya viene escrito.
   useEffect(() => {
@@ -80,19 +99,19 @@ export function useLudo({ user }) {
   const entrarASala = () => gameCode && socket.emit("join-room", { code: gameCode });
   useSalaEnVivo({
     eventos: {
-      state: (s) => {
+      state: (s: EstadoLudo) => {
         setConnError("");
         setServerState(s);
         // Se sincroniza siempre con el servidor (así los +1m/-1m/+5m del docente se ven al instante).
-        setTimerSeconds(s.timerSeconds);
-        setPhaseSeconds(s.phaseSecondsLeft);
+        setTimerSeconds(s.timerSeconds ?? null);
+        setPhaseSeconds(s.phaseSecondsLeft ?? null);
         if (s.turnPhase !== "question") setSelected(null);
       },
-      timer: (t) => setTimerSeconds(t),
+      timer: (t: number) => setTimerSeconds(t),
       // cuánto le queda a la fase actual del turno
-      "phase-timer": ({ seconds }) => setPhaseSeconds(seconds),
+      "phase-timer": ({ seconds }: { seconds: number }) => setPhaseSeconds(seconds),
       // "Partida no encontrada", etc.: sin esto el alumno se quedaba en "Conectando…" para siempre
-      "error-message": (msg) => setConnError(msg || "No se pudo conectar con la partida"),
+      "error-message": (msg: string) => setConnError(msg || "No se pudo conectar con la partida"),
     },
     alReconectar: entrarASala,
   });
@@ -111,7 +130,7 @@ export function useLudo({ user }) {
     let cancelado = false;
     api
       .getGame(code)
-      .then((info) => !cancelado && setGameInfo(info))
+      .then((info) => !cancelado && setGameInfo(info as InfoPartida))
       .catch(() => !cancelado && setGameInfo(null));
     return () => {
       cancelado = true;
@@ -127,7 +146,7 @@ export function useLudo({ user }) {
     if (libres.length && !libres.includes(studentTeam)) setStudentTeam(libres[0]);
   }, [gameInfo]); // eslint-disable-line
 
-  function chooseMode(m) {
+  function chooseMode(m: "student" | "engineer") {
     setMode(m);
     localStorage.setItem("ludo_mode", m);
   }
@@ -157,7 +176,7 @@ export function useLudo({ user }) {
       setEngineerGameCode(code);
       localStorage.setItem("ludo_engineer_code", code);
     } catch (e) {
-      setSetupError(e.message || "No se pudo crear la partida. Revisa que el backend esté corriendo.");
+      setSetupError(mensaje(e) || "No se pudo crear la partida. Revisa que el backend esté corriendo.");
     } finally {
       setCreating(false);
     }
@@ -174,7 +193,7 @@ export function useLudo({ user }) {
       localStorage.setItem("ludo_player_id", pid);
       localStorage.setItem("ludo_game_code", joinCode.trim());
     } catch (e) {
-      setJoinError(e.message);
+      setJoinError(mensaje(e));
     }
   }
 
@@ -191,13 +210,13 @@ export function useLudo({ user }) {
   }
   // El ALUMNO lanza el dado desde su celular
   function playerRollDice() {
-    socket.emit("player:roll-dice", { code: gameCode, playerId, playerKey });
+    socket.emit("player:roll-dice", { code: gameCode, playerId: playerId ?? "", playerKey: playerKey ?? "" });
   }
   function endGame() {
     socket.emit("engineer:end-game", { code: gameCode });
   }
   // El docente suma o resta tiempo al reloj de la partida (en segundos)
-  function addTime(seconds) {
+  function addTime(seconds: number) {
     socket.emit("engineer:add-time", { code: gameCode, seconds });
   }
   // Devuelve el reloj a la duración elegida al crear la partida
@@ -228,14 +247,14 @@ export function useLudo({ user }) {
     setServerState(null);
     setTimerSeconds(null);
   }
-  function submitAnswer(index) {
+  function submitAnswer(index: number) {
     if (selected !== null || !playerId) return;
     setSelected(index);
-    socket.emit("team:answer", { code: gameCode, playerId, playerKey, optionIndex: index });
+    socket.emit("team:answer", { code: gameCode, playerId, playerKey: playerKey ?? "", optionIndex: index });
   }
 
   const connectedByTeam = useMemo(() => {
-    const r = { rojo: 0, verde: 0, amarillo: 0, azul: 0 };
+    const r: Record<Equipo, number> = { rojo: 0, verde: 0, amarillo: 0, azul: 0 };
     if (serverState) serverState.players.forEach((p) => (r[p.team] = (r[p.team] || 0) + 1));
     return r;
   }, [serverState]);

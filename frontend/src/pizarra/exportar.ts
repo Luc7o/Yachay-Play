@@ -1,18 +1,20 @@
+import type { Pagina } from "./tipos";
 import { dibujarEscena } from "./dibujo";
 
-export function renderPagina(p, W, H, esc = 2) {
+export function renderPagina(p: Pagina, W: number, H: number, esc = 2): HTMLCanvasElement {
   const off = document.createElement("canvas");
   off.width = Math.max(1, Math.round(W * esc));
   off.height = Math.max(1, Math.round(H * esc));
-  const ctx = off.getContext("2d");
+  const ctx = off.getContext("2d")!;
   ctx.scale(esc, esc);
   dibujarEscena(ctx, W, H, p, null, null);
   return off;
 }
 
-export const aBlob = (cv, tipo, calidad) => new Promise((ok) => cv.toBlob(ok, tipo, calidad));
+export const aBlob = (cv: HTMLCanvasElement, tipo?: string, calidad?: number) =>
+  new Promise<Blob | null>((ok) => cv.toBlob(ok, tipo, calidad));
 
-export function bajar(blob, nombreArchivo) {
+export function bajar(blob: Blob, nombreArchivo: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -24,22 +26,23 @@ export function bajar(blob, nombreArchivo) {
 }
 
 // PDF mínimo hecho a mano: una imagen JPEG por página (sin librerías externas)
-export function crearPDF(imgs, pw, ph, titulo) {
+/** imgs: JPEG de cada página (bytes y tamaño en píxeles). pw/ph: tamaño de página en puntos. */
+export function crearPDF(imgs: { w: number; h: number; bytes: Uint8Array }[], pw: number, ph: number, titulo: string) {
   const enc = new TextEncoder();
-  const partes = [];
-  const offs = [];
+  const partes: Uint8Array[] = [];
+  const offs: number[] = [];
   let largo = 0;
-  const push = (d) => {
+  const push = (d: string | Uint8Array) => {
     const b = typeof d === "string" ? enc.encode(d) : d;
     partes.push(b);
     largo += b.length;
   };
   const n = imgs.length;
-  const num = (v) => (Math.round(v * 100) / 100).toString();
+  const num = (v: number) => (Math.round(v * 100) / 100).toString();
   const hexTitulo =
     "FEFF" +
     Array.from(String(titulo || ""))
-      .map((ch) => ch.codePointAt(0))
+      .map((ch) => ch.codePointAt(0) ?? 0)
       .flatMap((cp) => {
         if (cp > 0xffff) {
           const c = cp - 0x10000;
@@ -81,5 +84,5 @@ export function crearPDF(imgs, pw, ph, titulo) {
   push(`xref\n0 ${info + 1}\n0000000000 65535 f \n`);
   for (let i = 1; i <= info; i++) push(`${String(offs[i]).padStart(10, "0")} 00000 n \n`);
   push(`trailer\n<< /Size ${info + 1} /Root 1 0 R /Info ${info} 0 R >>\nstartxref\n${xref}\n%%EOF`);
-  return new Blob(partes, { type: "application/pdf" });
+  return new Blob(partes as BlobPart[], { type: "application/pdf" });
 }

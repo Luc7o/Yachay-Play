@@ -16,7 +16,15 @@ const CLAVE = "yachayplay.cronometro.v1"; // la misma que usa Cronometro.jsx
 export const PITIDO = { hz: 880, veces: 3, duracion: 0.28, pausa: 0.16 }; // sonido al terminar
 
 // estado: idle | running | paused | done
-let s = {
+export type EstadoCronometro = {
+  estado: "idle" | "running" | "paused" | "done";
+  total: number;
+  restante: number;
+  actividad: string;
+  abierto: boolean;
+  oculto: boolean;
+};
+let s: EstadoCronometro = {
   estado: "idle",
   total: 0, // duración de la cuenta en curso (ms)
   restante: 0, // lo que falta (ms)
@@ -25,10 +33,10 @@ let s = {
   oculto: false, // true = no mostrar la ventanita (p. ej. durante una partida de Ludo)
 };
 let fin = 0; // hora exacta en que termina
-let reloj = 0;
-const oyentes = new Set();
+let reloj: ReturnType<typeof setInterval> | 0 = 0;
+const oyentes = new Set<() => void>();
 
-function emitir(cambio) {
+function emitir(cambio: Partial<EstadoCronometro>) {
   s = { ...s, ...cambio };
   oyentes.forEach((f) => f());
 }
@@ -70,7 +78,7 @@ if (typeof document !== "undefined") document.addEventListener("visibilitychange
 
 export const cronometro = {
   leer: () => s,
-  iniciar(ms, extra = {}) {
+  iniciar(ms: number, extra: Partial<EstadoCronometro> = {}) {
     if (ms <= 0) return;
     fin = Date.now() + ms;
     emitir({ estado: "running", total: ms, restante: ms, ...extra });
@@ -92,13 +100,14 @@ export const cronometro = {
     emitir({ estado: "idle", total: 0, restante: 0 });
   },
   // guarda datos sueltos (actividad, abierto, oculto) solo si cambiaron
-  ajustar(cambio) {
-    if (Object.keys(cambio).every((k) => s[k] === cambio[k])) return;
+  ajustar(cambio: Partial<EstadoCronometro>) {
+    const claves = Object.keys(cambio) as (keyof EstadoCronometro)[];
+    if (claves.every((k) => s[k] === cambio[k])) return;
     emitir(cambio);
   },
 };
 
-const suscribir = (f) => {
+const suscribir = (f: () => void) => {
   oyentes.add(f);
   return () => oyentes.delete(f);
 };
@@ -110,8 +119,8 @@ export function useCronometro() {
   );
 }
 
-const pad = (n) => (n < 10 ? "0" : "") + n;
-export function formatoTiempo(ms) {
+const pad = (n: number) => (n < 10 ? "0" : "") + n;
+export function formatoTiempo(ms: number) {
   const t = Math.ceil(ms / 1000); // hacia arriba: se ve 05:00 al empezar y 00:00 solo al terminar
   return `${pad(Math.floor(t / 60))}:${pad(t % 60)}`;
 }

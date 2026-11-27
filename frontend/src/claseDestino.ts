@@ -9,10 +9,11 @@
 import { useSyncExternalStore } from "react";
 
 const CLAVE = "yp_clase_destino";
-let destino = leer(); // { id, name } | null
-const oyentes = new Set();
+type Destino = { id: string; name: string } | null;
+let destino: Destino = leer();
+const oyentes = new Set<() => void>();
 
-function leer() {
+function leer(): Destino {
   try {
     return JSON.parse(sessionStorage.getItem(CLAVE) || "null");
   } catch {
@@ -24,7 +25,7 @@ export function getClaseDestino() {
   return destino;
 }
 
-export function setClaseDestino(clase) {
+export function setClaseDestino(clase: { id: string; name: string } | null) {
   destino = clase ? { id: clase.id, name: clase.name } : null;
   try {
     if (destino) sessionStorage.setItem(CLAVE, JSON.stringify(destino));

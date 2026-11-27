@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { api } from "./api";
 import { AuthSide } from "./AuthScreen";
 import { Marca, BotonTema } from "./campusUi";
+import { Button } from "./ui";
 
 // ============================================================================
 // PANTALLAS EXTRA DE SEGURIDAD — diseño "Campus", igual que el login (clases cp-auth-*)
@@ -20,9 +21,9 @@ function Marco({ children, onBack, backText = "Volver" }) {
       />
       <main className="cp-auth-main">
         <div className="cp-auth-top">
-          <button type="button" className="cp-btn quiet" onClick={onBack}>
+          <Button variant="quiet" onClick={onBack}>
             ← {backText}
-          </button>
+          </Button>
           <span className="cp-auth-brand-mobile">
             <Marca />
           </span>
@@ -84,9 +85,9 @@ export function TwoFactorStep({ challenge, onSuccess, onCancel }) {
             {error}
           </p>
         )}
-        <button type="submit" className="cp-btn primary lg cp-full" disabled={!codigo.trim() || cargando}>
+        <Button size="lg" className="cp-full" type="submit" disabled={!codigo.trim() || cargando}>
           {cargando ? "Verificando…" : "Verificar y entrar"}
-        </button>
+        </Button>
         <div className="cp-auth-links">
           <span>
             <button
@@ -141,9 +142,9 @@ export function ForgotPasswordScreen({ onBack }) {
             <p className="cp-auth-lead">
               El enlace vale 30 minutos. Si no llega, revisa la carpeta de spam o inténtalo de nuevo.
             </p>
-            <button type="button" className="cp-btn primary lg cp-full" onClick={onBack}>
+            <Button size="lg" className="cp-full" onClick={onBack}>
               Volver a iniciar sesión
-            </button>
+            </Button>
           </>
         ) : (
           <>
@@ -168,9 +169,9 @@ export function ForgotPasswordScreen({ onBack }) {
                 {error}
               </p>
             )}
-            <button type="submit" className="cp-btn primary lg cp-full" disabled={!email.trim() || cargando}>
+            <Button size="lg" className="cp-full" type="submit" disabled={!email.trim() || cargando}>
               {cargando ? "Enviando…" : "Enviarme el enlace"}
-            </button>
+            </Button>
           </>
         )}
       </form>
@@ -212,9 +213,9 @@ export function ResetPasswordScreen({ token, onDone }) {
             <p className="cp-msg ok" role="status">
               Contraseña actualizada. Por seguridad se cerraron las demás sesiones.
             </p>
-            <button type="button" className="cp-btn primary lg cp-full" onClick={onDone}>
+            <Button size="lg" className="cp-full" onClick={onDone}>
               Iniciar sesión
-            </button>
+            </Button>
           </>
         ) : (
           <>
@@ -250,9 +251,9 @@ export function ResetPasswordScreen({ token, onDone }) {
                 {error}
               </p>
             )}
-            <button type="submit" className="cp-btn primary lg cp-full" disabled={!clave || !repetir || cargando}>
+            <Button size="lg" className="cp-full" type="submit" disabled={!clave || !repetir || cargando}>
               {cargando ? "Guardando…" : "Guardar contraseña"}
-            </button>
+            </Button>
           </>
         )}
       </form>
@@ -302,9 +303,9 @@ export function VerifyEmailScreen({ token, onDone }) {
           </p>
         )}
         {estado !== "cargando" && (
-          <button type="button" className="cp-btn primary lg cp-full" onClick={onDone}>
+          <Button size="lg" className="cp-full" onClick={onDone}>
             Continuar
-          </button>
+          </Button>
         )}
       </div>
     </Marco>

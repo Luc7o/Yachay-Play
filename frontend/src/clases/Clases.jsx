@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
 import { Icono } from "../campusUi";
-import { Tile } from "../ui";
+import { Tile, Button } from "../ui";
 
 // ============================================================================
 // MIS CLASES — lista y detalle (diseño "Campus", ver campus.css)
@@ -75,11 +75,7 @@ function EnVivo({ actividades, esDocente, onEntrar }) {
                 {a.status === "lobby" ? " · en sala de espera" : ""}
               </p>
             </div>
-            {!esDocente && (
-              <button type="button" className="cp-btn primary" onClick={() => onEntrar(a)}>
-                Entrar
-              </button>
-            )}
+            {!esDocente && <Button onClick={() => onEntrar(a)}>Entrar</Button>}
           </div>
         );
       })}
@@ -177,11 +173,7 @@ function Lista({ user, onAbrir, onEntrar }) {
               : "Las clases en las que estás inscrito. Cuando tu docente abre una actividad, aparece aquí."}
           </p>
         </div>
-        {esDocente && !creando && (
-          <button type="button" className="cp-btn primary" onClick={() => setCreando(true)}>
-            + Nueva clase
-          </button>
-        )}
+        {esDocente && !creando && <Button onClick={() => setCreando(true)}>+ Nueva clase</Button>}
       </div>
 
       <Aviso msg={msg} />
@@ -213,12 +205,12 @@ function Lista({ user, onAbrir, onEntrar }) {
             </label>
           </div>
           <div className="cp-join">
-            <button type="submit" className="cp-btn primary" disabled={ocupado || !nombre.trim()}>
+            <Button type="submit" disabled={ocupado || !nombre.trim()}>
               {ocupado ? "Creando…" : "Crear clase"}
-            </button>
-            <button type="button" className="cp-btn quiet" onClick={() => setCreando(false)}>
+            </Button>
+            <Button variant="quiet" onClick={() => setCreando(false)}>
               Cancelar
-            </button>
+            </Button>
           </div>
         </form>
       )}
@@ -248,9 +240,9 @@ function Lista({ user, onAbrir, onEntrar }) {
                 )
               }
             />
-            <button type="submit" className="cp-btn primary" disabled={ocupado || codigo.length !== 6}>
+            <Button type="submit" disabled={ocupado || codigo.length !== 6}>
               {ocupado ? "Uniendo…" : "Unirme"}
-            </button>
+            </Button>
           </div>
         </form>
       )}
@@ -424,12 +416,10 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
                 />
               </label>
               <div className="cp-join" style={{ alignSelf: "flex-end" }}>
-                <button type="submit" className="cp-btn primary">
-                  Guardar
-                </button>
-                <button type="button" className="cp-btn quiet" onClick={() => setEditando(false)}>
+                <Button type="submit">Guardar</Button>
+                <Button variant="quiet" onClick={() => setEditando(false)}>
                   Cancelar
-                </button>
+                </Button>
               </div>
             </form>
           ) : (
@@ -437,9 +427,9 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
           )}
         </div>
         {esDocente && !editando && (
-          <button
-            type="button"
-            className="cp-btn ghost"
+          <Button
+            variant="ghost"
+
             onClick={() => {
               setNombre(clase.name);
               setSeccion(clase.section);
@@ -447,7 +437,7 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
             }}
           >
             Editar
-          </button>
+          </Button>
         )}
       </div>
 
@@ -463,12 +453,12 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
           </div>
           <strong className="cp-code-big">{codigoBonito(clase.code)}</strong>
           <div className="cp-join">
-            <button type="button" className="cp-btn ghost" onClick={copiar}>
+            <Button variant="ghost" onClick={copiar}>
               Copiar
-            </button>
-            <button
-              type="button"
-              className="cp-btn quiet"
+            </Button>
+            <Button
+              variant="quiet"
+
               onClick={() =>
                 window.confirm(
                   "¿Generar un código nuevo? El anterior dejará de servir para inscribirse (los estudiantes ya inscritos siguen en la clase).",
@@ -476,7 +466,7 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
               }
             >
               Generar otro
-            </button>
+            </Button>
           </div>
         </section>
       )}
@@ -537,16 +527,17 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
                       <strong>{m.name}</strong>
                       <small>Desde el {fecha(m.joinedAt)}</small>
                     </span>
-                    <button
-                      type="button"
-                      className="cp-btn quiet sm"
+                    <Button
+                      variant="quiet"
+                      size="sm"
+
                       onClick={() =>
                         window.confirm(`¿Quitar a ${m.name} de la clase?`) &&
                         accion(() => api.classRemoveMember(clase.id, m.id), `${m.name} ya no está en la clase.`)
                       }
                     >
                       Quitar
-                    </button>
+                    </Button>
                   </li>
                 ))}
               </ul>

@@ -3,7 +3,7 @@ import { PublicAulaHeader } from "./PublicAulaHeader";
 import { AppShell } from "./AppShell";
 import { Icono, Marca } from "./campusUi";
 import { api } from "./api";
-import { Tile } from "./ui";
+import { Tile, Button } from "./ui";
 
 // ============================================================================
 // PORTADA PÚBLICA E INICIO CON SESIÓN — diseño "Campus" (ver campus.css)
@@ -118,9 +118,9 @@ function CampoCodigo({ id, onEntrar, etiqueta = "Código de la partida", boton =
           maxLength={6}
           onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
         />
-        <button type="submit" className="cp-btn ghost">
+        <Button variant="ghost" type="submit">
           {boton}
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -170,13 +170,9 @@ function ResumenClases({ esDocente, onNavigate, onOpenClass, onEnterActivity }) 
             </p>
           </div>
           {esDocente ? (
-            <button type="button" className="cp-btn primary" onClick={() => onOpenClass?.(a.clase.id)}>
-              Ver clase
-            </button>
+            <Button onClick={() => onOpenClass?.(a.clase.id)}>Ver clase</Button>
           ) : (
-            <button type="button" className="cp-btn primary" onClick={() => onEnterActivity?.(a)}>
-              Entrar a la partida
-            </button>
+            <Button onClick={() => onEnterActivity?.(a)}>Entrar a la partida</Button>
           )}
         </section>
       ))}
@@ -187,9 +183,9 @@ function ResumenClases({ esDocente, onNavigate, onOpenClass, onEnterActivity }) 
             Mis clases
           </h2>
           {clases.length > 0 && (
-            <button type="button" className="cp-btn quiet sm" onClick={() => onNavigate("clases")}>
+            <Button variant="quiet" size="sm" onClick={() => onNavigate("clases")}>
               Ver todas
-            </button>
+            </Button>
           )}
         </div>
         {clases.length === 0 ? (
@@ -200,9 +196,9 @@ function ResumenClases({ esDocente, onNavigate, onOpenClass, onEnterActivity }) 
                 : "Pide a tu docente el código de su clase para ver aquí sus actividades en vivo."}
             </p>
             <div>
-              <button type="button" className="cp-btn ghost" onClick={() => onNavigate("clases")}>
+              <Button variant="ghost" onClick={() => onNavigate("clases")}>
                 {esDocente ? "Crear mi primera clase" : "Unirme a una clase"}
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
@@ -289,9 +285,7 @@ function HomeLogged({
             <h2 id="cp-band-t">Lanza una actividad en vivo</h2>
             <p>Elige un juego, proyecta el código y tus estudiantes entran desde el celular, sin instalar nada.</p>
           </div>
-          <button type="button" className="cp-btn primary" onClick={() => onSelectGame("ludo")}>
-            Crear partida de Ludo
-          </button>
+          <Button onClick={() => onSelectGame("ludo")}>Crear partida de Ludo</Button>
         </section>
 
         <section aria-labelledby="cp-act-t">
@@ -325,18 +319,18 @@ function HomeLogged({
             <h2>Estadísticas</h2>
             <p>Mira quién participó, quién ganó y qué preguntas se fallan más en tus partidas.</p>
             <div>
-              <button type="button" className="cp-btn ghost" onClick={() => onNavigate("stats")}>
+              <Button variant="ghost" onClick={() => onNavigate("stats")}>
                 Ver estadísticas
-              </button>
+              </Button>
             </div>
           </section>
           <section className="cp-card cp-panel">
             <h2>Banco de preguntas</h2>
             <p>Prepara tus preguntas por tema y nivel; tus partidas las usan junto con las oficiales.</p>
             <div>
-              <button type="button" className="cp-btn ghost" onClick={() => onNavigate("questions")}>
+              <Button variant="ghost" onClick={() => onNavigate("questions")}>
                 Abrir mis preguntas
-              </button>
+              </Button>
             </div>
           </section>
         </div>
@@ -374,12 +368,12 @@ function HomeLogged({
             <h2>Mis resultados</h2>
             <p>Tus partidas, tus aciertos y tu posición en el ranking de estudiantes.</p>
             <div className="cp-join">
-              <button type="button" className="cp-btn ghost" onClick={() => onNavigate("stats")}>
+              <Button variant="ghost" onClick={() => onNavigate("stats")}>
                 Ver resultados
-              </button>
-              <button type="button" className="cp-btn quiet" onClick={() => onNavigate("profile")}>
+              </Button>
+              <Button variant="quiet" onClick={() => onNavigate("profile")}>
                 Mi perfil
-              </button>
+              </Button>
             </div>
           </section>
         </div>
@@ -497,12 +491,12 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
               celular con un código y aprenden compitiendo, sin instalar nada.
             </p>
             <div className="cp-hero-actions">
-              <button type="button" className="cp-btn primary lg" onClick={onRegister}>
+              <Button size="lg" onClick={onRegister}>
                 Soy docente
-              </button>
-              <button type="button" className="cp-btn ghost lg" onClick={onLogin}>
+              </Button>
+              <Button variant="ghost" size="lg" onClick={onLogin}>
                 Soy estudiante
-              </button>
+              </Button>
             </div>
             <CampoCodigo
               id="cp-hero-code"
@@ -639,9 +633,7 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
                 </li>
               </ul>
               <div>
-                <button type="button" className="cp-btn primary" onClick={onRegister}>
-                  Crear cuenta de docente
-                </button>
+                <Button onClick={onRegister}>Crear cuenta de docente</Button>
               </div>
             </div>
             <div id="cp-estudiantes" className="cp-aud dark">
@@ -662,9 +654,7 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
                 </li>
               </ul>
               <div>
-                <button type="button" className="cp-btn primary" onClick={() => onJoinWithCode?.("")}>
-                  Unirme a una partida
-                </button>
+                <Button onClick={() => onJoinWithCode?.("")}>Unirme a una partida</Button>
               </div>
             </div>
           </div>
@@ -685,9 +675,9 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
                   </span>
                   <strong>{g.nombre}</strong>
                   <p>{g.desc}</p>
-                  <button type="button" className="cp-btn ghost" onClick={() => onSelectGame(g.id)}>
+                  <Button variant="ghost" onClick={() => onSelectGame(g.id)}>
                     Ver juego
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>

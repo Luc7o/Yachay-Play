@@ -1,6 +1,7 @@
 import React from "react";
 import { Marca, BotonTema } from "./campusUi";
 import "./gate.css";
+import { Button } from "./ui";
 
 // ============================================================================
 // PUERTA DE ENTRADA DE UN JUEGO (la pantalla que se ve al elegir Ludo o Crucigrama)
@@ -46,9 +47,9 @@ export function GameGate({
           {subtitle && <span className="gate2-sub">{subtitle}</span>}
           <div className="cp-pubauth" style={{ marginLeft: "auto" }}>
             <BotonTema />
-            <button type="button" className="cp-btn quiet" onClick={onBack}>
+            <Button variant="quiet" onClick={onBack}>
               ← Volver
-            </button>
+            </Button>
           </div>
         </div>
       </header>
@@ -103,9 +104,7 @@ export function GameGate({
                     <li key={pt}>{pt}</li>
                   ))}
                 </ul>
-                <button type="button" className="cp-btn primary" onClick={onLogin}>
-                  Iniciar sesión
-                </button>
+                <Button onClick={onLogin}>Iniciar sesión</Button>
               </div>
               <div className="cp-card gate2-card">
                 <strong>Soy nuevo</strong>
@@ -115,9 +114,9 @@ export function GameGate({
                     <li key={pt}>{pt}</li>
                   ))}
                 </ul>
-                <button type="button" className="cp-btn ghost" onClick={onRegister}>
+                <Button variant="ghost" onClick={onRegister}>
                   Crear cuenta
-                </button>
+                </Button>
               </div>
               <div className="cp-card gate2-card">
                 <strong>{guestText}</strong>
@@ -126,9 +125,9 @@ export function GameGate({
                   <li>No necesitas registrarte</li>
                   <li>La partida no queda en un historial</li>
                 </ul>
-                <button type="button" className="cp-btn ghost" onClick={onGuest}>
+                <Button variant="ghost" onClick={onGuest}>
                   Entrar como invitado
-                </button>
+                </Button>
               </div>
             </div>
           </div>

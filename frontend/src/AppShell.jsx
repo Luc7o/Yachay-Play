@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import "./shell.css";
 import { Icono, Marca, BotonTema } from "./campusUi";
+import { Button } from "./ui";
 
 // ============================================================================
 // MARCO DE LA APP para cuentas con sesión — diseño "Campus" (ver campus.css).
@@ -64,9 +65,9 @@ export function AppShell({ user, active, onNavigate, onLogout, buildVersion, chi
       <aside className="cp-side" aria-label="Menú">
         <Marca onClick={() => onNavigate("home")} label="Ir al inicio" />
 
-        <button type="button" className="cp-btn primary" onClick={() => onNavigate(esDocente ? "juegos" : "join")}>
+        <Button onClick={() => onNavigate(esDocente ? "juegos" : "join")}>
           {esDocente ? "+ Crear partida" : "Unirme con código"}
-        </button>
+        </Button>
 
         <nav className="cp-side-nav" aria-label="Secciones">
           {items.map((it) => (
@@ -98,10 +99,10 @@ export function AppShell({ user, active, onNavigate, onLogout, buildVersion, chi
           </button>
           <div className="cp-side-row">
             <BotonTema />
-            <button type="button" className="cp-btn quiet" onClick={onLogout} aria-label="Salir">
+            <Button variant="quiet" onClick={onLogout} aria-label="Salir">
               <Icono.salir />
               <span>Salir</span>
-            </button>
+            </Button>
           </div>
         </div>
       </aside>

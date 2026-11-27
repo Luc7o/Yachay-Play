@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { api } from "./api";
 import { GoogleButton, googleDisponible } from "./GoogleButton";
 import { Icono, Marca, BotonTema } from "./campusUi";
+import { Button } from "./ui";
 
 // ============================================================================
 // INICIAR SESIÓN / CREAR CUENTA — diseño "Campus" (ver campus.css, sección "acceso")
@@ -210,9 +211,9 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
 
       <main className="cp-auth-main">
         <div className="cp-auth-top">
-          <button type="button" className="cp-btn quiet" onClick={onBack}>
+          <Button variant="quiet" onClick={onBack}>
             ← Volver al inicio
-          </button>
+          </Button>
           <span className="cp-auth-brand-mobile">
             <Marca onClick={onBack} label="Volver a YachayPlay" />
           </span>
@@ -380,14 +381,16 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
               </p>
             )}
 
-            <button
+            <Button
+              size="lg"
+              className="cp-full"
               type="submit"
-              className="cp-btn primary lg cp-full"
+
               disabled={!listo || loading}
               aria-describedby={registro ? "cp-faltan" : undefined}
             >
               {loading ? "Un momento…" : registro ? "Crear mi cuenta" : "Entrar"}
-            </button>
+            </Button>
             {registro && faltan.length > 0 && (
               <p id="cp-faltan" className="cp-help">
                 Para crear tu cuenta falta: {faltan.join(", ")}.

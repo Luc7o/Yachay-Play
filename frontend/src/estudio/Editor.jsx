@@ -757,17 +757,18 @@ export function Editor({
               onClick={() => commit({ t: "el^", sid: slide.id, id: elSel.id, z: "front" })}
               title="Traer al frente"
             >
-              ⬆
+              <IconoEnLinea nombre="arriba" />
             </button>
             <button
               className="es-t"
               onClick={() => commit({ t: "el^", sid: slide.id, id: elSel.id, z: "back" })}
               title="Enviar atrás"
             >
-              ⬇
+              <IconoEnLinea nombre="abajo" />
             </button>
             <button className="es-t" onClick={duplicar}>
-              ⧉ Duplicar
+              <IconoEnLinea nombre="duplicar" />
+              Duplicar
             </button>
             <button className="es-t es-del" onClick={borrar}>
               <IconoEnLinea nombre="basura" />
@@ -814,7 +815,7 @@ export function Editor({
                     ↓
                   </button>
                   <button onClick={() => duplicarDiapositiva(s)} aria-label="Duplicar diapositiva">
-                    ⧉
+                    <IconoEnLinea nombre="duplicar" />
                   </button>
                   <button
                     onClick={() => borrarDiapositiva(s)}
@@ -1060,7 +1061,9 @@ function Presentar({ deck, inicio, onSalir }) {
         <button onClick={() => ir(i + 1)} disabled={i === total - 1} aria-label="Siguiente">
           ▶
         </button>
-        <button onClick={onSalir}>✕ Salir</button>
+        <button onClick={onSalir}>
+          <IconoEnLinea nombre="cerrar" /> Salir
+        </button>
       </div>
     </div>
   );

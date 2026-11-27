@@ -11,7 +11,7 @@ import { Editor } from "./Editor";
 import { TeacherRoom, Miembros } from "./TeacherRoom";
 import { ThemeToggle } from "./ThemeToggle";
 import "./estudio.css";
-import { Button } from "../ui";
+import { Button, Field, Input, Textarea } from "../ui";
 
 const LS_DOCENTE = "yachay_es_docente"; // código de la última sala del docente
 const LS_ALUMNO = "yachay_es_alumno"; // { code, studentId, name, team }
@@ -224,7 +224,7 @@ export function Estudio({ user, goHome, onLogin, onRegister, initialCode = "", i
   if (vista === "revisando")
     return (
       <Pantalla goHome={goHome}>
-        <p className="es-muted">Cargando…</p>
+        <p className="ui-text">Cargando…</p>
       </Pantalla>
     );
 
@@ -324,31 +324,33 @@ function Crear({ goHome, onCrear, cargando, onSalas }) {
         )
       }
     >
-      <section className="es-card-form">
+      <section className="cp-card ui-card es-card-form">
         <span className="es-eyebrow">NUEVA SALA</span>
         <h1>Presentaciones en vivo</h1>
-        <p className="es-muted">
+        <p className="ui-text">
           Tus estudiantes crean sus presentaciones aquí mismo, solos o en equipo, y tú las ves en tiempo real. Sin Meet
           y sin compartir pantalla.
         </p>
-        <label htmlFor="es-n">Nombre de la actividad</label>
-        <input
-          id="es-n"
-          value={name}
-          maxLength={60}
-          placeholder="Ej. Exposición: modelos de regresión — Sección B"
-          onChange={(e) => setName(e.target.value)}
-        />
-        <label htmlFor="es-t">Consigna para los estudiantes (opcional)</label>
-        <textarea
-          id="es-t"
-          value={task}
-          maxLength={500}
-          placeholder="Ej. En 5 diapositivas presenten el problema, el método, los resultados y una conclusión."
-          onChange={(e) => setTask(e.target.value)}
-        />
+        <Field label="Nombre de la actividad" htmlFor="es-n">
+          <Input
+            id="es-n"
+            value={name}
+            maxLength={60}
+            placeholder="Ej. Exposición: modelos de regresión — Sección B"
+            onChange={(e) => setName(e.target.value)}
+          />
+        </Field>
+        <Field label="Consigna para los estudiantes (opcional)" htmlFor="es-t">
+          <Textarea
+            id="es-t"
+            value={task}
+            maxLength={500}
+            placeholder="Ej. En 5 diapositivas presenten el problema, el método, los resultados y una conclusión."
+            onChange={(e) => setTask(e.target.value)}
+          />
+        </Field>
         {error && (
-          <p className="es-err" role="alert">
+          <p className="ui-notice error" role="alert">
             {error}
           </p>
         )}
@@ -426,7 +428,7 @@ function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
           <div>
             <span className="es-eyebrow">DOCENTE</span>
             <h1>Mis salas</h1>
-            <p className="es-muted">
+            <p className="ui-text">
               {salas.length} sala{salas.length === 1 ? "" : "s"} · {abiertas} abierta{abiertas === 1 ? "" : "s"}. Las
               salas cerradas se pueden eliminar.
             </p>
@@ -458,7 +460,7 @@ function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
                 <div className="es-sala-main">
                   <div className="es-sala-title">
                     <strong>{s.name}</strong>
-                    <span className={"es-chip " + (cerrada ? "off" : "on")}>{cerrada ? "Cerrada" : "Abierta"}</span>
+                    <span className={"cp-chip " + (cerrada ? "" : "win")}>{cerrada ? "Cerrada" : "Abierta"}</span>
                   </div>
                   <div className="es-sala-meta">
                     <span>
@@ -551,31 +553,33 @@ function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "",
   };
   return (
     <Pantalla goHome={goHome}>
-      <section className="es-card-form">
+      <section className="cp-card ui-card es-card-form">
         <span className="es-eyebrow">ESTUDIANTE</span>
         <h1>Unirme a una sala</h1>
-        <label htmlFor="es-c">Código de la sala</label>
-        <input
-          id="es-c"
-          className="es-code-in"
-          inputMode="numeric"
-          value={code}
-          maxLength={6}
-          placeholder="000000"
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-        />
-        <label htmlFor="es-nm">Tu nombre</label>
-        <input
-          id="es-nm"
-          value={name}
-          maxLength={30}
-          placeholder="Ej. Andrea"
-          onChange={(e) => setName(e.target.value)}
-        />
-        <span className="es-label" id="es-modo-lbl">
+        <Field label="Código de la sala" htmlFor="es-c">
+          <Input
+            id="es-c"
+            className="code es-code-in"
+            inputMode="numeric"
+            value={code}
+            maxLength={6}
+            placeholder="000000"
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+          />
+        </Field>
+        <Field label="Tu nombre" htmlFor="es-nm">
+          <Input
+            id="es-nm"
+            value={name}
+            maxLength={30}
+            placeholder="Ej. Andrea"
+            onChange={(e) => setName(e.target.value)}
+          />
+        </Field>
+        <span className="ui-label" id="es-modo-lbl">
           ¿Cómo vas a trabajar?
         </span>
-        <div className="es-modo" role="radiogroup" aria-labelledby="es-modo-lbl">
+        <div className="ui-tabs es-modo" role="radiogroup" aria-labelledby="es-modo-lbl">
           {[
             ["solo", "Solo"],
             ["crear", "Crear equipo"],
@@ -595,15 +599,16 @@ function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "",
         </div>
         {modo === "crear" && (
           <>
-            <label htmlFor="es-tm">Nombre del equipo</label>
-            <input
-              id="es-tm"
-              value={team}
-              maxLength={30}
-              placeholder="Ej. Los Cóndores"
-              onChange={(e) => setTeam(e.target.value)}
-            />
-            <p className="es-muted">
+            <Field label="Nombre del equipo" htmlFor="es-tm">
+              <Input
+                id="es-tm"
+                value={team}
+                maxLength={30}
+                placeholder="Ej. Los Cóndores"
+                onChange={(e) => setTeam(e.target.value)}
+              />
+            </Field>
+            <p className="ui-text">
               Al entrar verás un <b>código de equipo</b> de 4 letras: compártelo con tus compañeros para que editen
               contigo.
             </p>
@@ -611,29 +616,30 @@ function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "",
         )}
         {modo === "unirme" && (
           <>
-            <label htmlFor="es-tc">Código del equipo</label>
-            <input
-              id="es-tc"
-              className="es-code-in"
-              value={teamCode}
-              maxLength={4}
-              placeholder="ABCD"
-              autoCapitalize="characters"
-              autoComplete="off"
-              onChange={(e) =>
-                setTeamCode(
-                  e.target.value
-                    .toUpperCase()
-                    .replace(/[^A-Z0-9]/g, "")
-                    .slice(0, 4),
-                )
-              }
-            />
-            <p className="es-muted">Pídeselo a quien creó el equipo: lo ve arriba en su pantalla.</p>
+            <Field label="Código del equipo" htmlFor="es-tc">
+              <Input
+                id="es-tc"
+                className="code es-code-in"
+                value={teamCode}
+                maxLength={4}
+                placeholder="ABCD"
+                autoCapitalize="characters"
+                autoComplete="off"
+                onChange={(e) =>
+                  setTeamCode(
+                    e.target.value
+                      .toUpperCase()
+                      .replace(/[^A-Z0-9]/g, "")
+                      .slice(0, 4),
+                  )
+                }
+              />
+            </Field>
+            <p className="ui-text">Pídeselo a quien creó el equipo: lo ve arriba en su pantalla.</p>
           </>
         )}
         {error && (
-          <p className="es-err" role="alert">
+          <p className="ui-notice error" role="alert">
             {error}
           </p>
         )}
@@ -652,13 +658,13 @@ function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "",
           {busy ? "Entrando…" : "Entrar a crear"}
         </Button>
         {!user && (
-          <p className="es-muted">
+          <p className="ui-text">
             ¿Eres docente?{" "}
-            <button className="es-link" onClick={onLogin}>
+            <button className="cp-link" onClick={onLogin}>
               Inicia sesión
             </button>{" "}
             o{" "}
-            <button className="es-link" onClick={onRegister}>
+            <button className="cp-link" onClick={onRegister}>
               crea tu cuenta
             </button>
             .
@@ -668,12 +674,12 @@ function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "",
         {historial.length > 0 && (
           <div className="es-hist">
             <h2>Mis presentaciones</h2>
-            <p className="es-muted">
+            <p className="ui-text">
               Retoma tu trabajo donde lo dejaste, sin volver a escribir el código.
               {!user && " Sin cuenta, se guardan solo en este dispositivo."}
             </p>
             {errorHist && (
-              <p className="es-err" role="alert">
+              <p className="ui-notice error" role="alert">
                 {errorHist}
               </p>
             )}

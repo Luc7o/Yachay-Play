@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { cronometro, useCronometro, formatoTiempo } from "./cronometroStore";
+import { IconoEnLinea } from "./campusUi";
 import "./cronometroMini.css";
 
 // ============================================================================
@@ -53,7 +54,7 @@ export function CronometroMini() {
             title={c.estado === "running" ? "Pausar" : "Continuar"}
             onClick={() => (c.estado === "running" ? cronometro.pausar() : cronometro.continuar())}
           >
-            {c.estado === "running" ? "⏸" : "▶"}
+            <IconoEnLinea nombre={c.estado === "running" ? "pausa" : "play"} />
           </button>
         )}
         <button
@@ -61,7 +62,7 @@ export function CronometroMini() {
           title="Cerrar y detener el cronómetro"
           onClick={() => cronometro.reiniciar()}
         >
-          ✕
+          <IconoEnLinea nombre="cerrar" />
         </button>
       </div>
     </div>

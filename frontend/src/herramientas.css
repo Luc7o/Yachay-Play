@@ -61,82 +61,12 @@
   min-height: 68px;
   padding: 0 48px;
 }
-.hr-icon {
-  width: 46px;
-  height: 46px;
-  font-size: 1.2rem;
-  cursor: pointer;
-  line-height: 1;
-  background: transparent;
-  border: 1px solid var(--hr-line);
-  border-radius: 12px;
-  color: var(--hr-fg);
-}
-.hr-icon:hover {
-  background: var(--hr-field);
-}
-.hr-icon[aria-pressed="false"] {
-  opacity: 0.5;
-}
 .hr-tools {
   display: inline-flex;
   gap: 8px;
 }
-.hr-link {
-  border: 0;
-  background: none;
-  color: var(--hr-muted);
-  font: inherit;
-  font-size: 0.85rem;
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 4px;
-}
-.hr-page input,
-.hr-page select,
-.hr-page textarea {
-  border-radius: 10px;
-}
-.hr-page select,
-.hr-page input[type="text"],
-.hr-page input[type="number"],
-.hr-page textarea {
-  width: 100%;
-  font: inherit;
-  font-size: 1rem;
-  color: var(--hr-fg);
-  background: var(--hr-field);
-  border: 1px solid var(--hr-line);
-  border-radius: 10px;
-  padding: 9px 12px;
-}
 .hr-page :disabled {
   opacity: 0.6;
-}
-.hr-label {
-  display: block;
-  margin: 14px 0 5px;
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: var(--hr-muted);
-}
-.hr-muted {
-  margin: 6px 0 0;
-  font-size: 0.85rem;
-  color: var(--hr-muted);
-  line-height: 1.4;
-}
-.hr-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
-.hr-card {
-  background: var(--hr-card);
-  border: 1px solid var(--hr-line);
-  border-radius: 14px;
-  padding: 18px;
 }
 
 /* ============================ CRONÓMETRO ============================ */
@@ -392,45 +322,17 @@
   align-items: flex-end;
   gap: 10px;
 }
-.hr-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--hr-muted);
-}
-.hr-field input {
+/* Campos de minutos / segundos: cifras grandes y centradas */
+.hr-page .hr-num.cp-field .cp-input {
   width: 92px;
   text-align: center;
-  font-size: 1.4rem;
-  font-weight: 800;
+  font: 700 1.4rem var(--cp-display);
   padding: 6px;
 }
-.hr-chips {
+.hr-rapidos {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-}
-.hr-chip {
-  font: inherit;
-  font-weight: 800;
-  font-size: 0.9rem;
-  min-height: 44px;
-  padding: 6px 14px;
-  cursor: pointer;
-  color: var(--hr-fg);
-  background: var(--hr-field);
-  border: 1px solid var(--hr-line);
-  border-radius: 999px;
-}
-.hr-chip:hover:not(:disabled) {
-  border-color: var(--orange);
-  color: var(--orange-dark);
-}
-.hr-chip:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
 }
 .hr-mini {
   position: fixed;
@@ -475,29 +377,6 @@
   margin-bottom: 16px;
   flex-wrap: wrap;
 }
-.hr-tabs {
-  display: inline-flex;
-  gap: 4px;
-  background: var(--hr-card);
-  border: 1px solid var(--hr-line);
-  border-radius: 14px;
-  padding: 4px;
-}
-.hr-tab {
-  font: inherit;
-  font-weight: 800;
-  font-size: 0.95rem;
-  border: 0;
-  background: transparent;
-  color: var(--hr-muted);
-  padding: 9px 18px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-.hr-tab.on {
-  background: var(--navy);
-  color: #fff;
-}
 /* Pantalla de la ruleta: todo cabe en la pantalla, sin bajar */
 .hr-fullh {
   height: 100vh;
@@ -534,13 +413,21 @@
 .hr-ruleta.solo {
   grid-template-columns: minmax(0, 1fr) minmax(230px, 300px);
 }
-.hr-listas {
-  display: flex;
-  flex-direction: column;
+/* Columna de listas (Card + Field): el campo de elementos ocupa el alto que sobra */
+.cp-card.hr-listas {
   min-height: 0;
   overflow: auto;
+  padding: 16px;
+  gap: 10px;
 }
-.hr-listas textarea {
+.hr-listas .ui-actions {
+  margin: 0;
+}
+.hr-items {
+  flex: 1;
+  min-height: 0;
+}
+.hr-items textarea {
   flex: 1;
   min-height: 110px;
   resize: none;
@@ -560,23 +447,8 @@
   accent-color: var(--orange);
   flex: none;
 }
-.hr-listas {
-  padding: 12px 14px;
-}
-.hr-listas .hr-label {
-  margin: 9px 0 4px;
-}
-.hr-listas .hr-label:first-child {
-  margin-top: 0;
-}
-.hr-listas .hr-row {
-  margin-top: 8px;
-}
-.hr-listas .hr-muted {
-  margin: 4px 0 0;
-}
 .hr-listas .hr-check {
-  margin-top: 10px;
+  margin-top: 2px;
 }
 .has-ai-fab .hr-listas {
   margin-bottom: 78px;
@@ -676,9 +548,7 @@
 }
 
 /* Derecha: historial */
-.hr-lateral {
-  display: flex;
-  flex-direction: column;
+.cp-card.hr-lateral {
   align-items: stretch;
   gap: 10px;
   min-height: 0;
@@ -744,70 +614,12 @@
 .hr-lista-salidos .t {
   overflow-wrap: anywhere;
 }
-.hr-lateral .hr-link {
-  align-self: center;
-  flex: none;
-}
 
 .hr-repartir {
   max-width: 900px;
-  margin: 0 auto;
-}
-.hr-repartir h2 {
-  margin: 0 0 6px;
-  font-size: 1.3rem;
-}
-.hr-reparto-controles {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 14px;
-  align-items: end;
-}
-.hr-aviso {
-  margin: 14px 0 0;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: var(--hr-field);
-  border-left: 4px solid var(--orange);
-  font-weight: 700;
-  line-height: 1.4;
-}
-.hr-tabla {
-  margin-top: 14px;
-  border: 1px solid var(--hr-line);
-  border-radius: 12px;
-  overflow: auto;
-  max-height: 430px;
-}
-.hr-tabla table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 1.05rem;
-}
-.hr-tabla th {
-  position: sticky;
-  top: 0;
-  background: var(--navy);
-  color: #fff;
-  text-align: left;
-  padding: 10px 14px;
-  font-weight: 800;
-}
-.hr-tabla td {
-  padding: 9px 14px;
-  border-top: 1px solid var(--hr-line);
-  font-weight: 700;
-}
-.hr-tabla .n {
-  width: 56px;
-  text-align: center;
-  color: var(--hr-muted);
-}
-.hr-tabla th.n {
-  color: #fff;
-}
-.hr-tabla tbody tr:nth-child(even) {
-  background: var(--hr-field);
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 .hr-rep {
   margin-left: 8px;
@@ -877,9 +689,6 @@
   .hr-actions .cp-btn.primary {
     flex: 1 1 100%;
     order: -1;
-  }
-  .hr-reparto-controles {
-    grid-template-columns: 1fr;
   }
   .cp-btn.hr-grande {
     width: 100%;
@@ -962,11 +771,6 @@
 .hr-modos {
   margin-bottom: 10px;
 }
-.hr-chip.on {
-  background: var(--hr-bar);
-  color: #fff;
-  border-color: var(--hr-bar);
-}
 .hr-sig {
   margin: 0;
   font-size: clamp(0.95rem, 1.8vw, 1.4rem);
@@ -989,4 +793,10 @@
   padding: 8px 12px;
   resize: vertical;
   width: 100%;
+}
+
+/* Las tarjetas compartidas traen margen inferior para listas sueltas; aquí el
+   espacio lo dan la grilla y los contenedores flex (gap). */
+.hr-page .cp-card.ui-card:not(.x) {
+  margin-bottom: 0;
 }

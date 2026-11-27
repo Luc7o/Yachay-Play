@@ -115,16 +115,6 @@
   width: 100%;
   margin-top: 6px;
 }
-.es-link {
-  font: inherit;
-  background: none;
-  border: 0;
-  color: var(--es-primary);
-  font-weight: 800;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-}
 .es :focus-visible {
   outline: 3px solid var(--es-primary);
   outline-offset: 2px;
@@ -427,21 +417,6 @@
   gap: 8px;
   margin-bottom: 18px;
 }
-.es-comentar textarea,
-.es-card-form textarea,
-.es-card-form input {
-  font: inherit;
-  border: 1px solid var(--es-line);
-  border-radius: 10px;
-  padding: 10px 12px;
-  background: var(--es-surface);
-  color: var(--es-ink);
-  width: 100%;
-}
-.es-comentar textarea {
-  min-height: 84px;
-  resize: vertical;
-}
 
 /* miniaturas */
 .es-sv {
@@ -518,32 +493,19 @@
   place-items: center;
   padding: 24px 16px;
 }
-.es-card-form {
+.es-card-form.cp-card {
   width: min(520px, 100%);
-  background: var(--es-surface);
-  border: 1px solid var(--es-line);
-  border-radius: 14px;
+  box-sizing: border-box;
   padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin: 0;
 }
 .es-card-form h1 {
   margin: 2px 0 4px;
   font-size: 28px;
 }
-.es-card-form label {
-  font-weight: 800;
-  font-size: 13px;
-  margin-top: 8px;
-}
-.es-card-form textarea {
-  min-height: 96px;
-  resize: vertical;
-}
-.es-code-in {
-  font-size: 30px !important;
-  font-weight: 900;
+.es-page .es-card-form .cp-input.es-code-in {
+  font-size: 30px;
+  font-weight: 700;
   letter-spacing: 8px;
   text-align: center;
 }
@@ -619,17 +581,6 @@
   gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
-}
-.es-chip {
-  display: inline-block;
-  border-radius: 999px;
-  padding: 4px 12px;
-  font-size: 13px;
-  font-weight: 800;
-}
-.es-chip.warn {
-  background: var(--es-warn);
-  color: var(--es-warn-ink);
 }
 .es-grid {
   display: grid;
@@ -792,19 +743,6 @@
 .es-sala-meta {
   color: var(--es-muted);
 }
-.es-chip.on {
-  background: #d1fae5;
-  color: #065f46;
-}
-.es-chip.off {
-  background: var(--es-soft);
-  color: var(--es-ink);
-  border: 1px solid var(--es-line);
-}
-:root[data-theme="dark"] .es-chip.on {
-  background: #0f2f27;
-  color: #6ee7b7;
-}
 .es-aviso-box {
   border-radius: 12px;
   margin-bottom: 16px;
@@ -909,37 +847,14 @@
 }
 
 /* Unirse: elegir si se trabaja solo, se crea un equipo o se une a uno con código */
-.es-label {
-  display: block;
-  font-weight: 700;
-  margin-top: 12px;
-}
-.es-modo {
+.ui-tabs.es-modo {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 6px 0 4px;
+  margin: 0;
 }
 .es-modo button {
   flex: 1 1 auto;
+  justify-content: center;
   min-height: 44px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1.5px solid var(--es-line);
-  background: var(--es-surface);
-  color: var(--es-ink);
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-.es-modo button.on {
-  border-color: var(--es-primary);
-  background: color-mix(in srgb, var(--es-primary) 12%, var(--es-surface));
-  color: var(--es-primary);
-}
-.es-modo button:focus-visible {
-  outline: 3px solid var(--es-primary);
-  outline-offset: 2px;
 }
 .es-teamcode {
   font-size: 13px;

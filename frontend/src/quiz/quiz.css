@@ -16,20 +16,8 @@
   color: var(--hr-muted);
   padding: 40px 0;
 }
-.qz-page textarea,
-.qz-page select,
-.qz-page input[type="text"],
-.qz-page input[type="number"] {
-  width: 100%;
-  font: inherit;
-  color: var(--hr-fg);
-  background: var(--hr-field);
-  border: 1px solid var(--hr-line);
-  border-radius: 10px;
-  padding: 9px 12px;
-}
-.qz-page textarea {
-  resize: vertical;
+.qz-op .cp-input {
+  flex: 1;
 }
 .qz-page h2 {
   margin: 0 0 6px;
@@ -297,10 +285,10 @@
 .qz-unirse .cp-btn {
   margin-top: 14px;
 }
-.qz-code-in {
+.qz-page .qz-unirse .cp-input.qz-code-in {
   text-align: center;
-  font-size: 1.8rem !important;
-  font-weight: 800;
+  font-size: 1.8rem;
+  font-weight: 700;
   letter-spacing: 0.2em;
 }
 .qz-docente-link {

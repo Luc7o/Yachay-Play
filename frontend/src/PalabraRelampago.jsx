@@ -11,7 +11,7 @@ import {
 import { PalabraSolo } from "./palabra/PalabraSolo";
 import { OnlineRoom, OnlineSetup } from "./palabra/PalabraOnline";
 import "./palabraRelampago.css";
-import { Button } from "./ui";
+import { Button, Field, Input, Select, Textarea } from "./ui";
 
 const COLORS = ["#17c7b5", "#4388ff", "#b18aff", "#ffc15d", "#f383a6", "#6ac9de", "#a4d75c", "#e1a7ff"];
 const DEFAULT_TEAMS = "Equipo 1, Equipo 2, Equipo 3";
@@ -247,7 +247,8 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
               onClick={toggleUiTheme}
               aria-label={uiTheme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
             >
-              {uiTheme === "dark" ? "☀ Modo claro" : "☾ Modo oscuro"}
+              <IconoEnLinea nombre={uiTheme === "dark" ? "sol" : "luna"} />
+              {uiTheme === "dark" ? "Modo claro" : "Modo oscuro"}
             </button>
           )}
           <Button variant="ghost" onClick={goHome}>
@@ -256,19 +257,19 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
         </div>
       </header>
       {phase === "setup" && (
-        <section className="pr-panel pr-setup">
+        <section className="cp-card ui-card pr-setup">
           <div className="pr-burst">
             CA <span>→</span> BO<strong>CA</strong>DO
           </div>
           <h2>Elige cómo jugar</h2>
-          <p>
+          <p className="ui-text">
             Solo contra el reloj, por equipos en una misma pantalla, o en línea con tus compañeros, cada quien desde su
             dispositivo.
           </p>
-          <div className="pr-mode" role="group" aria-label="Modalidad">
+          <div className="ui-tabs pr-mode" role="group" aria-label="Modalidad">
             <button
               type="button"
-              className={mode === "individual" ? "chosen" : ""}
+              className={mode === "individual" ? "on" : ""}
               onClick={() => {
                 setMode("individual");
                 setMessage("");
@@ -279,7 +280,7 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
             </button>
             <button
               type="button"
-              className={mode === "team" ? "chosen" : ""}
+              className={mode === "team" ? "on" : ""}
               onClick={() => {
                 setMode("team");
                 setMessage("");
@@ -290,7 +291,7 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
             </button>
             <button
               type="button"
-              className={mode === "online" ? "chosen" : ""}
+              className={mode === "online" ? "on" : ""}
               onClick={() => {
                 setMode("online");
                 setMessage("");
@@ -302,18 +303,17 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
           </div>
           {mode === "individual" && (
             <>
-              <label>
-                Tu nombre
-                <input
-                  className="pr-name-input"
+              <Field label="Tu nombre" htmlFor="pr-tu-nombre">
+                <Input
+                  id="pr-tu-nombre"
                   value={soloName}
                   onChange={(e) => setSoloName(e.target.value)}
                   maxLength={30}
                   placeholder="Escribe tu nombre"
                   autoComplete="off"
                 />
-              </label>
-              <p className="pr-small">
+              </Field>
+              <p className="ui-text">
                 Juegas solo contra el reloj con <strong>3 vidas</strong>. La partida dura hasta que te quedes sin vidas:
                 cada palabra tiene un tiempo que se va acortando a medida que aciertas. Si se acaba el tiempo o cambias
                 las letras pierdes una vida. +10 puntos y los segundos que sobren por acierto · Sin palabras repetidas.
@@ -334,44 +334,46 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
           )}
           {mode === "team" && (
             <>
-              <label>
-                Nombres de los equipos
-                <textarea
+              <Field label="Nombres de los equipos" htmlFor="pr-nombres-de-los-equipos">
+                <Textarea
+                  id="pr-nombres-de-los-equipos"
                   value={names}
                   onChange={(e) => setNames(e.target.value)}
                   rows={2}
                   maxLength={250}
                   placeholder="Separa los nombres con comas"
                 />
-              </label>
-              <div className="pr-config">
-                <label>
-                  Tiempo por turno
-                  <select value={seconds} onChange={(e) => setSeconds(Number(e.target.value))}>
+              </Field>
+              <div className="ui-actions">
+                <Field label="Tiempo por turno" htmlFor="pr-tiempo-por-turno">
+                  <Select id="pr-tiempo-por-turno" value={seconds} onChange={(e) => setSeconds(Number(e.target.value))}>
                     <option value={15}>15 segundos</option>
                     <option value={20}>20 segundos</option>
                     <option value={30}>30 segundos</option>
-                  </select>
-                </label>
-                <label>
-                  Turnos máximos
-                  <select value={maxRounds} onChange={(e) => setMaxRounds(Number(e.target.value))}>
+                  </Select>
+                </Field>
+                <Field label="Turnos máximos" htmlFor="pr-turnos-maximos">
+                  <Select
+                    id="pr-turnos-maximos"
+                    value={maxRounds}
+                    onChange={(e) => setMaxRounds(Number(e.target.value))}
+                  >
                     <option value={12}>12 turnos</option>
                     <option value={20}>20 turnos</option>
                     <option value={32}>32 turnos</option>
                     <option value={48}>48 turnos</option>
-                  </select>
-                </label>
+                  </Select>
+                </Field>
               </div>
-              <p className="pr-small">
+              <p className="ui-text">
                 3 vidas por participante · +10 puntos y tiempo restante por acierto · Sin palabras repetidas · Contiene
                 las letras en cualquier posición. Todos juegan en esta misma pantalla.
               </p>
             </>
           )}
           {canEditDictionary ? (
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               className="pr-dict-toggle"
               onClick={() => setShowVocabulary((v) => !v)}
               aria-expanded={showVocabulary}
@@ -379,36 +381,37 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
               <IconoEnLinea nombre="libro" />
               Diccionario: {BASE_COUNT.toLocaleString("es")} palabras base + {extraWords.length.toLocaleString("es")}{" "}
               personalizadas {showVocabulary ? "−" : "+"}
-            </button>
+            </Button>
           ) : (
-            <p className="pr-small">
+            <p className="ui-text">
               <IconoEnLinea nombre="libro" />
               Diccionario: {BASE_COUNT.toLocaleString("es")} palabras. Solo los docentes pueden agregar palabras nuevas.
             </p>
           )}
           {canEditDictionary && showVocabulary && (
             <div className="pr-vocabulary">
-              <p>
+              <p className="ui-text">
                 Agrega palabras específicas para tu clase o importa un <strong>.txt UTF-8</strong> (una palabra por
                 línea o separadas por espacios). Se guardan en este navegador. Revisa previamente los términos: se
                 consideran válidos automáticamente.
               </p>
-              <textarea
+              <Textarea
+                aria-label="Palabras nuevas"
                 rows={3}
                 value={vocabularyText}
                 onChange={(e) => setVocabularyText(e.target.value)}
                 placeholder="biotecnología&#10;fotosíntesis&#10;ecosistema"
               />
-              <div className="pr-vocabulary-actions">
-                <button
-                  className="pr-skip"
-                  type="button"
+              <div className="ui-actions pr-vocabulary-actions">
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => addWords(vocabularyText)}
                   disabled={!vocabularyText.trim()}
                 >
                   Añadir palabras
-                </button>
-                <label className="pr-import">
+                </Button>
+                <label className="cp-btn ghost sm pr-import">
                   Importar .txt
                   <input
                     type="file"
@@ -420,11 +423,15 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
                   />
                 </label>
               </div>
-              {vocabularyStatus && <p role="status">{vocabularyStatus}</p>}
+              {vocabularyStatus && (
+                <p className="ui-hint" role="status">
+                  {vocabularyStatus}
+                </p>
+              )}
             </div>
           )}
           {message && (
-            <div className="pr-alert" role="alert">
+            <div className="ui-notice error" role="alert">
               {message}
             </div>
           )}
@@ -560,7 +567,7 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
               </div>
             </div>
             {message && (
-              <div className="pr-alert" role="status" aria-live="polite">
+              <div className="ui-notice error" role="status" aria-live="polite">
                 {message}
               </div>
             )}
@@ -590,7 +597,7 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
             <div className="pr-used">
               {used.length ? used.slice(-18).map((w) => <span key={w}>{w}</span>) : "Todavía ninguna"}
             </div>
-            <p className="pr-small">
+            <p className="ui-text">
               Modalidad: {mode === "team" ? "Equipos" : "Individual"} · Diccionario: {BASE_COUNT + extraWords.length}{" "}
               entradas aproximadamente
             </p>
@@ -598,7 +605,7 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
         </div>
       )}
       {phase === "finished" && (
-        <section className="pr-panel pr-finish">
+        <section className="cp-card ui-card pr-finish">
           <div className="pr-burst">
             <IconoEnLinea nombre="trofeo" />
           </div>

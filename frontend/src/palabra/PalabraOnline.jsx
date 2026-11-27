@@ -5,7 +5,7 @@ import { socket } from "../socket";
 import { emitirConTiempo, useSalaEnVivo } from "../salaEnVivo";
 import { conClaseDestino, limpiarClaseDestino, useClaseDestino } from "../claseDestino";
 import { Hearts, PalabraStage, StageFrame, useStageTheme } from "./PalabraStage";
-import { Button } from "../ui";
+import { Button, Field, Input, Select } from "../ui";
 
 // ============================================================================
 // PALABRA RELÁMPAGO · EN LÍNEA
@@ -94,11 +94,10 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
     <div className="pr-online">
       <form onSubmit={unirse} className="pr-online-box">
         <h3>Unirme a una partida</h3>
-        <p className="pr-small">Pide el código de 6 números a quien creó la partida.</p>
-        <label>
-          Código
-          <input
-            className="pr-name-input"
+        <p className="ui-text">Pide el código de 6 números a quien creó la partida.</p>
+        <Field label="Código" htmlFor="pro-codigo">
+          <Input
+            id="pro-codigo"
             inputMode="numeric"
             autoComplete="off"
             placeholder="000000"
@@ -106,18 +105,17 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
             maxLength={6}
             onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
           />
-        </label>
-        <label>
-          Tu nombre
-          <input
-            className="pr-name-input"
+        </Field>
+        <Field label="Tu nombre" htmlFor="pro-tu-nombre">
+          <Input
+            id="pro-tu-nombre"
             value={nombre}
             maxLength={30}
             autoComplete="name"
             placeholder="Ej. Andrea"
             onChange={(e) => setNombre(e.target.value)}
           />
-        </label>
+        </Field>
         <Button size="lg" type="submit">
           Unirme →
         </Button>
@@ -126,72 +124,80 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
       <form onSubmit={crearPartida} className="pr-online-box">
         <h3>Crear una partida</h3>
         {!user ? (
-          <p className="pr-small">Inicia sesión para crear una partida y compartir su código con tus compañeros.</p>
+          <p className="ui-text">Inicia sesión para crear una partida y compartir su código con tus compañeros.</p>
         ) : (
           <>
-            <p className="pr-small">
+            <p className="ui-text">
               {esDocente
                 ? destino
                   ? `Se creará dentro de la clase «${destino.name}» y tus estudiantes la verán en vivo.`
                   : "Tus estudiantes se unen con el código. Si la lanzas desde una clase, les aparece en vivo."
                 : "Comparte el código con tus compañeros: juegan entre ustedes, sin docente."}
             </p>
-            <label>
-              Nombre de la partida (opcional)
-              <input
-                className="pr-name-input"
+            <Field label="Nombre de la partida (opcional)" htmlFor="pro-nombre-de-la-partida-opc">
+              <Input
+                id="pro-nombre-de-la-partida-opc"
                 value={crear.name}
                 maxLength={60}
                 placeholder="Ej. Repaso de vocabulario"
                 onChange={(e) => set("name", e.target.value)}
               />
-            </label>
-            <div className="pr-mode" role="group" aria-label="Modalidad de la partida">
+            </Field>
+            <div className="ui-tabs pr-mode" role="group" aria-label="Modalidad de la partida">
               <button
                 type="button"
-                className={crear.mode === "individual" ? "chosen" : ""}
+                className={crear.mode === "individual" ? "on" : ""}
                 onClick={() => set("mode", "individual")}
               >
                 <IconoEnLinea nombre="persona" />
-                Cada quien por su cuenta
+                Individual
               </button>
               <button
                 type="button"
-                className={crear.mode === "equipos" ? "chosen" : ""}
+                className={crear.mode === "equipos" ? "on" : ""}
                 onClick={() => set("mode", "equipos")}
               >
                 <IconoEnLinea nombre="grupo" />
                 Por equipos
               </button>
             </div>
-            <div className="pr-config">
-              <label>
-                Tiempo por turno
-                <select value={crear.seconds} onChange={(e) => set("seconds", Number(e.target.value))}>
+            <div className="ui-actions">
+              <Field label="Tiempo por turno" htmlFor="pro-tiempo-por-turno">
+                <Select
+                  id="pro-tiempo-por-turno"
+                  value={crear.seconds}
+                  onChange={(e) => set("seconds", Number(e.target.value))}
+                >
                   <option value={15}>15 segundos</option>
                   <option value={20}>20 segundos</option>
                   <option value={30}>30 segundos</option>
-                </select>
-              </label>
-              <label>
-                Turnos máximos
-                <select value={crear.maxRounds} onChange={(e) => set("maxRounds", Number(e.target.value))}>
+                </Select>
+              </Field>
+              <Field label="Turnos máximos" htmlFor="pro-turnos-maximos">
+                <Select
+                  id="pro-turnos-maximos"
+                  value={crear.maxRounds}
+                  onChange={(e) => set("maxRounds", Number(e.target.value))}
+                >
                   <option value={12}>12 turnos</option>
                   <option value={30}>30 turnos</option>
                   <option value={60}>60 turnos</option>
                   <option value={100}>100 turnos</option>
-                </select>
-              </label>
+                </Select>
+              </Field>
             </div>
             {crear.mode === "equipos" && (
-              <label>
-                Número de equipos
-                <select value={crear.teams} onChange={(e) => set("teams", Number(e.target.value))}>
+              <Field label="Número de equipos" htmlFor="pro-numero-de-equipos">
+                <Select
+                  id="pro-numero-de-equipos"
+                  value={crear.teams}
+                  onChange={(e) => set("teams", Number(e.target.value))}
+                >
                   <option value={2}>2 equipos</option>
                   <option value={3}>3 equipos</option>
                   <option value={4}>4 equipos</option>
-                </select>
-              </label>
+                </Select>
+              </Field>
             )}
             {esDocente && (
               <>
@@ -215,7 +221,7 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
                 )}
               </>
             )}
-            <p className="pr-small">
+            <p className="ui-text">
               3 vidas por participante · +10 puntos y el tiempo restante por acierto · Sin palabras repetidas.
             </p>
             <Button size="lg" type="submit" disabled={ocupado}>
@@ -225,7 +231,7 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
         )}
       </form>
       {err && (
-        <div className="pr-alert pr-online-err" role="alert">
+        <div className="ui-notice error pr-online-err" role="alert">
           {err}
         </div>
       )}
@@ -322,9 +328,9 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
         kicker="EN LÍNEA"
       >
         <div className="pf-center">
-          <section className="pf-card">
+          <section className="cp-card ui-card pf-card">
             <h2>No pudimos entrar</h2>
-            <p className="pf-err" role="alert">
+            <p className="ui-notice error" role="alert">
               {error}
             </p>
             <Button onClick={onExit}>Volver</Button>
@@ -344,7 +350,7 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
         kicker="EN LÍNEA"
       >
         <div className="pf-center">
-          <section className="pf-card">
+          <section className="cp-card ui-card pf-card">
             <p>Conectando con la partida…</p>
           </section>
         </div>
@@ -367,7 +373,7 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
     return (
       <StageFrame {...marco} exitLabel="Salir">
         <div className="pf-center">
-          <section className="pf-card">
+          <section className="cp-card ui-card pf-card">
             <span className="pf-kicker">SALA DE ESPERA</span>
             <h2>{state.name}</h2>
             <p>Comparte este código con quienes van a jugar:</p>
@@ -425,7 +431,7 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
               <p>Quien no elija equipo entrará al que tenga menos integrantes.</p>
             )}
             {localMsg && (
-              <p className="pf-err" role="alert">
+              <p className="ui-notice error" role="alert">
                 {localMsg.text}
               </p>
             )}
@@ -453,7 +459,7 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
     return (
       <StageFrame {...marco} exitLabel="Volver">
         <div className="pf-center">
-          <section className="pf-card">
+          <section className="cp-card ui-card pf-card">
             <div style={{ fontSize: 54 }} aria-hidden="true">
               <IconoEnLinea nombre="trofeo" />
             </div>

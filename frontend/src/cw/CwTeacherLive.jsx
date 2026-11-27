@@ -90,12 +90,12 @@ export function CwTeacherLive({ live, ended }) {
 
         <div className="cw-side-col cw-teacher-clues">
           {!ended && (
-            <div className="cw-panel-card cw-board-live">
+            <div className="cp-card cw-panel-card cw-board-live">
               <div className="cw-side-title">Marcador en vivo</div>
               <CwLeaderboard board={board} />
             </div>
           )}
-          <div className="cw-panel-card">
+          <div className="cp-card cw-panel-card">
             <div className="cw-panel-scroll">
               <div className="cw-side-title">Pistas horizontales</div>
               <ul className="cw-clue-list cw-clue-list-readonly">
@@ -112,7 +112,7 @@ export function CwTeacherLive({ live, ended }) {
             </div>
           </div>
 
-          <div className="cw-panel-card">
+          <div className="cp-card cw-panel-card">
             <div className="cw-side-title">Actividad reciente</div>
             <div className="cw-panel-scroll cw-activity-scroll">
               <CwActivityLog log={live.log} />

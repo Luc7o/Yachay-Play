@@ -60,6 +60,12 @@
 }
 
 /* Campos */
+.ui-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cp-ink2);
+}
 .ui-hint {
   font-size: 12px;
   color: var(--cp-muted);
@@ -261,6 +267,64 @@ select.cp-input {
 }
 
 /* Pestañas */
+/* Botón de solo ícono (herramientas, editores). Lleva aria-label. */
+.ui-iconbtn {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--cp-ink);
+  background: transparent;
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.ui-iconbtn:hover {
+  background: var(--cp-surface2);
+}
+.ui-iconbtn[aria-pressed="false"] {
+  opacity: 0.5;
+}
+.ui-iconbtn .ui-ico-inline svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Tabla de resultados (repartos, ranking, respuestas) */
+.ui-table {
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  overflow: auto;
+  max-height: 430px;
+}
+.ui-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.ui-table th {
+  position: sticky;
+  top: 0;
+  background: var(--cp-surface2);
+  color: var(--cp-ink2);
+  text-align: left;
+  padding: 10px 14px;
+  font-weight: 600;
+}
+.ui-table td {
+  padding: 9px 14px;
+  border-top: 1px solid var(--cp-line);
+  color: var(--cp-ink);
+}
+.ui-table .n {
+  width: 56px;
+  text-align: center;
+  color: var(--cp-muted);
+}
+
 .ui-tabs {
   display: inline-flex;
   gap: 4px;
@@ -270,6 +334,9 @@ select.cp-input {
   margin-bottom: 12px;
 }
 .ui-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border: 0;
   border-radius: 9px;
   padding: 8px 14px;
@@ -282,6 +349,10 @@ select.cp-input {
   background: var(--cp-surface);
   color: var(--cp-ink);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+.ui-tabs button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 /* Planes / Ayuda (InfoPages.jsx) */

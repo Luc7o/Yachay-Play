@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { IconoEnLinea } from "./campusUi";
-import { Button } from "./ui";
+import { Button, Field, Input, Select, Tabs, Textarea } from "./ui";
 import { Brand } from "./Brand";
 import { prepararAudio, nota } from "./herramientasAudio";
 import { cronometro, useCronometro } from "./cronometroStore";
@@ -33,10 +33,10 @@ const CONFIG = {
   tiemposRapidos: [1, 3, 5, 10, 15, 30], // botones de minutos
   // el sonido al terminar se cambia en cronometroStore.js (PITIDO)
   textos: {
-    iniciar: "▶ Iniciar",
-    pausar: "⏸ Pausar",
-    continuar: "▶ Continuar",
-    otraVez: "▶ Iniciar de nuevo",
+    iniciar: "Iniciar",
+    pausar: "Pausar",
+    continuar: "Continuar",
+    otraVez: "Iniciar de nuevo",
     fin: "¡Tiempo!",
   },
   clave: "yachayplay.cronometro.v1", // dónde se guarda lo último que usaste en este navegador
@@ -458,32 +458,39 @@ export function Cronometro({ goHome }) {
 
       {!limpio && (
         <section className="hr-controls" aria-label="Controles del cronómetro">
-          <div className="hr-chips hr-modos" role="group" aria-label="Modo del cronómetro">
-            <button
-              className={"hr-chip" + (!esExpo ? " on" : "")}
-              aria-pressed={!esExpo}
-              disabled={bloqueado}
-              onClick={() => setModo("simple")}
-            >
-              <IconoEnLinea nombre="cronometro" />
-              Simple
-            </button>
-            <button
-              className={"hr-chip" + (esExpo ? " on" : "")}
-              aria-pressed={esExpo}
-              disabled={bloqueado}
-              onClick={() => setModo("expo")}
-            >
-              <IconoEnLinea nombre="microfono" />
-              Exposiciones
-            </button>
-          </div>
+          <Tabs
+            label="Modo del cronómetro"
+            className="hr-modos"
+            value={esExpo ? "expo" : "simple"}
+            onChange={setModo}
+            disabled={bloqueado}
+            items={[
+              {
+                id: "simple",
+                label: (
+                  <>
+                    <IconoEnLinea nombre="cronometro" />
+                    Simple
+                  </>
+                ),
+              },
+              {
+                id: "expo",
+                label: (
+                  <>
+                    <IconoEnLinea nombre="microfono" />
+                    Exposiciones
+                  </>
+                ),
+              },
+            ]}
+          />
 
           {esExpo ? (
             <div className="hr-set hr-expo">
-              <label className="hr-field hr-turnos">
-                <span>Turnos (uno por línea: grupo o estudiante)</span>
-                <textarea
+              <Field label="Turnos (uno por línea: grupo o estudiante)" htmlFor="cr-turnos" className="hr-turnos">
+                <Textarea
+                  id="cr-turnos"
                   rows={4}
                   value={turnosTxt}
                   disabled={bloqueado}
@@ -494,10 +501,10 @@ export function Cronometro({ goHome }) {
                     setFase("expo");
                   }}
                 />
-              </label>
-              <label className="hr-field">
-                <span>Exposición (min)</span>
-                <input
+              </Field>
+              <Field label="Exposición (min)" htmlFor="cr-expo" className="hr-num">
+                <Input
+                  id="cr-expo"
                   type="number"
                   inputMode="numeric"
                   min={0}
@@ -507,10 +514,10 @@ export function Cronometro({ goHome }) {
                   onChange={(e) => cambiarTiempo(setMinExpo, e.target.value)}
                   onBlur={() => setMinExpo(String(aNumero(minExpo, 0, 99)))}
                 />
-              </label>
-              <label className="hr-field">
-                <span>Preguntas (min, 0 = sin)</span>
-                <input
+              </Field>
+              <Field label="Preguntas (min, 0 = sin)" htmlFor="cr-preg" className="hr-num">
+                <Input
+                  id="cr-preg"
                   type="number"
                   inputMode="numeric"
                   min={0}
@@ -520,26 +527,25 @@ export function Cronometro({ goHome }) {
                   onChange={(e) => cambiarTiempo(setMinPreg, e.target.value)}
                   onBlur={() => setMinPreg(String(aNumero(minPreg, 0, 99)))}
                 />
-              </label>
+              </Field>
               {listasRuleta.length > 0 && (
-                <label className="hr-field">
-                  <span>Cargar turnos desde la Ruleta</span>
-                  <select value="" disabled={bloqueado} onChange={(e) => cargarDeRuleta(e.target.value)}>
+                <Field label="Cargar turnos desde la Ruleta" htmlFor="cr-ruleta">
+                  <Select id="cr-ruleta" value="" disabled={bloqueado} onChange={(e) => cargarDeRuleta(e.target.value)}>
                     <option value="">Elegir lista…</option>
                     {listasRuleta.map((l) => (
                       <option key={l.id} value={l.id}>
                         {l.nombre} ({l.items.length})
                       </option>
                     ))}
-                  </select>
-                </label>
+                  </Select>
+                </Field>
               )}
             </div>
           ) : (
             <div className="hr-set">
-              <label className="hr-field">
-                <span>Minutos</span>
-                <input
+              <Field label="Minutos" htmlFor="cr-min" className="hr-num">
+                <Input
+                  id="cr-min"
                   type="number"
                   inputMode="numeric"
                   min={0}
@@ -549,10 +555,10 @@ export function Cronometro({ goHome }) {
                   onChange={(e) => cambiarTiempo(setMinutos, e.target.value)}
                   onBlur={() => setMinutos(String(aNumero(minutos, 0, 99)))}
                 />
-              </label>
-              <label className="hr-field">
-                <span>Segundos</span>
-                <input
+              </Field>
+              <Field label="Segundos" htmlFor="cr-seg" className="hr-num">
+                <Input
+                  id="cr-seg"
                   type="number"
                   inputMode="numeric"
                   min={0}
@@ -562,18 +568,18 @@ export function Cronometro({ goHome }) {
                   onChange={(e) => cambiarTiempo(setSegundos, e.target.value)}
                   onBlur={() => setSegundos(String(aNumero(segundos, 0, 59)))}
                 />
-              </label>
-              <div className="hr-chips" role="group" aria-label="Tiempos rápidos">
+              </Field>
+              <div className="hr-rapidos" role="group" aria-label="Tiempos rápidos">
                 {CONFIG.tiemposRapidos.map((m) => (
-                  <button
+                  <Button
                     key={m}
-                    className="hr-chip"
+                    variant="ghost"
                     disabled={bloqueado}
                     onClick={() => elegirRapido(m)}
                     title={bloqueado ? "Pulsa Reiniciar para cambiar el tiempo" : ""}
                   >
                     {m} min
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -588,6 +594,7 @@ export function Cronometro({ goHome }) {
               }
               title="Barra espaciadora"
             >
+              <IconoEnLinea nombre={estado === "running" ? "pausa" : "play"} />
               {etiquetaInicio}
             </Button>
             {esExpo && (
@@ -598,11 +605,19 @@ export function Cronometro({ goHome }) {
                 disabled={!turnos.length || estado === "idle"}
                 title="Tecla N"
               >
-                {hayMas ? "⏭ Siguiente" : "Terminar"}
+                {hayMas ? (
+                  <>
+                    <IconoEnLinea nombre="siguiente" />
+                    Siguiente
+                  </>
+                ) : (
+                  "Terminar"
+                )}
               </Button>
             )}
             <Button variant="ghost" size="lg" onClick={reiniciar}>
-              ↺ Reiniciar
+              <IconoEnLinea nombre="repetir" />
+              Reiniciar
             </Button>
             {esExpo && (
               <Button variant="ghost" size="lg" onClick={reiniciarTurnos} disabled={bloqueado}>
@@ -611,7 +626,7 @@ export function Cronometro({ goHome }) {
             )}
             <span className="hr-tools">
               <button
-                className="hr-icon"
+                className="ui-iconbtn"
                 aria-pressed={sonido}
                 aria-label="Sonido"
                 title={sonido ? "Sonido activado" : "Sonido apagado"}
@@ -621,10 +636,10 @@ export function Cronometro({ goHome }) {
                   if (!sonido) nota(880, 0, 0.12, 0.3);
                 }}
               >
-                {sonido ? "🔊" : "🔇"}
+                <IconoEnLinea nombre={sonido ? "sonido" : "silencio"} />
               </button>
               <button
-                className="hr-icon"
+                className="ui-iconbtn"
                 aria-pressed={mascota}
                 aria-label="Mostrar mascota"
                 title="Mostrar u ocultar la mascota (M)"
@@ -634,17 +649,17 @@ export function Cronometro({ goHome }) {
               </button>
               {puedePantallaCompleta && (
                 <button
-                  className="hr-icon"
+                  className="ui-iconbtn"
                   aria-pressed={pantallaCompleta}
                   aria-label="Pantalla completa"
                   title="Pantalla completa (F)"
                   onClick={alternarPantallaCompleta}
                 >
-                  ⛶
+                  <IconoEnLinea nombre="pantalla" />
                 </button>
               )}
               <button
-                className="hr-icon"
+                className="ui-iconbtn"
                 aria-label="Ocultar controles"
                 title="Ocultar controles (C)"
                 onClick={() => setLimpio(true)}
@@ -664,7 +679,7 @@ export function Cronometro({ goHome }) {
               title={estado === "running" ? "Pausar (barra espaciadora)" : "Continuar (barra espaciadora)"}
               onClick={alternar}
             >
-              {estado === "running" ? "⏸" : "▶"}
+              <IconoEnLinea nombre={estado === "running" ? "pausa" : "play"} />
             </button>
           )}
           {esExpo && estado !== "idle" && (
@@ -673,12 +688,12 @@ export function Cronometro({ goHome }) {
               title={hayMas ? "Siguiente (N)" : "Terminar (N)"}
               onClick={siguiente}
             >
-              {hayMas ? "⏭" : "■"}
+              <IconoEnLinea nombre={hayMas ? "siguiente" : "detener"} />
             </button>
           )}
           {estado !== "idle" && (
             <button aria-label="Reiniciar" title="Detener y volver a configurar" onClick={reiniciar}>
-              ↺
+              <IconoEnLinea nombre="repetir" />
             </button>
           )}
           <button

@@ -7,7 +7,7 @@ import { emitConTiempoLimite, loadJSON, saveJSON } from "../cw/helpers";
 import { useSalaEnVivo } from "../salaEnVivo";
 import "../herramientas.css";
 import "./quiz.css";
-import { Button } from "../ui";
+import { Button, Field, Input } from "../ui";
 
 // ============================================================================
 // EVALUACIÓN RÁPIDA
@@ -297,31 +297,31 @@ function Editor({ onCreada }) {
 
   return (
     <section className="qz-editor">
-      <div className="hr-card qz-cabecera">
+      <div className="cp-card ui-card qz-cabecera">
         <h2>Nueva evaluación rápida</h2>
-        <p className="hr-muted">
+        <p className="ui-text">
           Arma las preguntas, crea la sala y proyecta el código: tus estudiantes responden desde el celular y ves los
           resultados al instante.
         </p>
-        <label className="hr-label" htmlFor="qz-nombre">
-          Nombre (opcional)
-        </label>
-        <input
-          id="qz-nombre"
-          type="text"
-          maxLength={60}
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          placeholder="Ej.: Repaso de la unidad 2"
-        />
+        <Field label="Nombre (opcional)" htmlFor="qz-nombre">
+          <Input
+            id="qz-nombre"
+            type="text"
+            maxLength={60}
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            placeholder="Ej.: Repaso de la unidad 2"
+          />
+        </Field>
       </div>
 
       {preguntas.map((q, i) => (
-        <article key={i} className="hr-card qz-pregunta">
+        <article key={i} className="cp-card ui-card qz-pregunta">
           <div className="qz-p-top">
             <b>Pregunta {i + 1}</b>
             <span className="qz-p-acc">
               <select
+                className="cp-input"
                 aria-label={`Tiempo de la pregunta ${i + 1}`}
                 value={q.seconds}
                 onChange={(e) => cambiar(i, { seconds: Number(e.target.value) })}
@@ -332,15 +332,21 @@ function Editor({ onCreada }) {
                   </option>
                 ))}
               </select>
-              <button className="hr-icon" title="Duplicar" aria-label="Duplicar pregunta" onClick={() => duplicar(i)}>
-                ⧉
+              <button
+                className="ui-iconbtn"
+                title="Duplicar"
+                aria-label="Duplicar pregunta"
+                onClick={() => duplicar(i)}
+              >
+                <IconoEnLinea nombre="duplicar" />
               </button>
-              <button className="hr-icon" title="Eliminar" aria-label="Eliminar pregunta" onClick={() => quitar(i)}>
-                ✕
+              <button className="ui-iconbtn" title="Eliminar" aria-label="Eliminar pregunta" onClick={() => quitar(i)}>
+                <IconoEnLinea nombre="cerrar" />
               </button>
             </span>
           </div>
           <textarea
+            className="cp-input ui-textarea"
             rows={2}
             maxLength={300}
             value={q.text}
@@ -363,6 +369,7 @@ function Editor({ onCreada }) {
                   {LETRAS[j]}
                 </span>
                 <input
+                  className="cp-input"
                   type="text"
                   maxLength={150}
                   value={o}
@@ -371,8 +378,8 @@ function Editor({ onCreada }) {
                   aria-label={`Opción ${LETRAS[j]} de la pregunta ${i + 1}`}
                 />
                 {q.options.length > 2 && (
-                  <button className="hr-icon" aria-label="Quitar opción" onClick={() => quitarOpcion(i, j)}>
-                    ✕
+                  <button className="ui-iconbtn" aria-label="Quitar opción" onClick={() => quitarOpcion(i, j)}>
+                    <IconoEnLinea nombre="cerrar" />
                   </button>
                 )}
               </div>
@@ -380,7 +387,7 @@ function Editor({ onCreada }) {
           </div>
           <div className="qz-p-pie">
             {q.options.length < 4 && (
-              <button className="hr-link" onClick={() => cambiar(i, { options: [...q.options, ""] })}>
+              <button className="cp-link" onClick={() => cambiar(i, { options: [...q.options, ""] })}>
                 + Agregar opción
               </button>
             )}
@@ -389,7 +396,7 @@ function Editor({ onCreada }) {
         </article>
       ))}
 
-      <div className="hr-row qz-acciones">
+      <div className="ui-actions qz-acciones">
         <Button
           variant="ghost"
           size="lg"
@@ -403,18 +410,19 @@ function Editor({ onCreada }) {
         </Button>
       </div>
       {pegar && (
-        <div className="hr-card">
-          <p className="hr-muted">
+        <div className="cp-card ui-card">
+          <p className="ui-text">
             Una pregunta por bloque (separa los bloques con una línea en blanco). Primera línea: la pregunta.
             Siguientes: las opciones. Marca la correcta con <b>*</b> al inicio o al final.
           </p>
           <textarea
+            className="cp-input ui-textarea"
             rows={8}
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
             placeholder={"1. ¿Cuál es la capital de Perú?\na) Lima *\nb) Cusco\nc) Arequipa"}
           />
-          <div className="hr-row">
+          <div className="ui-actions">
             <Button size="sm" onClick={importar}>
               Importar preguntas
             </Button>
@@ -422,7 +430,7 @@ function Editor({ onCreada }) {
         </div>
       )}
       {aviso && (
-        <p className="hr-aviso" role="status">
+        <p className="ui-notice" role="status">
           {aviso}
         </p>
       )}
@@ -489,7 +497,7 @@ function VistaDocente({ sala, onNueva }) {
         </span>
         {st.status !== "ended" && (
           <button
-            className="hr-link"
+            className="cp-link"
             onClick={() => window.confirm("¿Terminar la evaluación ahora?") && accion("qz:end")}
           >
             Terminar ahora
@@ -497,14 +505,14 @@ function VistaDocente({ sala, onNueva }) {
         )}
       </div>
       {error && (
-        <p className="hr-aviso" role="alert">
+        <p className="ui-notice error" role="alert">
           {error}
         </p>
       )}
 
       {st.status === "lobby" && (
-        <div className="hr-card qz-lobby">
-          <p className="hr-muted">Los estudiantes entran a YachayPlay → Evaluación rápida → «Unirme con código»</p>
+        <div className="cp-card ui-card qz-lobby">
+          <p className="ui-text">Los estudiantes entran a YachayPlay → Evaluación rápida → «Unirme con código»</p>
           <div className="qz-codigo" aria-label={`Código ${code}`}>
             {code}
           </div>
@@ -527,7 +535,7 @@ function VistaDocente({ sala, onNueva }) {
       )}
 
       {(st.status === "question" || st.status === "reveal") && st.question && (
-        <div className="hr-card qz-pantalla">
+        <div className="cp-card ui-card qz-pantalla">
           <div className="qz-q-top">
             <span>
               Pregunta {st.qIndex + 1} de {st.total}
@@ -543,7 +551,7 @@ function VistaDocente({ sala, onNueva }) {
           <h2 className="qz-enunciado">{st.question.text}</h2>
           <Barras question={st.question} counts={st.counts} correcto={st.status === "reveal"} />
           <p className="qz-respondieron">
-            ✍️ Respondieron {st.answered} de {st.players}
+            <IconoEnLinea nombre="lapiz" /> Respondieron {st.answered} de {st.players}
           </p>
           {st.status === "reveal" && st.top?.length > 0 && (
             <ol className="qz-top">
@@ -554,7 +562,7 @@ function VistaDocente({ sala, onNueva }) {
               ))}
             </ol>
           )}
-          <div className="hr-row qz-acciones">
+          <div className="ui-actions qz-acciones">
             {st.status === "question" && (
               <Button variant="ghost" size="lg" onClick={() => accion("qz:reveal")}>
                 <IconoEnLinea nombre="ver" />
@@ -570,12 +578,12 @@ function VistaDocente({ sala, onNueva }) {
 
       {st.status === "ended" && (
         <>
-          <div className="hr-card">
+          <div className="cp-card ui-card">
             <h2>Resultados</h2>
             {st.ranking.length === 0 ? (
-              <p className="hr-muted">Nadie participó.</p>
+              <p className="ui-text">Nadie participó.</p>
             ) : (
-              <div className="hr-tabla">
+              <div className="ui-table">
                 <table>
                   <thead>
                     <tr>
@@ -601,9 +609,9 @@ function VistaDocente({ sala, onNueva }) {
               </div>
             )}
           </div>
-          <div className="hr-card">
+          <div className="cp-card ui-card">
             <h2>¿Qué quedó claro?</h2>
-            <p className="hr-muted">Porcentaje de aciertos por pregunta: las más bajas son los temas para reforzar.</p>
+            <p className="ui-text">Porcentaje de aciertos por pregunta: las más bajas son los temas para reforzar.</p>
             {st.review.map((q, i) => {
               const pct = q.respondieron ? Math.round((q.aciertos / q.respondieron) * 100) : 0;
               return (
@@ -619,16 +627,17 @@ function VistaDocente({ sala, onNueva }) {
                       style={{ width: `${pct}%`, background: pct < 50 ? "#D92D20" : pct < 80 ? "#D99A00" : "#26890C" }}
                     />
                   </span>
-                  <small className="hr-muted">
+                  <small className="ui-hint">
                     Correcta: {LETRAS[q.correct]}) {q.options[q.correct]} · {q.aciertos} de {q.respondieron} acertaron
                   </small>
                 </div>
               );
             })}
           </div>
-          <div className="hr-row qz-acciones">
+          <div className="ui-actions qz-acciones">
             <Button size="lg" onClick={exportar}>
-              ⬇ Descargar resultados (Excel/CSV)
+              <IconoEnLinea nombre="descargar" />
+              Descargar resultados (Excel/CSV)
             </Button>
             <Button variant="ghost" size="lg" onClick={onNueva}>
               + Nueva evaluación
@@ -664,37 +673,35 @@ function Unirse({ user, onLogin, onRegister, onEntrar, initialCode = "", initial
     });
   }
   return (
-    <section className="hr-card qz-unirse">
+    <section className="cp-card ui-card qz-unirse">
       <h2>Unirme a una evaluación</h2>
-      <p className="hr-muted">Escribe el código que proyecta tu docente.</p>
-      <label className="hr-label" htmlFor="qz-code">
-        Código
-      </label>
-      <input
-        id="qz-code"
-        className="qz-code-in"
-        inputMode="numeric"
-        autoComplete="off"
-        maxLength={6}
-        value={code}
-        placeholder="000000"
-        onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-      />
-      <label className="hr-label" htmlFor="qz-name">
-        Tu nombre
-      </label>
-      <input
-        id="qz-name"
-        type="text"
-        maxLength={30}
-        autoComplete="name"
-        value={name}
-        placeholder="Nombre y apellido"
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && listo && !busy && entrar()}
-      />
+      <p className="ui-text">Escribe el código que proyecta tu docente.</p>
+      <Field label="Código" htmlFor="qz-code">
+        <Input
+          id="qz-code"
+          className="code qz-code-in"
+          inputMode="numeric"
+          autoComplete="off"
+          maxLength={6}
+          value={code}
+          placeholder="000000"
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+        />
+      </Field>
+      <Field label="Tu nombre" htmlFor="qz-name">
+        <Input
+          id="qz-name"
+          type="text"
+          maxLength={30}
+          autoComplete="name"
+          value={name}
+          placeholder="Nombre y apellido"
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && listo && !busy && entrar()}
+        />
+      </Field>
       {error && (
-        <p className="hr-aviso" role="alert">
+        <p className="ui-notice error" role="alert">
           {error}
         </p>
       )}
@@ -702,13 +709,13 @@ function Unirse({ user, onLogin, onRegister, onEntrar, initialCode = "", initial
         {busy ? "Entrando…" : "Entrar"}
       </Button>
       {!user && (
-        <p className="hr-muted qz-docente-link">
+        <p className="ui-text qz-docente-link">
           ¿Eres docente?{" "}
-          <button className="hr-link" onClick={onLogin}>
+          <button className="cp-link" onClick={onLogin}>
             Inicia sesión
           </button>{" "}
           o{" "}
-          <button className="hr-link" onClick={onRegister}>
+          <button className="cp-link" onClick={onRegister}>
             crea una cuenta
           </button>{" "}
           para crear evaluaciones.
@@ -747,15 +754,15 @@ function VistaAlumno({ alumno, onSalir }) {
           <b>{name}</b>
           {st.me && st.status !== "lobby" ? ` · ${st.me.score} pts` : ""}
         </span>
-        <button className="hr-link" onClick={onSalir}>
+        <button className="cp-link" onClick={onSalir}>
           Salir
         </button>
       </div>
 
       {st.status === "lobby" && (
-        <div className="hr-card qz-espera">
+        <div className="cp-card ui-card qz-espera">
           <h2>¡Listo, {name}!</h2>
-          <p className="hr-muted">Espera a que tu docente inicie la evaluación…</p>
+          <p className="ui-text">Espera a que tu docente inicie la evaluación…</p>
           <p className="qz-cuenta-j">
             <IconoEnLinea nombre="grupo" />
             {st.players} conectados
@@ -799,12 +806,14 @@ function VistaAlumno({ alumno, onSalir }) {
             })}
           </div>
           {error && (
-            <p className="hr-aviso" role="alert">
+            <p className="ui-notice error" role="alert">
               {error}
             </p>
           )}
           {st.status === "question" && elegida != null && (
-            <p className="qz-estado">✅ Respuesta enviada. Espera a tus compañeros…</p>
+            <p className="qz-estado">
+              <IconoEnLinea nombre="check" /> Respuesta enviada. Espera a tus compañeros…
+            </p>
           )}
           {st.status === "question" && elegida == null && seg === 0 && <p className="qz-estado">Se acabó el tiempo</p>}
           {st.status === "reveal" && (
@@ -821,7 +830,7 @@ function VistaAlumno({ alumno, onSalir }) {
       )}
 
       {st.status === "ended" && (
-        <div className="hr-card qz-espera">
+        <div className="cp-card ui-card qz-espera">
           <h2>¡Evaluación terminada!</h2>
           <p className="qz-final">{st.me?.rank ? `Puesto ${st.me.rank} de ${st.players}` : ""}</p>
           <p className="qz-final-pts">{st.me?.score ?? 0} puntos</p>

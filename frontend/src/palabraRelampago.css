@@ -93,21 +93,6 @@
   width: 100%;
   box-sizing: border-box;
 }
-.pr-config {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-.pr-small {
-  font-size: 13px;
-}
-.pr-alert {
-  min-height: 36px;
-  color: #1e2c66;
-  font-weight: 700;
-  font-size: 14px;
-  margin: 12px 0;
-}
 .pr-game {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(270px, 0.8fr);
@@ -218,10 +203,6 @@
   .pr-top {
     align-items: flex-start;
     flex-direction: column;
-  }
-  .pr-config {
-    grid-template-columns: 1fr;
-    gap: 0;
   }
   .pr-entry {
     flex-direction: column;
@@ -366,73 +347,6 @@
   color: #25377e;
   line-height: 1;
 }
-.pr-mode {
-  display: flex;
-  gap: 8px;
-  margin-top: 22px;
-}
-.pr-mode button {
-  flex: 1;
-  padding: 12px 15px;
-  border-radius: 14px;
-  border: 1px solid #b6bddb;
-  background: #f5f7fe;
-  color: #141e46;
-  font-weight: 800;
-  cursor: pointer;
-}
-.pr-mode button.chosen {
-  background: #1c2a61;
-  color: white;
-  border-color: #1c2a61;
-}
-.pr-dict-toggle {
-  width: 100%;
-  margin: 6px 0 18px;
-  background: #e9ecf9;
-  border: 1px solid #bfc7e5;
-  color: #1b285b;
-  padding: 12px;
-  border-radius: 12px;
-  text-align: left;
-  font-weight: 800;
-  cursor: pointer;
-}
-.pr-vocabulary {
-  border: 1px solid #c7cee8;
-  background: #f6f8fe;
-  padding: 16px;
-  border-radius: 16px;
-  margin-bottom: 20px;
-}
-.pr-vocabulary textarea {
-  width: 100%;
-  border: 1px solid #adb6db;
-  background: white;
-  border-radius: 12px;
-  padding: 10px;
-  box-sizing: border-box;
-  color: #131d43;
-}
-.pr-vocabulary-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  margin-top: 8px;
-}
-.pr-import {
-  display: inline-flex !important;
-  margin: 0 !important;
-  cursor: pointer;
-  padding: 11px 15px;
-  border-radius: 99px;
-  background: #d8def6;
-  color: #16204a;
-}
-.pr-import input {
-  display: none;
-}
 .pr-score-dot {
   height: 12px;
   width: 12px;
@@ -461,24 +375,6 @@
 .dark .pr-avatar-points,
 [data-theme="dark"] .pr-avatar-points {
   color: #b8bed7;
-}
-.dark .pr-dict-toggle,
-.dark .pr-vocabulary,
-[data-theme="dark"] .pr-dict-toggle,
-[data-theme="dark"] .pr-vocabulary {
-  background: #0c0f19;
-  color: #dae0fa;
-  border-color: #364376;
-}
-.dark .pr-mode button,
-[data-theme="dark"] .pr-mode button {
-  background: #0c0f19;
-  color: #f0f3fd;
-  border-color: #364376;
-}
-.dark .pr-mode button.chosen,
-[data-theme="dark"] .pr-mode button.chosen {
-  background: #1d2b64;
 }
 @media (max-width: 900px) {
   .pr-game {
@@ -645,9 +541,6 @@
   font-size: 30px;
   text-shadow: 0 0 12px #ff6b32;
 }
-.pr-night .pr-alert {
-  color: #a5b5f4;
-}
 .pr-night .pr-player {
   background: #1f1f22;
   border: 1px solid #343539;
@@ -665,26 +558,6 @@
 .pr-night .pr-used span {
   background: #252528;
   color: #e1e6fb;
-}
-.pr-night .pr-mode button {
-  background: #1e1f21;
-  color: #eef1fd;
-  border-color: #393a3e;
-}
-.pr-night .pr-mode button.chosen {
-  background: #45474d;
-  color: #fff;
-  border-color: #6780e4;
-}
-.pr-night .pr-dict-toggle,
-.pr-night .pr-vocabulary {
-  background: #1d1e20;
-  border-color: #393b40;
-  color: #eff2fd;
-}
-.pr-night .pr-import {
-  background: #3a3b40;
-  color: #eff2fd;
 }
 .pr-night .pr-burst {
   background: linear-gradient(120deg, #1e1f22, #1b1c1e);
@@ -850,10 +723,6 @@
 }
 .pr-fullscreen .pr-arena .pr-pointer {
   z-index: 1;
-}
-.pr-fullscreen .pr-alert {
-  margin: 9px 0 5px;
-  min-height: 23px;
 }
 .pr-fullscreen .pr-skip {
   align-self: center;
@@ -1109,10 +978,6 @@
 }
 .pr-fullscreen .pr-scores {
   padding: 16px 12px;
-}
-.pr-fullscreen .pr-alert {
-  margin: 4px 8px 4px;
-  text-align: center;
 }
 .pr-fullscreen .pr-skip {
   margin-bottom: 4px;
@@ -1646,10 +1511,6 @@
 .pr-fullscreen .pr-approved-game .pr-scores h3 {
   margin-top: 20px;
 }
-.pr-fullscreen .pr-approved-game .pr-alert {
-  margin: 8px 8px 4px;
-  min-height: 20px;
-}
 .pr-fullscreen .pr-approved-game .pr-skip {
   margin: 4px auto 7px;
 }
@@ -2127,12 +1988,6 @@
 }
 
 /* ---- Individual y En línea: formularios de la tarjeta de configuración ---- */
-.pr-panel .pr-name-input {
-  padding: 15px;
-  font: inherit;
-  width: 100%;
-  box-sizing: border-box;
-}
 .pr-online {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2140,32 +1995,8 @@
   margin-top: 14px;
   text-align: left;
 }
-.pr-online-box {
-  border: 1px solid var(--pr-edge);
-  border-radius: 18px;
-  padding: 16px 18px;
-}
-.pr-night .pr-online-box {
-  border-color: #393b40;
-}
-.pr-online-box h3 {
-  margin: 0 0 6px;
-}
-.pr-online-box .cp-btn {
-  margin-top: 6px;
-}
 .pr-online-err {
   grid-column: 1/-1;
-}
-.pr-panel label.pr-check {
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 9px;
-  font-weight: 600;
-  margin: 10px 0;
-}
-.pr-check input {
-  margin-top: 3px;
 }
 @media (max-width: 820px) {
   .pr-online {
@@ -2211,4 +2042,54 @@
   background: none;
   padding: 0 0 40px;
   min-height: 0;
+}
+
+/* ===== Configuración de la partida con las piezas compartidas (ui/) ===== */
+.ui-tabs.pr-mode {
+  display: flex;
+  margin: 6px 0 0;
+}
+.pr-mode button {
+  flex: 1;
+  justify-content: center;
+  min-height: 44px;
+}
+.cp-btn.pr-dict-toggle {
+  width: 100%;
+  justify-content: flex-start;
+}
+.pr-vocabulary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--cp-surface2);
+}
+.pr-vocabulary-actions {
+  margin: 0;
+}
+.pr-import input {
+  display: none;
+}
+.pr-online-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--cp-line);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+.pr-online-box h3 {
+  margin: 0;
+}
+.pr-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 14px;
+  color: var(--cp-ink2);
+}
+.pr-check input {
+  margin-top: 3px;
 }

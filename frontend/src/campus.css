@@ -2019,10 +2019,6 @@
   height: 22px;
   pointer-events: none;
 }
-.hr-icon[aria-pressed="false"] .hr-icon-condor {
-  filter: grayscale(1);
-  opacity: 0.55;
-}
 
 /* ===== SOLUCIÓN 1: menú lateral fijo (solo escritorio) ===== */
 @media (min-width: 901px) {

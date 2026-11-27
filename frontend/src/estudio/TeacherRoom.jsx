@@ -192,7 +192,7 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
             <div className="es-code" aria-label={"Código " + code.split("").join(" ")}>
               {code}
             </div>
-            <p className="es-muted">
+            <p className="ui-text">
               Los estudiantes entran a <b>YachayPlay → Juegos → Presentaciones</b> y escriben este código.
             </p>
             {room.task && (
@@ -219,7 +219,7 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
             <div className="es-row">
               {room.status === "closed" ? (
                 <>
-                  <span className="es-chip warn">Sala cerrada</span>
+                  <span className="cp-chip warn">Sala cerrada</span>
                   <Button
                     size="sm"
                     onClick={() => accion("ss:reopen")}
@@ -254,7 +254,8 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
                     )}
                   </Button>
                   <Button variant="danger" size="sm" onClick={cerrar}>
-                    ⏹ Cerrar sala
+                    <IconoEnLinea nombre="detener" />
+                    Cerrar sala
                   </Button>
                 </>
               )}
@@ -263,7 +264,7 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
               </Button>
             </div>
             {room.locked && room.status !== "closed" && (
-              <span className="es-chip warn">Edición bloqueada: los estudiantes solo pueden mirar</span>
+              <span className="cp-chip warn">Edición bloqueada: los estudiantes solo pueden mirar</span>
             )}
           </div>
         </section>
@@ -331,8 +332,12 @@ function Comentar({ onEnviar }) {
   const [ok, setOk] = useState(false);
   return (
     <div className="es-comentar">
-      <h3>✍️ Comentar esta diapositiva</h3>
+      <h3>
+        <IconoEnLinea nombre="comentario" /> Comentar esta diapositiva
+      </h3>
       <textarea
+        className="cp-input ui-textarea"
+        aria-label="Comentario para el estudiante"
         value={t}
         maxLength={400}
         placeholder="Ej. Agrega una imagen que explique mejor la idea."
@@ -352,7 +357,7 @@ function Comentar({ onEnviar }) {
       >
         Enviar comentario
       </Button>
-      {ok && <small className="es-muted">Enviado ✓ — el estudiante lo ve al instante.</small>}
+      {ok && <small className="ui-hint">Enviado ✓ — el estudiante lo ve al instante.</small>}
     </div>
   );
 }

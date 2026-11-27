@@ -231,14 +231,18 @@ export function Tabs<T extends string>({
   value,
   onChange,
   label,
+  disabled,
+  className,
 }: {
   items: { id: T; label: ReactNode }[];
   value: T;
   onChange: (id: T) => void;
   label?: string;
+  disabled?: boolean;
+  className?: string;
 }) {
   return (
-    <div className="ui-tabs" role="tablist" aria-label={label}>
+    <div className={cx("ui-tabs", className)} role="tablist" aria-label={label}>
       {items.map((it) => (
         <button
           key={it.id}
@@ -246,6 +250,7 @@ export function Tabs<T extends string>({
           role="tab"
           aria-selected={value === it.id}
           className={value === it.id ? "on" : ""}
+          disabled={disabled}
           onClick={() => onChange(it.id)}
         >
           {it.label}

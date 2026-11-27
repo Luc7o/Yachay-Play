@@ -3,7 +3,7 @@ import { IconoEnLinea } from "./campusUi";
 import { Brand } from "./Brand";
 import { prepararAudio, nota } from "./herramientasAudio";
 import "./herramientas.css";
-import { Button } from "./ui";
+import { Button, Card, Field, Input, Select, Tabs, Textarea } from "./ui";
 
 // ============================================================================
 // RULETA DE SORTEOS
@@ -627,49 +627,54 @@ export function Ruleta({ goHome }) {
 
       <main className={"hr-main" + (pestana === "ruleta" ? " hr-main-full" : "")}>
         <div className="hr-bar">
-          <div className="hr-tabs" role="tablist" aria-label="Secciones de la ruleta">
-            <button
-              role="tab"
-              aria-selected={pestana === "ruleta"}
-              className={"hr-tab" + (pestana === "ruleta" ? " on" : "")}
-              onClick={() => setPestana("ruleta")}
-            >
-              <IconoEnLinea nombre="ruleta" />
-              Ruleta
-            </button>
-            <button
-              role="tab"
-              aria-selected={pestana === "repartir"}
-              className={"hr-tab" + (pestana === "repartir" ? " on" : "")}
-              onClick={() => setPestana("repartir")}
-            >
-              <IconoEnLinea nombre="dados" />
-              Repartir listas
-            </button>
-            <button
-              role="tab"
-              aria-selected={pestana === "grupos"}
-              className={"hr-tab" + (pestana === "grupos" ? " on" : "")}
-              onClick={() => setPestana("grupos")}
-            >
-              <IconoEnLinea nombre="grupo" />
-              Formar grupos
-            </button>
-          </div>
+          <Tabs
+            label="Secciones de la ruleta"
+            value={pestana}
+            onChange={setPestana}
+            items={[
+              {
+                id: "ruleta",
+                label: (
+                  <>
+                    <IconoEnLinea nombre="ruleta" />
+                    Ruleta
+                  </>
+                ),
+              },
+              {
+                id: "repartir",
+                label: (
+                  <>
+                    <IconoEnLinea nombre="dados" />
+                    Repartir listas
+                  </>
+                ),
+              },
+              {
+                id: "grupos",
+                label: (
+                  <>
+                    <IconoEnLinea nombre="grupo" />
+                    Formar grupos
+                  </>
+                ),
+              },
+            ]}
+          />
           <span className="hr-tools">
             {pestana === "ruleta" && (
               <button
-                className="hr-icon"
+                className="ui-iconbtn"
                 aria-pressed={soloRuleta}
                 aria-label="Ocultar listas"
                 title={soloRuleta ? "Mostrar listas" : "Ocultar listas (ruleta más grande)"}
                 onClick={() => setSoloRuleta(!soloRuleta)}
               >
-                ◧
+                <IconoEnLinea nombre="panel" />
               </button>
             )}
             <button
-              className="hr-icon"
+              className="ui-iconbtn"
               aria-pressed={mascota}
               aria-label="Mostrar mascota"
               title="Mostrar u ocultar la mascota"
@@ -678,7 +683,7 @@ export function Ruleta({ goHome }) {
               <img className="hr-icon-condor" src="/condor-256.png" alt="" width="22" height="22" />
             </button>
             <button
-              className="hr-icon"
+              className="ui-iconbtn"
               aria-pressed={sonido}
               aria-label="Sonido"
               title={sonido ? "Sonido activado" : "Sonido apagado"}
@@ -687,7 +692,7 @@ export function Ruleta({ goHome }) {
                 setSonido(!sonido);
               }}
             >
-              {sonido ? "🔊" : "🔇"}
+              <IconoEnLinea nombre={sonido ? "sonido" : "silencio"} />
             </button>
           </span>
         </div>
@@ -695,25 +700,25 @@ export function Ruleta({ goHome }) {
         {pestana === "ruleta" && (
           <div className={"hr-ruleta" + (soloRuleta ? " solo" : "")}>
             {!soloRuleta && (
-              <aside className="hr-card hr-listas" aria-label="Listas de sorteo">
-                <label className="hr-label" htmlFor="hr-lista">
-                  Lista
-                </label>
-                <select
-                  id="hr-lista"
-                  value={activa.id}
-                  disabled={ocupada}
-                  onChange={(e) => cambiarLista(e.target.value)}
-                >
-                  {listas.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.nombre || "Sin nombre"}
-                    </option>
-                  ))}
-                </select>
-                <div className="hr-row">
+              <Card as="aside" className="hr-listas" aria-label="Listas de sorteo">
+                <Field label="Lista" htmlFor="hr-lista">
+                  <Select
+                    id="hr-lista"
+                    value={activa.id}
+                    disabled={ocupada}
+                    onChange={(e) => cambiarLista(e.target.value)}
+                  >
+                    {listas.map((l) => (
+                      <option key={l.id} value={l.id}>
+                        {l.nombre || "Sin nombre"}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <div className="ui-actions">
                   <Button variant="ghost" size="sm" disabled={ocupada} onClick={nuevaLista}>
-                    ➕ Nueva
+                    <IconoEnLinea nombre="mas" />
+                    Nueva
                   </Button>
                   <Button variant="ghost" size="sm" disabled={ocupada} onClick={borrarLista}>
                     <IconoEnLinea nombre="basura" />
@@ -721,41 +726,46 @@ export function Ruleta({ goHome }) {
                   </Button>
                 </div>
 
-                <label className="hr-label" htmlFor="hr-nombre">
-                  Nombre de la lista
-                </label>
-                <input
-                  id="hr-nombre"
-                  type="text"
-                  maxLength={40}
-                  autoComplete="off"
-                  value={activa.nombre}
-                  disabled={ocupada}
-                  onChange={(e) => renombrar(e.target.value)}
-                />
+                <Field label="Nombre de la lista" htmlFor="hr-nombre">
+                  <Input
+                    id="hr-nombre"
+                    type="text"
+                    maxLength={40}
+                    autoComplete="off"
+                    value={activa.nombre}
+                    disabled={ocupada}
+                    onChange={(e) => renombrar(e.target.value)}
+                  />
+                </Field>
 
-                <label className="hr-label" htmlFor="hr-items">
-                  Elementos (uno por línea)
-                </label>
-                <textarea
-                  id="hr-items"
-                  spellCheck={false}
-                  value={borrador}
-                  disabled={ocupada}
-                  onChange={(e) => editarElementos(e.target.value)}
-                  placeholder="Escribe o pega un elemento por línea…"
-                />
-                <p className="hr-muted" role="status">
-                  En la ruleta: {pool.length} de {activa.items.length} guardados.
-                </p>
+                <Field
+                  label="Elementos (uno por línea)"
+                  htmlFor="hr-items"
+                  className="hr-items"
+                  hint={
+                    <span role="status">
+                      En la ruleta: {pool.length} de {activa.items.length} guardados.
+                    </span>
+                  }
+                >
+                  <Textarea
+                    id="hr-items"
+                    spellCheck={false}
+                    value={borrador}
+                    disabled={ocupada}
+                    onChange={(e) => editarElementos(e.target.value)}
+                    placeholder="Escribe o pega un elemento por línea…"
+                  />
+                </Field>
 
-                <div className="hr-row">
+                <div className="ui-actions">
                   <Button variant="ghost" size="sm" disabled={ocupada || pool.length < 2} onClick={mezclarLista}>
                     <IconoEnLinea nombre="mezclar" />
                     Mezclar
                   </Button>
                   <Button variant="ghost" size="sm" disabled={ocupada || !hayCambios} onClick={restaurarLista}>
-                    ↩️ Restaurar lista
+                    <IconoEnLinea nombre="repetir" />
+                    Restaurar lista
                   </Button>
                 </div>
                 <label className="hr-check">
@@ -767,7 +777,7 @@ export function Ruleta({ goHome }) {
                   />
                   Quitar de la ruleta lo que salga
                 </label>
-              </aside>
+              </Card>
             )}
 
             {/* CENTRO: nombre que salió (arriba), ruleta y botón Girar */}
@@ -795,7 +805,7 @@ export function Ruleta({ goHome }) {
             </section>
 
             {/* DERECHA: mascota e historial de los que ya salieron */}
-            <aside className="hr-card hr-lateral" aria-label="Historial de sorteos">
+            <Card as="aside" className="hr-lateral" aria-label="Historial de sorteos">
               {mascota && (
                 <img
                   className="hr-lateral-mascota"
@@ -809,7 +819,7 @@ export function Ruleta({ goHome }) {
                 {historial.length > 0 && <span className="hr-contador">{historial.length}</span>}
               </div>
               {historial.length === 0 ? (
-                <p className="hr-muted">Aún no ha salido nadie.</p>
+                <p className="ui-empty">Aún no ha salido nadie.</p>
               ) : (
                 <ol className="hr-lista-salidos">
                   {historial
@@ -824,57 +834,54 @@ export function Ruleta({ goHome }) {
                 </ol>
               )}
               {historial.length > 0 && (
-                <button className="hr-link" onClick={() => setHistoriales({ ...historiales, [activa.id]: [] })}>
+                <button className="cp-link" onClick={() => setHistoriales({ ...historiales, [activa.id]: [] })}>
                   Borrar historial
                 </button>
               )}
-            </aside>
+            </Card>
           </div>
         )}
 
         {pestana === "repartir" && (
-          <section className="hr-card hr-repartir" aria-label="Repartir una lista entre otra">
-            <h2>Repartir una lista entre otra</h2>
-            <p className="hr-muted">
+          <Card
+            className="hr-repartir"
+            aria-label="Repartir una lista entre otra"
+            title="Repartir una lista entre otra"
+          >
+            <p className="ui-text">
               Ejemplo: reparte la lista «Temas» entre la lista «Alumnos» y a cada alumno le tocará un tema al azar.
             </p>
-            <div className="hr-reparto-controles">
-              <div>
-                <label className="hr-label" htmlFor="hr-que">
-                  Lista a repartir
-                </label>
-                <select id="hr-que" value={queId} onChange={(e) => setRepartirQue(e.target.value)}>
+            <div className="ui-actions">
+              <Field label="Lista a repartir" htmlFor="hr-que">
+                <Select id="hr-que" value={queId} onChange={(e) => setRepartirQue(e.target.value)}>
                   {listas.map((l) => (
                     <option key={l.id} value={l.id}>
                       {l.nombre || "Sin nombre"}
                     </option>
                   ))}
-                </select>
-              </div>
-              <div>
-                <label className="hr-label" htmlFor="hr-entre">
-                  Entre los de la lista
-                </label>
-                <select id="hr-entre" value={entreId} onChange={(e) => setRepartirEntre(e.target.value)}>
+                </Select>
+              </Field>
+              <Field label="Entre los de la lista" htmlFor="hr-entre">
+                <Select id="hr-entre" value={entreId} onChange={(e) => setRepartirEntre(e.target.value)}>
                   {listas.map((l) => (
                     <option key={l.id} value={l.id}>
                       {l.nombre || "Sin nombre"}
                     </option>
                   ))}
-                </select>
-              </div>
+                </Select>
+              </Field>
               <Button size="lg" onClick={repartir}>
                 Repartir al azar
               </Button>
             </div>
             {avisoReparto && (
-              <p className="hr-aviso" role="status">
+              <p className="ui-notice" role="status">
                 {avisoReparto}
               </p>
             )}
             {reparto && (
               <>
-                <div className="hr-tabla">
+                <div className="ui-table">
                   <table>
                     <thead>
                       <tr>
@@ -897,7 +904,7 @@ export function Ruleta({ goHome }) {
                     </tbody>
                   </table>
                 </div>
-                <div className="hr-row">
+                <div className="ui-actions">
                   <Button variant="ghost" size="sm" onClick={copiarTabla}>
                     <IconoEnLinea nombre="lista" />
                     Copiar tabla
@@ -905,42 +912,32 @@ export function Ruleta({ goHome }) {
                 </div>
               </>
             )}
-          </section>
+          </Card>
         )}
 
         {pestana === "grupos" && (
-          <section className="hr-card hr-repartir" aria-label="Formar grupos de trabajo">
-            <h2>Formar grupos de trabajo</h2>
-            <p className="hr-muted">
+          <Card className="hr-repartir" aria-label="Formar grupos de trabajo" title="Formar grupos de trabajo">
+            <p className="ui-text">
               Divide una lista en grupos equilibrados. Opcionalmente asigna un líder y un tema a cada grupo.
             </p>
-            <div className="hr-reparto-controles">
-              <div>
-                <label className="hr-label" htmlFor="hr-g-lista">
-                  Lista de estudiantes
-                </label>
-                <select id="hr-g-lista" value={grupoListaId} onChange={(e) => setGrupoLista(e.target.value)}>
+            <div className="ui-actions">
+              <Field label="Lista de estudiantes" htmlFor="hr-g-lista">
+                <Select id="hr-g-lista" value={grupoListaId} onChange={(e) => setGrupoLista(e.target.value)}>
                   {listas.map((l) => (
                     <option key={l.id} value={l.id}>
                       {l.nombre || "Sin nombre"} ({l.items.length})
                     </option>
                   ))}
-                </select>
-              </div>
-              <div>
-                <label className="hr-label" htmlFor="hr-g-modo">
-                  Dividir por
-                </label>
-                <select id="hr-g-modo" value={grupoModo} onChange={(e) => setGrupoModo(e.target.value)}>
+                </Select>
+              </Field>
+              <Field label="Dividir por" htmlFor="hr-g-modo">
+                <Select id="hr-g-modo" value={grupoModo} onChange={(e) => setGrupoModo(e.target.value)}>
                   <option value="cantidad">Cantidad de grupos</option>
                   <option value="tamano">Integrantes por grupo</option>
-                </select>
-              </div>
-              <div>
-                <label className="hr-label" htmlFor="hr-g-num">
-                  {grupoModo === "cantidad" ? "¿Cuántos grupos?" : "¿Cuántos por grupo?"}
-                </label>
-                <input
+                </Select>
+              </Field>
+              <Field label={grupoModo === "cantidad" ? "¿Cuántos grupos?" : "¿Cuántos por grupo?"} htmlFor="hr-g-num">
+                <Input
                   id="hr-g-num"
                   type="number"
                   min="1"
@@ -948,12 +945,9 @@ export function Ruleta({ goHome }) {
                   value={grupoNum}
                   onChange={(e) => setGrupoNum(e.target.value)}
                 />
-              </div>
-              <div>
-                <label className="hr-label" htmlFor="hr-g-tema">
-                  Tema por grupo (opcional)
-                </label>
-                <select id="hr-g-tema" value={grupoTemaId} onChange={(e) => setGrupoTema(e.target.value)}>
+              </Field>
+              <Field label="Tema por grupo (opcional)" htmlFor="hr-g-tema">
+                <Select id="hr-g-tema" value={grupoTemaId} onChange={(e) => setGrupoTema(e.target.value)}>
                   <option value="">Sin tema</option>
                   {listas
                     .filter((l) => l.id !== grupoListaId)
@@ -962,8 +956,8 @@ export function Ruleta({ goHome }) {
                         {l.nombre || "Sin nombre"}
                       </option>
                     ))}
-                </select>
-              </div>
+                </Select>
+              </Field>
               <Button size="lg" onClick={formarGrupos}>
                 Formar grupos
               </Button>
@@ -973,7 +967,7 @@ export function Ruleta({ goHome }) {
               Elegir un líder al azar en cada grupo
             </label>
             {avisoGrupos && (
-              <p className="hr-aviso" role="status">
+              <p className="ui-notice" role="status">
                 {avisoGrupos}
               </p>
             )}
@@ -995,7 +989,7 @@ export function Ruleta({ goHome }) {
                     </article>
                   ))}
                 </div>
-                <div className="hr-row">
+                <div className="ui-actions">
                   <Button variant="ghost" size="sm" onClick={copiarGrupos}>
                     <IconoEnLinea nombre="lista" />
                     Copiar grupos
@@ -1007,7 +1001,7 @@ export function Ruleta({ goHome }) {
                 </div>
               </>
             )}
-          </section>
+          </Card>
         )}
       </main>
     </div>

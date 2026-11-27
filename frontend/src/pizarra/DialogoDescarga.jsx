@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { hoy, nombreSeguro } from "./utils";
-import { Button } from "../ui";
+import { Button, Field, Input } from "../ui";
 
 // Cuadro "Guardar tu trabajo": nombre, formato y páginas
 export function DialogoDescarga({ vista, nombreInicial, paginas, ocupado, onCancelar, onConfirmar }) {
@@ -46,18 +46,17 @@ export function DialogoDescarga({ vista, nombreInicial, paginas, ocupado, onCanc
           <img src={vista} alt="Vista previa de la página actual" />
         </div>
 
-        <label className="pz-lab" htmlFor="pz-dl-nombre">
-          Nombre del trabajo
-        </label>
-        <input
-          id="pz-dl-nombre"
-          ref={inputRef}
-          type="text"
-          value={nombre}
-          maxLength={80}
-          placeholder="Ej.: Clase de fracciones"
-          onChange={(e) => setNombre(e.target.value)}
-        />
+        <Field label="Nombre del trabajo" htmlFor="pz-dl-nombre" className="pz-campo">
+          <Input
+            id="pz-dl-nombre"
+            ref={inputRef}
+            type="text"
+            value={nombre}
+            maxLength={80}
+            placeholder="Ej.: Clase de fracciones"
+            onChange={(e) => setNombre(e.target.value)}
+          />
+        </Field>
         <label className="pz-check">
           <input type="checkbox" checked={fecha} onChange={(e) => setFecha(e.target.checked)} /> Agregar la fecha al
           nombre

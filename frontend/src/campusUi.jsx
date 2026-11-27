@@ -265,6 +265,79 @@ export const Icono = {
       />
     </svg>
   ),
+  play: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M6.5 4.5v11l9-5.5z" fill="currentColor" />
+    </svg>
+  ),
+  pausa: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M6 4.5h2.6v11H6zM11.4 4.5H14v11h-2.6z" fill="currentColor" />
+    </svg>
+  ),
+  siguiente: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M4.5 5v10l7-5zM12 5v10l3.5-5z" fill="currentColor" />
+      <path d="M16 4.5v11" {...trazo} />
+    </svg>
+  ),
+  detener: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <rect x="5" y="5" width="10" height="10" rx="1.5" fill="currentColor" />
+    </svg>
+  ),
+  pantalla: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M3.5 7.5v-4h4M12.5 3.5h4v4M16.5 12.5v4h-4M7.5 16.5h-4v-4" {...trazo} />
+    </svg>
+  ),
+  arriba: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M10 16V4M5 9l5-5 5 5" {...trazo} />
+    </svg>
+  ),
+  abajo: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M10 4v12M5 11l5 5 5-5" {...trazo} />
+    </svg>
+  ),
+  descargar: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M10 3.5v9M6 9l4 4 4-4M4 16.5h12" {...trazo} />
+    </svg>
+  ),
+  duplicar: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <rect x="7" y="7" width="10" height="10" rx="2" {...trazo} />
+      <path d="M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" {...trazo} />
+    </svg>
+  ),
+  cerrar: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M5 5l10 10M15 5L5 15" {...trazo} />
+    </svg>
+  ),
+  mas: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M10 4v12M4 10h12" {...trazo} />
+    </svg>
+  ),
+  sonido: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M3.5 8v4h3l4 3.5v-11l-4 3.5h-3zM13.5 7.5a3.5 3.5 0 0 1 0 5M15.5 5.5a6.5 6.5 0 0 1 0 9" {...trazo} />
+    </svg>
+  ),
+  silencio: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M3.5 8v4h3l4 3.5v-11l-4 3.5h-3zM13.5 8l4 4M17.5 8l-4 4" {...trazo} />
+    </svg>
+  ),
+  panel: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <rect x="3" y="4" width="14" height="12" rx="2" {...trazo} />
+      <path d="M8 4v12" {...trazo} />
+    </svg>
+  ),
   dados: () => (
     <svg viewBox="0 0 20 20" aria-hidden="true">
       <rect x="3" y="3" width="10" height="10" rx="2" {...trazo} />

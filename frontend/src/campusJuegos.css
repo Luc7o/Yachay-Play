@@ -1690,9 +1690,6 @@ body {
   gap: 12px;
 }
 .cp-proj .cw-panel-card {
-  background: var(--cp-surface);
-  border: 1px solid var(--cp-line);
-  border-radius: 14px;
   box-shadow: none;
   padding: 14px 16px;
   color: var(--cp-ink);

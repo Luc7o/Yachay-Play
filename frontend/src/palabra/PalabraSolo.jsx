@@ -172,7 +172,7 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
         kicker="INDIVIDUAL"
       >
         <div className="pf-center">
-          <section className="pf-card" aria-live="polite">
+          <section className="cp-card ui-card pf-card" aria-live="polite">
             <div style={{ fontSize: 54 }} aria-hidden="true">
               <IconoEnLinea nombre="rayo" />
             </div>

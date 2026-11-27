@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { IconoEnLinea } from "../campusUi";
-import { socket } from "../socket";
 import { emitConTiempoLimite } from "../cw/helpers";
+import { useSalaEnVivo } from "../salaEnVivo";
 import { Brand } from "../Brand";
 import { aplicarOp } from "./model";
 import { Editor } from "./Editor";
@@ -33,7 +33,6 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
   });
   const [decks, setDecks] = useState(() => new Map(initial.decks.map((d) => [d.key, d])));
   const [abierta, setAbierta] = useState(null); // deckKey que se está mirando en detalle
-  const [conectado, setConectado] = useState(socket.connected);
   const [, setTic] = useState(0);
   const [error, setError] = useState("");
 
@@ -42,70 +41,58 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
     return () => clearInterval(t);
   }, []);
 
-  useEffect(() => {
-    const cargar = (state) => {
-      setRoom({ name: state.name, task: state.task, status: state.status, locked: state.locked });
-      setDecks(new Map(state.decks.map((d) => [d.key, d])));
-    };
-    const onStudent = ({ student, deck }) =>
-      setDecks((prev) => {
-        const m = new Map(prev);
-        const actual = m.get(deck.key) || { ...deck, members: [] };
-        const members = actual.members
-          .filter((x) => x.id !== student.id)
-          .concat({ id: student.id, name: student.name, online: student.online, slideId: student.slideId });
-        m.set(deck.key, { ...actual, ...deck, deck: m.has(deck.key) ? actual.deck : deck.deck, members });
-        return m;
-      });
-    const onOp = ({ key, op }) =>
-      setDecks((prev) => {
-        const e = prev.get(key);
-        if (!e) return prev;
-        const m = new Map(prev);
-        m.set(key, { ...e, deck: aplicarOp(e.deck, op), updatedAt: Date.now() });
-        return m;
-      });
-    const onPresence = ({ id, deckKey, online, slideId }) =>
-      setDecks((prev) => {
-        const e = prev.get(deckKey);
-        if (!e) return prev;
-        const m = new Map(prev);
-        m.set(deckKey, { ...e, members: e.members.map((x) => (x.id === id ? { ...x, online, slideId } : x)) });
-        return m;
-      });
-    const onComment = ({ key, sid, comment }) =>
-      setDecks((prev) => {
-        const e = prev.get(key);
-        if (!e) return prev;
-        const m = new Map(prev);
-        m.set(key, { ...e, comments: { ...e.comments, [sid]: [...(e.comments[sid] || []), comment] } });
-        return m;
-      });
-    const onRoom = ({ locked, status }) => setRoom((r) => ({ ...r, locked, status }));
-    const volver = () => {
-      // tras una desconexión, pedimos todo otra vez
-      setConectado(true);
-      emitConTiempoLimite("ss:watch", { code }, (ack) => ack?.ok && cargar(ack.state));
-    };
-    const caer = () => setConectado(false);
+  const cargar = (state) => {
+    setRoom({ name: state.name, task: state.task, status: state.status, locked: state.locked });
+    setDecks(new Map(state.decks.map((d) => [d.key, d])));
+  };
+  const onStudent = ({ student, deck }) =>
+    setDecks((prev) => {
+      const m = new Map(prev);
+      const actual = m.get(deck.key) || { ...deck, members: [] };
+      const members = actual.members
+        .filter((x) => x.id !== student.id)
+        .concat({ id: student.id, name: student.name, online: student.online, slideId: student.slideId });
+      m.set(deck.key, { ...actual, ...deck, deck: m.has(deck.key) ? actual.deck : deck.deck, members });
+      return m;
+    });
+  const onOp = ({ key, op }) =>
+    setDecks((prev) => {
+      const e = prev.get(key);
+      if (!e) return prev;
+      const m = new Map(prev);
+      m.set(key, { ...e, deck: aplicarOp(e.deck, op), updatedAt: Date.now() });
+      return m;
+    });
+  const onPresence = ({ id, deckKey, online, slideId }) =>
+    setDecks((prev) => {
+      const e = prev.get(deckKey);
+      if (!e) return prev;
+      const m = new Map(prev);
+      m.set(deckKey, { ...e, members: e.members.map((x) => (x.id === id ? { ...x, online, slideId } : x)) });
+      return m;
+    });
+  const onComment = ({ key, sid, comment }) =>
+    setDecks((prev) => {
+      const e = prev.get(key);
+      if (!e) return prev;
+      const m = new Map(prev);
+      m.set(key, { ...e, comments: { ...e.comments, [sid]: [...(e.comments[sid] || []), comment] } });
+      return m;
+    });
+  const onRoom = ({ locked, status }) => setRoom((r) => ({ ...r, locked, status }));
 
-    socket.on("ss:student", onStudent);
-    socket.on("ss:op", onOp);
-    socket.on("ss:presence", onPresence);
-    socket.on("ss:comment", onComment);
-    socket.on("ss:room", onRoom);
-    socket.on("connect", volver);
-    socket.on("disconnect", caer);
-    return () => {
-      socket.off("ss:student", onStudent);
-      socket.off("ss:op", onOp);
-      socket.off("ss:presence", onPresence);
-      socket.off("ss:comment", onComment);
-      socket.off("ss:room", onRoom);
-      socket.off("connect", volver);
-      socket.off("disconnect", caer);
-    };
-  }, [code]);
+  // Tras una desconexión se pide todo otra vez.
+  const { conectado } = useSalaEnVivo({
+    clave: code,
+    eventos: {
+      "ss:student": onStudent,
+      "ss:op": onOp,
+      "ss:presence": onPresence,
+      "ss:comment": onComment,
+      "ss:room": onRoom,
+    },
+    alReconectar: () => emitConTiempoLimite("ss:watch", { code }, (ack) => ack?.ok && cargar(ack.state)),
+  });
 
   const lista = useMemo(() => [...decks.values()].sort((a, b) => a.name.localeCompare(b.name, "es")), [decks]);
   const enLinea = lista.reduce((n, d) => n + d.members.filter((m) => m.online).length, 0);

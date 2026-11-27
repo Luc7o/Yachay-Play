@@ -77,8 +77,8 @@
     z-index: 60;
     margin: 0;
     padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
-    background: #fff;
-    border-top: 3px solid var(--orange);
+    background: var(--cp-surface);
+    border-top: 1px solid var(--cp-line);
     border-radius: 18px 18px 0 0;
     box-shadow: 0 -10px 30px #0f172a33;
   }

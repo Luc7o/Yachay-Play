@@ -5,12 +5,19 @@ import cors from "cors";
 import http from "http";
 import crypto from "node:crypto";
 import { Server } from "socket.io";
-import { nanoid, customAlphabet } from "nanoid";
+import { nanoid } from "nanoid";
 import db from "./db.js";
 import { ensureQuestions, reloadQuestions, poolFor, questionsRouter } from "./questionBank.js";
 import { statsRouter } from "./stats.js";
 import { profileRouter } from "./profile.js";
-import { GOAL_STEP, SAFE_INDEXES, ringIndexForStep } from "./board.js";
+import {
+  TEAM_COLORS,
+  setPhase,
+  eligibleTeams,
+  siguienteEquipo,
+  aplicarRespuesta,
+  pasoDelReloj,
+} from "./ludo/reglas.js";
 import { authRouter, authOptional, requireTeacher } from "./auth.js";
 import { userFromToken, getAuthSecret } from "./authCore.js";
 import { seedDemoUsers } from "./seed.js";
@@ -29,6 +36,9 @@ import { rooms as crosswordRooms } from "./crossword/engine.js";
 import { rooms as slidesRooms } from "./slides/engine.js";
 import { classesRouter, claseDelDocente } from "./classes/routes.js";
 import { registrarFuente } from "./classes/live.js";
+import { crearReloj } from "./live/reloj.js";
+import { reservarCodigo } from "./live/codigos.js";
+import { crearGuardDueno } from "./live/dueno.js";
 import { palabraRouter } from "./palabra/routes.js";
 import { attachPalabraSocket, palabraTick } from "./palabra/sockets.js";
 import { purgeOldRooms as purgeOldPalabra, rooms as palabraRooms } from "./palabra/engine.js";
@@ -111,9 +121,6 @@ app.use("/api/my-questions", questionsRouter); // banco de preguntas propias del
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: ORIGENES.length ? ORIGENES : "*" } });
-
-const codeGen = customAlphabet("0123456789", 6);
-const TEAM_COLORS = ["rojo", "verde", "amarillo", "azul"];
 
 // ============================================================================
 // EL TURNO ES UNA MÁQUINA DE ESTADOS AUTOMÁTICA
@@ -343,32 +350,24 @@ app.post("/api/games", requireTeacher, async (req, res) => {
     const rollLimit = Math.min(60, Math.max(3, Number(rollSeconds) || DEFAULT_ROLL_SECONDS));
 
     const id = nanoid();
-    let code;
-    for (let intento = 0; ; intento++) {
-      code = codeGen();
-      if (games.has(code)) continue;
-      try {
-        await db
-          .prepare(
-            "INSERT INTO games (id, code, name, minutes, answer_seconds, roll_seconds, active_teams, owner_id, class_id) VALUES (?,?,?,?,?,?,?,?,?)",
-          )
-          .run(
-            id,
-            code,
-            String(name).slice(0, 80),
-            durationMinutes,
-            answerLimit,
-            rollLimit,
-            activeTeams.join(","),
-            req.user.id,
-            clase?.id || null,
-          );
-        break;
-      } catch (e) {
-        // 23505 = código repetido (choca con una partida vieja): probamos otro
-        if (e.code !== "23505" || intento >= 8) throw e;
-      }
-    }
+    // Código libre en memoria; si choca en la BD con una partida vieja (23505) se prueba otro (live/codigos.js).
+    const code = await reservarCodigo(games, (c) =>
+      db
+        .prepare(
+          "INSERT INTO games (id, code, name, minutes, answer_seconds, roll_seconds, active_teams, owner_id, class_id) VALUES (?,?,?,?,?,?,?,?,?)",
+        )
+        .run(
+          id,
+          c,
+          String(name).slice(0, 80),
+          durationMinutes,
+          answerLimit,
+          rollLimit,
+          activeTeams.join(","),
+          req.user.id,
+          clase?.id || null,
+        ),
+    );
 
     const teams = {};
     for (const color of TEAM_COLORS) {
@@ -486,23 +485,8 @@ app.get("/api/questions", (req, res) => {
 
 // ============================================================================
 // TRANSICIONES DE FASE (las llama el reloj o una acción del alumno)
+// Las reglas puras (fases, equipos, ficha, respuesta, reloj) están en ludo/reglas.js.
 // ============================================================================
-
-function setPhase(game, turnPhase, seconds) {
-  game.turnPhase = turnPhase;
-  game.phaseSecondsLeft = seconds;
-  game.awaitingAnswer = turnPhase === "question";
-}
-
-/**
- * Equipos que pueden jugar el turno: los que el docente activó Y que además
- * tienen al menos un alumno conectado. Si ninguno tiene alumnos todavía,
- * devolvemos todos los activos para que la rueda no se detenga.
- */
-function eligibleTeams(game) {
-  const conAlumnos = game.activeTeams.filter((c) => game.players.some((p) => p.team === c));
-  return conAlumnos.length ? conAlumnos : game.activeTeams;
-}
 
 /** Lanza el dado. lanzadoPor = nombre del alumno, o null si lo lanzó el servidor. */
 function rollDice(game, code, lanzadoPor) {
@@ -550,16 +534,7 @@ function startQuestion(game, code) {
 
 /** Pasa al siguiente equipo QUE TENGA ALUMNOS y reabre la fase de lanzamiento. */
 function nextTurn(game, code) {
-  const elegibles = eligibleTeams(game);
-  // Avanzamos de color en color hasta encontrar uno que pueda jugar.
-  for (let i = 1; i <= TEAM_COLORS.length; i++) {
-    const idx = (game.currentTeamIndex + i) % TEAM_COLORS.length;
-    if (elegibles.includes(TEAM_COLORS[idx])) {
-      game.currentTeamIndex = idx;
-      break;
-    }
-  }
-
+  game.currentTeamIndex = siguienteEquipo(game); // de color en color hasta uno que pueda jugar
   game.turnCounter++;
   game.currentQuestion = null;
   game.lastDice = null;
@@ -582,21 +557,20 @@ io.use(async (socket, next) => {
   next();
 });
 
+// Solo el docente que creó la partida la controla; sin dueño, nadie (ver live/dueno.js).
+const problemaDeDuenoLudo = crearGuardDueno({
+  sinSesion: "Inicia sesión como docente para controlar la partida.",
+  otro: "Esta partida pertenece a otro docente.",
+  sinDueno: "Esta partida ya no tiene docente a cargo.",
+});
+
 // Devuelve la partida solo si quien pregunta es el docente que la creó.
 function teacherGame(socket, code) {
   const game = games.get(code);
   if (!game) return null;
-  const u = socket.data.user;
-  if (!u || u.role !== "docente") {
-    socket.emit("error-message", "Inicia sesión como docente para controlar la partida.");
-    return null;
-  }
-  // Sin dueño (p. ej. el docente borró su cuenta): nadie la controla; antes podía cualquier docente.
-  if (game.ownerId !== u.id) {
-    socket.emit(
-      "error-message",
-      game.ownerId ? "Esta partida pertenece a otro docente." : "Esta partida ya no tiene docente a cargo.",
-    );
+  const problema = problemaDeDuenoLudo(socket.data.user, game);
+  if (problema) {
+    socket.emit("error-message", problema);
     return null;
   }
   return game;
@@ -775,85 +749,10 @@ io.on("connection", (socket) => {
   });
 });
 
-// ============================================================================
-// MOVIMIENTO DE LA FICHA
-// ============================================================================
-// Si el equipo ACIERTA, su ficha avanza tantas casillas como marcó el dado.
-//   - Desde casa (-1) sale a su casilla de salida y cuenta desde ahí.
-//   - Para entrar a la meta hace falta el número exacto.
-//   - Si cae sobre una ficha rival (y no es casilla segura), se la come.
-// ============================================================================
-function movePiece(game, playerId, team, dice) {
-  const from = game.positions[playerId] ?? -1;
-  const target = from < 0 ? dice - 1 : from + dice;
-
-  if (target > GOAL_STEP) {
-    return { moved: false, from, to: from, captured: [], reachedGoal: false };
-  }
-
-  game.positions[playerId] = target;
-
-  const captured = [];
-  const myRing = ringIndexForStep(team, target);
-  if (myRing !== null && !SAFE_INDEXES.includes(myRing)) {
-    game.players.forEach((rival) => {
-      if (rival.id === playerId || rival.team === team) return;
-      const rivalRing = ringIndexForStep(rival.team, game.positions[rival.id] ?? -1);
-      if (rivalRing !== null && rivalRing === myRing) {
-        game.positions[rival.id] = -1;
-        captured.push(rival.name);
-      }
-    });
-  }
-
-  return { moved: true, from, to: target, captured, reachedGoal: target === GOAL_STEP };
-}
-
-// Resuelve la pregunta activa (alguien respondió, o se acabó el tiempo).
+// Resuelve la pregunta activa (alguien respondió, o se acabó el tiempo): aplica la
+// regla (ludo/reglas.js), guarda en la BD y avisa.
 function resolveAnswer(game, code, currentTeam, playerId, optionIndex) {
-  const timedOut = optionIndex === null || optionIndex === undefined;
-  const isCorrect = !timedOut && optionIndex === game.currentQuestion.answerIndex;
-  const team = game.teams[currentTeam];
-  let pointsEarned = 0;
-  let move = null;
-
-  if (isCorrect) {
-    pointsEarned = Number((20 / 12).toFixed(2));
-    team.score = Math.min(20, Number((team.score + pointsEarned).toFixed(2)));
-    team.correct++;
-
-    // Acierta -> avanza el número del dado.
-    move = movePiece(game, playerId, currentTeam, game.lastDice);
-  } else {
-    team.incorrect++;
-  }
-
-  const mover = game.players.find((p) => p.id === playerId);
-  const correctAnswerText = game.currentQuestion.options[game.currentQuestion.answerIndex];
-  game.lastResult = {
-    team: currentTeam,
-    isCorrect,
-    timedOut,
-    selectedIndex: timedOut ? null : optionIndex,
-    correctIndex: game.currentQuestion.answerIndex,
-    correctText: correctAnswerText,
-    points: pointsEarned,
-    playerName: mover?.name ?? null,
-    move,
-  };
-
-  game.history.unshift({
-    turn: game.turnCounter,
-    team: currentTeam,
-    dice: game.lastDice,
-    topic: game.currentQuestion.topic,
-    correct: isCorrect,
-    timedOut,
-    points: pointsEarned,
-    correctAnswer: correctAnswerText,
-    from: move?.from ?? null,
-    to: move?.to ?? null,
-  });
+  const { isCorrect, pointsEarned, move, team } = aplicarRespuesta(game, currentTeam, playerId, optionIndex);
 
   bg(
     db
@@ -893,33 +792,22 @@ function resolveAnswer(game, code, currentTeam, playerId, optionIndex) {
 }
 
 // ============================================================================
-// EL RELOJ: un tick por segundo mueve la partida sola
+// EL RELOJ: un tick por segundo mueve la partida sola (registrado en el reloj único, abajo)
 // ============================================================================
-setInterval(() => {
+function ludoTick() {
   games.forEach((game, code) => {
+    const paso = pasoDelReloj(game);
     // Cronómetro general de la clase (lo activa el docente)
-    if (game.timerRunning && game.timerSeconds > 0) {
-      game.timerSeconds--;
-      io.to(code).emit("timer", game.timerSeconds);
-      if (game.timerSeconds === 0) {
-        game.timerRunning = false;
-        game.phase = "finished";
-        game.currentQuestion = null;
-        persistFinish(game, "time");
-        broadcast(code);
-        return;
-      }
+    if (paso.timer !== undefined) io.to(code).emit("timer", paso.timer);
+    if (paso.terminoPorTiempo) {
+      persistFinish(game, "time");
+      broadcast(code);
+      return;
     }
-
-    if (game.phase !== "playing") return;
-
-    game.phaseSecondsLeft--;
-    io.to(code).emit("phase-timer", { turnPhase: game.turnPhase, seconds: game.phaseSecondsLeft });
-
-    if (game.phaseSecondsLeft > 0) return;
+    if (paso.fase) io.to(code).emit("phase-timer", paso.fase);
 
     // Se acabó el tiempo de la fase: avanzamos sola a la siguiente.
-    switch (game.turnPhase) {
+    switch (paso.vencio) {
       case "roll":
         rollDice(game, code, null); // nadie lanzó: lanza el servidor
         break;
@@ -934,12 +822,15 @@ setInterval(() => {
         break;
     }
   });
-}, 1000);
+}
 
-// El reloj del crucigrama es independiente del de Ludo (partidas distintas, ambas en memoria).
-setInterval(() => crosswordTick(io), 1000);
-setInterval(() => quizTick(io), 1000); // reloj de la Evaluación rápida
-setInterval(() => palabraTick(io), 500); // reloj de Palabra relámpago (medio segundo: turnos más precisos)
+// Un solo reloj para los juegos en vivo: cada uno registra su tick con su periodo (ver live/reloj.js).
+const reloj = crearReloj();
+reloj.registrar("ludo", 1000, ludoTick);
+reloj.registrar("crucigrama", 1000, () => crosswordTick(io));
+reloj.registrar("evaluación rápida", 1000, () => quizTick(io));
+reloj.registrar("palabra relámpago", 500, () => palabraTick(io)); // medio segundo: turnos más precisos
+reloj.iniciar();
 
 // Limpieza cada 10 min: las partidas de más de 12 h salen de la memoria (el Map crecía sin límite).
 setInterval(

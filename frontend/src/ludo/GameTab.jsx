@@ -1,4 +1,3 @@
-import "../live.css";
 import { GOAL_STEP } from "../board";
 import { COLORS } from "../constants";
 import { Dice } from "./Dice";

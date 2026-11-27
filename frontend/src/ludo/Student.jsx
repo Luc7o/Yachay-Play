@@ -4,7 +4,6 @@ import { Dice } from "./Dice";
 import { describeMove } from "./GameTab";
 import { LudoBoard } from "./LudoBoard";
 
-import "../live.css";
 
 // ============================================================================
 // LUDO · PANTALLAS DEL ESTUDIANTE (celular) — diseño "Campus" (campusJuegos.css, "stu")

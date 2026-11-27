@@ -15,7 +15,6 @@
 // ============================================================================
 import "./authAnim.css";
 import "./authExtras.css";
-import "./publicAula.css";
 import "./shell.css";
 import "./gate.css";
 import "./cw.css";
@@ -26,4 +25,3 @@ import "./cronometroMini.css";
 import "./pizarra.css";
 import "./estudio/estudio.css";
 import "./quiz/quiz.css";
-import "./live.css";

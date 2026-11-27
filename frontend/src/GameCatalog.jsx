@@ -4,7 +4,6 @@ import { AppShell } from "./AppShell";
 import { Icono, Marca } from "./campusUi";
 import { api } from "./api";
 import { Tile } from "./ui";
-import "./publicAula.css"; // estilos antiguos que aún usan otras pantallas (p. ej. el ingreso a Ludo)
 
 // ============================================================================
 // PORTADA PÚBLICA E INICIO CON SESIÓN — diseño "Campus" (ver campus.css)

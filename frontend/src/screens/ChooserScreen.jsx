@@ -1,5 +1,6 @@
 import { Marca, BotonTema, Icono } from "../campusUi";
 import { BUILD_VERSION } from "../constants";
+import { Button } from "../ui";
 
 // ============================================================================
 // LUDO · ¿CÓMO QUIERES ENTRAR? (sin sesión) — diseño "Campus". Props sin cambios.
@@ -27,9 +28,9 @@ export function ChooserScreen({ onLogin, onRegister, onGuest, onBack }) {
           <Marca onClick={onBack} label="Volver al inicio de YachayPlay" />
           <div className="cp-pubauth" style={{ marginLeft: "auto" }}>
             <BotonTema />
-            <button type="button" className="cp-btn quiet" onClick={onBack}>
+            <Button variant="quiet" onClick={onBack}>
               ← Volver
-            </button>
+            </Button>
           </div>
         </div>
       </header>

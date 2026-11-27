@@ -3,7 +3,7 @@ import { PublicAulaHeader } from "./PublicAulaHeader";
 import { AppShell } from "./AppShell";
 import { Icono, Marca } from "./campusUi";
 import { api } from "./api";
-import "./publicAula.css"; // estilos antiguos que aún usan otras pantallas (p. ej. el ingreso a Ludo)
+import { Tile } from "./ui";
 
 // ============================================================================
 // PORTADA PÚBLICA E INICIO CON SESIÓN — diseño "Campus" (ver campus.css)
@@ -56,7 +56,6 @@ export const JUEGOS = [
     estudiante: "Unirme con código",
   },
 ];
-const PROXIMAMENTE = ["Quiz", "Sí o No", "Sopa de letras", "Memoria", "Ordenar frases"];
 
 const HERRAMIENTAS = [
   {
@@ -124,21 +123,6 @@ function CampoCodigo({ id, onEntrar, etiqueta = "Código de la partida", boton =
         </button>
       </div>
     </form>
-  );
-}
-
-// `tono` = id de la actividad: le da su color propio (ver "Color por actividad" en campus.css).
-function Tile({ icono: Ico, titulo, desc, cta, onClick, disabled, extra, tono }) {
-  return (
-    <button type="button" className={`cp-tile${tono ? ` tono-${tono}` : ""}`} onClick={onClick} disabled={disabled}>
-      <span className="cp-tile-top">
-        <span className="cp-ico">{Ico ? <Ico /> : null}</span>
-        {extra}
-      </span>
-      <strong>{titulo}</strong>
-      {desc && <p>{desc}</p>}
-      {cta && <span className="cp-tile-cta">{cta}</span>}
-    </button>
   );
 }
 
@@ -280,8 +264,8 @@ function HomeLogged({
     <Tile
       key={g.id}
       tono={g.id}
-      icono={g.icono}
-      titulo={g.nombre}
+      icon={g.icono}
+      title={g.nombre}
       desc={g.desc}
       cta={esDocente ? g.docente : g.estudiante || "Ver cómo se juega"}
       onClick={() => onSelectGame(g.id)}
@@ -326,8 +310,8 @@ function HomeLogged({
               <Tile
                 key={t.id}
                 tono={t.id}
-                icono={t.icono}
-                titulo={t.nombre}
+                icon={t.icono}
+                title={t.nombre}
                 desc={t.desc}
                 cta="Abrir"
                 onClick={() => onSelectGame(t.id)}
@@ -422,12 +406,7 @@ function HomeLogged({
             </p>
           </div>
         </div>
-        <div className="cp-tiles">
-          {tilesJuegos}
-          {PROXIMAMENTE.map((n) => (
-            <Tile key={n} titulo={n} desc="Próximamente." disabled extra={<span className="cp-chip">Pronto</span>} />
-          ))}
-        </div>
+        <div className="cp-tiles">{tilesJuegos}</div>
       </div>
     ),
 
@@ -445,8 +424,8 @@ function HomeLogged({
             <Tile
               key={t.id}
               tono={t.id}
-              icono={t.icono}
-              titulo={t.nombre}
+              icon={t.icono}
+              title={t.nombre}
               desc={t.desc}
               cta="Abrir"
               onClick={() => onSelectGame(t.id)}
@@ -456,8 +435,8 @@ function HomeLogged({
             <Tile
               key={g.id}
               tono={g.id}
-              icono={g.icono}
-              titulo={g.nombre}
+              icon={g.icono}
+              title={g.nombre}
               desc={g.desc}
               cta={g.docente}
               onClick={() => onSelectGame(g.id)}
@@ -696,10 +675,10 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
           <div className="cp-wrap">
             <div className="cp-section-head">
               <h2 id="cp-juegos-t">Actividades para la clase</h2>
-              <p>Más actividades en camino: {PROXIMAMENTE.slice(0, 3).join(", ").toLowerCase()} y otras.</p>
+              <p>Juegos en vivo y herramientas para dinamizar la clase, desde el proyector y el celular.</p>
             </div>
-            <div className="cp-grid cp-grid-4">
-              {JUEGOS.slice(0, 4).map((g) => (
+            <div className="cp-grid cp-grid-5">
+              {JUEGOS.map((g) => (
                 <div className={`cp-card cp-game tono-${g.id}`} key={g.id}>
                   <span className="cp-ico">
                     <g.icono />

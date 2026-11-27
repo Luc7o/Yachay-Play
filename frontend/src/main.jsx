@@ -1,5 +1,7 @@
 import React, { Suspense } from "react";
 import { createRoot } from "react-dom/client";
+import { createHashRouter, RouterProvider } from "react-router-dom";
+import "./ui/tokens.css"; // colores, tipografía y tonos: la única fuente (va primero)
 import "./styles.css";
 import "./estilos"; // TODOS los CSS en su orden de siempre (ver el comentario en estilos.js)
 import App from "./App";
@@ -11,7 +13,12 @@ import "./gamesDark.css";
 import "./aulaFinal.css";
 import "./campus.css"; // diseño "Campus": va el ÚLTIMO para ganar sobre los estilos antiguos
 import "./campusJuegos.css"; // diseño "Campus" para juegos y herramientas (después de campus.css)
+import "./ui/dispositivos.css"; // celular y proyector (va al final)
 import "./theme.js";
+
+// Una sola ruta que lo atrapa todo: App lee la dirección (ver rutas.js) y decide la pantalla.
+// createHashRouter (y no BrowserRouter) para conservar las direcciones con "#" de siempre.
+const router = createHashRouter([{ path: "*", element: <App /> }]);
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -24,7 +31,7 @@ createRoot(document.getElementById("root")).render(
           </div>
         }
       >
-        <App />
+        <RouterProvider router={router} />
       </Suspense>
       {/* Fuera de <App/> a propósito: se muestra en CUALQUIER pantalla donde
           haya sesión de docente (catálogo, Ludo, Crucigrama), sin tener que

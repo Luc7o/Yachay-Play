@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { IconoEnLinea } from "../campusUi";
 import { candidateFragments, checkWord, normalizeWord } from "../palabraDiccionario";
 import { Hearts, PalabraStage, StageFrame, useStageTheme } from "./PalabraStage";
+import { Button } from "../ui";
 
 // ============================================================================
 // PALABRA RELÁMPAGO · INDIVIDUAL (una persona contra el reloj)
@@ -136,7 +138,7 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
         best: Math.max(s.best, streak),
         message: {
           text: subio
-            ? `¡Correcto! +${points} · ⚡ Nivel ${levelOf(words.length)}: ahora ${timeFor(words.length)} s por palabra`
+            ? `¡Correcto! +${points} · Nivel ${levelOf(words.length)}: ahora ${timeFor(words.length)} s por palabra`
             : `¡Correcto! +${points} puntos · ${word}`,
           tone: "good",
         },
@@ -172,7 +174,7 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
         <div className="pf-center">
           <section className="pf-card" aria-live="polite">
             <div style={{ fontSize: 54 }} aria-hidden="true">
-              ⚡
+              <IconoEnLinea nombre="rayo" />
             </div>
             <h2>¡Te quedaste sin vidas!</h2>
             <p>
@@ -184,7 +186,7 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
             </p>
             <p>
               {record.isNew
-                ? "🎉 ¡Nuevo récord personal en este navegador!"
+                ? "¡Nuevo récord personal en este navegador!"
                 : `Tu récord en este navegador: ${record.best} puntos`}
             </p>
             {g.words.length > 0 && (
@@ -197,12 +199,10 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
               </div>
             )}
             <div className="pf-actions">
-              <button type="button" className="pf-btn primary" onClick={restart}>
-                Jugar otra vez
-              </button>
-              <button type="button" className="pf-btn" onClick={onExit}>
+              <Button onClick={restart}>Jugar otra vez</Button>
+              <Button variant="ghost" onClick={onExit}>
                 Volver a juegos
-              </button>
+              </Button>
             </div>
           </section>
         </div>
@@ -224,13 +224,16 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
       entry={{ editable: true, value: g.answer, onChange: (v) => commit({ answer: v }), onSubmit: submit, inputRef }}
       message={g.message}
       actions={
-        <button type="button" className="pf-btn" onClick={skip}>
+        <Button variant="ghost" onClick={skip}>
           Cambiar letras (−1 vida)
-        </button>
+        </Button>
       }
       side={
         <>
-          <h2>⚡ Tu partida</h2>
+          <h2>
+            <IconoEnLinea nombre="rayo" />
+            Tu partida
+          </h2>
           <div className="pf-stats">
             <div>
               <strong>{g.score}</strong>

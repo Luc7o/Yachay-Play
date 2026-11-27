@@ -16,24 +16,22 @@ import {
   publicState,
   rooms,
 } from "./engine.js";
+import { esDueno, crearAccionesDeAnfitrion } from "../live/dueno.js";
+import { enviarVistas } from "../live/difusion.js";
 
 const key = (code) => `pr:${code}`;
-const esAnfitrion = (socket, room) => !!socket.data.user && !!room.ownerId && socket.data.user.id === room.ownerId;
+// Aquí puede crear salas cualquiera con sesión (también estudiantes): basta ser el dueño.
+const esAnfitrion = (socket, room) => esDueno(socket.data.user, room, { requiereDocente: false });
 
 export async function broadcastPalabra(io, code) {
   const room = getRoom(code);
   if (!room) return;
   tick(room);
-  let sockets;
-  try {
-    sockets = await io.in(key(code)).fetchSockets();
-  } catch {
-    return;
-  }
-  for (const s of sockets) {
-    if (s.data.prCode !== code) continue;
-    s.emit("pr:state", publicState(room, s.data.prPlayerId || null, !!s.data.prHost));
-  }
+  await enviarVistas(io, key(code), {
+    evento: "pr:state",
+    pertenece: (data) => data.prCode === code,
+    vista: (data) => publicState(room, data.prPlayerId || null, !!data.prHost),
+  });
 }
 
 export function palabraTick(io) {
@@ -85,17 +83,14 @@ export function attachPalabraSocket(io, socket) {
     if (r.ok) broadcastPalabra(io, room.code);
   });
 
-  const anfitrion = (evento, accion) =>
-    socket.on(evento, (_d, ack) => {
-      const room = getRoom(socket.data.prCode);
-      if (!room) return ack?.({ error: "No existe la partida." });
-      if (!esAnfitrion(socket, room)) return ack?.({ error: "Solo quien creó la partida puede hacerlo." });
-      const r = accion(room);
-      ack?.(r);
-      if (r.ok) broadcastPalabra(io, room.code);
-    });
-  anfitrion("pr:start", start);
-  anfitrion("pr:end", end);
+  const anfitrion = crearAccionesDeAnfitrion(socket, {
+    buscar: () => getRoom(socket.data.prCode),
+    noExiste: "No existe la partida.",
+    problema: (room) => (esAnfitrion(socket, room) ? null : "Solo quien creó la partida puede hacerlo."),
+    despues: (room) => broadcastPalabra(io, room.code),
+  });
+  anfitrion("pr:start", (room) => start(room));
+  anfitrion("pr:end", (room) => end(room));
 
   socket.on("pr:submit", ({ word } = {}, ack) => {
     const room = getRoom(socket.data.prCode);

@@ -12,8 +12,11 @@
 // Express ni de Socket.IO (así se puede probar sola).
 // ============================================================================
 import crypto from "node:crypto";
+import { crearRegistro } from "../live/salas.js";
+import { limpiarTexto as clean, admitirNombre, reanudar, MENSAJES } from "../live/jugadores.js";
 
-export const rooms = new Map(); // code -> room
+const registro = crearRegistro();
+export const rooms = registro.salas; // code -> room
 
 export const LIMITS = {
   maxQuestions: 30,
@@ -25,13 +28,6 @@ export const LIMITS = {
 };
 const BASE_POINTS = 100; // por acertar
 const SPEED_POINTS = 50; // extra por responder rápido (proporcional al tiempo que sobraba)
-
-const code6 = () => String(crypto.randomInt(100000, 1000000)); // crypto: códigos no predecibles
-const clean = (s, n) =>
-  String(s ?? "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, n);
 
 // Valida y limpia las preguntas que manda el docente. Devuelve { questions } o { error }.
 export function sanitizeQuestions(input) {
@@ -63,13 +59,9 @@ export function sanitizeQuestions(input) {
 }
 
 export function createRoom({ name, ownerId, classId = null, questions }) {
-  let code;
-  do {
-    code = code6();
-  } while (rooms.has(code));
   const room = {
     id: crypto.randomUUID(),
-    code,
+    code: registro.nuevoCodigo(), // 6 dígitos, único en memoria
     name: clean(name, 60) || "Evaluación rápida",
     ownerId,
     classId, // clase a la que pertenece (o null)
@@ -80,22 +72,18 @@ export function createRoom({ name, ownerId, classId = null, questions }) {
     players: new Map(), // id -> { id, name, answers: { [qIndex]: { choice, ms, points } }, score }
     createdAt: Date.now(),
   };
-  rooms.set(code, room);
-  return room;
+  return registro.guardar(room);
 }
-export const getRoom = (code) => rooms.get(String(code || "").trim()) || null;
+export const getRoom = registro.obtener;
 
 export function addPlayer(room, { id, name }) {
-  const existing = id && room.players.get(id);
-  if (existing) return { player: existing };
-  const nombre = clean(name, 30);
-  if (!nombre) return { error: "Escribe tu nombre para entrar." };
+  const { jugador } = reanudar(room.players, { id }); // recargó la página: sigue siendo él
+  if (jugador) return { player: jugador };
+  const r = admitirNombre(room.players, name, { max: LIMITS.maxPlayers });
+  if (r.error === MENSAJES.sinNombre) return r;
   if (room.status === "ended") return { error: "Esta evaluación ya terminó." };
-  if (room.players.size >= LIMITS.maxPlayers) return { error: "La sala está llena." };
-  const lower = nombre.toLowerCase();
-  if ([...room.players.values()].some((p) => p.name.toLowerCase() === lower))
-    return { error: "Ya hay alguien con ese nombre. Agrega tu apellido o inicial." };
-  const player = { id: crypto.randomUUID(), name: nombre, answers: {}, score: 0 };
+  if (r.error) return r;
+  const player = { id: crypto.randomUUID(), name: r.nombre, answers: {}, score: 0 };
   room.players.set(player.id, player);
   return { player };
 }
@@ -278,6 +266,4 @@ export function exportRows(room) {
   return [header, ...rows];
 }
 
-export function purgeOldRooms(limit) {
-  for (const [code, r] of rooms) if (r.createdAt < limit) rooms.delete(code);
-}
+export const purgeOldRooms = (limit) => registro.purgarViejas(limit);

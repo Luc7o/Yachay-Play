@@ -1,4 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { IconoEnLinea } from "./campusUi";
+import { Button } from "./ui";
 import { Brand } from "./Brand";
 import { prepararAudio, nota } from "./herramientasAudio";
 import { cronometro, useCronometro } from "./cronometroStore";
@@ -377,13 +379,14 @@ export function Cronometro({ goHome }) {
       {!limpio && (
         <header className="ref-topbar">
           <Brand subtitle="Cronómetro de actividad" onClick={irAlInicio} />
-          <button
+          <Button
+            variant="ghost"
             className="hr-back"
             onClick={irAlInicio}
             title={estado === "running" || estado === "paused" ? "El cronómetro seguirá en una ventanita" : undefined}
           >
             ← Volver al inicio
-          </button>
+          </Button>
         </header>
       )}
 
@@ -393,7 +396,17 @@ export function Cronometro({ goHome }) {
           <div className="hr-activity-wrap">
             {!limpio && (
               <span className="hr-activity-label" aria-hidden="true">
-                {esExpo ? "🎤 Turno actual" : "✏️ Actividad para los alumnos"}
+                {esExpo ? (
+                  <>
+                    <IconoEnLinea nombre="microfono" />
+                    Turno actual
+                  </>
+                ) : (
+                  <>
+                    <IconoEnLinea nombre="lapiz" />
+                    Actividad para los alumnos
+                  </>
+                )}
               </span>
             )}
             <textarea
@@ -452,7 +465,8 @@ export function Cronometro({ goHome }) {
               disabled={bloqueado}
               onClick={() => setModo("simple")}
             >
-              ⏱ Simple
+              <IconoEnLinea nombre="cronometro" />
+              Simple
             </button>
             <button
               className={"hr-chip" + (esExpo ? " on" : "")}
@@ -460,7 +474,8 @@ export function Cronometro({ goHome }) {
               disabled={bloqueado}
               onClick={() => setModo("expo")}
             >
-              🎤 Exposiciones
+              <IconoEnLinea nombre="microfono" />
+              Exposiciones
             </button>
           </div>
 
@@ -565,8 +580,8 @@ export function Cronometro({ goHome }) {
           )}
 
           <div className="hr-actions">
-            <button
-              className="hr-btn hr-primary"
+            <Button
+              size="lg"
               onClick={alternar}
               disabled={
                 (estado === "idle" || estado === "done") && (duracionElegida <= 0 || (esExpo && !turnos.length))
@@ -574,24 +589,25 @@ export function Cronometro({ goHome }) {
               title="Barra espaciadora"
             >
               {etiquetaInicio}
-            </button>
+            </Button>
             {esExpo && (
-              <button
-                className="hr-btn"
+              <Button
+                variant="ghost"
+                size="lg"
                 onClick={siguiente}
                 disabled={!turnos.length || estado === "idle"}
                 title="Tecla N"
               >
-                {hayMas ? "⏭ Siguiente" : "🏁 Terminar"}
-              </button>
+                {hayMas ? "⏭ Siguiente" : "Terminar"}
+              </Button>
             )}
-            <button className="hr-btn" onClick={reiniciar}>
+            <Button variant="ghost" size="lg" onClick={reiniciar}>
               ↺ Reiniciar
-            </button>
+            </Button>
             {esExpo && (
-              <button className="hr-btn" onClick={reiniciarTurnos} disabled={bloqueado}>
+              <Button variant="ghost" size="lg" onClick={reiniciarTurnos} disabled={bloqueado}>
                 ⟲ Turnos desde el inicio
-              </button>
+              </Button>
             )}
             <span className="hr-tools">
               <button
@@ -657,7 +673,7 @@ export function Cronometro({ goHome }) {
               title={hayMas ? "Siguiente (N)" : "Terminar (N)"}
               onClick={siguiente}
             >
-              {hayMas ? "⏭" : "🏁"}
+              {hayMas ? "⏭" : "■"}
             </button>
           )}
           {estado !== "idle" && (

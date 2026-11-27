@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import { socket } from "../socket";
 import { LS_STUDENT, LS_TEACHER, loadJSON, saveJSON, emitConTiempoLimite } from "./helpers";
+import { useSalaEnVivo } from "../salaEnVivo";
 import { CwGate } from "./CwGate";
 import { CwTeacherSetup } from "./CwTeacherSetup";
 import { CwTeacherRoom } from "./CwTeacherRoom";
@@ -111,25 +112,21 @@ export function CrosswordGame({
   // Al reconectar, el servidor ve un socket nuevo que no está en ninguna sala.
   const viewRef = useRef(view);
   viewRef.current = view;
-  useEffect(() => {
-    function onReconnect() {
-      const v = viewRef.current;
-      if (v === "student-room") {
-        const guardado = loadJSON(LS_STUDENT);
-        if (!guardado) return;
-        socket.emit(
-          "cw:join-room",
-          { code: guardado.code, playerId: guardado.playerId, secret: guardado.secret, name: user?.name || "" },
-          (ack) => ack?.ok && setLive(ack.state),
-        );
-      } else if (v === "teacher-room") {
-        const codigo = loadJSON(LS_TEACHER);
-        if (codigo) socket.emit("cw:watch-room", { code: codigo }, (ack) => ack?.ok && setLive(ack.state));
-      }
+  function onReconnect() {
+    const v = viewRef.current;
+    if (v === "student-room") {
+      const guardado = loadJSON(LS_STUDENT);
+      if (!guardado) return;
+      socket.emit(
+        "cw:join-room",
+        { code: guardado.code, playerId: guardado.playerId, secret: guardado.secret, name: user?.name || "" },
+        (ack) => ack?.ok && setLive(ack.state),
+      );
+    } else if (v === "teacher-room") {
+      const codigo = loadJSON(LS_TEACHER);
+      if (codigo) socket.emit("cw:watch-room", { code: codigo }, (ack) => ack?.ok && setLive(ack.state));
     }
-    socket.on("connect", onReconnect);
-    return () => socket.off("connect", onReconnect);
-  }, [user]);
+  }
 
   // --- escuchar el estado en vivo del servidor ---
   // myId y live se leen desde refs: así el efecto se suscribe UNA vez y no hace off/on en cada cw:state.
@@ -139,44 +136,40 @@ export function CrosswordGame({
   liveRef.current = live;
   const timersToast = useRef(new Set());
   useEffect(() => () => timersToast.current.forEach(clearTimeout), []);
-  useEffect(() => {
-    function onState(payload) {
-      setLive(payload);
-      if (payload.me?.solvedWords) {
-        setSolvedMap((prev) => {
-          const next = { ...prev };
-          for (const w of payload.me.solvedWords) next[w.placementId] = w.word;
-          return next;
-        });
-      }
+  function onState(payload) {
+    setLive(payload);
+    if (payload.me?.solvedWords) {
+      setSolvedMap((prev) => {
+        const next = { ...prev };
+        for (const w of payload.me.solvedWords) next[w.placementId] = w.word;
+        return next;
+      });
     }
-    function onSabotage(r) {
-      const myId = myIdRef.current;
-      const soyYo = r.targetId === myId;
-      const fuiYo = r.sourceId === myId;
-      const label = { freeze: "te congeló", fog: "te puso niebla", steal: "te robó puntos" }[r.type];
-      const labelYo = { freeze: "Congelaste a", fog: "Le pusiste niebla a", steal: "Le robaste puntos a" }[r.type];
-      const nombre = (id) => liveRef.current?.leaderboard?.find((p) => p.id === id)?.name || "alguien";
-      let texto = null;
-      if (soyYo) texto = `⚠️ ${nombre(r.sourceId)} ${label}`;
-      else if (fuiYo) texto = `${labelYo} ${nombre(r.targetId)}` + (r.stolen ? ` (+${r.stolen} pts)` : "");
-      if (texto) {
-        const id = Math.random();
-        setToasts((t) => [...t, { id, texto }]);
-        const timer = setTimeout(() => {
-          timersToast.current.delete(timer);
-          setToasts((t) => t.filter((x) => x.id !== id));
-        }, 3500);
-        timersToast.current.add(timer);
-      }
+  }
+  function onSabotage(r) {
+    const myId = myIdRef.current;
+    const soyYo = r.targetId === myId;
+    const fuiYo = r.sourceId === myId;
+    const label = { freeze: "te congeló", fog: "te puso niebla", steal: "te robó puntos" }[r.type];
+    const labelYo = { freeze: "Congelaste a", fog: "Le pusiste niebla a", steal: "Le robaste puntos a" }[r.type];
+    const nombre = (id) => liveRef.current?.leaderboard?.find((p) => p.id === id)?.name || "alguien";
+    let texto = null;
+    if (soyYo) texto = `${nombre(r.sourceId)} ${label}`;
+    else if (fuiYo) texto = `${labelYo} ${nombre(r.targetId)}` + (r.stolen ? ` (+${r.stolen} pts)` : "");
+    if (texto) {
+      const id = Math.random();
+      setToasts((t) => [...t, { id, texto }]);
+      const timer = setTimeout(() => {
+        timersToast.current.delete(timer);
+        setToasts((t) => t.filter((x) => x.id !== id));
+      }, 3500);
+      timersToast.current.add(timer);
     }
-    socket.on("cw:state", onState);
-    socket.on("cw:sabotage-used", onSabotage);
-    return () => {
-      socket.off("cw:state", onState);
-      socket.off("cw:sabotage-used", onSabotage);
-    };
-  }, []);
+  }
+  useSalaEnVivo({
+    eventos: { "cw:state": onState, "cw:sabotage-used": onSabotage },
+    alReconectar: onReconnect,
+  });
 
   function volverAlCatalogo() {
     saveJSON(LS_TEACHER, null);

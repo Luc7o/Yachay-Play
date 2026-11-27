@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
 import { Icono } from "../campusUi";
+import { Tile } from "../ui";
 
 // ============================================================================
 // MIS CLASES — lista y detalle (diseño "Campus", ver campus.css)
@@ -499,15 +500,14 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
               const t = TIPOS[k];
               const Ico = t.icono;
               return (
-                <button type="button" key={k} className={`cp-tile tono-${k}`} onClick={() => onLanzar(clase, k)}>
-                  <span className="cp-tile-top">
-                    <span className="cp-ico">
-                      <Ico />
-                    </span>
-                  </span>
-                  <strong>{t.nombre}</strong>
-                  <span className="cp-tile-cta">Crear en {clase.name}</span>
-                </button>
+                <Tile
+                  key={k}
+                  tono={k}
+                  icon={Ico}
+                  title={t.nombre}
+                  cta={`Crear en ${clase.name}`}
+                  onClick={() => onLanzar(clase, k)}
+                />
               );
             })}
           </div>

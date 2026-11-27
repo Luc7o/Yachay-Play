@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { IconoEnLinea } from "./campusUi";
 import {
   BASE_COUNT,
   checkWord,
@@ -10,9 +11,10 @@ import {
 import { PalabraSolo } from "./palabra/PalabraSolo";
 import { OnlineRoom, OnlineSetup } from "./palabra/PalabraOnline";
 import "./palabraRelampago.css";
+import { Button } from "./ui";
 
 const COLORS = ["#17c7b5", "#4388ff", "#b18aff", "#ffc15d", "#f383a6", "#6ac9de", "#a4d75c", "#e1a7ff"];
-const DEFAULT_TEAMS = "Equipo Menta, Equipo Azul, Equipo Violeta";
+const DEFAULT_TEAMS = "Equipo 1, Equipo 2, Equipo 3";
 const parseNames = (value) =>
   [
     ...new Set(
@@ -248,9 +250,9 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
               {uiTheme === "dark" ? "☀ Modo claro" : "☾ Modo oscuro"}
             </button>
           )}
-          <button type="button" className="pr-back" onClick={goHome}>
+          <Button variant="ghost" onClick={goHome}>
             ← Volver a juegos
-          </button>
+          </Button>
         </div>
       </header>
       {phase === "setup" && (
@@ -272,7 +274,8 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
                 setMessage("");
               }}
             >
-              👤 Individual
+              <IconoEnLinea nombre="persona" />
+              Individual
             </button>
             <button
               type="button"
@@ -282,7 +285,8 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
                 setMessage("");
               }}
             >
-              👥 Equipos (una pantalla)
+              <IconoEnLinea nombre="grupo" />
+              Equipos (una pantalla)
             </button>
             <button
               type="button"
@@ -423,14 +427,14 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
             </div>
           )}
           {mode === "individual" && (
-            <button className="pr-primary" onClick={startSolo}>
-              Empezar contrarreloj ⚡
-            </button>
+            <Button size="lg" onClick={startSolo}>
+              Empezar contrarreloj
+            </Button>
           )}
           {mode === "team" && (
-            <button className="pr-primary" onClick={start}>
+            <Button size="lg" onClick={start}>
               Entrar a la arena →
-            </button>
+            </Button>
           )}
         </section>
       )}
@@ -563,7 +567,10 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
             </button>
           </section>
           <aside className="pr-panel pr-scores">
-            <h2>🏆 Clasificación</h2>
+            <h2>
+              <IconoEnLinea nombre="trofeo" />
+              Clasificación
+            </h2>
             {sorted.map((p, i) => (
               <div className={"pr-player " + (p.id === active?.id ? "pr-current" : "")} key={p.id}>
                 <span className="pr-score-dot" style={{ background: p.color }} />
@@ -590,7 +597,9 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
       )}
       {phase === "finished" && (
         <section className="pr-panel pr-finish">
-          <div className="pr-burst">🏆</div>
+          <div className="pr-burst">
+            <IconoEnLinea nombre="trofeo" />
+          </div>
           <h2>¡Partida terminada!</h2>
           <p>
             {sorted.filter((p) => p.score === winner?.score).length > 1 ? "Empate en el primer lugar" : "Ganador"}:{" "}
@@ -610,15 +619,15 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
               <strong>{p.score} puntos</strong>
             </div>
           ))}
-          <button
-            className="pr-primary"
+          <Button
+            size="lg"
             onClick={() => {
               setPhase("setup");
               setMessage("");
             }}
           >
             Jugar otra vez
-          </button>
+          </Button>
         </section>
       )}
     </div>

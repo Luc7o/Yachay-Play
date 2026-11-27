@@ -4,6 +4,7 @@ import { mmss } from "./helpers";
 import { CwLeaderboard } from "./CwTeacherLive";
 
 import "../cw.css";
+import { Button } from "../ui";
 
 export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubmit, onSabotage }) {
   const [activeId, setActiveId] = useState(null);
@@ -156,9 +157,9 @@ export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubm
                   onChange={(e) => setGuess(e.target.value.toUpperCase())}
                   onKeyDown={(e) => e.key === "Enter" && enviar()}
                 />
-                <button type="button" className="cp-btn primary" disabled={congelado || !guess} onClick={enviar}>
+                <Button disabled={congelado || !guess} onClick={enviar}>
                   Enviar
-                </button>
+                </Button>
               </div>
               {feedback && (
                 <p className={feedback.ok ? "cp-msg ok" : "cp-msg error"} role="status">

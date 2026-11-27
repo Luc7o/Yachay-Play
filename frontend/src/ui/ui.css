@@ -1,0 +1,310 @@
+/* ==========================================================================
+   Estilos de los componentes compartidos (ui/index.jsx).
+   Solo usan variables de ui/tokens.css: nada de colores sueltos salvo los
+   semánticos de acierto / aviso / error, definidos aquí una sola vez.
+   ========================================================================== */
+:root {
+  --ui-good: #15803d;
+  --ui-good-soft: #e7f5ec;
+  --ui-warn: #a15c07;
+  --ui-warn-soft: #fcefdd;
+  --ui-bad: var(--cp-danger);
+  --ui-bad-soft: var(--cp-danger-soft);
+}
+:root[data-theme="dark"] {
+  --ui-good: #5fd38d;
+  --ui-good-soft: #15291d;
+  --ui-warn: #fbbf5d;
+  --ui-warn-soft: #2e2210;
+}
+
+/* Tarjeta */
+.ui-card {
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.ui-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.ui-card h2 {
+  margin: 0;
+  font: 600 18px var(--cp-display);
+  letter-spacing: -0.02em;
+  color: var(--cp-ink);
+}
+.ui-card h3 {
+  margin: 8px 0 0;
+  font: 600 15px var(--cp-display);
+  color: var(--cp-ink);
+}
+
+/* Encabezado de pantalla */
+.ui-pagehead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.ui-pagehead-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Campos */
+.ui-hint {
+  font-size: 12px;
+  color: var(--cp-muted);
+}
+.ui-textarea {
+  min-height: 84px;
+  resize: vertical;
+  font-family: var(--cp-text);
+}
+select.cp-input {
+  appearance: auto;
+}
+
+/* Cifras */
+.ui-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.ui-stat {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ui-stat span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-muted);
+}
+.ui-stat strong {
+  font: 600 30px var(--cp-display);
+  letter-spacing: -0.03em;
+  color: var(--cp-ink);
+}
+.ui-stat small {
+  font-size: 12px;
+  color: var(--cp-muted);
+}
+.ui-stats > .ui-stat:nth-child(4n + 1) strong {
+  color: var(--cp-terra);
+}
+.ui-stats > .ui-stat:nth-child(4n + 2) strong {
+  color: #1d4ed8;
+}
+.ui-stats > .ui-stat:nth-child(4n + 3) strong {
+  color: var(--ui-good);
+}
+.ui-stats > .ui-stat:nth-child(4n + 4) strong {
+  color: #6d28d9;
+}
+:root[data-theme="dark"] .ui-stats > .ui-stat:nth-child(4n + 2) strong {
+  color: #7aa7ff;
+}
+:root[data-theme="dark"] .ui-stats > .ui-stat:nth-child(4n + 4) strong {
+  color: #b49bff;
+}
+
+/* Etiquetas (complementa .cp-chip) */
+.cp-chip.win {
+  background: var(--ui-good-soft);
+  color: var(--ui-good);
+}
+.cp-chip.warn,
+.cp-chip.live {
+  background: var(--ui-warn-soft);
+  color: var(--ui-warn);
+}
+.cp-chip.lose {
+  background: var(--ui-bad-soft);
+  color: var(--ui-bad);
+}
+
+/* Filas y barras */
+.ui-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--cp-line);
+}
+.ui-card-head + .ui-row,
+.ui-card > h2 + .ui-row {
+  border-top: 0;
+}
+.ui-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ui-row-main b {
+  font-weight: 600;
+  color: var(--cp-ink);
+  overflow-wrap: anywhere;
+}
+.ui-row-main small {
+  font-size: 13px;
+  color: var(--cp-muted);
+}
+.ui-bar {
+  grid-column: 1 / -1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--cp-surface2);
+  overflow: hidden;
+}
+.ui-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--cp-accent);
+}
+.ui-bar i.good {
+  background: var(--ui-good);
+}
+.ui-bar i.mid {
+  background: var(--ui-warn);
+}
+.ui-bar i.bad {
+  background: var(--ui-bad);
+}
+.ui-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+
+/* Mensajes */
+.ui-notice {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-ink);
+}
+.ui-notice.ok {
+  background: var(--ui-good-soft);
+  color: var(--ui-good);
+}
+.ui-notice.error {
+  background: var(--ui-bad-soft);
+  color: var(--ui-bad);
+}
+.ui-empty {
+  margin: 0;
+  font-size: 14px;
+  color: var(--cp-muted);
+}
+
+/* Grilla de dos columnas */
+.ui-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 900px) {
+  .ui-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Fila de botones y texto corrido dentro de una tarjeta */
+.ui-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.ui-card .ui-actions {
+  margin: 4px 0 0;
+}
+.ui-actions > .cp-field {
+  flex: 1 1 200px;
+}
+.ui-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--cp-ink2);
+}
+.ui-card + .ui-card,
+.ui-card + .ui-actions,
+.ui-stats + .ui-card {
+  margin-top: 0;
+}
+.ui-card:not(.ui-grid > .ui-card) {
+  margin-bottom: 16px;
+}
+
+/* Pestañas */
+.ui-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--cp-surface2);
+  margin-bottom: 12px;
+}
+.ui-tabs button {
+  border: 0;
+  border-radius: 9px;
+  padding: 8px 14px;
+  font: 600 14px var(--cp-text);
+  color: var(--cp-ink2);
+  background: transparent;
+  cursor: pointer;
+}
+.ui-tabs button.on {
+  background: var(--cp-surface);
+  color: var(--cp-ink);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+
+/* Planes / Ayuda (InfoPages.jsx) */
+.ip-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+.ip-cards > .ui-card {
+  margin-bottom: 0;
+}
+.ip-card .ui-actions {
+  margin-top: auto;
+}
+.ip-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--cp-ink2);
+}
+
+/* Botón danger por sí solo (sin ghost): mismo fondo que ghost */
+.cp-btn.danger {
+  background: var(--cp-surface);
+}

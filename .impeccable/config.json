@@ -38,6 +38,15 @@
         ],
         "createdAt": "2026-11-26T19:32:19.949Z",
         "reason": "Claude: .pr-bomb-fuse draws the bomb's curved fuse with border-top/right plus a radius; it is an illustration, not a card"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "frontend/src/herramientas.css"
+        ],
+        "createdAt": "2026-11-27T12:12:59.449Z",
+        "reason": "Claude: L809 is .hr-tabla zebra striping (background on even rows), not a side accent bar on a rounded box"
       }
     ]
   }

@@ -16,7 +16,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "dev:db": "node scripts/dev-db.js"
+    "dev:db": "node scripts/dev-db.js",
+    "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -30,10 +31,13 @@
     "@electric-sql/pglite": "^0.6.0",
     "@electric-sql/pglite-socket": "^0.3.0",
     "@eslint/js": "^9.39.5",
+    "@types/express": "^4.17.25",
+    "@types/node": "^22.20.7",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.14.0",
     "prettier": "^3.10.1",
+    "typescript": "^5.9.3",
     "vitest": "^2.1.9"
   }
 }

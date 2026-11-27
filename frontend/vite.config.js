@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  test: { environment: "jsdom" },
+  test: { environment: "jsdom", exclude: ["e2e/**", "node_modules/**"] },
   server: {
     host: true, // permite acceder desde los celulares en la misma red Wi-Fi
     port: 5173,

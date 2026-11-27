@@ -1,8 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { IconoEnLinea } from "../campusUi";
 import { api } from "../api";
 import { socket } from "../socket";
+import { useSalaEnVivo } from "../salaEnVivo";
 import { conClaseDestino, limpiarClaseDestino, useClaseDestino } from "../claseDestino";
 import { Hearts, PalabraStage, StageFrame, useStageTheme } from "./PalabraStage";
+import { Button } from "../ui";
 
 // ============================================================================
 // PALABRA RELÁMPAGO · EN LÍNEA
@@ -115,9 +118,9 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
             onChange={(e) => setNombre(e.target.value)}
           />
         </label>
-        <button type="submit" className="pr-primary">
+        <Button size="lg" type="submit">
           Unirme →
-        </button>
+        </Button>
       </form>
 
       <form onSubmit={crearPartida} className="pr-online-box">
@@ -149,14 +152,16 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
                 className={crear.mode === "individual" ? "chosen" : ""}
                 onClick={() => set("mode", "individual")}
               >
-                👤 Cada quien por su cuenta
+                <IconoEnLinea nombre="persona" />
+                Cada quien por su cuenta
               </button>
               <button
                 type="button"
                 className={crear.mode === "equipos" ? "chosen" : ""}
                 onClick={() => set("mode", "equipos")}
               >
-                👥 Por equipos
+                <IconoEnLinea nombre="grupo" />
+                Por equipos
               </button>
             </div>
             <div className="pr-config">
@@ -213,9 +218,9 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
             <p className="pr-small">
               3 vidas por participante · +10 puntos y el tiempo restante por acierto · Sin palabras repetidas.
             </p>
-            <button type="submit" className="pr-primary" disabled={ocupado}>
+            <Button size="lg" type="submit" disabled={ocupado}>
               {ocupado ? "Creando…" : "Crear partida →"}
-            </button>
+            </Button>
           </>
         )}
       </form>
@@ -256,22 +261,20 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
     });
   }, [code, name, onlyWatches]);
 
+  useSalaEnVivo({
+    clave: entrar,
+    eventos: {
+      "pr:state": (s) => {
+        setOffset(s.now - Date.now());
+        setState(s);
+      },
+      "pr:typing": (t) => setTyping(t),
+    },
+    alReconectar: entrar, // si se cae la conexión, se vuelve a entrar con el mismo jugador
+  });
   useEffect(() => {
-    const onState = (s) => {
-      setOffset(s.now - Date.now());
-      setState(s);
-    };
-    const onTyping = (t) => setTyping(t);
-    socket.on("pr:state", onState);
-    socket.on("pr:typing", onTyping);
-    socket.on("connect", entrar); // si se cae la conexión, se vuelve a entrar con el mismo jugador
     if (socket.connected) entrar();
     else socket.connect();
-    return () => {
-      socket.off("pr:state", onState);
-      socket.off("pr:typing", onTyping);
-      socket.off("connect", entrar);
-    };
   }, [entrar]);
 
   // Reloj local para que los segundos bajen suave entre mensajes del servidor.
@@ -317,9 +320,7 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
             <p className="pf-err" role="alert">
               {error}
             </p>
-            <button type="button" className="pf-btn primary" onClick={onExit}>
-              Volver
-            </button>
+            <Button onClick={onExit}>Volver</Button>
           </section>
         </div>
       </StageFrame>
@@ -389,13 +390,12 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
                       ))}
                     </ul>
                     {me && (
-                      <button
-                        type="button"
-                        className={"pf-btn" + (me.team === t.id ? " primary" : "")}
+                      <Button
+                        variant={me.team === t.id ? "primary" : "ghost"}
                         onClick={() => accion("pr:team", { team: t.id })}
                       >
                         {me.team === t.id ? "Estás aquí" : "Unirme"}
-                      </button>
+                      </Button>
                     )}
                   </div>
                 ))}
@@ -424,14 +424,9 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
             )}
             <div className="pf-actions">
               {state.isHost ? (
-                <button
-                  type="button"
-                  className="pf-btn primary"
-                  onClick={() => accion("pr:start")}
-                  disabled={state.players.length < 2}
-                >
+                <Button onClick={() => accion("pr:start")} disabled={state.players.length < 2}>
                   {state.players.length < 2 ? "Esperando jugadores (mínimo 2)" : "Empezar partida"}
-                </button>
+                </Button>
               ) : (
                 <p>
                   Esperando a que <strong>{state.hostName || "quien creó la partida"}</strong> empiece…
@@ -453,7 +448,7 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
         <div className="pf-center">
           <section className="pf-card">
             <div style={{ fontSize: 54 }} aria-hidden="true">
-              🏆
+              <IconoEnLinea nombre="trofeo" />
             </div>
             <h2>¡Partida terminada!</h2>
             {lider && (
@@ -482,9 +477,7 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
               ))}
             </div>
             <div className="pf-actions">
-              <button type="button" className="pf-btn primary" onClick={onExit}>
-                Volver a juegos
-              </button>
+              <Button onClick={onExit}>Volver a juegos</Button>
             </div>
           </section>
         </div>
@@ -551,22 +544,21 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
       message={mensaje}
       actions={
         tengoTurno ? (
-          <button type="button" className="pf-btn" onClick={() => accion("pr:skip")}>
+          <Button variant="ghost" onClick={() => accion("pr:skip")}>
             Pasar turno (−1 vida)
-          </button>
+          </Button>
         ) : state.isHost && onlyWatches ? (
-          <button
-            type="button"
-            className="pf-btn"
-            onClick={() => window.confirm("¿Terminar la partida ahora?") && accion("pr:end")}
-          >
+          <Button variant="ghost" onClick={() => window.confirm("¿Terminar la partida ahora?") && accion("pr:end")}>
             Terminar partida
-          </button>
+          </Button>
         ) : null
       }
       side={
         <>
-          <h2>🏆 Clasificación</h2>
+          <h2>
+            <IconoEnLinea nombre="trofeo" />
+            Clasificación
+          </h2>
           {[...state.entities]
             .sort((a, b) => b.score - a.score || b.lives - a.lives)
             .map((e) => (

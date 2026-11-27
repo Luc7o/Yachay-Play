@@ -1,11 +1,13 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { socket } from "../socket";
+import React, { useEffect, useMemo, useState } from "react";
+import { IconoEnLinea } from "../campusUi";
 import { emitConTiempoLimite } from "../cw/helpers";
+import { useSalaEnVivo } from "../salaEnVivo";
 import { Brand } from "../Brand";
 import { aplicarOp } from "./model";
 import { Editor } from "./Editor";
 import { SlideView } from "./SlideView";
 import { ThemeToggle } from "./ThemeToggle";
+import { Button } from "../ui";
 
 const hace = (ms) => {
   const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
@@ -31,7 +33,6 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
   });
   const [decks, setDecks] = useState(() => new Map(initial.decks.map((d) => [d.key, d])));
   const [abierta, setAbierta] = useState(null); // deckKey que se está mirando en detalle
-  const [conectado, setConectado] = useState(socket.connected);
   const [, setTic] = useState(0);
   const [error, setError] = useState("");
 
@@ -40,70 +41,58 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
     return () => clearInterval(t);
   }, []);
 
-  useEffect(() => {
-    const cargar = (state) => {
-      setRoom({ name: state.name, task: state.task, status: state.status, locked: state.locked });
-      setDecks(new Map(state.decks.map((d) => [d.key, d])));
-    };
-    const onStudent = ({ student, deck }) =>
-      setDecks((prev) => {
-        const m = new Map(prev);
-        const actual = m.get(deck.key) || { ...deck, members: [] };
-        const members = actual.members
-          .filter((x) => x.id !== student.id)
-          .concat({ id: student.id, name: student.name, online: student.online, slideId: student.slideId });
-        m.set(deck.key, { ...actual, ...deck, deck: m.has(deck.key) ? actual.deck : deck.deck, members });
-        return m;
-      });
-    const onOp = ({ key, op }) =>
-      setDecks((prev) => {
-        const e = prev.get(key);
-        if (!e) return prev;
-        const m = new Map(prev);
-        m.set(key, { ...e, deck: aplicarOp(e.deck, op), updatedAt: Date.now() });
-        return m;
-      });
-    const onPresence = ({ id, deckKey, online, slideId }) =>
-      setDecks((prev) => {
-        const e = prev.get(deckKey);
-        if (!e) return prev;
-        const m = new Map(prev);
-        m.set(deckKey, { ...e, members: e.members.map((x) => (x.id === id ? { ...x, online, slideId } : x)) });
-        return m;
-      });
-    const onComment = ({ key, sid, comment }) =>
-      setDecks((prev) => {
-        const e = prev.get(key);
-        if (!e) return prev;
-        const m = new Map(prev);
-        m.set(key, { ...e, comments: { ...e.comments, [sid]: [...(e.comments[sid] || []), comment] } });
-        return m;
-      });
-    const onRoom = ({ locked, status }) => setRoom((r) => ({ ...r, locked, status }));
-    const volver = () => {
-      // tras una desconexión, pedimos todo otra vez
-      setConectado(true);
-      emitConTiempoLimite("ss:watch", { code }, (ack) => ack?.ok && cargar(ack.state));
-    };
-    const caer = () => setConectado(false);
+  const cargar = (state) => {
+    setRoom({ name: state.name, task: state.task, status: state.status, locked: state.locked });
+    setDecks(new Map(state.decks.map((d) => [d.key, d])));
+  };
+  const onStudent = ({ student, deck }) =>
+    setDecks((prev) => {
+      const m = new Map(prev);
+      const actual = m.get(deck.key) || { ...deck, members: [] };
+      const members = actual.members
+        .filter((x) => x.id !== student.id)
+        .concat({ id: student.id, name: student.name, online: student.online, slideId: student.slideId });
+      m.set(deck.key, { ...actual, ...deck, deck: m.has(deck.key) ? actual.deck : deck.deck, members });
+      return m;
+    });
+  const onOp = ({ key, op }) =>
+    setDecks((prev) => {
+      const e = prev.get(key);
+      if (!e) return prev;
+      const m = new Map(prev);
+      m.set(key, { ...e, deck: aplicarOp(e.deck, op), updatedAt: Date.now() });
+      return m;
+    });
+  const onPresence = ({ id, deckKey, online, slideId }) =>
+    setDecks((prev) => {
+      const e = prev.get(deckKey);
+      if (!e) return prev;
+      const m = new Map(prev);
+      m.set(deckKey, { ...e, members: e.members.map((x) => (x.id === id ? { ...x, online, slideId } : x)) });
+      return m;
+    });
+  const onComment = ({ key, sid, comment }) =>
+    setDecks((prev) => {
+      const e = prev.get(key);
+      if (!e) return prev;
+      const m = new Map(prev);
+      m.set(key, { ...e, comments: { ...e.comments, [sid]: [...(e.comments[sid] || []), comment] } });
+      return m;
+    });
+  const onRoom = ({ locked, status }) => setRoom((r) => ({ ...r, locked, status }));
 
-    socket.on("ss:student", onStudent);
-    socket.on("ss:op", onOp);
-    socket.on("ss:presence", onPresence);
-    socket.on("ss:comment", onComment);
-    socket.on("ss:room", onRoom);
-    socket.on("connect", volver);
-    socket.on("disconnect", caer);
-    return () => {
-      socket.off("ss:student", onStudent);
-      socket.off("ss:op", onOp);
-      socket.off("ss:presence", onPresence);
-      socket.off("ss:comment", onComment);
-      socket.off("ss:room", onRoom);
-      socket.off("connect", volver);
-      socket.off("disconnect", caer);
-    };
-  }, [code]);
+  // Tras una desconexión se pide todo otra vez.
+  const { conectado } = useSalaEnVivo({
+    clave: code,
+    eventos: {
+      "ss:student": onStudent,
+      "ss:op": onOp,
+      "ss:presence": onPresence,
+      "ss:comment": onComment,
+      "ss:room": onRoom,
+    },
+    alReconectar: () => emitConTiempoLimite("ss:watch", { code }, (ack) => ack?.ok && cargar(ack.state)),
+  });
 
   const lista = useMemo(() => [...decks.values()].sort((a, b) => a.name.localeCompare(b.name, "es")), [decks]);
   const enLinea = lista.reduce((n, d) => n + d.members.filter((m) => m.online).length, 0);
@@ -161,9 +150,9 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
           comments={entrada.comments}
           topLeft={
             <>
-              <button className="es-btn ghost" onClick={() => setAbierta(null)}>
+              <Button variant="ghost" size="sm" onClick={() => setAbierta(null)}>
                 ← Todas
-              </button>
+              </Button>
               <strong className="es-title">{entrada.name}</strong>
               <Miembros members={entrada.members} />
             </>
@@ -186,12 +175,13 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
         </div>
         <div className="es-top-r">
           <ThemeToggle />
-          <button className="es-btn ghost" onClick={onSalas}>
-            📋 Mis salas
-          </button>
-          <button className="es-btn ghost" onClick={onExit}>
+          <Button variant="ghost" size="sm" onClick={onSalas}>
+            <IconoEnLinea nombre="lista" />
+            Mis salas
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onExit}>
             ← Volver al inicio
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -230,30 +220,47 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
               {room.status === "closed" ? (
                 <>
                   <span className="es-chip warn">Sala cerrada</span>
-                  <button
-                    className="es-btn"
+                  <Button
+                    size="sm"
                     onClick={() => accion("ss:reopen")}
                     title="Los estudiantes podrán entrar y seguir editando con el mismo código"
                   >
                     ↺ Reabrir para continuar
-                  </button>
-                  <button className="es-btn danger" onClick={eliminar} disabled={eliminando}>
-                    {eliminando ? "Eliminando…" : "🗑 Eliminar sala"}
-                  </button>
+                  </Button>
+                  <Button variant="danger" size="sm" onClick={eliminar} disabled={eliminando}>
+                    {eliminando ? (
+                      "Eliminando…"
+                    ) : (
+                      <>
+                        <IconoEnLinea nombre="basura" />
+                        Eliminar sala
+                      </>
+                    )}
+                  </Button>
                 </>
               ) : (
                 <>
-                  <button className="es-btn" onClick={() => accion("ss:lock", { locked: !room.locked })}>
-                    {room.locked ? "🔓 Permitir editar" : "🔒 Bloquear edición"}
-                  </button>
-                  <button className="es-btn danger" onClick={cerrar}>
+                  <Button size="sm" onClick={() => accion("ss:lock", { locked: !room.locked })}>
+                    {room.locked ? (
+                      <>
+                        <IconoEnLinea nombre="abierto" />
+                        Permitir editar
+                      </>
+                    ) : (
+                      <>
+                        <IconoEnLinea nombre="candado" />
+                        Bloquear edición
+                      </>
+                    )}
+                  </Button>
+                  <Button variant="danger" size="sm" onClick={cerrar}>
                     ⏹ Cerrar sala
-                  </button>
+                  </Button>
                 </>
               )}
-              <button className="es-btn ghost" onClick={onNuevaSala}>
+              <Button variant="ghost" size="sm" onClick={onNuevaSala}>
                 Nueva sala
-              </button>
+              </Button>
             </div>
             {room.locked && room.status !== "closed" && (
               <span className="es-chip warn">Edición bloqueada: los estudiantes solo pueden mirar</span>
@@ -334,8 +341,8 @@ function Comentar({ onEnviar }) {
           setOk(false);
         }}
       />
-      <button
-        className="es-btn"
+      <Button
+        size="sm"
         disabled={!t.trim()}
         onClick={() => {
           onEnviar(t.trim());
@@ -344,7 +351,7 @@ function Comentar({ onEnviar }) {
         }}
       >
         Enviar comentario
-      </button>
+      </Button>
       {ok && <small className="es-muted">Enviado ✓ — el estudiante lo ve al instante.</small>}
     </div>
   );

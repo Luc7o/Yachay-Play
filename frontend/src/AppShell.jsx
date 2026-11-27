@@ -49,9 +49,7 @@ function Item({ it, active, onNavigate }) {
   );
 }
 
-// sheet: pantallas antiguas (configuración de partida) que solo tienen diseño claro;
-// se muestran sobre una hoja clara para que se lean también en modo oscuro.
-export function AppShell({ user, active, onNavigate, onLogout, buildVersion, sheet = false, children }) {
+export function AppShell({ user, active, onNavigate, onLogout, buildVersion, children }) {
   const esDocente = user.role === "docente";
   const items = esDocente ? NAV_DOCENTE : NAV_ESTUDIANTE;
   const iniciales = user.name
@@ -118,7 +116,7 @@ export function AppShell({ user, active, onNavigate, onLogout, buildVersion, she
               </p>
             }
           >
-            {sheet ? <div className="sh-sheet">{children}</div> : children}
+            {children}
           </Suspense>
         </main>
         {buildVersion && (

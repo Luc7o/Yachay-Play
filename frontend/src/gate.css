@@ -9,6 +9,7 @@
   --g-b: #00796f; /* …y su final */
   --g-hl: #7ff0d3; /* color del texto resaltado */
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: #f5f8fc;
   background-image: radial-gradient(#d9e5f2 1.4px, transparent 1.4px);
   background-size: 22px 22px;
@@ -23,9 +24,6 @@
   max-width: 1080px;
   margin: 0 auto;
   padding: 20px 24px 28px;
-}
-.gate-main .back-link {
-  padding-bottom: 14px;
 }
 
 /* ------------------------------- HERO ------------------------------- */
@@ -79,10 +77,7 @@
   text-wrap: balance;
 }
 .gate-hl {
-  background: linear-gradient(90deg, var(--g-hl), #fff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--cp-accent); /* resalte en color sólido (antes: texto con degradado) */
 }
 .gate-hero-text p {
   margin: 0 0 18px;
@@ -227,41 +222,6 @@
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
-.gate-card {
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  background: #fff;
-  border: 2px solid var(--navy-border);
-  border-radius: 22px;
-  padding: 28px 26px 24px;
-  box-shadow: 0 10px 26px #1438410f;
-  transition:
-    transform 0.16s ease,
-    box-shadow 0.16s ease,
-    border-color 0.16s ease;
-}
-.gate-card::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 6px;
-  background: var(--ca);
-}
-.gate-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--ca);
-  box-shadow: 0 18px 34px #14384124;
-}
-.gate-card:focus-within {
-  border-color: var(--ca);
-}
 .gate-card-login {
   --ca: var(--navy);
   --cs: var(--navy-soft);
@@ -278,12 +238,6 @@
   place-items: center;
   font-size: 34px;
   background: var(--cs);
-}
-.gate-card strong {
-  font-size: 23px;
-  font-weight: 900;
-  color: var(--navy);
-  margin-top: 4px;
 }
 .gate-card-desc {
   font-size: 14px;
@@ -828,9 +782,6 @@
   .gate-cards {
     grid-template-columns: 1fr;
   }
-  .gate-card {
-    padding: 24px 20px 20px;
-  }
   .gate-steps {
     grid-template-columns: 1fr;
   }
@@ -881,8 +832,5 @@
   }
   .pv-energy-bar i {
     animation: none;
-  }
-  .gate-card {
-    transition: none;
   }
 }

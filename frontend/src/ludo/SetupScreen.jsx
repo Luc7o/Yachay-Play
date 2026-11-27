@@ -1,4 +1,5 @@
 import { COLORS, TURN_ORDER } from "../constants";
+import { Button } from "../ui";
 
 // ============================================================================
 // LUDO · CREAR PARTIDA (docente) — diseño "Campus" (ver campusJuegos.css, "cfg2")
@@ -83,9 +84,9 @@ export function SetupScreen({
           <h1>Crear una partida</h1>
           <p>Configúrala en tres pasos y obtendrás un código de 6 dígitos para proyectar a tu clase.</p>
         </div>
-        <button type="button" className="cp-btn ghost" onClick={goHome}>
+        <Button variant="ghost" onClick={goHome}>
           Cancelar
-        </button>
+        </Button>
       </div>
 
       <div className="cfg2-grid">
@@ -212,14 +213,9 @@ export function SetupScreen({
               </p>
             )}
 
-            <button
-              type="button"
-              className="cp-btn primary lg cp-full"
-              disabled={!puedeCrear || creating}
-              onClick={createGame}
-            >
+            <Button size="lg" className="cp-full" disabled={!puedeCrear || creating} onClick={createGame}>
               {creating ? "Creando…" : "Crear partida"}
-            </button>
+            </Button>
             <p className="cp-help">
               Se generará un código de 6 dígitos para que tus estudiantes entren desde el celular.
             </p>

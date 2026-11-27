@@ -145,6 +145,100 @@ export const Icono = {
       <path d="M6 17h8M5.5 10.5l3-3 2 2 4-4" {...trazo} />
     </svg>
   ),
+  // --- íconos de interfaz (reemplazan a los emojis en botones y avisos) ---
+  persona: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <circle cx="10" cy="7" r="3.2" {...trazo} />
+      <path d="M3.8 17c.8-3.2 3.3-5 6.2-5s5.4 1.8 6.2 5" {...trazo} />
+    </svg>
+  ),
+  grupo: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <circle cx="7.5" cy="7.5" r="2.7" {...trazo} />
+      <circle cx="13.8" cy="8.3" r="2.2" {...trazo} />
+      <path d="M2.5 16.5c.6-2.7 2.6-4.3 5-4.3s4.4 1.6 5 4.3M13 12.4c2.2 0 3.9 1.3 4.5 3.6" {...trazo} />
+    </svg>
+  ),
+  trofeo: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path
+        d="M6 3.5h8v4a4 4 0 0 1-8 0zM6 5H3.5v1a3 3 0 0 0 3 3M14 5h2.5v1a3 3 0 0 1-3 3M10 11.5v3M7 17h6"
+        {...trazo}
+      />
+    </svg>
+  ),
+  rayo: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M11 2.5 4.5 11H10l-1 6.5L15.5 9H10z" {...trazo} />
+    </svg>
+  ),
+  lista: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <rect x="4" y="3.5" width="12" height="14" rx="2" {...trazo} />
+      <path d="M7.5 3.5V2.5h5v1M7 8h6M7 11h6M7 14h4" {...trazo} />
+    </svg>
+  ),
+  basura: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path
+        d="M3.5 5.5h13M8 5.5V3.5h4v2M5 5.5l.8 11a1.5 1.5 0 0 0 1.5 1.4h5.4a1.5 1.5 0 0 0 1.5-1.4l.8-11"
+        {...trazo}
+      />
+    </svg>
+  ),
+  candado: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <rect x="4" y="9" width="12" height="8.5" rx="2" {...trazo} />
+      <path d="M6.8 9V6.5a3.2 3.2 0 0 1 6.4 0V9" {...trazo} />
+    </svg>
+  ),
+  abierto: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <rect x="4" y="9" width="12" height="8.5" rx="2" {...trazo} />
+      <path d="M6.8 9V6.5a3.2 3.2 0 0 1 6.1-1.4" {...trazo} />
+    </svg>
+  ),
+  imagen: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <rect x="2.5" y="3.5" width="15" height="13" rx="2" {...trazo} />
+      <circle cx="7" cy="8" r="1.4" {...trazo} />
+      <path d="m3 15 4.5-4.5 3 3 2-2 4.5 4" {...trazo} />
+    </svg>
+  ),
+  alerta: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M10 3 2.5 16.5h15zM10 8v4M10 14.2v.1" {...trazo} />
+    </svg>
+  ),
+  microfono: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <rect x="7.5" y="2.5" width="5" height="9" rx="2.5" {...trazo} />
+      <path d="M4.5 9.5a5.5 5.5 0 0 0 11 0M10 15v2.5" {...trazo} />
+    </svg>
+  ),
+  lapiz: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M13.5 3.5 16.5 6.5 7 16H4v-3zM11.5 5.5l3 3" {...trazo} />
+    </svg>
+  ),
+  dados: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <rect x="3" y="3" width="10" height="10" rx="2" {...trazo} />
+      <path d="M13 7h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-2" {...trazo} />
+      <circle cx="6" cy="6" r=".6" fill="currentColor" />
+      <circle cx="10" cy="10" r=".6" fill="currentColor" />
+    </svg>
+  ),
+};
+
+// Ícono dentro de un texto o botón: mismo alto que la letra.
+export const IconoEnLinea = ({ nombre }) => {
+  const I = Icono[nombre];
+  return I ? (
+    <span className="ui-ico-inline">
+      <I />
+    </span>
+  ) : null;
 };
 
 export function Marca({ onClick, label = "YachayPlay, inicio" }) {

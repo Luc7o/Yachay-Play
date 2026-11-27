@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Marca, BotonTema } from "../campusUi";
+import { Button } from "../ui";
 
 // ============================================================================
 // CRUCIGRAMA · UNIRSE (estudiante) — diseño "Campus", como el ingreso de Ludo.
@@ -61,12 +62,12 @@ export function CwStudentJoin({ goHome, prefillName, onJoin, error, initialCode 
               {error}
             </p>
           )}
-          <button type="submit" className="cp-btn primary lg cp-full" disabled={!listo}>
+          <Button size="lg" className="cp-full" type="submit" disabled={!listo}>
             Entrar a competir
-          </button>
-          <button type="button" className="cp-btn quiet" onClick={goHome}>
+          </Button>
+          <Button variant="quiet" onClick={goHome}>
             ← Volver al inicio
-          </button>
+          </Button>
         </form>
       </main>
     </div>

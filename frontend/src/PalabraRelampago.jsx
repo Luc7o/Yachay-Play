@@ -296,7 +296,8 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
                 setMessage("");
               }}
             >
-              🌐 En línea
+              <IconoEnLinea nombre="codigo" />
+              En línea
             </button>
           </div>
           {mode === "individual" && (
@@ -375,13 +376,14 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
               onClick={() => setShowVocabulary((v) => !v)}
               aria-expanded={showVocabulary}
             >
-              📖 Diccionario: {BASE_COUNT.toLocaleString("es")} palabras base + {extraWords.length.toLocaleString("es")}{" "}
+              <IconoEnLinea nombre="libro" />
+              Diccionario: {BASE_COUNT.toLocaleString("es")} palabras base + {extraWords.length.toLocaleString("es")}{" "}
               personalizadas {showVocabulary ? "−" : "+"}
             </button>
           ) : (
             <p className="pr-small">
-              📖 Diccionario: {BASE_COUNT.toLocaleString("es")} palabras. Solo los docentes pueden agregar palabras
-              nuevas.
+              <IconoEnLinea nombre="libro" />
+              Diccionario: {BASE_COUNT.toLocaleString("es")} palabras. Solo los docentes pueden agregar palabras nuevas.
             </p>
           )}
           {canEditDictionary && showVocabulary && (

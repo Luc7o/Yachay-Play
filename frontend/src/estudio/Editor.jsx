@@ -800,7 +800,8 @@ export function Editor({
                 <SlideView slide={s} width={150} />
                 {comments[s.id]?.length > 0 && (
                   <span className="es-film-c" title="Tiene comentarios del docente">
-                    💬 {comments[s.id].length}
+                    <IconoEnLinea nombre="comentario" />
+                    {comments[s.id].length}
                   </span>
                 )}
               </button>
@@ -940,7 +941,10 @@ export function Editor({
         {/* Panel derecho */}
         <aside className="es-side">
           {typeof sidebar === "function" ? sidebar(slide) : sidebar}
-          <h3>💬 Comentarios del docente</h3>
+          <h3>
+            <IconoEnLinea nombre="comentario" />
+            Comentarios del docente
+          </h3>
           {coments.length === 0 ? (
             <p className="es-muted">Aún no hay comentarios en esta diapositiva.</p>
           ) : (

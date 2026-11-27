@@ -221,6 +221,50 @@ export const Icono = {
       <path d="M13.5 3.5 16.5 6.5 7 16H4v-3zM11.5 5.5l3 3" {...trazo} />
     </svg>
   ),
+  comentario: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M3.5 4.5h13v9h-7l-4 3v-3h-2z" {...trazo} />
+    </svg>
+  ),
+  ocultar: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M2.5 10s2.8-5 7.5-5 7.5 5 7.5 5-2.8 5-7.5 5-7.5-5-7.5-5zM3.5 16.5l13-13" {...trazo} />
+      <circle cx="10" cy="10" r="2.2" {...trazo} />
+    </svg>
+  ),
+  ver: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M2.5 10s2.8-5 7.5-5 7.5 5 7.5 5-2.8 5-7.5 5-7.5-5-7.5-5z" {...trazo} />
+      <circle cx="10" cy="10" r="2.2" {...trazo} />
+    </svg>
+  ),
+  ajustes: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <circle cx="10" cy="10" r="2.5" {...trazo} />
+      <path
+        d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"
+        {...trazo}
+      />
+    </svg>
+  ),
+  mezclar: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M3 6h3.5l7 8H17M3 14h3.5l2-2.3M11.5 8.3l2-2.3H17M15 4l2 2-2 2M15 12l2 2-2 2" {...trazo} />
+    </svg>
+  ),
+  repetir: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M4 9a6 6 0 0 1 10.5-3.5L16 7M16 3.5V7h-3.5M16 11a6 6 0 0 1-10.5 3.5L4 13M4 16.5V13h3.5" {...trazo} />
+    </svg>
+  ),
+  libro: () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path
+        d="M10 5.5c-1.8-1.3-4-1.7-6.5-1.5v11c2.5-.2 4.7.2 6.5 1.5 1.8-1.3 4-1.7 6.5-1.5V4c-2.5-.2-4.7.2-6.5 1.5zM10 5.5v11"
+        {...trazo}
+      />
+    </svg>
+  ),
   dados: () => (
     <svg viewBox="0 0 20 20" aria-hidden="true">
       <rect x="3" y="3" width="10" height="10" rx="2" {...trazo} />

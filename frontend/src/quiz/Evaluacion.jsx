@@ -557,7 +557,8 @@ function VistaDocente({ sala, onNueva }) {
           <div className="hr-row qz-acciones">
             {st.status === "question" && (
               <Button variant="ghost" size="lg" onClick={() => accion("qz:reveal")}>
-                👁 Mostrar respuesta
+                <IconoEnLinea nombre="ver" />
+                Mostrar respuesta
               </Button>
             )}
             <Button size="lg" onClick={() => accion("qz:next")}>

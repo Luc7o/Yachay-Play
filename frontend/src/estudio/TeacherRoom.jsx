@@ -300,7 +300,7 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
                     <Miembros members={d.members} />
                     <small>
                       {d.deck.slides.length} diapositiva{d.deck.slides.length === 1 ? "" : "s"} · {hace(d.updatedAt)}
-                      {nComent ? ` · 💬 ${nComent}` : ""}
+                      {nComent ? ` · ${nComent} ${nComent === 1 ? "comentario" : "comentarios"}` : ""}
                     </small>
                   </div>
                 </button>

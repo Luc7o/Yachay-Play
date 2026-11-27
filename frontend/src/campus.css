@@ -2117,3 +2117,7 @@
     grid-column: auto;
   }
 }
+/* Ícono solo dentro de un botón: sin el espacio que lo separa del texto */
+.ui-ico-inline:only-child {
+  margin-right: 0;
+}

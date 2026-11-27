@@ -750,7 +750,8 @@ export function Ruleta({ goHome }) {
 
                 <div className="hr-row">
                   <Button variant="ghost" size="sm" disabled={ocupada || pool.length < 2} onClick={mezclarLista}>
-                    🔀 Mezclar
+                    <IconoEnLinea nombre="mezclar" />
+                    Mezclar
                   </Button>
                   <Button variant="ghost" size="sm" disabled={ocupada || !hayCambios} onClick={restaurarLista}>
                     ↩️ Restaurar lista
@@ -999,7 +1000,8 @@ export function Ruleta({ goHome }) {
                     Copiar grupos
                   </Button>
                   <Button variant="ghost" size="sm" onClick={formarGrupos}>
-                    🔁 Volver a sortear
+                    <IconoEnLinea nombre="repetir" />
+                    Volver a sortear
                   </Button>
                 </div>
               </>

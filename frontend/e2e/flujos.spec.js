@@ -109,3 +109,61 @@ test("reconexión: si el estudiante pierde la red, vuelve a la sala y sigue juga
   await page.getByRole("button", { name: "Ver resultados" }).click();
   await expect(page.getByRole("table")).toContainText("Rosa Mamani");
 });
+
+test("Palabra en línea: dos estudiantes juegan en la sala que crea el docente", async ({ page, browser }) => {
+  await entrarComoDocente(page);
+  await page.goto("/#/app/juego/palabra");
+  await page.getByRole("button", { name: /En línea/ }).click();
+  await page.getByRole("button", { name: "Crear partida →" }).click();
+  const codigo = (await page.locator(".pf-bigcode").getAttribute("aria-label")).replace(/\D/g, "");
+  expect(codigo).toMatch(/^\d{6}$/);
+
+  // Dos estudiantes sin cuenta, cada uno en su navegador
+  const alumnos = [];
+  for (const nombre of ["Ana", "Beto"]) {
+    const alumno = await (await browser.newContext()).newPage();
+    await alumno.goto("/#/juego/palabra");
+    await alumno.getByRole("button", { name: /En línea/ }).click();
+    await alumno.getByPlaceholder("000000").fill(codigo);
+    await alumno.getByPlaceholder("Ej. Andrea").fill(nombre);
+    await alumno.getByRole("button", { name: /Unirme/ }).click();
+    await expect(alumno.getByText("SALA DE ESPERA")).toBeVisible();
+    alumnos.push(alumno);
+  }
+  await expect(page.locator(".pf-people")).toContainText("Ana");
+  await expect(page.locator(".pf-people")).toContainText("Beto");
+
+  await page.getByRole("button", { name: "Empezar partida" }).click();
+  // Los dos ven las mismas letras
+  const letras = await alumnos[0].locator(".pf-fragment").getAttribute("aria-label");
+  await expect(alumnos[1].locator(".pf-fragment")).toHaveAttribute("aria-label", letras);
+  // A quien le toca escribe; el servidor responde (acierto o motivo del rechazo)
+  const enTurno = (await alumnos[0]
+    .getByLabel(/Escribe una palabra/)
+    .isEnabled()
+    .catch(() => false))
+    ? alumnos[0]
+    : alumnos[1];
+  const campo = enTurno.getByLabel(/Escribe una palabra/);
+  await campo.fill("zzzz");
+  await campo.press("Enter");
+  await expect(enTurno.locator(".pf-msg")).not.toBeEmpty();
+});
+
+test("Presentaciones: el estudiante entra con el código y el docente ve su presentación", async ({ page, browser }) => {
+  await entrarComoDocente(page);
+  await page.goto("/#/app/juego/estudio");
+  await page.getByPlaceholder(/Exposición: modelos de regresión/).fill("Exposición de prueba");
+  await page.getByRole("button", { name: "Crear sala" }).click();
+  const codigo = (await page.locator(".es-code").getAttribute("aria-label")).replace(/\D/g, "");
+  expect(codigo).toMatch(/^\d{6}$/);
+
+  const alumno = await (await browser.newContext()).newPage();
+  await alumno.goto("/#/juego/estudio");
+  await alumno.getByPlaceholder("000000").fill(codigo);
+  await alumno.getByPlaceholder("Ej. Andrea").fill("Carla Huamán");
+  await alumno.getByRole("button", { name: "Entrar a crear" }).click();
+  await expect(alumno.getByText(/Carla Huamán|diapositiva/i).first()).toBeVisible();
+
+  await expect(page.locator("strong", { hasText: "Carla Huamán" })).toBeVisible();
+});

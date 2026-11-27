@@ -649,7 +649,7 @@ export function Cronometro({ goHome }) {
                 title="Ocultar controles (C)"
                 onClick={() => setLimpio(true)}
               >
-                🙈
+                <IconoEnLinea nombre="ocultar" />
               </button>
             </span>
           </div>
@@ -686,10 +686,10 @@ export function Cronometro({ goHome }) {
             title={estado === "idle" ? "Volver al inicio" : "Volver al inicio (el cronómetro sigue en una ventanita)"}
             onClick={irAlInicio}
           >
-            🏠
+            <IconoEnLinea nombre="inicio" />
           </button>
           <button aria-label="Mostrar controles" title="Mostrar controles (C)" onClick={() => setLimpio(false)}>
-            ⚙️
+            <IconoEnLinea nombre="ajustes" />
           </button>
         </div>
       )}

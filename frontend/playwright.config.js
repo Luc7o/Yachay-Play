@@ -12,6 +12,7 @@ const API = 4011;
 
 export default defineConfig({
   testDir: "./e2e",
+  testIgnore: "visual.spec.js", // la comparación visual va aparte (playwright.visual.config.js)
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false, // comparten la misma base de datos

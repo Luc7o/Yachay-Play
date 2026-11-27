@@ -43,48 +43,6 @@ body {
   font-weight: 900;
   color: #55657a;
 }
-.home-ref {
-  position: relative;
-  padding: 12px;
-  border: 2px solid;
-}
-.home-ref-rojo {
-  background: #fee2e2;
-  border-color: #ef4444;
-}
-.home-ref-verde {
-  background: #d1fae5;
-  border-color: #10b981;
-}
-.home-ref-amarillo {
-  background: #fef3c7;
-  border-color: #eab308;
-}
-.home-ref-azul {
-  background: #dbeafe;
-  border-color: #3b82f6;
-}
-.home-label {
-  text-align: center;
-  font-size: 11px;
-  font-weight: 900;
-  margin-bottom: 10px;
-}
-.home-slots-ref {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  width: 80%;
-  margin: auto;
-}
-.home-slot-ref {
-  background: #fff;
-  border: 3px solid;
-  border-radius: 50%;
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-}
 .board-piece {
   width: 22px;
   height: 22px;
@@ -173,12 +131,6 @@ body {
   }
   .history-row {
     grid-template-columns: 1fr 1fr;
-  }
-  .home-label {
-    font-size: 8px;
-  }
-  .home-slots-ref {
-    gap: 6px;
   }
   .board-piece {
     width: 17px;
@@ -1568,7 +1520,7 @@ html {
   background: #f8fffe !important;
   border-bottom: 1px solid #d4eae7 !important;
   color: #123b48 !important;
-  box-shadow: 0 2px 12px #13584a0b !important;
+  box-shadow: 0 2px 12px #13584a0b;
   min-height: 76px;
 }
 .ref-topbar .ref-brand p,

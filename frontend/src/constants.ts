@@ -5,7 +5,8 @@ export const COLORS = {
   azul: { name: "Azul", hex: "#3b82f6", soft: "#dbeafe" },
 };
 
-export const TURN_ORDER = ["rojo", "verde", "amarillo", "azul"];
+export type Equipo = "rojo" | "verde" | "amarillo" | "azul";
+export const TURN_ORDER: Equipo[] = ["rojo", "verde", "amarillo", "azul"];
 
 // Marca de versión visible en la pantalla de inicio (footer). Sirve para
 // confirmar de un vistazo si el navegador está sirviendo esta versión o una
@@ -14,5 +15,10 @@ export const BUILD_VERSION = "2026-09-24-1";
 
 // Duración total de la fase actual del turno (para dibujar las barras de tiempo).
 // Los valores fijos (2 s y 6 s) coinciden con ROLLING_SECONDS y RESULT_SECONDS del servidor.
-export const phaseTotal = (state) =>
-  ({ roll: state.rollSeconds, rolling: 2, question: state.answerTimeLimit, result: 6 })[state.turnPhase] || 20;
+export const phaseTotal = (state: { rollSeconds?: number; answerTimeLimit?: number; turnPhase?: string }): number =>
+  (
+    ({ roll: state.rollSeconds, rolling: 2, question: state.answerTimeLimit, result: 6 }) as Record<
+      string,
+      number | undefined
+    >
+  )[state.turnPhase ?? ""] || 20;

@@ -15,6 +15,11 @@
 
 // Devuelve cuántos sockets recibieron el estado. Si `io` no sabe `fetchSockets`
 // (p. ej. un io de prueba) no pasa nada: simplemente no hay eco en vivo.
+/**
+ * @param {any} io
+ * @param {string} salaSocket
+ * @param {{ evento: string, vista: (data: any) => unknown, pertenece?: (data: any) => boolean }} opciones
+ */
 export async function enviarVistas(io, salaSocket, { evento, vista, pertenece = () => true }) {
   let sockets;
   try {

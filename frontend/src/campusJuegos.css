@@ -452,14 +452,12 @@ body {
   margin: 0 0 4px;
   font-size: 16px;
 }
-.cfg2-howstep,
-.preview-step {
+.cfg2-howstep {
   display: flex;
   gap: 12px;
   align-items: flex-start;
 }
-.cfg2-howstep > b,
-.preview-step > b {
+.cfg2-howstep > b {
   width: 24px;
   height: 24px;
   flex: none;
@@ -472,14 +470,12 @@ body {
     600 12px "Space Grotesk",
     sans-serif;
 }
-.cfg2-howstep strong,
-.preview-step strong {
+.cfg2-howstep strong {
   display: block;
   font-size: 14px;
   color: var(--cp-ink);
 }
-.cfg2-howstep p,
-.preview-step p {
+.cfg2-howstep p {
   margin: 2px 0 0;
   font-size: 13px;
   line-height: 1.5;
@@ -2049,9 +2045,7 @@ body {
   border-color: var(--cp-accent) !important;
   color: var(--cp-on-accent) !important;
 }
-.hr-card,
-.hr-box,
-.hr-panel {
+.hr-card {
   border-radius: 14px !important;
   box-shadow: none !important;
 }
@@ -2096,8 +2090,7 @@ body {
   color: var(--cp-on-accent);
 }
 .es .es-card,
-.es .es-card-form,
-.es .es-panel {
+.es .es-card-form {
   border-radius: 14px !important;
   box-shadow: none !important;
 }

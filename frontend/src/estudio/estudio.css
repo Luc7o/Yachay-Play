@@ -72,9 +72,6 @@
 .es-top-r {
   justify-content: flex-end;
 }
-.es .brand-logo {
-  height: 30px;
-}
 .es .ref-brand {
   display: flex;
   align-items: center;

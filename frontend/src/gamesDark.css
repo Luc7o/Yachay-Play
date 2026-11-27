@@ -7,237 +7,107 @@
   color: #f2f4f6;
   color-scheme: dark;
 }
-:root[data-theme="dark"]
-  :is(.reference-theme, .student-page, .cw-play-page, .cfg-page, .join-page, .wait-page, .gate-page) {
+.cw-play-page,
+.gate-page) {
   background-color: #0f1114;
   color: #f5f6f7;
 }
-:root[data-theme="dark"] :is(.gate-page, .join-page, .cfg-page) {
+:root[data-theme="dark"] :is(.gate-page {
   background-image: radial-gradient(#292f37 1px, transparent 1px);
   background-size: 22px 22px;
 }
 /* Paneles y superficies */
-:root[data-theme="dark"]
-  :is(
-    .ref-board-panel,
-    .ref-card,
-    .setup-welcome,
-    .setup-preview,
-    .lobby-main,
-    .lobby-side,
-    .phone-card,
-    .cw-panel-card,
-    .cw-board-panel,
-    .cfg-card,
-    .cfg-side,
-    .join-card,
-    .wait-card,
-    .gate-card,
-    .cw-stat-card,
-    .cw-lobby-side,
-    .cw-code-box,
-    .cw-players-grid,
-    .cw-board-col,
-    .score-card,
-    .cw-rival,
-    .cw-activity-list,
-    .joined-summary,
-    .question-table,
-    .phone-screen
-  ) {
+.cw-panel-card,
+.cw-board-panel,
+.gate-card,
+.cw-stat-card,
+.cw-board-col,
+.cw-rival,
+.cw-activity-list,
+.question-table {
   background-color: #191c21;
   color: #f6f7f9;
   border-color: #303740;
   box-shadow: 0 8px 30px #00131b38;
 }
-:root[data-theme="dark"]
-  :is(
-    .setup-summary > div,
-    .connection-card,
-    .team-mini-grid > div,
-    .cw-lb-row,
-    .cw-clue-list li,
-    .cw-activity-scroll,
-    .cw-rivals,
-    .cw-players-grid li,
-    .cw-player-card,
-    .cw-clue-progress-row,
-    .cfg-team,
-    .cfg-summary,
-    .join-team,
-    .join-guide,
-    .join-teams,
-    .cw-mystats,
-    .joined-summary,
-    .phone-mini-field,
-    .cw-code-pill,
-    .join-code-box,
-    .ref-secondary,
-    .cw-btn-ghost
-  ) {
+.cw-lb-row,
+.cw-clue-list li,
+.cw-activity-scroll,
+.cw-rivals,
+.cw-clue-progress-row,
+.cw-mystats {
   background-color: #1e2228;
   color: #f6f7f8;
   border-color: #333a44;
 }
-/* Barra específica de Ludo */
-:root[data-theme="dark"] .ref-nav {
-  background: #16191d;
-  border-color: #303740;
-  box-shadow: none;
-}
-:root[data-theme="dark"] .ref-nav button {
-  color: #d2d5da;
-}
-:root[data-theme="dark"] .ref-nav button.active {
-  color: #70f4d7;
-  border-bottom-color: #50d8c0;
-}
-:root[data-theme="dark"] .ref-nav .student-toggle {
-  background: #1e2228;
-  color: #e6fcf9;
-  border-color: #39404b;
-}
 /* Texto auxiliar en las tarjetas (sin afectar letras sobre fichas de colores) */
-:root[data-theme="dark"]
-  :is(
-    .ref-card,
-    .setup-welcome,
-    .setup-preview,
-    .lobby-main,
-    .lobby-side,
-    .phone-card,
-    .cfg-page,
-    .join-page,
-    .cw-play-page,
-    .cw-teacher-live,
-    .cw-teacher-room,
-    .gate-page
+.cw-play-page,
+.cw-teacher-live,
+.gate-page
   )
-  :is(h1, h2, h3, h4, strong) {
+  :is(h1,
+h2,
+h3,
+h4,
+strong) {
   color: #f7f8f9;
 }
-:root[data-theme="dark"]
-  :is(
-    .field-label,
-    .setup-welcome > p,
-    .lobby-main > p,
-    .setup-summary span,
-    .preview-step p,
-    .join-code-box small,
-    .join-code-box span,
-    .status,
-    .projection-note,
-    .muted,
-    .eyebrow,
-    .empty-question,
-    .q-row > span small,
-    .score-card small,
-    .cw-board-sub,
-    .cw-clue-count,
-    .cw-join-url,
-    .gate-sub,
-    .cfg-note,
-    .join-hint,
-    .cw-activity-time,
-    .cw-players-empty,
-    .cw-side-title
+.status,
+.muted,
+.eyebrow,
+.q-row > span small,
+.cw-board-sub,
+.cw-clue-count,
+.gate-sub,
+.cw-activity-time,
+.cw-side-title
   ) {
   color: #c6c9cf;
 }
-:root[data-theme="dark"] :is(.team-setting, .q-row, .history-row, .cw-clue-list li, .cw-lb-row) {
+.q-row,
+.history-row,
+.cw-clue-list li,
+.cw-lb-row) {
   border-color: #2e353d;
 }
 /* Formularios, botones secundarios e inputs */
-:root[data-theme="dark"]
-  :is(.setup-main, .lobby-ref, .cfg-page, .join-page, .student-page, .cw-play-page, .reference-theme, .gate-page)
-  :is(input, textarea, select) {
+.cw-play-page,
+.gate-page)
+  :is(input,
+textarea,
+select) {
   background: #13161a;
   color: #f5fffe;
   border-color: #467784;
   color-scheme: dark;
 }
-:root[data-theme="dark"]
-  :is(.setup-main, .lobby-ref, .cfg-page, .join-page, .student-page, .cw-play-page, .reference-theme, .gate-page)
-  :is(input, textarea)::placeholder {
+.cw-play-page,
+.gate-page)
+  :is(input,
+textarea)::placeholder {
   color: #a2a7af;
 }
-:root[data-theme="dark"]
-  :is(.ref-secondary, .cw-btn-ghost, .cfg-page button:not(.cfg-create), .join-page button:not(.join-btn)) {
-  border-color: #39404b;
-  color: #e8fffb;
-}
-:root[data-theme="dark"] :is(.create-ref, .next-btn, .join-btn, .cfg-create) {
-  background: #00a898;
-  color: #0f1114;
-}
-:root[data-theme="dark"] :is(.create-ref, .next-btn, .join-btn, .cfg-create):hover {
-  background: #4ae1c9;
-}
-:root[data-theme="dark"] :is(button, input, textarea, select):focus-visible {
+:root[data-theme="dark"] :is(button,
+input,
+textarea,
+select):focus-visible {
   outline: 2px solid #8fa0f0;
   outline-offset: 3px;
-} /* acento Campus (antes turquesa) */
-/* Ludo: conserve la identidad de los 4 equipos y las celdas del tablero */
-:root[data-theme="dark"] :is(.answer-options button, .mobile-options button) {
-  background: #1d2127;
-  color: #f8f8f9;
-  border-color: #38404a;
-}
-:root[data-theme="dark"] :is(.answer-options button b, .mobile-options .opt-letter) {
-  background: #282e35;
-  color: #f4fffe;
-}
-:root[data-theme="dark"] :is(.answer-options button.ok, .mobile-options .mobile-correct) {
-  background: #124c40;
-  border-color: #31be92;
-  color: #eafff6;
-}
-:root[data-theme="dark"] :is(.answer-options button.bad, .mobile-options .mobile-wrong) {
-  background: #552e38;
-  border-color: #ef747c;
-  color: #fff2f4;
-}
-:root[data-theme="dark"] :is(.answer-options button.ok b, .mobile-options .mobile-correct .opt-letter) {
-  background: #17855e;
-  color: white;
-}
-:root[data-theme="dark"] :is(.answer-options button.bad b, .mobile-options .mobile-wrong .opt-letter) {
-  background: #b94051;
-  color: white;
-}
-:root[data-theme="dark"] :is(.answer-timer, .timer-badge, .preview-badge) {
-  background: #174b49;
-  color: #91ffe0;
-  border-color: #2d7770;
-}
-:root[data-theme="dark"] .dice-box {
-  background: #1d2127;
-  color: #fff;
-  border-color: #4a818c;
-}
-:root[data-theme="dark"] .score-card {
-  border-top-color: var(--orange);
-}
-:root[data-theme="dark"] .phone-mini-field {
-  background: #14171a;
-  color: #b7bcc2;
 }
 /* Crucigrama: bordes y casillas rellenadas en oscuro, las pistas siguen legibles */
-:root[data-theme="dark"] :is(.cw-play-page, .cw-teacher-live, .cw-teacher-room, .cw-board-live) {
+:root[data-theme="dark"] :is(.cw-play-page,
+.cw-teacher-live,
+.cw-board-live) {
   color: #f2f3f5;
 }
 :root[data-theme="dark"]
   :is(
     .cw-grid-wrap,
-    .cw-answer-bar,
-    .cw-leaderboard,
-    .cw-players-list,
-    .cw-panel-scroll,
-    .cw-lobby-tip,
-    .cw-teacher-win,
-    .cw-result-card,
-    .cw-clue-list,
-    .cw-clue-list-readonly
+.cw-answer-bar,
+.cw-leaderboard,
+.cw-panel-scroll,
+.cw-clue-list,
+.cw-clue-list-readonly
   ) {
   background: #181b20;
   color: #f4f5f7;
@@ -251,32 +121,29 @@
 :root[data-theme="dark"] .cw-cell.blank {
   background: #0c0e10;
 }
-:root[data-theme="dark"] .cw-cell :is(.cw-cell-letter, .cw-cell-num) {
+:root[data-theme="dark"] .cw-cell :is(.cw-cell-letter,
+.cw-cell-num) {
   color: #171a1f;
 }
-:root[data-theme="dark"] :is(.cw-lb-name, .cw-lb-rank, .cw-lb-score, .cw-bigtimer) {
+:root[data-theme="dark"] :is(.cw-lb-name,
+.cw-lb-rank,
+.cw-lb-score {
   color: #f0ffff;
-}
-:root[data-theme="dark"] .cw-bigtimer.urgent {
-  color: #ff8a95;
-}
-/* Indicadores de error y éxito accesibles en oscuro */
-:root[data-theme="dark"] :is(.join-error, .answer-result.result-bad) {
-  background: #4b2933;
-  color: #ffb4c0;
-  border-color: #a64f65;
-}
-:root[data-theme="dark"] :is(.answer-result.result-ok, .cw-player-ready) {
-  color: #7ff3c6;
 }
 /* Mantener textos claros cuando se colocan sobre tableros/placas claras */
 :root[data-theme="dark"]
-  :is(.home-ref, .home-slot-ref, .home-label, .ludo-board, .track-cell, .board-track, .goal-center) {
+  :is(.home-ref,
+.home-slot-ref,
+.home-label,
+.ludo-board {
   color: #1a1d22;
 }
 :root[data-theme="dark"]
-  :is(.home-ref, .home-slot-ref, .ludo-board, .track-cell, .board-track, .goal-center)
-  :is(span, b, strong) {
+  :is(.home-ref,
+.home-slot-ref,
+.ludo-board,
+b,
+strong) {
   color: inherit;
 }
 /* Puerta de entrada */
@@ -296,10 +163,4 @@
 }
 :root[data-theme="dark"] .gate-card p {
   color: #cbced3;
-}
-/* Ajustes de accesibilidad en móviles */
-@media (max-width: 650px) {
-  :root[data-theme="dark"] .ref-nav {
-    scrollbar-color: #39414c #16191d;
-  }
 }

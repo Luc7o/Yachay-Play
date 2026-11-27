@@ -25,133 +25,6 @@
   outline: 3px solid var(--primary2);
   outline-offset: 3px;
 }
-
-/* ---- encabezado ---- */
-.sh-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--nav);
-  border-bottom: 1px solid var(--line);
-}
-.sh-top {
-  max-width: 1380px;
-  margin: auto;
-  min-height: 83px;
-  display: flex;
-  gap: 26px;
-  align-items: center;
-  padding: 12px 30px;
-}
-.sh-logo {
-  border: 0;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-}
-.sh-logo img {
-  width: 177px;
-  height: auto;
-  display: block;
-  object-fit: contain;
-}
-.sh-logo-dark {
-  display: none !important;
-}
-:root[data-theme="dark"] .sh-logo-light {
-  display: none !important;
-}
-:root[data-theme="dark"] .sh-logo-dark {
-  display: block !important;
-}
-.sh-nav {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex: 1;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.sh-nav button {
-  border: 0;
-  border-radius: 100px;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-weight: 750;
-  padding: 12px 16px;
-  white-space: nowrap;
-  cursor: pointer;
-}
-.sh-nav button:hover {
-  background: var(--surface2);
-  color: var(--ink);
-}
-.sh-nav button.active {
-  background: var(--ink);
-  color: var(--bg);
-}
-.sh-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.sh-theme {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--ink);
-  padding: 10px 12px;
-  border-radius: 100px;
-  white-space: nowrap;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-}
-.sh-create {
-  background: var(--mint);
-  border: 0;
-  border-radius: 100px;
-  color: var(--btn-ink);
-  padding: 13px 20px;
-  font: inherit;
-  font-weight: 800;
-  white-space: nowrap;
-  cursor: pointer;
-}
-.sh-create:hover {
-  filter: brightness(0.96);
-}
-.sh-avatar {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: var(--avatar);
-  color: #fff;
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-}
-.sh-avatar.active {
-  box-shadow: 0 0 0 3px var(--primary2);
-}
-.sh-out {
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 750;
-  cursor: pointer;
-  padding: 8px 6px;
-  text-decoration: underline;
-}
 .sh-content {
   flex: 1;
   width: 100%;
@@ -234,40 +107,9 @@
 .sh-content .pfl-me {
   background: var(--surface2);
 }
-
-/* ---- tarjetas de la portada para visitantes (sin sesión) ---- */
-/* ---- pantallas medianas y celular ---- */
-@media (max-width: 1050px) {
-  .sh-top {
-    flex-wrap: wrap;
-  }
-  .sh-nav {
-    order: 3;
-    width: 100%;
-    flex-basis: 100%;
-  }
-}
 @media (max-width: 700px) {
-  .sh-top {
-    padding: 12px 17px;
-    gap: 10px;
-  }
   .sh-content {
     padding: 18px 15px 40px;
-  }
-  .sh-logo img {
-    width: 135px;
-  }
-  .sh-right {
-    margin-left: auto;
-    gap: 7px;
-  }
-  .sh-create,
-  .sh-theme-txt {
-    display: none;
-  }
-  .sh-theme {
-    padding: 9px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -275,50 +117,5 @@
   .shell {
     animation: none;
     transition: none;
-  }
-}
-
-/* Continuidad visual: cabecera privada con el mismo lenguaje de la portada pública. */
-.sh-top {
-  max-width: 1450px;
-  gap: 20px;
-}
-.sh-logo img {
-  width: 190px;
-  max-height: 54px;
-}
-.sh-nav button {
-  font-size: 14px;
-  color: var(--ink);
-  padding: 12px 14px;
-}
-.sh-nav button.active {
-  background: #006f70;
-  color: #fff;
-}
-.sh-nav button:hover:not(.active) {
-  background: var(--surface2);
-}
-.sh-create {
-  background: #00796f;
-  color: #fff;
-}
-.sh-create:hover {
-  background: #008477;
-}
-:root[data-theme="dark"] .sh-nav button.active {
-  background: #30bda9;
-  color: #0e0f12;
-}
-:root[data-theme="dark"] .sh-create {
-  background: #4ee1c6;
-  color: #101216;
-}
-@media (max-width: 1100px) {
-  .sh-top {
-    gap: 12px;
-  }
-  .sh-nav button {
-    padding: 10px;
   }
 }

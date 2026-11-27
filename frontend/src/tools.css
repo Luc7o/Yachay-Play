@@ -1,25 +1,3 @@
-/* enlaces nuevos del catálogo */
-.catalog-tool {
-  background: transparent;
-  border: 1px solid var(--navy-line);
-  color: #fff;
-  font-family: inherit;
-  font-weight: 800;
-  font-size: 13px;
-  border-radius: 999px;
-  padding: 7px 13px;
-  cursor: pointer;
-}
-.catalog-tool:hover {
-  background: var(--navy-light);
-}
-@media (max-width: 650px) {
-  .catalog-tool {
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-}
-
 /* ------------------------------ Perfil ------------------------------ */
 .pfl-head {
   display: flex;
@@ -177,12 +155,6 @@
   margin-top: 10px;
   line-height: 1.5;
 }
-.pfl-links {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 6px;
-}
 @media (max-width: 650px) {
   .pfl-head {
     padding: 16px;
@@ -195,20 +167,4 @@
   .pfl-info h1 {
     font-size: 20px;
   }
-}
-.user-chip-btn {
-  cursor: pointer;
-  font-family: inherit;
-  text-align: left;
-}
-.user-chip-btn:hover {
-  filter: brightness(1.12);
-}
-
-/* Herramientas para docentes en la portada */
-.catalog-grid-tools {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 40px 40px;
 }

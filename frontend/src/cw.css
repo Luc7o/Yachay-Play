@@ -1,20 +1,3 @@
-/* ==========================================================================
-   Crucigrama Relámpago en vivo: proyección del docente y celular del alumno
-   ========================================================================== */
-
-/* ---- DOCENTE (se proyecta en el salón) ---- */
-.cw-bigtimer {
-  margin: 8px 0 4px;
-  font-size: clamp(40px, 4.2vw, 68px);
-  line-height: 1;
-  font-weight: 900;
-  color: var(--navy);
-  font-variant-numeric: tabular-nums;
-}
-.cw-bigtimer.urgent {
-  color: #dc2626;
-  animation: cw-pulse 1s ease-in-out infinite;
-}
 @keyframes cw-pulse {
   50% {
     opacity: 0.55;
@@ -105,10 +88,5 @@
   }
   .cw-teacher-grid-row {
     grid-template-columns: 1fr;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cw-bigtimer.urgent {
-    animation: none;
   }
 }

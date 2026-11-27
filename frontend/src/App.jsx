@@ -1,4 +1,6 @@
 import { lazy, useEffect, useMemo, useRef, useState } from "react";
+import { Navigate, useBlocker, useLocation, useNavigate } from "react-router-dom";
+import { base, leerRuta } from "./rutas";
 import { api, getToken, setToken } from "./api";
 import { socket, reconnectSocket } from "./socket";
 import { AuthScreen } from "./AuthScreen";
@@ -45,48 +47,26 @@ function leerLocal(clave) {
   }
 }
 
-// Enlace del correo de recuperación: https://www.yachayplay.com/#/restablecer/<token>
-function leerTokenRestablecer() {
-  const m = window.location.hash.match(/^#\/restablecer\/([A-Za-z0-9_-]{20,100})$/);
-  return m ? m[1] : null;
-}
-
-// Enlace del correo de verificación: https://www.yachayplay.com/#/verificar/<token>
-function leerTokenVerificar() {
-  const m = window.location.hash.match(/^#\/verificar\/([A-Za-z0-9_-]{20,100})$/);
-  return m ? m[1] : null;
-}
-
-const JUEGOS_RUTA = ["ludo", "crucigrama", "palabra", "evaluacion", "estudio", "cronometro", "ruleta", "pizarra"];
-const RUTAS_PANEL = [
-  "inicio",
-  "juegos",
-  "herramientas",
-  "stats",
-  "questions",
-  "profile",
-  "planes",
-  "contacto",
-  "clases",
-];
-
 function App() {
   const [mode, setMode] = useState(() => leerLocal("ludo_mode") || null);
-  const [catalogGame, setCatalogGame] = useState(null); // juego elegido en el catálogo (null = ver catálogo)
-  const [seccion, setSeccion] = useState("inicio"); // inicio | juegos | herramientas (menú del docente)
-  const [toolPage, setToolPage] = useState(null); // null | "stats" | "questions" | "profile" | "clases" (pantallas del catálogo)
-  const [claseAbierta, setClaseAbierta] = useState(null); // id de la clase a mostrar al abrir "Mis clases"
+  // Qué pantalla se ve lo dice la ruta (ver rutas.js); aquí solo se lee.
+  const location = useLocation();
+  const navigate = useNavigate();
+  const ruta = useMemo(() => leerRuta(location.pathname), [location.pathname]);
+  const catalogGame = ruta.ludo ? "ludo" : ruta.juego;
+  const toolPage = ruta.pagina;
+  const claseAbierta = ruta.claseId;
+  const unirseHub = ruta.unirse;
+  // Última sección del panel visitada: a ella se vuelve al salir de un juego o herramienta.
+  const ultimaSeccionRef = useRef("inicio");
+  if (ruta.seccion) ultimaSeccionRef.current = ruta.seccion;
   const [codigoInicial, setCodigoInicial] = useState(""); // código para prellenar al entrar a un juego desde una clase
-  const [unirseHub, setUnirseHub] = useState(false); // pantalla "¿A qué te quieres unir?" (invitado / estudiante)
   const [nombreInvitado, setNombreInvitado] = useState(""); // nombre escrito en esa pantalla, para no pedirlo de nuevo
 
   // La ventanita del cronómetro (fuera de App) pide abrir su pantalla con este evento.
   // No se ofrece durante una partida de Ludo, para no sacar a nadie de ella sin querer.
   const abrirHerramientaRef = useRef(null);
-  abrirHerramientaRef.current = (id) => {
-    setToolPage(null);
-    selectGame(id);
-  };
+  abrirHerramientaRef.current = (id) => selectGame(id);
   useEffect(() => {
     const abrir = (e) => {
       if (e.detail) abrirHerramientaRef.current(e.detail);
@@ -101,18 +81,19 @@ function App() {
   // --- Cuenta: quién es el usuario y qué rol tiene (se elige una sola vez al registrarse) ---
   const [user, setUser] = useState(null); // { id, name, email, role: "docente" | "estudiante" }
   const [authReady, setAuthReady] = useState(() => !getToken()); // false mientras se valida la sesión guardada
-  const [authScreen, setAuthScreen] = useState(null); // null | "login" | "register"
+  const authScreen = ruta.auth || null; // "login" | "register" (#/entrar, #/registro)
+  const setAuthScreen = (t) => navigate(t === "login" ? "/entrar" : t === "register" ? "/registro" : "/");
   const [tab, setTab] = useState("game");
   const [selected, setSelected] = useState(null);
   const [bank, setBank] = useState([]);
   const [challenge2fa, setChallenge2fa] = useState(null); // 2.º paso del login (cuenta con 2FA)
-  const [olvide, setOlvide] = useState(false); // pantalla "¿Olvidaste tu contraseña?"
-  const [resetToken, setResetToken] = useState(leerTokenRestablecer); // viene del enlace del correo
-  const [verifyToken, setVerifyToken] = useState(leerTokenVerificar); // enlace de verificación de correo
+  const olvide = !!ruta.olvide; // #/olvide
+  // Enlaces del correo (#/restablecer/<token>, #/verificar/<token>): el token se guarda en memoria
+  // y se saca de la barra de direcciones apenas se lee.
+  const [resetToken, setResetToken] = useState(() => ruta.restablecer || null);
+  const [verifyToken, setVerifyToken] = useState(() => ruta.verificar || null);
   useEffect(() => {
-    // Sacamos el token de la barra de direcciones (queda solo en memoria).
-    if (resetToken || verifyToken)
-      window.history.replaceState(null, "", window.location.pathname + window.location.search + "#/inicio");
+    if (ruta.restablecer || ruta.verificar) navigate("/", { replace: true });
   }, []); // eslint-disable-line
 
   // --- Ingeniero: configuración inicial ---
@@ -172,8 +153,23 @@ function App() {
     const codeParam = params.get("code");
     const roleParam = params.get("role");
     if (codeParam) setJoinCode(codeParam);
-    if (roleParam === "student" && !mode) setMode("student");
+    if (roleParam === "student" && !mode) {
+      setMode("student");
+      navigate("/ludo", { replace: true });
+    }
   }, []); // eslint-disable-line
+
+  // Al abrir la app con una partida de Ludo guardada (o con el enlace ?role=student), se va a Ludo.
+  // Y con sesión, entrar a #/app/ludo directamente (recargar, flechas) elige el rol de la cuenta.
+  const ludoInicialRef = useRef(false);
+  useEffect(() => {
+    if (!authReady) return;
+    if (!ludoInicialRef.current) {
+      ludoInicialRef.current = true;
+      if (mode && !ruta.ludo) return navigate(`${base(user)}/ludo`, { replace: true });
+    }
+    if (ruta.ludo && !mode && user) chooseMode(user.role === "docente" ? "engineer" : "student");
+  }, [authReady, ruta.ludo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Banco de preguntas visible en el panel del docente (oficiales + las suyas, si hay sesión)
   useEffect(() => {
@@ -266,21 +262,18 @@ function App() {
   // "Unirme con código" / "Entrar como invitado": primero se elige a QUÉ se une (Ludo, Crucigrama,
   // Presentación, Evaluación), porque cada uno tiene sus propios códigos.
   function abrirUnirse(codigo = "") {
-    setCatalogGame(null);
-    setToolPage(null);
     setCodigoInicial(typeof codigo === "string" ? codigo : "");
-    setUnirseHub(true);
+    navigate(`${base(user)}/unirse`);
   }
   // Ya eligió: se abre la pantalla de unirse de ese juego, con el nombre (y el código, si lo había) puestos.
   function unirseA(juego, { code, name }) {
-    setUnirseHub(false);
     setNombreInvitado(name);
     setCodigoInicial(code);
     if (juego === "ludo") {
       setStudentName(name);
       setJoinCode(code);
-      setCatalogGame("ludo");
       chooseMode("student");
+      navigate(`${base(user)}/ludo`);
       return;
     }
     selectGame(juego);
@@ -292,12 +285,12 @@ function App() {
 
   // Borra lo que quedó de una partida anterior (no toca la sesión de la cuenta).
   function clearGameSession() {
+    salidaElegidaRef.current = true; // salir a propósito (botón o menú): sin pedir confirmación
     localStorage.removeItem("ludo_mode");
     localStorage.removeItem("ludo_player_id");
     localStorage.removeItem("ludo_player_key");
     localStorage.removeItem("ludo_game_code");
     localStorage.removeItem("ludo_engineer_code");
-    setUnirseHub(false);
     setMode(null);
     setServerState(null);
     setPlayerId(null);
@@ -309,7 +302,11 @@ function App() {
   // "Salir" / "Volver al inicio": deja la partida y vuelve al catálogo (la cuenta sigue abierta).
   function changeDevice() {
     clearGameSession();
-    setCatalogGame(null);
+    volverAlCatalogo();
+  }
+  // Sale de un juego o herramienta: con sesión, a la sección del panel de la que venía; sin sesión, a la portada.
+  function volverAlCatalogo() {
+    navigate(user ? `/app/${ultimaSeccionRef.current}` : "/");
   }
 
   // Elegir un juego en el catálogo. Con cuenta, el rol ya se conoce: se entra directo.
@@ -319,9 +316,9 @@ function App() {
     // hay que limpiarla ANTES de entrar a otro juego; si no, esa partida vieja
     // secuestra la pantalla sin importar qué juego se elija ahora.
     if (id !== "ludo" && mode) clearGameSession();
-    setCatalogGame(id);
     // Cada juego nuevo maneja su propio flujo (ver más abajo); solo Ludo usa "mode".
     if (user && id === "ludo") chooseMode(user.role === "docente" ? "engineer" : "student");
+    navigate(id === "ludo" ? `${base(user)}/ludo` : `${base(user)}/juego/${id}`);
   }
 
   function handleAuthSuccess({ token, user: u }) {
@@ -329,28 +326,30 @@ function App() {
     reconnectSocket(); // el servidor debe ver el token nuevo
     clearGameSession();
     setUser(u);
-    setAuthScreen(null);
-    // Al entrar al panel, limpiar la ruta pública previa sin recargar la aplicación.
-    if (window.location.hash) window.history.replaceState(null, "", window.location.pathname + window.location.search);
-    setToolPage(null);
-    setSeccion("inicio");
     window.dispatchEvent(new Event("yachay-auth-changed")); // para que el Asistente IA (fuera de App) se entere
-    if (catalogGame === "ludo") chooseMode(u.role === "docente" ? "engineer" : "student");
+    // Si eligió un juego antes de iniciar sesión, sigue en ese juego; si no, entra al inicio del panel.
+    if (juegoAntesDeEntrarRef.current === "ludo") {
+      chooseMode(u.role === "docente" ? "engineer" : "student");
+      navigate("/app/ludo", { replace: true });
+    } else if (juegoAntesDeEntrarRef.current)
+      navigate(`/app/juego/${juegoAntesDeEntrarRef.current}`, { replace: true });
+    else navigate("/app/inicio", { replace: true });
+    juegoAntesDeEntrarRef.current = null;
   }
 
   function logout() {
-    setToolPage(null);
     setToken(null);
     reconnectSocket();
     setUser(null);
     setStudentName("");
-    setAuthScreen(null);
-    // El botón de salir siempre regresa a la portada pública.
-    window.history.replaceState(null, "", window.location.pathname + window.location.search + "#/inicio");
     window.dispatchEvent(new Event("yachay-auth-changed")); // ídem: que el Asistente IA desaparezca al salir
-    changeDevice();
+    clearGameSession();
+    navigate("/inicio", { replace: true }); // el botón de salir siempre regresa a la portada pública
   }
 
+  const juegoAntesDeEntrarRef = useRef(null); // juego elegido sin sesión, para seguir en él al entrar
+  const saliendoDeLudoRef = useRef(false);
+  const salidaElegidaRef = useRef(false); // true mientras se sale de Ludo con un botón de la propia app
   const [creating, setCreating] = useState(false);
   async function createGame() {
     if (creating) return; // evita doble clic mientras se espera al servidor
@@ -444,72 +443,29 @@ function App() {
     return r;
   }, [serverState]);
 
-  // ---- Historial del navegador (flechas volver / avanzar) dentro del panel ----
-  // Cada pantalla del panel tiene su ruta (#/app/...). Al navegar se agrega al
-  // historial; al usar las flechas, la ruta de la URL se vuelve a aplicar.
-  const rutaPanel = !user
-    ? null
-    : toolPage
-      ? toolPage === "clases" && claseAbierta
-        ? `#/app/clases/${claseAbierta}`
-        : `#/app/${toolPage}`
-      : mode
-        ? "#/app/ludo"
-        : catalogGame
-          ? `#/app/juego/${catalogGame}`
-          : `#/app/${seccion}`;
-  const desdeHistorialRef = useRef(false);
-  // Al recargar con una ruta del panel (#/app/clases...), se abre esa pantalla.
-  const usuarioId = user?.id;
+  // Salir de una partida de Ludo en curso con las flechas del navegador: se pide confirmación.
+  const bloqueo = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      !salidaElegidaRef.current &&
+      !!mode &&
+      !!(engineerGameCode || studentGameCode) &&
+      leerRuta(currentLocation.pathname).ludo &&
+      !leerRuta(nextLocation.pathname).ludo,
+  );
   useEffect(() => {
-    if (!usuarioId || mode || !window.location.hash.startsWith("#/app/")) return;
-    const [, r, id] = window.location.hash.match(/^#\/app\/([a-z]+)(?:\/(.+))?$/) || [];
-    const valida =
-      r === "ludo" || r === "clases" || (r === "juego" && JUEGOS_RUTA.includes(id)) || (RUTAS_PANEL.includes(r) && !id);
-    if (valida) aplicarRutaRef.current?.(true);
-  }, [usuarioId]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (bloqueo.state !== "blocked") return;
+    if (window.confirm("¿Salir de la partida en curso?")) {
+      clearGameSession();
+      bloqueo.proceed();
+    } else bloqueo.reset();
+  }, [bloqueo]);
+  // Al dejar la ruta de Ludo (flechas, menú), se suelta la partida guardada.
   useEffect(() => {
-    if (!rutaPanel || verifyToken || resetToken) return;
-    if (desdeHistorialRef.current === "cargando") {
-      desdeHistorialRef.current = true; // la ruta cargada se aplica en el próximo render
-      return;
-    }
-    const desdeHistorial = desdeHistorialRef.current;
-    desdeHistorialRef.current = false;
-    if (window.location.hash === rutaPanel) return;
-    const url = window.location.pathname + window.location.search + rutaPanel;
-    // Primera ruta del panel, o corrección tras usar las flechas: se reemplaza (no se apila).
-    if (desdeHistorial || !window.location.hash.startsWith("#/app/")) window.history.replaceState(null, "", url);
-    else window.history.pushState(null, "", url);
-  }, [rutaPanel, verifyToken, resetToken]);
-  const aplicarRutaRef = useRef(null);
-  aplicarRutaRef.current = (alCargar = false) => {
-    if (!user || window.location.hash === rutaPanel) return;
-    // Salir de una partida de Ludo en curso con las flechas: se pide confirmación.
-    if (mode && (engineerGameCode || studentGameCode) && !window.confirm("¿Salir de la partida en curso?")) {
-      window.history.pushState(null, "", window.location.pathname + window.location.search + rutaPanel);
-      return;
-    }
-    desdeHistorialRef.current = alCargar ? "cargando" : true;
-    const [, a, b] = window.location.hash.match(/^#\/app\/([a-z]+)(?:\/(.+))?$/) || [];
-    if (a === "juego" && JUEGOS_RUTA.includes(b)) {
-      navegar("inicio");
-      selectGame(b);
-    } else if (a === "ludo") {
-      navegar("inicio");
-      selectGame("ludo");
-    } else if (a === "clases") {
-      navegar("clases");
-      if (b) setClaseAbierta(decodeURIComponent(b));
-    } else {
-      navegar(RUTAS_PANEL.includes(a) ? a : "inicio");
-    }
-  };
-  useEffect(() => {
-    const alCambiar = () => aplicarRutaRef.current?.();
-    window.addEventListener("popstate", alCambiar);
-    return () => window.removeEventListener("popstate", alCambiar);
-  }, []);
+    if (!ruta.ludo && mode && bloqueo.state === "unblocked" && authReady && saliendoDeLudoRef.current)
+      clearGameSession();
+    saliendoDeLudoRef.current = ruta.ludo;
+    salidaElegidaRef.current = false;
+  }, [ruta.ludo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---------------- Enrutamiento por pantallas ----------------
 
@@ -527,20 +483,16 @@ function App() {
   // Navegación del menú de arriba (la usan el inicio y todas las pantallas dentro del marco).
   const navegar = (id) => {
     clearGameSession();
-    setCatalogGame(null);
     limpiarClaseDestino(); // salir del flujo "lanzar desde una clase"
     setCodigoInicial("");
-    if (id === "clases") setClaseAbierta(null);
-    if (["stats", "questions", "profile", "planes", "contacto", "clases"].includes(id)) return setToolPage(id);
-    setToolPage(null);
     if (id === "join") return abrirUnirse();
-    setSeccion(id === "juegos" || id === "herramientas" ? id : "inicio");
+    if (["stats", "questions", "profile", "planes", "contacto", "clases"].includes(id)) return navigate(`/app/${id}`);
+    navigate(user ? `/app/${id === "juegos" || id === "herramientas" ? id : "inicio"}` : "/");
   };
   // ---- Clases ----
   // El docente lanza una actividad desde una clase: se recuerda la clase y se abre el juego.
   const lanzarEnClase = (clase, juego) => {
     clearGameSession();
-    setToolPage(null);
     setCodigoInicial("");
     setClaseDestino(clase);
     selectGame(juego);
@@ -548,11 +500,10 @@ function App() {
   // El estudiante entra a una actividad en vivo de su clase: se abre el juego con el código puesto.
   const entrarActividad = (a) => {
     clearGameSession();
-    setToolPage(null);
     if (a.kind === "ludo") {
       setJoinCode(a.code);
-      setCatalogGame(null);
       chooseMode("student");
+      navigate(`${base(user)}/ludo`);
       return;
     }
     setCodigoInicial(a.code);
@@ -560,10 +511,10 @@ function App() {
   };
   const abrirClase = (id) => {
     clearGameSession();
-    setCatalogGame(null);
-    setClaseAbierta(id);
-    setToolPage("clases");
+    navigate(`/app/clases/${encodeURIComponent(id)}`);
   };
+  const setClaseAbierta = (id) => navigate(id ? `/app/clases/${encodeURIComponent(id)}` : "/app/clases");
+  const setToolPage = (p) => navigate(`/app/${p}`);
 
   const enMenu = (activo, pagina) =>
     user ? (
@@ -592,7 +543,7 @@ function App() {
         token={resetToken}
         onDone={() => {
           setResetToken(null);
-          setAuthScreen("login");
+          navigate("/entrar", { replace: true });
         }}
       />
     );
@@ -611,20 +562,25 @@ function App() {
         />
       );
     }
-    if (olvide) return <ForgotPasswordScreen onBack={() => setOlvide(false)} />;
+    if (olvide) return <ForgotPasswordScreen onBack={() => navigate("/entrar")} />;
+    // Con sesión, la portada y las pantallas de cuenta llevan al panel; sin sesión, el panel lleva a la portada.
+    if (user && (ruta.portada || ruta.auth)) return <Navigate to="/app/inicio" replace />;
+    if (!user && ruta.enPanel) {
+      if (ruta.juego) return <Navigate to={`/juego/${ruta.juego}`} replace />;
+      if (ruta.unirse) return <Navigate to="/unirse" replace />;
+      return <Navigate to="/" replace />;
+    }
+    if (ruta.desconocida) return <Navigate to="/app/inicio" replace />;
     if (authScreen) {
       return (
         <AuthScreen
           tab={authScreen}
           setTab={setAuthScreen}
           onSuccess={handleAuthSuccess}
-          onForgot={() => setOlvide(true)}
+          onForgot={() => navigate("/olvide")}
           onNeeds2FA={setChallenge2fa}
-          onBack={() => setAuthScreen(null)}
-          onGuest={() => {
-            setAuthScreen(null);
-            abrirUnirse();
-          }}
+          onBack={() => navigate("/")}
+          onGuest={() => abrirUnirse()}
         />
       );
     }
@@ -671,7 +627,7 @@ function App() {
           initialCode={codigoInicial}
           initialName={nombreInvitado}
           onPick={unirseA}
-          onBack={() => setUnirseHub(false)}
+          onBack={volverAlCatalogo}
         />,
       );
     }
@@ -685,9 +641,15 @@ function App() {
           user={user}
           initialCode={codigoInicial}
           initialName={nombreInvitado}
-          goHome={() => setCatalogGame(null)}
-          onLogin={() => setAuthScreen("login")}
-          onRegister={() => setAuthScreen("register")}
+          goHome={volverAlCatalogo}
+          onLogin={() => {
+            juegoAntesDeEntrarRef.current = catalogGame;
+            setAuthScreen("login");
+          }}
+          onRegister={() => {
+            juegoAntesDeEntrarRef.current = catalogGame;
+            setAuthScreen("register");
+          }}
         />
       );
     }
@@ -697,16 +659,22 @@ function App() {
           user={user}
           initialCode={codigoInicial}
           initialName={nombreInvitado}
-          goHome={() => setCatalogGame(null)}
-          onLogin={() => setAuthScreen("login")}
-          onRegister={() => setAuthScreen("register")}
+          goHome={volverAlCatalogo}
+          onLogin={() => {
+            juegoAntesDeEntrarRef.current = catalogGame;
+            setAuthScreen("login");
+          }}
+          onRegister={() => {
+            juegoAntesDeEntrarRef.current = catalogGame;
+            setAuthScreen("register");
+          }}
         />
       );
     }
     if (catalogGame === "palabra")
       return (
         <PalabraRelampago
-          goHome={() => setCatalogGame(null)}
+          goHome={volverAlCatalogo}
           user={user}
           initialCode={codigoInicial}
           initialName={nombreInvitado}
@@ -720,9 +688,15 @@ function App() {
           initialCode={codigoInicial}
           initialName={nombreInvitado}
           startJoin={!!nombreInvitado}
-          onLogin={() => setAuthScreen("login")}
-          onRegister={() => setAuthScreen("register")}
-          goHome={() => setCatalogGame(null)}
+          onLogin={() => {
+            juegoAntesDeEntrarRef.current = catalogGame;
+            setAuthScreen("login");
+          }}
+          onRegister={() => {
+            juegoAntesDeEntrarRef.current = catalogGame;
+            setAuthScreen("register");
+          }}
+          goHome={volverAlCatalogo}
           frame={(pagina) => enMenu("juegos", pagina)}
         />
       );
@@ -739,13 +713,19 @@ function App() {
             }}
             buildVersion={BUILD_VERSION}
             user={user}
-            onLogin={() => setAuthScreen("login")}
-            onRegister={() => setAuthScreen("register")}
+            onLogin={() => {
+              juegoAntesDeEntrarRef.current = catalogGame;
+              setAuthScreen("login");
+            }}
+            onRegister={() => {
+              juegoAntesDeEntrarRef.current = catalogGame;
+              setAuthScreen("register");
+            }}
             onLogout={logout}
             onOpenStats={() => setToolPage("stats")}
             onOpenQuestions={() => setToolPage("questions")}
             onOpenProfile={() => setToolPage("profile")}
-            section={seccion}
+            section={ruta.seccion || "inicio"}
             onNavigate={navegar}
             onOpenClass={abrirClase}
             onEnterActivity={entrarActividad}
@@ -756,10 +736,16 @@ function App() {
     // Sin cuenta: se invita a iniciar sesión, crear cuenta o entrar como invitado
     return (
       <ChooserScreen
-        onLogin={() => setAuthScreen("login")}
-        onRegister={() => setAuthScreen("register")}
+        onLogin={() => {
+          juegoAntesDeEntrarRef.current = catalogGame;
+          setAuthScreen("login");
+        }}
+        onRegister={() => {
+          juegoAntesDeEntrarRef.current = catalogGame;
+          setAuthScreen("register");
+        }}
         onGuest={() => chooseMode("student")}
-        onBack={() => setCatalogGame(null)}
+        onBack={volverAlCatalogo}
       />
     );
   }

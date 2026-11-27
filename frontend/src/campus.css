@@ -33,15 +33,21 @@
   --avatar:var(--cp-accent); --shadow:none;
 }
 :root[data-theme="dark"]{
-  --cp-logo-bg:#2B3A7A; --cp-logo-fg:#F2A07B; --cp-terra:#F2A07B; --cp-gold:#E8C068;
-  --cp-bg:#0E1120; --cp-surface:#151A2E; --cp-surface2:#1C2340; --cp-ink:#EEF0F8; --cp-ink2:#C9CDE0;
-  --cp-muted:#9CA2BC; --cp-line:#252C47; --cp-line2:#323A5A;
-  --cp-accent:#8FA0F0; --cp-accent-hover:#B3BFF6; --cp-accent-soft:#1E2850; --cp-on-accent:#0E1120;
+  --cp-logo-bg:#2E3354; --cp-logo-fg:#F2A07B; --cp-terra:#F2A07B; --cp-gold:#E8C068;
+  --cp-bg:#111214; --cp-surface:#1A1B1F; --cp-surface2:#232429; --cp-ink:#F2F2F4; --cp-ink2:#CFD0D6;
+  --cp-muted:#9A9CA6; --cp-line:#2A2C31; --cp-line2:#383A41;
+  --cp-accent:#8FA0F0; --cp-accent-hover:#B3BFF6; --cp-accent-soft:#262940; --cp-on-accent:#111214;
   --cp-live:#F59E0B; --cp-live-ink:#FBBF5D; --cp-live-soft:#2E2210;
   --cp-danger:#F5A49A; --cp-danger-soft:#2B1715;
-  --cp-invert:#1C2340; --cp-on-invert:#EEF0F8; --cp-invert-muted:#9CA2BC; --cp-invert-accent:#F2A07B;
+  --cp-invert:#232429; --cp-on-invert:#F2F2F4; --cp-invert-muted:#9A9CA6; --cp-invert-accent:#F2A07B;
 
-  --primary2:#8FA0F0; --btn-ink:#0E1120; --hero2:#172147; --avatar:#8FA0F0;
+  --primary2:#8FA0F0; --btn-ink:#111214; --hero2:#172147; --avatar:#8FA0F0;
+  /* shell.css define estos tokens con su propio selector de modo oscuro (turquesa y gris);
+     se repiten aquí para que en oscuro también sigan la paleta Campus. */
+  --bg:var(--cp-bg); --surface:var(--cp-surface); --surface2:var(--cp-surface2); --ink:var(--cp-ink);
+  --muted:var(--cp-muted); --line:var(--cp-line);
+  --primary:var(--cp-accent); --mint:var(--cp-accent-soft); --hero:var(--cp-accent);
+  --nav:var(--cp-surface); --blue:#8FA0F0; --cyan:var(--cp-accent-soft); --shadow:none;
 }
 
 /* ---------------------------- primitivas ---------------------------- */
@@ -463,3 +469,98 @@
 .cp-tile-wrap{display:flex;flex-direction:column;gap:8px}
 .cp-tile-wrap .cp-tile{flex:1}
 .cp-tile-delete{align-self:flex-end}
+
+/* ===== Portada: ajustes de diseño ===== */
+/* Cuando el hero se apila (texto arriba, muestra abajo), el cóndor "posado" sobre la
+   tarjeta invadía el campo del código: se le deja su espacio encima de la muestra. */
+@media (max-width: 1023px){
+  .cp-hero{gap:40px}
+  .cp-hero-art{margin-top:64px}
+}
+@media (max-width: 900px){ .cp-hero-art{margin-top:44px} }
+/* El código de ejemplo ("482 913") no se parte en dos líneas en celulares */
+.cp-demo-meta strong{white-space:nowrap}
+@media (max-width: 420px){
+  .cp-demo-meta{gap:8px}
+  .cp-demo-meta div{padding:10px}
+  .cp-demo-meta .code{letter-spacing:.04em}
+}
+/* Actividades: 4 tarjetas -> 4 columnas en escritorio y 2x2 en tablet (sin tarjeta huérfana) */
+.cp-grid.cp-grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width: 1100px){ .cp-grid.cp-grid-4{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width: 560px){ .cp-grid.cp-grid-4{grid-template-columns:1fr} }
+/* Cabecera pública en celular: si los botones bajan a otra fila, ocupan el ancho completo */
+@media (max-width: 640px){
+  .cp-pubauth{flex:1 1 100%;margin-left:0}
+  .cp-pubauth .cp-btn{flex:1}
+}
+/* "Tres pasos": 3 columnas o 1, nunca 2 + 1 suelta */
+.cp-grid.cp-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width: 760px){ .cp-grid.cp-grid-3{grid-template-columns:1fr} }
+/* Tablet: sin espacio para el menú de secciones, la cabecera queda en una sola fila */
+@media (max-width: 900px){
+  .cp-pubnav{display:none}
+  .cp-pubauth{margin-left:auto}
+}
+/* Los enlaces del menú (#juegos, #docentes...) no quedan debajo de la cabecera fija */
+.cp-landing section[id],.cp-landing [id^="cp-"]{scroll-margin-top:76px}
+
+/* Planes / Ayuda: mismo encabezado que el resto de pantallas del panel (antes: título enorme y más aire) */
+.cp-shell .sh-content .ip-page{padding:0 0 40px;min-height:0}
+.cp-shell .sh-content .ip-kicker{display:block;font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--cp-muted)}
+.cp-shell .sh-content .ip-page h1{font-size:32px;margin:6px 0 9px}
+.cp-shell .sh-content .ip-lead{font-size:15px;margin:0;color:var(--cp-ink2)}
+.cp-shell .sh-content .ip-grid{margin-top:28px;gap:16px}
+.cp-shell .sh-content .ip-grid article{padding:24px}
+.cp-shell .sh-content .ip-grid article>span{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--cp-muted)}
+.cp-shell .sh-content .ip-grid h2{font-size:20px;margin:8px 0}
+
+/* ========================================================================
+   COLOR POR ACTIVIDAD
+   Cada juego y herramienta tiene su tono (--tono). En modo claro son tonos
+   oscuros (texto legible sobre blanco); en oscuro, versiones claras.
+   El fondo de la app sigue sobrio: el color va en íconos, enlaces y bordes.
+   ======================================================================== */
+.tono-ludo{--tono:#C2410C}       /* coral */
+.tono-palabra{--tono:#A16207}    /* ámbar */
+.tono-cronometro{--tono:#15803D} /* verde */
+.tono-pizarra{--tono:#0E7490}    /* cian */
+.tono-crucigrama{--tono:#1D4ED8} /* azul */
+.tono-ruleta{--tono:#6D28D9}     /* violeta */
+.tono-evaluacion{--tono:#BE185D} /* rosa */
+.tono-estudio{--tono:#3B4BB8}    /* índigo */
+:root[data-theme="dark"] .tono-ludo{--tono:#FB8A5E}
+:root[data-theme="dark"] .tono-palabra{--tono:#F5B544}
+:root[data-theme="dark"] .tono-cronometro{--tono:#5FD38D}
+:root[data-theme="dark"] .tono-pizarra{--tono:#4CC9E6}
+:root[data-theme="dark"] .tono-crucigrama{--tono:#7AA7FF}
+:root[data-theme="dark"] .tono-ruleta{--tono:#B49BFF}
+:root[data-theme="dark"] .tono-evaluacion{--tono:#F37AB6}
+:root[data-theme="dark"] .tono-estudio{--tono:#8FA0F0}
+
+[class*="tono-"] .cp-ico,.cp-ico[class*="tono-"]{background:var(--tono);color:#fff;box-shadow:0 6px 14px -6px var(--tono)}
+:root[data-theme="dark"] [class*="tono-"] .cp-ico,:root[data-theme="dark"] .cp-ico[class*="tono-"]{color:#0E1120}
+.cp-tile[class*="tono-"]{background:linear-gradient(160deg,color-mix(in srgb,var(--tono) 12%,var(--cp-surface)) 0,var(--cp-surface) 60%)}
+.cp-tile[class*="tono-"]:hover:not(:disabled),.cp-game[class*="tono-"]:hover{border-color:color-mix(in srgb,var(--tono) 60%,var(--cp-line))}
+.cp-tile[class*="tono-"] .cp-tile-cta{color:var(--tono)}
+.cp-game[class*="tono-"]{transition:border-color .15s}
+.cp-tile[class*="tono-"] .cp-ico,.cp-game[class*="tono-"] .cp-ico{transition:transform .2s cubic-bezier(.2,.9,.3,1.2)}
+.cp-tile[class*="tono-"]:hover:not(:disabled) .cp-ico,.cp-game[class*="tono-"]:hover .cp-ico{transform:scale(1.08) rotate(-4deg)}
+@media (prefers-reduced-motion: reduce){.cp-tile .cp-ico,.cp-game .cp-ico{transition:none!important;transform:none!important}}
+
+/* Banda "Lanza una actividad" y llamado final de la portada: índigo -> terracota de la marca */
+.cp-band:not(.cp-band-live){background:linear-gradient(115deg,#1E2A5A 0%,#3A2F6B 55%,#8C3A2A 100%)}
+:root[data-theme="dark"] .cp-band:not(.cp-band-live){background:linear-gradient(115deg,#232429 0%,#2A2733 55%,#5A2C22 100%)}
+.cp-cta{background:linear-gradient(115deg,#1E2A5A 0%,#3A2F6B 50%,#B4471F 100%);color:#EEF0F8}
+.cp-cta h2{color:#EEF0F8}
+.cp-cta .cp-btn{background:#F2A07B;color:#1E2A5A}
+.cp-cta .cp-btn:hover{background:#F7B898}
+
+/* Estadísticas y perfil: cada número con su color */
+.sh-content .tl-cards>.tl-card:nth-child(4n+1) strong{color:var(--cp-terra)}
+.sh-content .tl-cards>.tl-card:nth-child(4n+2) strong{color:#1D4ED8}
+.sh-content .tl-cards>.tl-card:nth-child(4n+3) strong{color:#15803D}
+.sh-content .tl-cards>.tl-card:nth-child(4n+4) strong{color:#6D28D9}
+:root[data-theme="dark"] .sh-content .tl-cards>.tl-card:nth-child(4n+2) strong{color:#7AA7FF}
+:root[data-theme="dark"] .sh-content .tl-cards>.tl-card:nth-child(4n+3) strong{color:#5FD38D}
+:root[data-theme="dark"] .sh-content .tl-cards>.tl-card:nth-child(4n+4) strong{color:#B49BFF}

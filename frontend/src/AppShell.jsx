@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import "./shell.css";
 import { Icono, Marca, BotonTema } from "./campusUi";
 
@@ -105,7 +105,12 @@ export function AppShell({ user, active, onNavigate, onLogout, buildVersion, she
       </aside>
 
       <div className="cp-main">
-        <main className="sh-content">{sheet ? <div className="sh-sheet">{children}</div> : children}</main>
+        <main className="sh-content">
+          {/* Las pantallas que se cargan bajo demanda esperan aquí dentro: el menú lateral no desaparece. */}
+          <Suspense fallback={<p className="cp-muted" role="status" aria-live="polite">Cargando…</p>}>
+            {sheet ? <div className="sh-sheet">{children}</div> : children}
+          </Suspense>
+        </main>
         {buildVersion && (
           <footer className="build-mark">
             YachayPlay · Build {buildVersion} · <a href="/politica-de-privacidad.html" target="_blank" rel="noopener noreferrer">Privacidad</a> · <a href="/terminos-y-condiciones.html" target="_blank" rel="noopener noreferrer">Términos</a>

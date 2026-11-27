@@ -126,7 +126,7 @@
 .sh-content .tl-btn.ghost:hover{background:var(--surface2)}
 .sh-content .tl-link{color:var(--primary)}
 .sh-content .tl-link.danger{color:#dc2626}
-.sh-content .tl-form input[type=text],.sh-content .tl-form select,.sh-content .tl-form textarea{background:var(--bg);color:var(--ink);border-color:var(--line);border-radius:12px}
+.sh-content .tl-form input[type=text],.sh-content .tl-form input[type=password],.sh-content .tl-form select,.sh-content .tl-form textarea{background:var(--bg);color:var(--ink);border-color:var(--line);border-radius:12px}
 .sh-content .tl-x{background:var(--surface2);color:var(--muted)}
 .sh-content .tl-tab{background:var(--surface);color:var(--ink);border-color:var(--line)}
 .sh-content .tl-tab.on{background:var(--primary2);color:#093d40;border-color:var(--primary2)}

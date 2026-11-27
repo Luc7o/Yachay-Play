@@ -33,13 +33,16 @@
 .tl-loading{padding:50px;text-align:center;color:#55657a}
 /* formulario de preguntas */
 .tl-form label{display:block;font-size:11px;font-weight:800;color:#475569;margin:12px 0 5px}
-.tl-form input[type=text],.tl-form select,.tl-form textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;font-family:inherit;font-size:13px}
+.tl-form input[type=text],.tl-form input[type=password],.tl-form select,.tl-form textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;font-family:inherit;font-size:13px}
 .tl-form textarea{min-height:76px;resize:vertical}
 .tl-opt{display:grid;grid-template-columns:24px 1fr 30px;gap:8px;align-items:center;margin-bottom:7px}
 .tl-opt input[type=radio]{accent-color:var(--navy);width:18px;height:18px}
 .tl-x{border:0;background:#F0FAF8;border-radius:8px;height:34px;cursor:pointer;font-weight:900;color:#55657a}
 .tl-x:hover{background:#fee2e2;color:#b91c1c}
-.tl-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.tl-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:flex-end}
+/* Un campo dentro de la fila de botones (p. ej. la contraseña al activar el 2FA) se estira y queda alineado con el botón */
+.tl-actions>label{flex:1 1 200px;margin:0}
+.tl-actions>label input{margin-top:5px}
 .tl-btn{border:0;border-radius:9px;background:var(--navy);color:#fff;padding:11px 16px;font-weight:800;cursor:pointer;font-family:inherit;font-size:13px}
 .tl-btn:hover{background:var(--navy-dark)}
 .tl-btn:disabled{opacity:.5;cursor:not-allowed}

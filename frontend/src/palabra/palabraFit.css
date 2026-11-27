@@ -1,15 +1,15 @@
 /* Pantalla de juego de Palabra Relámpago: ocupa toda la ventana y se adapta a ella. */
 .pf-stage{
-  --pf-bg:#0b2530;--pf-surface:#12333f;--pf-line:#2a5360;--pf-ink:#eaf8f6;--pf-muted:#9fc3c7;
-  --pf-accent:#53e8cf;--pf-accent-ink:#06302c;--pf-bad:#ff7a93;--pf-good:#6ff2c8;--pf-clock:clamp(88px,22vh,190px);
+  --pf-bg:#111214;--pf-surface:#1A1B1F;--pf-line:#383A41;--pf-ink:#F2F2F4;--pf-muted:#9A9CA6;
+  --pf-accent:#8FA0F0;--pf-accent-ink:#111214;--pf-bad:#F5A49A;--pf-good:#8FD3A8;--pf-clock:clamp(88px,22vh,190px);
   position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;box-sizing:border-box;
-  height:100vh;height:100dvh;background:radial-gradient(circle at 50% 42%,#14414a 0,var(--pf-bg) 62%);
+  height:100vh;height:100dvh;background:radial-gradient(circle at 50% 42%,#232429 0,var(--pf-bg) 62%);
   color:var(--pf-ink);font-family:inherit;overflow:hidden;
 }
 .pf-stage.pf-day{
-  --pf-bg:#eefbf8;--pf-surface:#ffffff;--pf-line:#bfe3dc;--pf-ink:#0f3a45;--pf-muted:#4f7a80;
-  --pf-accent:#00796f;--pf-accent-ink:#fff;--pf-bad:#c93358;--pf-good:#00806f;
-  background:radial-gradient(circle at 50% 42%,#cdf3ea 0,var(--pf-bg) 62%);
+  --pf-bg:#F7F5F0;--pf-surface:#FFFFFF;--pf-line:#E4E2DC;--pf-ink:#161A2E;--pf-muted:#5C6178;
+  --pf-accent:#1E2A5A;--pf-accent-ink:#fff;--pf-bad:#B42318;--pf-good:#2E7D4F;
+  background:var(--pf-bg);
 }
 .pf-stage *{box-sizing:border-box}
 .pf-bar{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px clamp(12px,2vw,24px);border-bottom:1px solid var(--pf-line)}
@@ -108,3 +108,5 @@
   .pf-status,.pf-actions .pf-btn.pf-hide-short{display:none}
 }
 @media(prefers-reduced-motion:reduce){.pf-clock.pf-low,.pf-clock.pf-boom{animation:none}.pf-ring{transition:none}}
+/* La indicación cabe entera en el campo (antes se cortaba "...pulsa Ente") */
+.pf-entry input::placeholder{font-size:.62em;font-weight:600}

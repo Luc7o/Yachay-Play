@@ -47,6 +47,13 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = '',
     try { window.localStorage.setItem('yp_theme', next); } catch { /* Almacenamiento opcional */ }
     setUiTheme(next);
   };
+  // Sigue el tema de <html>: dentro del panel lo cambia el botón del menú lateral, no uno propio.
+  useEffect(() => {
+    const raiz = document.documentElement;
+    const obs = new MutationObserver(() => setUiTheme(raiz.dataset.theme || 'dark'));
+    obs.observe(raiz, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => obs.disconnect();
+  }, []);
   useEffect(() => {
     const nombre = (initialName || user?.name || '').trim();
     if (initialCode && nombre) { setOnline({ code: initialCode, name: nombre, host: false, hostPlays: true }); setScreen('online'); }
@@ -141,7 +148,7 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = '',
   };
   const content=<div className={`pr-page pr-fullscreen ${uiTheme === 'dark' ? 'pr-night' : 'pr-day'}`}>
 
-    <header className="pr-top"><div><span className="pr-kicker">YACHAYPLAY · JUEGO DE PALABRAS</span><h1><span className="pr-heading-bomb" aria-hidden="true">💣</span> Palabra Relámpago</h1><p>Encuentra las letras en cualquier parte de una palabra antes de que termine tu turno.</p></div><div className="pr-top-actions"><button type="button" className="pr-theme-switch" onClick={toggleUiTheme} aria-label={uiTheme==='dark'?'Cambiar a modo claro':'Cambiar a modo oscuro'}>{uiTheme==='dark'?'☀ Modo claro':'☾ Modo oscuro'}</button><button type="button" className="pr-back" onClick={goHome}>← Volver a juegos</button></div></header>
+    <header className="pr-top"><div><span className="pr-kicker">YACHAYPLAY · JUEGO DE PALABRAS</span><h1>Palabra Relámpago</h1><p>Encuentra las letras en cualquier parte de una palabra antes de que termine tu turno.</p></div><div className="pr-top-actions">{!frame && <button type="button" className="pr-theme-switch" onClick={toggleUiTheme} aria-label={uiTheme==='dark'?'Cambiar a modo claro':'Cambiar a modo oscuro'}>{uiTheme==='dark'?'☀ Modo claro':'☾ Modo oscuro'}</button>}<button type="button" className="pr-back" onClick={goHome}>← Volver a juegos</button></div></header>
     {phase==='setup'&&<section className="pr-panel pr-setup">
       <div className="pr-burst">CA <span>→</span> BO<strong>CA</strong>DO</div><h2>Elige cómo jugar</h2><p>Solo contra el reloj, por equipos en una misma pantalla, o en línea con tus compañeros, cada quien desde su dispositivo.</p>
       <div className="pr-mode" role="group" aria-label="Modalidad"><button type="button" className={mode==='individual'?'chosen':''} onClick={()=>{setMode('individual');setMessage('')}}>👤 Individual</button><button type="button" className={mode==='team'?'chosen':''} onClick={()=>{setMode('team');setMessage('')}}>👥 Equipos (una pantalla)</button><button type="button" className={mode==='online'?'chosen':''} onClick={()=>{setMode('online');setMessage('')}}>🌐 En línea</button></div>

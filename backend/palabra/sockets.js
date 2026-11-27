@@ -2,7 +2,20 @@
 // SOCKET.IO DE "PALABRA RELÁMPAGO" (eventos "pr:*")
 // Cada sala es una room de Socket.IO llamada `pr:<código>`.
 // ============================================================================
-import { getRoom, addPlayer, removePlayer, setTeam, start, end, submit, skip, setTyping, tick, publicState, rooms } from "./engine.js";
+import {
+  getRoom,
+  addPlayer,
+  removePlayer,
+  setTeam,
+  start,
+  end,
+  submit,
+  skip,
+  setTyping,
+  tick,
+  publicState,
+  rooms,
+} from "./engine.js";
 
 const key = (code) => `pr:${code}`;
 const esAnfitrion = (socket, room) => !!socket.data.user && !!room.ownerId && socket.data.user.id === room.ownerId;
@@ -104,6 +117,7 @@ export function attachPalabraSocket(io, socket) {
   socket.on("pr:typing", ({ text } = {}) => {
     const room = getRoom(socket.data.prCode);
     if (!room || !socket.data.prPlayerId) return;
-    if (setTyping(room, socket.data.prPlayerId, text)) socket.to(key(room.code)).emit("pr:typing", { n: room.turn.n, text: room.typing });
+    if (setTyping(room, socket.data.prPlayerId, text))
+      socket.to(key(room.code)).emit("pr:typing", { n: room.turn.n, text: room.typing });
   });
 }

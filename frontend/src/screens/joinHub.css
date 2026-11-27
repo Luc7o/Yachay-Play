@@ -1,18 +1,110 @@
 /* Pantalla "¿A qué te quieres unir?" (JoinHub.jsx). Clases con prefijo jh- para no chocar con otras. */
-.jh-wrap{width:100%;max-width:520px}
-.jh-card{background:var(--cp-surface);border:1px solid var(--cp-line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:18px;color:var(--cp-ink)}
-.jh-card h1{margin:4px 0 0;font-size:28px;line-height:1.1}
-.jh-lead{margin:8px 0 0;font-size:15px;line-height:1.5;color:var(--cp-ink2)}
-.jh-code{margin:10px 0 0;font-size:13px;color:var(--cp-muted)}
-.jh-code strong{font:600 15px var(--cp-display);letter-spacing:.12em;color:var(--cp-ink)}
-.jh-label{display:block;margin-bottom:8px;font-size:13px;font-weight:600;color:var(--cp-ink2)}
-.jh-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
-.jh-opt{display:flex;align-items:center;gap:14px;width:100%;box-sizing:border-box;text-align:left;padding:14px;border:1px solid var(--cp-line2);border-radius:12px;background:var(--cp-surface);color:var(--cp-ink);font:inherit;cursor:pointer;transition:border-color .15s,box-shadow .15s,opacity .15s}
-.jh-opt:hover{border-color:var(--cp-accent);box-shadow:0 0 0 3px var(--cp-accent-soft)}
-.jh-opt[aria-disabled="true"]{opacity:.6}
-.jh-ico{width:42px;height:42px;flex:none;border-radius:10px;display:grid;place-items:center;background:var(--cp-accent-soft);color:var(--cp-accent)}
-.jh-ico svg{width:22px;height:22px}
-.jh-txt{min-width:0}
-.jh-txt strong{display:block;font:600 15px var(--cp-display)}
-.jh-txt small{display:block;margin-top:2px;font-size:13px;line-height:1.4;color:var(--cp-muted)}
-.jh-arrow{margin-left:auto;color:var(--cp-muted);font-size:18px}
+.jh-wrap {
+  width: 100%;
+  max-width: 520px;
+}
+.jh-card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: var(--cp-ink);
+}
+.jh-card h1 {
+  margin: 4px 0 0;
+  font-size: 28px;
+  line-height: 1.1;
+}
+.jh-lead {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--cp-ink2);
+}
+.jh-code {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--cp-muted);
+}
+.jh-code strong {
+  font: 600 15px var(--cp-display);
+  letter-spacing: 0.12em;
+  color: var(--cp-ink);
+}
+.jh-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cp-ink2);
+}
+.jh-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.jh-opt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  padding: 14px;
+  border: 1px solid var(--cp-line2);
+  border-radius: 12px;
+  background: var(--cp-surface);
+  color: var(--cp-ink);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    opacity 0.15s;
+}
+.jh-opt:hover {
+  border-color: var(--cp-accent);
+  box-shadow: 0 0 0 3px var(--cp-accent-soft);
+}
+.jh-opt[aria-disabled="true"] {
+  opacity: 0.6;
+}
+.jh-ico {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+}
+.jh-ico svg {
+  width: 22px;
+  height: 22px;
+}
+.jh-txt {
+  min-width: 0;
+}
+.jh-txt strong {
+  display: block;
+  font: 600 15px var(--cp-display);
+}
+.jh-txt small {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--cp-muted);
+}
+.jh-arrow {
+  margin-left: auto;
+  color: var(--cp-muted);
+  font-size: 18px;
+}

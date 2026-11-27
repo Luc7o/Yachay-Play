@@ -35,12 +35,16 @@ export function CronometroMini() {
   return (
     <div className="cm" data-estado={visual} role="group" aria-label="Cronómetro en curso">
       <button className="cm-main" onClick={abrir} title="Volver al cronómetro">
-        <span className="cm-time" role="timer" aria-live="off">{formatoTiempo(c.restante)}</span>
+        <span className="cm-time" role="timer" aria-live="off">
+          {formatoTiempo(c.restante)}
+        </span>
         <span className="cm-info">
           <span className="cm-act">{c.actividad.trim() || "Cronómetro de actividad"}</span>
           <span className="cm-sub">{estadoTxt} · toca para abrir</span>
         </span>
-        <i className="cm-bar" aria-hidden="true"><b style={{ width: `${prop * 100}%` }} /></i>
+        <i className="cm-bar" aria-hidden="true">
+          <b style={{ width: `${prop * 100}%` }} />
+        </i>
       </button>
       <div className="cm-ctrl">
         {c.estado !== "done" && (
@@ -52,7 +56,13 @@ export function CronometroMini() {
             {c.estado === "running" ? "⏸" : "▶"}
           </button>
         )}
-        <button aria-label="Cerrar cronómetro" title="Cerrar y detener el cronómetro" onClick={() => cronometro.reiniciar()}>✕</button>
+        <button
+          aria-label="Cerrar cronómetro"
+          title="Cerrar y detener el cronómetro"
+          onClick={() => cronometro.reiniciar()}
+        >
+          ✕
+        </button>
       </div>
     </div>
   );

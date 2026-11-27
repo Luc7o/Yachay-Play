@@ -48,8 +48,8 @@ export class ErrorBoundary extends React.Component {
             <span style={styles.icon}>⚠️</span>
             <h1 style={styles.h1}>Algo salió mal</h1>
             <p style={styles.p}>
-              La aplicación encontró un error y no pudo seguir. Este mensaje reemplaza lo que antes
-              era una pantalla en blanco, para que sepamos qué pasó.
+              La aplicación encontró un error y no pudo seguir. Este mensaje reemplaza lo que antes era una pantalla en
+              blanco, para que sepamos qué pasó.
             </p>
             <pre style={styles.pre}>{String(this.state.error?.message || this.state.error)}</pre>
             <button style={styles.btn} onClick={this.handleReset}>
@@ -64,11 +64,44 @@ export class ErrorBoundary extends React.Component {
 }
 
 const styles = {
-  wrap: { minHeight: "100vh", display: "grid", placeItems: "center", background: "#f0faf8", padding: 20, fontFamily: "system-ui, sans-serif" },
-  card: { maxWidth: 480, background: "#fff", border: "1px solid #fecaca", borderRadius: 16, padding: 28, textAlign: "center", boxShadow: "0 12px 30px #0f172a1a" },
+  wrap: {
+    minHeight: "100vh",
+    display: "grid",
+    placeItems: "center",
+    background: "#f0faf8",
+    padding: 20,
+    fontFamily: "system-ui, sans-serif",
+  },
+  card: {
+    maxWidth: 480,
+    background: "#fff",
+    border: "1px solid #fecaca",
+    borderRadius: 16,
+    padding: 28,
+    textAlign: "center",
+    boxShadow: "0 12px 30px #0f172a1a",
+  },
   icon: { fontSize: 40 },
   h1: { margin: "10px 0", color: "#b91c1c" },
   p: { color: "#475569", fontSize: 13, lineHeight: 1.6 },
-  pre: { background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: 12, fontSize: 11, color: "#991b1b", textAlign: "left", overflowX: "auto", margin: "14px 0" },
-  btn: { border: 0, borderRadius: 9, background: "#1E2A5A", color: "#fff", padding: "12px 18px", fontWeight: 800, cursor: "pointer" },
+  pre: {
+    background: "#fef2f2",
+    border: "1px solid #fecaca",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 11,
+    color: "#991b1b",
+    textAlign: "left",
+    overflowX: "auto",
+    margin: "14px 0",
+  },
+  btn: {
+    border: 0,
+    borderRadius: 9,
+    background: "#1E2A5A",
+    color: "#fff",
+    padding: "12px 18px",
+    fontWeight: 800,
+    cursor: "pointer",
+  },
 };

@@ -47,7 +47,9 @@ export function GameGate({
           {subtitle && <span className="gate2-sub">{subtitle}</span>}
           <div className="cp-pubauth" style={{ marginLeft: "auto" }}>
             <BotonTema />
-            <button type="button" className="cp-btn quiet" onClick={onBack}>← Volver</button>
+            <button type="button" className="cp-btn quiet" onClick={onBack}>
+              ← Volver
+            </button>
           </div>
         </div>
       </header>
@@ -56,12 +58,18 @@ export function GameGate({
         {/* ------------------------------ HERO ------------------------------ */}
         <section className="cp-wrap cp-hero gate2-hero" aria-labelledby="gate2-t">
           <div className="cp-hero-copy">
-            <span className="cp-eyebrow accent" style={{ alignSelf: "flex-start" }}>{sinEmoji(eyebrow)}</span>
+            <span className="cp-eyebrow accent" style={{ alignSelf: "flex-start" }}>
+              {sinEmoji(eyebrow)}
+            </span>
             <h1 id="gate2-t">{title}</h1>
             <p className="cp-hero-lead">{description}</p>
             {tags.length > 0 && (
               <ul className="gate2-tags">
-                {tags.map((t) => <li key={t} className="cp-chip">{sinEmoji(t)}</li>)}
+                {tags.map((t) => (
+                  <li key={t} className="cp-chip">
+                    {sinEmoji(t)}
+                  </li>
+                ))}
               </ul>
             )}
             {stats.length > 0 && (
@@ -91,20 +99,37 @@ export function GameGate({
               <div className="cp-card gate2-card">
                 <strong>Ya tengo cuenta</strong>
                 <p>Inicia sesión y entrarás directo a tu panel.</p>
-                <ul>{loginPoints.map((pt) => <li key={pt}>{pt}</li>)}</ul>
-                <button type="button" className="cp-btn primary" onClick={onLogin}>Iniciar sesión</button>
+                <ul>
+                  {loginPoints.map((pt) => (
+                    <li key={pt}>{pt}</li>
+                  ))}
+                </ul>
+                <button type="button" className="cp-btn primary" onClick={onLogin}>
+                  Iniciar sesión
+                </button>
               </div>
               <div className="cp-card gate2-card">
                 <strong>Soy nuevo</strong>
                 <p>Crea tu cuenta gratis y empieza a jugar.</p>
-                <ul>{registerPoints.map((pt) => <li key={pt}>{pt}</li>)}</ul>
-                <button type="button" className="cp-btn ghost" onClick={onRegister}>Crear cuenta</button>
+                <ul>
+                  {registerPoints.map((pt) => (
+                    <li key={pt}>{pt}</li>
+                  ))}
+                </ul>
+                <button type="button" className="cp-btn ghost" onClick={onRegister}>
+                  Crear cuenta
+                </button>
               </div>
               <div className="cp-card gate2-card">
                 <strong>{guestText}</strong>
                 <p>Entra sin cuenta con los 6 dígitos que proyecta tu docente.</p>
-                <ul><li>No necesitas registrarte</li><li>La partida no queda en un historial</li></ul>
-                <button type="button" className="cp-btn ghost" onClick={onGuest}>Entrar como invitado</button>
+                <ul>
+                  <li>No necesitas registrarte</li>
+                  <li>La partida no queda en un historial</li>
+                </ul>
+                <button type="button" className="cp-btn ghost" onClick={onGuest}>
+                  Entrar como invitado
+                </button>
               </div>
             </div>
           </div>
@@ -114,7 +139,9 @@ export function GameGate({
         {steps.length > 0 && (
           <section className="cp-section" aria-labelledby="gate2-pasos">
             <div className="cp-wrap">
-              <div className="cp-section-head"><h2 id="gate2-pasos">{stepsTitle}</h2></div>
+              <div className="cp-section-head">
+                <h2 id="gate2-pasos">{stepsTitle}</h2>
+              </div>
               <ol className="ch-steps">
                 {steps.map((st, k) => (
                   <li key={st.t} className="cp-card cp-step">
@@ -128,11 +155,19 @@ export function GameGate({
           </section>
         )}
 
-        {extra && <section className="cp-section alt gate2-extra"><div className="cp-wrap">{extra}</div></section>}
+        {extra && (
+          <section className="cp-section alt gate2-extra">
+            <div className="cp-wrap">{extra}</div>
+          </section>
+        )}
       </main>
 
       {footer && (
-        <footer className="cp-foot"><div className="cp-wrap"><span>{footer}</span></div></footer>
+        <footer className="cp-foot">
+          <div className="cp-wrap">
+            <span>{footer}</span>
+          </div>
+        </footer>
       )}
     </div>
   );
@@ -168,7 +203,9 @@ export function LudoPreview() {
         <span className="pv-goal">META</span>
       </div>
       <div className="pv-bar">
-        <span className="pv-dice" aria-hidden="true">6</span>
+        <span className="pv-dice" aria-hidden="true">
+          6
+        </span>
         <span>
           <b>¡Responde y avanza!</b>
           <small>Solo avanzas si aciertas</small>
@@ -181,9 +218,19 @@ export function LudoPreview() {
 // Mini crucigrama con las palabras RADIO, VAPOR y MOTOR (que sí están en el banco del juego).
 // [fila, columna, letra, número de pista, ¿ya escrita?]
 const CW_CELDAS = [
-  [2, 0, "R", 1, 1], [2, 1, "A", 0, 1], [2, 2, "D", 0, 1], [2, 3, "I", 0, 1], [2, 4, "O", 0, 1],
-  [1, 1, "V", 2, 1], [3, 1, "P", 0, 1], [4, 1, "O", 0, 0], [5, 1, "R", 0, 0],
-  [1, 4, "M", 3, 1], [3, 4, "T", 0, 0], [4, 4, "O", 0, 0], [5, 4, "R", 0, 0],
+  [2, 0, "R", 1, 1],
+  [2, 1, "A", 0, 1],
+  [2, 2, "D", 0, 1],
+  [2, 3, "I", 0, 1],
+  [2, 4, "O", 0, 1],
+  [1, 1, "V", 2, 1],
+  [3, 1, "P", 0, 1],
+  [4, 1, "O", 0, 0],
+  [5, 1, "R", 0, 0],
+  [1, 4, "M", 3, 1],
+  [3, 4, "T", 0, 0],
+  [4, 4, "O", 0, 0],
+  [5, 4, "R", 0, 0],
 ];
 const CW_ACTIVA = "4-1"; // la casilla que "se está escribiendo"
 
@@ -203,17 +250,21 @@ export function CrosswordPreview() {
         <span key={`${r}-${c}`} className={"pv-cell" + (escrita ? " on" : "") + (activa ? " hot" : "")}>
           {num > 0 && <em>{num}</em>}
           {escrita ? <b style={{ "--d": `${0.25 + orden++ * 0.13}s` }}>{letra}</b> : null}
-        </span>
+        </span>,
       );
     }
   }
   return (
     <div className="pv-cw">
       <div className="pv-cw-board">{celdas}</div>
-      <p className="pv-clue"><b>2 ↓</b> Máquina de Watt que impulsó la industria</p>
+      <p className="pv-clue">
+        <b>2 ↓</b> Máquina de Watt que impulsó la industria
+      </p>
       <div className="pv-energy">
         <span>Energía</span>
-        <span className="pv-energy-bar"><i /></span>
+        <span className="pv-energy-bar">
+          <i />
+        </span>
       </div>
     </div>
   );
@@ -256,7 +307,7 @@ export function CrosswordSabotagesExtra() {
       <div className="gate-sabs">
         {SABOTAJES.map((s) => (
           <div key={s.name} className="gate-sab">
-                        <strong>{s.name}</strong>
+            <strong>{s.name}</strong>
             <p>{s.text}</p>
             <span className="gate-sab-cost">{s.cost} de energía</span>
           </div>

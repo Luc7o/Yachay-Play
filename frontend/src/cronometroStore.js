@@ -42,7 +42,8 @@ function sonidoActivo() {
 }
 function pitidos() {
   if (!sonidoActivo()) return;
-  for (let i = 0; i < PITIDO.veces; i++) nota(PITIDO.hz, 0.05 + i * (PITIDO.duracion + PITIDO.pausa), PITIDO.duracion, 0.5);
+  for (let i = 0; i < PITIDO.veces; i++)
+    nota(PITIDO.hz, 0.05 + i * (PITIDO.duracion + PITIDO.pausa), PITIDO.duracion, 0.5);
 }
 
 function revisar() {
@@ -102,7 +103,11 @@ const suscribir = (f) => {
   return () => oyentes.delete(f);
 };
 export function useCronometro() {
-  return useSyncExternalStore(suscribir, () => s, () => s);
+  return useSyncExternalStore(
+    suscribir,
+    () => s,
+    () => s,
+  );
 }
 
 const pad = (n) => (n < 10 ? "0" : "") + n;

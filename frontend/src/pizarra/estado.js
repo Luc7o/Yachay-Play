@@ -16,7 +16,11 @@ export function cargar() {
       .map((p) => {
         const f = fondoDe(p.fondo);
         // los trazos "auto" de versiones anteriores se fijan al color que se veía en esa página
-        return { id: p.id || uid(), fondo: f.id, objs: p.objs.map((o) => (o && o.color === "auto" ? { ...o, color: colorReal("auto", f.oscuro) } : o)) };
+        return {
+          id: p.id || uid(),
+          fondo: f.id,
+          objs: p.objs.map((o) => (o && o.color === "auto" ? { ...o, color: colorReal("auto", f.oscuro) } : o)),
+        };
       });
     if (!paginas.length) return base;
     return {

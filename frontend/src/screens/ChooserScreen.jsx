@@ -8,8 +8,16 @@ export function ChooserScreen({ onLogin, onRegister, onGuest, onBack }) {
   const pasos = [
     { n: 1, t: "El docente crea la partida", d: "Elige cuántos equipos juegan y los tiempos, y proyecta el código." },
     { n: 2, t: "Los estudiantes se unen", d: "Cada uno entra desde su celular con el código y elige su equipo." },
-    { n: 3, t: "Lanzan el dado y responden", d: "El equipo en turno lanza el dado y contesta antes de que acabe el tiempo." },
-    { n: 4, t: "Acierta y avanza", d: "Si aciertan, la ficha avanza lo que marcó el dado. Gana quien llega primero a la meta." },
+    {
+      n: 3,
+      t: "Lanzan el dado y responden",
+      d: "El equipo en turno lanza el dado y contesta antes de que acabe el tiempo.",
+    },
+    {
+      n: 4,
+      t: "Acierta y avanza",
+      d: "Si aciertan, la ficha avanza lo que marcó el dado. Gana quien llega primero a la meta.",
+    },
   ];
   const Ludo = Icono.ludo;
   return (
@@ -19,18 +27,25 @@ export function ChooserScreen({ onLogin, onRegister, onGuest, onBack }) {
           <Marca onClick={onBack} label="Volver al inicio de YachayPlay" />
           <div className="cp-pubauth" style={{ marginLeft: "auto" }}>
             <BotonTema />
-            <button type="button" className="cp-btn quiet" onClick={onBack}>← Volver</button>
+            <button type="button" className="cp-btn quiet" onClick={onBack}>
+              ← Volver
+            </button>
           </div>
         </div>
       </header>
 
       <main className="cp-wrap ch-main">
         <section className="ch-intro">
-          <span className="cp-ico ch-ico"><Ludo /></span>
+          <span className="cp-ico ch-ico">
+            <Ludo />
+          </span>
           <div>
             <span className="cp-eyebrow accent">Juego · Ludo por equipos</span>
             <h1>Avanza por el tablero respondiendo preguntas</h1>
-            <p>Un Ludo en tiempo real para la clase: los equipos compiten por llegar a la meta, pero solo avanzan cuando aciertan.</p>
+            <p>
+              Un Ludo en tiempo real para la clase: los equipos compiten por llegar a la meta, pero solo avanzan cuando
+              aciertan.
+            </p>
             <ul className="ch-tags">
               <li className="cp-chip">2 a 4 equipos</li>
               <li className="cp-chip">Desde el celular</li>
@@ -72,7 +87,9 @@ export function ChooserScreen({ onLogin, onRegister, onGuest, onBack }) {
       </main>
 
       <footer className="cp-foot">
-        <div className="cp-wrap"><span>YachayPlay · Build {BUILD_VERSION}</span></div>
+        <div className="cp-wrap">
+          <span>YachayPlay · Build {BUILD_VERSION}</span>
+        </div>
       </footer>
     </div>
   );

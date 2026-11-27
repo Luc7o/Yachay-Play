@@ -15,7 +15,10 @@ function cargarGoogle() {
       s.src = "https://accounts.google.com/gsi/client";
       s.async = true;
       s.onload = resolve;
-      s.onerror = () => { scriptPromise = null; reject(new Error("No se pudo cargar Google")); };
+      s.onerror = () => {
+        scriptPromise = null;
+        reject(new Error("No se pudo cargar Google"));
+      };
       document.head.appendChild(s);
     });
   }
@@ -52,7 +55,9 @@ export function GoogleButton({ onCredential }) {
         });
       })
       .catch(() => {});
-    return () => { vivo = false; };
+    return () => {
+      vivo = false;
+    };
   }, []);
 
   if (!CLIENT_ID) return null;

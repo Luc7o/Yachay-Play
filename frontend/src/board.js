@@ -14,18 +14,58 @@
 // --- El anillo exterior, en orden, girando en sentido horario ---------------
 // El índice 0 es la casilla de salida del equipo ROJO.
 export const RING = [
-  [6, 1], [6, 2], [6, 3], [6, 4], [6, 5],        // 0-4   brazo izquierdo
-  [5, 6], [4, 6], [3, 6], [2, 6], [1, 6], [0, 6],// 5-10  sube por la columna 6
-  [0, 7],                                        // 11    cruce superior
-  [0, 8], [1, 8], [2, 8], [3, 8], [4, 8], [5, 8],// 12-17 baja por la columna 8
-  [6, 9], [6, 10], [6, 11], [6, 12], [6, 13], [6, 14], // 18-23 brazo derecho
-  [7, 14],                                       // 24    cruce derecho
-  [8, 14], [8, 13], [8, 12], [8, 11], [8, 10], [8, 9], // 25-30 vuelve por la fila 8
-  [9, 8], [10, 8], [11, 8], [12, 8], [13, 8], [14, 8], // 31-36 baja por la columna 8
-  [14, 7],                                       // 37    cruce inferior
-  [14, 6], [13, 6], [12, 6], [11, 6], [10, 6], [9, 6], // 38-43 sube por la columna 6
-  [8, 5], [8, 4], [8, 3], [8, 2], [8, 1], [8, 0],// 44-49 brazo izquierdo (fila 8)
-  [7, 0], [6, 0],                                // 50-51 cruce izquierdo
+  [6, 1],
+  [6, 2],
+  [6, 3],
+  [6, 4],
+  [6, 5], // 0-4   brazo izquierdo
+  [5, 6],
+  [4, 6],
+  [3, 6],
+  [2, 6],
+  [1, 6],
+  [0, 6], // 5-10  sube por la columna 6
+  [0, 7], // 11    cruce superior
+  [0, 8],
+  [1, 8],
+  [2, 8],
+  [3, 8],
+  [4, 8],
+  [5, 8], // 12-17 baja por la columna 8
+  [6, 9],
+  [6, 10],
+  [6, 11],
+  [6, 12],
+  [6, 13],
+  [6, 14], // 18-23 brazo derecho
+  [7, 14], // 24    cruce derecho
+  [8, 14],
+  [8, 13],
+  [8, 12],
+  [8, 11],
+  [8, 10],
+  [8, 9], // 25-30 vuelve por la fila 8
+  [9, 8],
+  [10, 8],
+  [11, 8],
+  [12, 8],
+  [13, 8],
+  [14, 8], // 31-36 baja por la columna 8
+  [14, 7], // 37    cruce inferior
+  [14, 6],
+  [13, 6],
+  [12, 6],
+  [11, 6],
+  [10, 6],
+  [9, 6], // 38-43 sube por la columna 6
+  [8, 5],
+  [8, 4],
+  [8, 3],
+  [8, 2],
+  [8, 1],
+  [8, 0], // 44-49 brazo izquierdo (fila 8)
+  [7, 0],
+  [6, 0], // 50-51 cruce izquierdo
 ];
 
 // --- Dónde entra al anillo cada equipo -------------------------------------
@@ -34,10 +74,34 @@ export const START_INDEX = { rojo: 0, verde: 13, amarillo: 26, azul: 39 };
 
 // --- Rectas finales (5 casillas de color que llevan al centro) --------------
 export const HOME_COLUMNS = {
-  rojo: [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5]],
-  verde: [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7]],
-  amarillo: [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9]],
-  azul: [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7]],
+  rojo: [
+    [7, 1],
+    [7, 2],
+    [7, 3],
+    [7, 4],
+    [7, 5],
+  ],
+  verde: [
+    [1, 7],
+    [2, 7],
+    [3, 7],
+    [4, 7],
+    [5, 7],
+  ],
+  amarillo: [
+    [7, 13],
+    [7, 12],
+    [7, 11],
+    [7, 10],
+    [7, 9],
+  ],
+  azul: [
+    [13, 7],
+    [12, 7],
+    [11, 7],
+    [10, 7],
+    [9, 7],
+  ],
 };
 
 // --- Casillas seguras (las "estrellas": ahí nadie te puede comer) -----------

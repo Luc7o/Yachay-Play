@@ -293,7 +293,8 @@ export function Pizarra({ goHome }) {
     const objs = pag().objs;
     if (t.id) {
       if (!v.trim()) aplicar(objs.filter((o) => o.id !== t.id));
-      else if (objs.find((o) => o.id === t.id)?.text !== v) aplicar(objs.map((o) => (o.id === t.id ? { ...o, text: v } : o)));
+      else if (objs.find((o) => o.id === t.id)?.text !== v)
+        aplicar(objs.map((o) => (o.id === t.id ? { ...o, text: v } : o)));
     } else if (v.trim()) {
       aplicar([...objs, { id: uid(), type: "text", x: t.x, y: t.y, text: v, color: t.color, size: t.size }]);
     }
@@ -337,7 +338,17 @@ export function Pizarra({ goHome }) {
       setSeleccion(null);
       setVivo(herr === "lapiz" ? "Dibujando…" : "Resaltando…");
     } else if (herr === "forma") {
-      tempRef.current = { id: uid(), type: forma, color: col, w: g.w, x1: x, y1: y, x2: x, y2: y, fill: CON_RELLENO.has(forma) && relleno };
+      tempRef.current = {
+        id: uid(),
+        type: forma,
+        color: col,
+        w: g.w,
+        x1: x,
+        y1: y,
+        x2: x,
+        y2: y,
+        fill: CON_RELLENO.has(forma) && relleno,
+      };
       gestoRef.current = { tipo: "forma" };
       setSeleccion(null);
       setVivo(medidaForma(tempRef.current));
@@ -405,7 +416,8 @@ export function Pizarra({ goHome }) {
     if (gs) {
       const objs = pag().objs;
       if (gs.tipo === "trazo" && tempRef.current) {
-        if (tempRef.current.type !== "erase" || objs.some((o) => o.type !== "erase")) aplicar([...objs, tempRef.current]);
+        if (tempRef.current.type !== "erase" || objs.some((o) => o.type !== "erase"))
+          aplicar([...objs, tempRef.current]);
       } else if (gs.tipo === "forma" && tempRef.current) {
         const t = tempRef.current;
         if (Math.hypot(t.x2 - t.x1, t.y2 - t.y1) > 4) aplicar([...objs, t]);
@@ -447,17 +459,21 @@ export function Pizarra({ goHome }) {
   }
   function cambiarColor(c) {
     setColor(c);
-    if (objSel && objSel.type !== "img" && herr === "mover") aplicar(pagina.objs.map((o) => (o.id === objSel.id ? { ...o, color: colorReal(c, oscuro) } : o)));
+    if (objSel && objSel.type !== "img" && herr === "mover")
+      aplicar(pagina.objs.map((o) => (o.id === objSel.id ? { ...o, color: colorReal(c, oscuro) } : o)));
   }
   function cambiarGrosor(i) {
     setGrosor(i);
     if (objSel && objSel.type !== "img" && herr === "mover") {
       const n = CONFIG.grosores[i];
-      aplicar(pagina.objs.map((o) => (o.id === objSel.id ? (o.type === "text" ? { ...o, size: n.t } : { ...o, w: n.w }) : o)));
+      aplicar(
+        pagina.objs.map((o) => (o.id === objSel.id ? (o.type === "text" ? { ...o, size: n.t } : { ...o, w: n.w }) : o)),
+      );
     }
   }
   function cambiarRelleno() {
-    if (objSel && CON_RELLENO.has(objSel.type)) aplicar(pagina.objs.map((o) => (o.id === objSel.id ? { ...o, fill: !o.fill } : o)));
+    if (objSel && CON_RELLENO.has(objSel.type))
+      aplicar(pagina.objs.map((o) => (o.id === objSel.id ? { ...o, fill: !o.fill } : o)));
     else setRelleno(!relleno);
   }
   function borrarSeleccion() {
@@ -480,8 +496,14 @@ export function Pizarra({ goHome }) {
     setPaginas(paginas.map((p) => (p.id === pagina.id ? { ...p, fondo: id } : p)));
     paginasRef.current = paginasRef.current.map((p) => (p.id === pagina.id ? { ...p, fondo: id } : p));
     // los dibujos NO se tocan; solo se avisa si alguno se vería poco con el nuevo fondo
-    const poco = pagina.objs.filter((o) => o.type !== "erase" && (nuevoOscuro ? o.color === "#111827" : o.color === "#FFFFFF")).length;
-    avisar(poco ? `Fondo cambiado · ${poco} trazo(s) se ven poco con este fondo (puedes cambiarles el color)` : `Fondo: ${fondoDe(id).nombre}`);
+    const poco = pagina.objs.filter(
+      (o) => o.type !== "erase" && (nuevoOscuro ? o.color === "#111827" : o.color === "#FFFFFF"),
+    ).length;
+    avisar(
+      poco
+        ? `Fondo cambiado · ${poco} trazo(s) se ven poco con este fondo (puedes cambiarles el color)`
+        : `Fondo: ${fondoDe(id).nombre}`,
+    );
   }
   function irA(i) {
     if (texto) confirmarTexto();
@@ -501,7 +523,8 @@ export function Pizarra({ goHome }) {
   }
   function quitarPagina() {
     if (paginas.length === 1) return limpiarPagina();
-    if (pagina.objs.length && !window.confirm(`¿Eliminar la página ${idx + 1}? No se puede deshacer.`)) return undefined;
+    if (pagina.objs.length && !window.confirm(`¿Eliminar la página ${idx + 1}? No se puede deshacer.`))
+      return undefined;
     delete histRef.current[pagina.id];
     const nuevas = paginas.filter((p) => p.id !== pagina.id);
     paginasRef.current = nuevas;
@@ -605,7 +628,13 @@ export function Pizarra({ goHome }) {
       setSeleccion(obj.id);
       avisar("Imagen agregada · arrástrala para moverla y cambia su tamaño con «Imagen +/−»");
     } catch (e) {
-      avisar(e.message === "tipo" ? "Solo se pueden insertar imágenes PNG, JPG, GIF o WebP." : e.message === "grande" ? "La imagen es muy pesada (máximo 12 MB)." : "No se pudo leer la imagen.");
+      avisar(
+        e.message === "tipo"
+          ? "Solo se pueden insertar imágenes PNG, JPG, GIF o WebP."
+          : e.message === "grande"
+            ? "La imagen es muy pesada (máximo 12 MB)."
+            : "No se pudo leer la imagen.",
+      );
     }
   }
   function escalarImagen(factor) {
@@ -616,7 +645,11 @@ export function Pizarra({ goHome }) {
     const h = Math.abs(objSel.y2 - objSel.y1) * factor;
     const maxW = (canvasRef.current ? canvasRef.current.clientWidth : 1200) * 1.5;
     if (w < 40 || h < 40 || w > maxW) return;
-    aplicar(pagina.objs.map((o) => (o.id === objSel.id ? { ...o, x1: cx - w / 2, y1: cy - h / 2, x2: cx + w / 2, y2: cy + h / 2 } : o)));
+    aplicar(
+      pagina.objs.map((o) =>
+        o.id === objSel.id ? { ...o, x1: cx - w / 2, y1: cy - h / 2, x2: cx + w / 2, y2: cy + h / 2 } : o,
+      ),
+    );
   }
 
   // Pantalla completa / modo proyección
@@ -648,9 +681,12 @@ export function Pizarra({ goHome }) {
     document.addEventListener("fullscreenchange", cambio);
     return () => document.removeEventListener("fullscreenchange", cambio);
   }, []);
-  useEffect(() => () => {
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-  }, []);
+  useEffect(
+    () => () => {
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    },
+    [],
+  );
 
   // ---------------- Menús: se abren solo al pulsar su botón y se cierran al tocar fuera ----------------
   useEffect(() => {
@@ -664,13 +700,23 @@ export function Pizarra({ goHome }) {
 
   // ---------------- Atajos de teclado ----------------
   const accionesRef = useRef({});
-  accionesRef.current = { deshacer, rehacer, borrarSeleccion, elegirHerramienta, setMenu, objSel, abrirDescarga, insertarImagen };
+  accionesRef.current = {
+    deshacer,
+    rehacer,
+    borrarSeleccion,
+    elegirHerramienta,
+    setMenu,
+    objSel,
+    abrirDescarga,
+    insertarImagen,
+  };
   useEffect(() => {
     const alPulsar = (e) => {
       const t = e.target;
       const et = t && t.tagName;
       const a = accionesRef.current;
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { // Ctrl+S = guardar / descargar
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        // Ctrl+S = guardar / descargar
         e.preventDefault();
         if (!dialogoRef.current) a.abrirDescarga();
         return;
@@ -679,16 +725,31 @@ export function Pizarra({ goHome }) {
       if (et === "INPUT" || et === "TEXTAREA" || et === "SELECT") return;
       if (e.ctrlKey || e.metaKey) {
         const k = e.key.toLowerCase();
-        if (k === "z" && !e.shiftKey) { e.preventDefault(); a.deshacer(); }
-        else if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); a.rehacer(); }
+        if (k === "z" && !e.shiftKey) {
+          e.preventDefault();
+          a.deshacer();
+        } else if (k === "y" || (k === "z" && e.shiftKey)) {
+          e.preventDefault();
+          a.rehacer();
+        }
         return;
       }
       if (e.altKey) return;
-      if ((e.key === "Delete" || e.key === "Backspace") && a.objSel) { e.preventDefault(); a.borrarSeleccion(); return; }
-      if (e.key === "Escape") { a.setMenu(null); return; }
+      if ((e.key === "Delete" || e.key === "Backspace") && a.objSel) {
+        e.preventDefault();
+        a.borrarSeleccion();
+        return;
+      }
+      if (e.key === "Escape") {
+        a.setMenu(null);
+        return;
+      }
       const mapa = { v: "mover", p: "lapiz", h: "marcador", e: "borrador", t: "texto", l: "laser" };
       const h = mapa[e.key.toLowerCase()];
-      if (h) { e.preventDefault(); a.elegirHerramienta(h); }
+      if (h) {
+        e.preventDefault();
+        a.elegirHerramienta(h);
+      }
     };
     document.addEventListener("keydown", alPulsar);
     return () => document.removeEventListener("keydown", alPulsar);
@@ -737,13 +798,21 @@ export function Pizarra({ goHome }) {
               aria-label="Nombre del trabajo"
               title="Nombre del trabajo (se usa al descargar)"
               onChange={(e) => setNombre(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") e.currentTarget.blur(); }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === "Escape") e.currentTarget.blur();
+              }}
             />
             <span className={"pz-guardado pz-g-" + guardado} role="status">
-              {guardado === "ok" ? "✓ Guardado en este equipo" : guardado === "pendiente" ? "Guardando…" : "⚠ No se pudo guardar (espacio lleno)"}
+              {guardado === "ok"
+                ? "✓ Guardado en este equipo"
+                : guardado === "pendiente"
+                  ? "Guardando…"
+                  : "⚠ No se pudo guardar (espacio lleno)"}
             </span>
           </div>
-          <button className="hr-back" onClick={goHome}>← Volver al inicio</button>
+          <button className="hr-back" onClick={goHome}>
+            ← Volver al inicio
+          </button>
         </header>
       )}
 
@@ -772,7 +841,11 @@ export function Pizarra({ goHome }) {
           onDoubleClick={dobleClic}
         />
 
-        {vacia && <div className="pz-hint" aria-hidden="true">Elige una herramienta y empieza a escribir o dibujar</div>}
+        {vacia && (
+          <div className="pz-hint" aria-hidden="true">
+            Elige una herramienta y empieza a escribir o dibujar
+          </div>
+        )}
 
         {texto && (
           <textarea
@@ -794,7 +867,8 @@ export function Pizarra({ goHome }) {
             onChange={(e) => ponerTexto({ ...textoRef.current, value: e.target.value })}
             onBlur={confirmarTexto}
             onKeyDown={(e) => {
-              if (e.key === "Escape") ponerTexto(null); // cancela
+              if (e.key === "Escape")
+                ponerTexto(null); // cancela
               else if ((e.ctrlKey || e.metaKey) && e.key === "Enter") confirmarTexto();
               e.stopPropagation();
             }}
@@ -803,13 +877,37 @@ export function Pizarra({ goHome }) {
 
         {/* ---- Herramientas (izquierda) ---- */}
         <div className="pz-panel pz-rail" role="toolbar" aria-label="Herramientas de la pizarra">
-          <Btn n="mover" titulo="Seleccionar y mover (V)" activo={herr === "mover"} onClick={() => elegirHerramienta("mover")} />
+          <Btn
+            n="mover"
+            titulo="Seleccionar y mover (V)"
+            activo={herr === "mover"}
+            onClick={() => elegirHerramienta("mover")}
+          />
           <Btn n="lapiz" titulo="Lápiz (P)" activo={herr === "lapiz"} onClick={() => elegirHerramienta("lapiz")} />
-          <Btn n="marcador" titulo="Marcador resaltador (H)" activo={herr === "marcador"} onClick={() => elegirHerramienta("marcador")} />
-          <Btn n="borrador" titulo="Borrador (E)" activo={herr === "borrador"} onClick={() => elegirHerramienta("borrador")} />
+          <Btn
+            n="marcador"
+            titulo="Marcador resaltador (H)"
+            activo={herr === "marcador"}
+            onClick={() => elegirHerramienta("marcador")}
+          />
+          <Btn
+            n="borrador"
+            titulo="Borrador (E)"
+            activo={herr === "borrador"}
+            onClick={() => elegirHerramienta("borrador")}
+          />
           <Btn n="texto" titulo="Texto (T)" activo={herr === "texto"} onClick={() => elegirHerramienta("texto")} />
-          <Btn n="imagen" titulo="Insertar imagen (también puedes pegarla con Ctrl+V o arrastrarla)" onClick={() => archivoRef.current && archivoRef.current.click()} />
-          <Btn n="laser" titulo="Puntero láser (L)" activo={herr === "laser"} onClick={() => elegirHerramienta("laser")} />
+          <Btn
+            n="imagen"
+            titulo="Insertar imagen (también puedes pegarla con Ctrl+V o arrastrarla)"
+            onClick={() => archivoRef.current && archivoRef.current.click()}
+          />
+          <Btn
+            n="laser"
+            titulo="Puntero láser (L)"
+            activo={herr === "laser"}
+            onClick={() => elegirHerramienta("laser")}
+          />
           <input
             ref={archivoRef}
             type="file"
@@ -822,11 +920,21 @@ export function Pizarra({ goHome }) {
             }}
           />
           <div className="pz-anchor">
-            <Btn n={herr === "forma" ? forma : "formas"} titulo="Formas y flechas" activo={herr === "forma"} onClick={() => setMenu(menu === "formas" ? null : "formas")} />
+            <Btn
+              n={herr === "forma" ? forma : "formas"}
+              titulo="Formas y flechas"
+              activo={herr === "forma"}
+              onClick={() => setMenu(menu === "formas" ? null : "formas")}
+            />
             {menu === "formas" && (
               <div className="pz-panel pz-fly">
                 {FORMAS.map((f) => (
-                  <button key={f.id} className="pz-item" aria-pressed={herr === "forma" && forma === f.id} onClick={() => elegirForma(f.id)}>
+                  <button
+                    key={f.id}
+                    className="pz-item"
+                    aria-pressed={herr === "forma" && forma === f.id}
+                    onClick={() => elegirForma(f.id)}
+                  >
                     <Icono n={f.id} size={20} /> {f.nombre}
                   </button>
                 ))}
@@ -842,44 +950,77 @@ export function Pizarra({ goHome }) {
             <Btn n="rehacer" titulo="Rehacer (Ctrl+Y)" disabled={!hp.redo.length} onClick={rehacer} />
             {objSel && objSel.type === "img" && (
               <>
-                <button className="pz-btn pz-txt" title="Reducir la imagen" onClick={() => escalarImagen(0.85)}>Imagen −</button>
-                <button className="pz-btn pz-txt" title="Agrandar la imagen" onClick={() => escalarImagen(1.18)}>Imagen +</button>
+                <button className="pz-btn pz-txt" title="Reducir la imagen" onClick={() => escalarImagen(0.85)}>
+                  Imagen −
+                </button>
+                <button className="pz-btn pz-txt" title="Agrandar la imagen" onClick={() => escalarImagen(1.18)}>
+                  Imagen +
+                </button>
               </>
             )}
             {objSel && <Btn n="basura" titulo="Borrar lo seleccionado (Supr)" onClick={borrarSeleccion} />}
-            <button className="pz-btn pz-txt" title="Limpiar toda la página (se puede deshacer)" disabled={!pagina.objs.length} onClick={limpiarPagina}>Limpiar</button>
+            <button
+              className="pz-btn pz-txt"
+              title="Limpiar toda la página (se puede deshacer)"
+              disabled={!pagina.objs.length}
+              onClick={limpiarPagina}
+            >
+              Limpiar
+            </button>
           </div>
           <div className="pz-panel pz-group">
             <div className="pz-anchor">
-              <Btn n="fondo" titulo={"Fondo: " + fondoDe(pagina.fondo).nombre} onClick={() => setMenu(menu === "fondo" ? null : "fondo")} />
+              <Btn
+                n="fondo"
+                titulo={"Fondo: " + fondoDe(pagina.fondo).nombre}
+                onClick={() => setMenu(menu === "fondo" ? null : "fondo")}
+              />
               {menu === "fondo" && (
                 <div className="pz-panel pz-fly pz-fly-abajo">
                   <div className="pz-fly-titulo">Fondo de esta página</div>
                   {CONFIG.fondos.map((f) => (
-                    <button key={f.id} className="pz-item" aria-pressed={pagina.fondo === f.id} onClick={() => cambiarFondo(f.id)}>
+                    <button
+                      key={f.id}
+                      className="pz-item"
+                      aria-pressed={pagina.fondo === f.id}
+                      onClick={() => cambiarFondo(f.id)}
+                    >
                       <span className="pz-muestra" style={muestraFondo(f)} /> {f.nombre}
-                      {pagina.fondo === f.id && <span className="pz-ok" aria-hidden="true">✓</span>}
+                      {pagina.fondo === f.id && (
+                        <span className="pz-ok" aria-hidden="true">
+                          ✓
+                        </span>
+                      )}
                     </button>
                   ))}
                 </div>
               )}
             </div>
             <Btn n="izq" titulo="Página anterior" disabled={idx === 0} onClick={() => irA(idx - 1)} />
-            <span className="pz-pag" aria-live="polite">{idx + 1}/{paginas.length}</span>
+            <span className="pz-pag" aria-live="polite">
+              {idx + 1}/{paginas.length}
+            </span>
             <Btn n="der" titulo="Página siguiente" disabled={idx === paginas.length - 1} onClick={() => irA(idx + 1)} />
             <Btn n="mas" titulo="Nueva página" onClick={agregarPagina} />
             {paginas.length > 1 && <Btn n="basura" titulo="Eliminar esta página" onClick={quitarPagina} />}
           </div>
           <div className="pz-panel pz-group">
             <Btn n="descargar" titulo="Guardar / descargar (Ctrl+S)" onClick={abrirDescarga} />
-            <Btn n={enfoque ? "cerrar" : "pantalla"} titulo={enfoque ? "Salir de pantalla completa" : "Pantalla completa"} onClick={alternarEnfoque} />
+            <Btn
+              n={enfoque ? "cerrar" : "pantalla"}
+              titulo={enfoque ? "Salir de pantalla completa" : "Pantalla completa"}
+              onClick={alternarEnfoque}
+            />
           </div>
         </div>
 
         {/* ---- Qué se está haciendo ahora (herramienta, grosor, color y medidas en vivo) ---- */}
         <div className={"pz-estado" + (vivo ? " pz-vivo-on" : "")} aria-live="polite">
           <Icono n={herr === "forma" ? forma : herr} size={16} />
-          <b>{NOMBRES_HERR[herr]}{herr === "forma" ? ": " + formaActual.nombre : ""}</b>
+          <b>
+            {NOMBRES_HERR[herr]}
+            {herr === "forma" ? ": " + formaActual.nombre : ""}
+          </b>
           {herr !== "mover" && herr !== "borrador" && herr !== "laser" && (
             <>
               <i className="pz-dot" style={{ background: colorReal(colorMostrado, oscuro) }} />
@@ -888,7 +1029,11 @@ export function Pizarra({ goHome }) {
           )}
           <span className="pz-estado-txt">{vivo || ayudaActual}</span>
         </div>
-        {aviso && <div className="pz-aviso" role="status">{aviso}</div>}
+        {aviso && (
+          <div className="pz-aviso" role="status">
+            {aviso}
+          </div>
+        )}
 
         {dialogo && (
           <DialogoDescarga
@@ -916,13 +1061,24 @@ export function Pizarra({ goHome }) {
               />
             ))}
             <label className="pz-sw pz-custom" title="Otro color" aria-label="Elegir otro color">
-              <input type="color" value={colorReal(colorMostrado, oscuro).slice(0, 7)} onChange={(e) => cambiarColor(e.target.value.toUpperCase())} />
+              <input
+                type="color"
+                value={colorReal(colorMostrado, oscuro).slice(0, 7)}
+                onChange={(e) => cambiarColor(e.target.value.toUpperCase())}
+              />
             </label>
           </div>
           <span className="pz-sep" />
           <div className="pz-grosores" role="group" aria-label="Grosor">
             {CONFIG.grosores.map((x, i) => (
-              <button key={x.nombre} className="pz-gr" title={`${x.nombre} (texto: ${["pequeño", "mediano", "grande"][i]})`} aria-label={x.nombre} aria-pressed={grosor === i} onClick={() => cambiarGrosor(i)}>
+              <button
+                key={x.nombre}
+                className="pz-gr"
+                title={`${x.nombre} (texto: ${["pequeño", "mediano", "grande"][i]})`}
+                aria-label={x.nombre}
+                aria-pressed={grosor === i}
+                onClick={() => cambiarGrosor(i)}
+              >
                 <i style={{ width: 6 + i * 6, height: 6 + i * 6 }} />
               </button>
             ))}
@@ -930,7 +1086,14 @@ export function Pizarra({ goHome }) {
           {mostrarRelleno && (
             <>
               <span className="pz-sep" />
-              <button className="pz-btn pz-txt" aria-pressed={rellenoActivo} onClick={cambiarRelleno} title="Rellenar la forma con color">Relleno</button>
+              <button
+                className="pz-btn pz-txt"
+                aria-pressed={rellenoActivo}
+                onClick={cambiarRelleno}
+                title="Rellenar la forma con color"
+              >
+                Relleno
+              </button>
             </>
           )}
         </div>

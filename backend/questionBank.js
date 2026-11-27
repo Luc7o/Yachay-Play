@@ -32,9 +32,7 @@ const aPregunta = (q) => ({
 export async function ensureQuestions() {
   const { c } = await db.prepare("SELECT COUNT(*) AS c FROM questions WHERE owner_id IS NULL").get();
   if (c > 0) return;
-  const insert = db.prepare(
-    "INSERT INTO questions (topic, level, question, options, answer_index) VALUES (?,?,?,?,?)"
-  );
+  const insert = db.prepare("INSERT INTO questions (topic, level, question, options, answer_index) VALUES (?,?,?,?,?)");
   for (const q of buildQuestions()) {
     await insert.run(q.topic, q.level, q.question, JSON.stringify(q.options), q.answerIndex);
   }
@@ -51,7 +49,9 @@ export const poolFor = (ownerId) => cache.filter((q) => q.ownerId === null || q.
 
 // ------------------------------ validación ------------------------------
 function validar(body) {
-  const topic = String(body?.topic || "").trim().replace(/\s+/g, " ");
+  const topic = String(body?.topic || "")
+    .trim()
+    .replace(/\s+/g, " ");
   const level = String(body?.level || "");
   const question = String(body?.question || "").trim();
   const options = Array.isArray(body?.options) ? body.options.map((o) => String(o ?? "").trim()) : [];
@@ -59,10 +59,13 @@ function validar(body) {
 
   if (topic.length < 2 || topic.length > 60) return { error: "Escribe el tema (entre 2 y 60 letras)." };
   if (!LEVELS.includes(level)) return { error: "Elige un nivel válido." };
-  if (question.length < 8 || question.length > 300) return { error: "La pregunta debe tener entre 8 y 300 caracteres." };
+  if (question.length < 8 || question.length > 300)
+    return { error: "La pregunta debe tener entre 8 y 300 caracteres." };
   if (options.length < 2 || options.length > 4) return { error: "Pon entre 2 y 4 opciones." };
-  if (options.some((o) => !o || o.length > 120)) return { error: "Cada opción debe tener texto (máximo 120 caracteres)." };
-  if (new Set(options.map((o) => o.toLowerCase())).size !== options.length) return { error: "Las opciones no pueden repetirse." };
+  if (options.some((o) => !o || o.length > 120))
+    return { error: "Cada opción debe tener texto (máximo 120 caracteres)." };
+  if (new Set(options.map((o) => o.toLowerCase())).size !== options.length)
+    return { error: "Las opciones no pueden repetirse." };
   if (!Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex >= options.length) {
     return { error: "Marca cuál es la respuesta correcta." };
   }
@@ -78,7 +81,9 @@ questionsRouter.use(requireTeacher);
 // Mis preguntas (con respuesta) + banco oficial (solo lectura).
 questionsRouter.get("/", async (req, res) => {
   try {
-    const filas = await db.prepare("SELECT * FROM questions WHERE owner_id IS NULL OR owner_id = ? ORDER BY id").all(req.user.id);
+    const filas = await db
+      .prepare("SELECT * FROM questions WHERE owner_id IS NULL OR owner_id = ? ORDER BY id")
+      .all(req.user.id);
     const todas = filas.map(aPregunta).map(aRespuesta);
     res.json({
       levels: LEVELS,
@@ -97,7 +102,8 @@ questionsRouter.post("/", async (req, res) => {
   if (error) return res.status(400).json({ error });
   try {
     const { c } = await db.prepare("SELECT COUNT(*) AS c FROM questions WHERE owner_id = ?").get(req.user.id);
-    if (c >= MAX_PROPIAS) return res.status(400).json({ error: `Llegaste al máximo de ${MAX_PROPIAS} preguntas propias.` });
+    if (c >= MAX_PROPIAS)
+      return res.status(400).json({ error: `Llegaste al máximo de ${MAX_PROPIAS} preguntas propias.` });
     await db
       .prepare("INSERT INTO questions (topic, level, question, options, answer_index, owner_id) VALUES (?,?,?,?,?,?)")
       .run(data.topic, data.level, data.question, JSON.stringify(data.options), data.answerIndex, req.user.id);
@@ -117,8 +123,19 @@ questionsRouter.put("/:id", async (req, res) => {
   const active = req.body?.active === undefined ? true : Boolean(req.body.active);
   try {
     const r = await db
-      .prepare("UPDATE questions SET topic=?, level=?, question=?, options=?, answer_index=?, active=? WHERE id=? AND owner_id=?")
-      .run(data.topic, data.level, data.question, JSON.stringify(data.options), data.answerIndex, active, id, req.user.id);
+      .prepare(
+        "UPDATE questions SET topic=?, level=?, question=?, options=?, answer_index=?, active=? WHERE id=? AND owner_id=?",
+      )
+      .run(
+        data.topic,
+        data.level,
+        data.question,
+        JSON.stringify(data.options),
+        data.answerIndex,
+        active,
+        id,
+        req.user.id,
+      );
     if (!r.changes) return res.status(404).json({ error: "No encontré esa pregunta entre las tuyas." });
     await reloadQuestions();
     res.json({ ok: true });
@@ -133,7 +150,9 @@ questionsRouter.patch("/:id/active", async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) return res.status(400).json({ error: "Pregunta no válida." });
   try {
-    const r = await db.prepare("UPDATE questions SET active=? WHERE id=? AND owner_id=?").run(Boolean(req.body?.active), id, req.user.id);
+    const r = await db
+      .prepare("UPDATE questions SET active=? WHERE id=? AND owner_id=?")
+      .run(Boolean(req.body?.active), id, req.user.id);
     if (!r.changes) return res.status(404).json({ error: "No encontré esa pregunta entre las tuyas." });
     await reloadQuestions();
     res.json({ ok: true });

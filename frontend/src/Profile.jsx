@@ -80,11 +80,18 @@ function CrearClavePorCorreo({ user }) {
     <section className="tl-box tl-form">
       <h2>Crear contraseña</h2>
       <p className="ax-step">
-        Tu cuenta entra con Google. Si quieres entrar también con tu correo y una contraseña, te enviamos un enlace a <b>{user.email}</b> para crearla.
+        Tu cuenta entra con Google. Si quieres entrar también con tu correo y una contraseña, te enviamos un enlace a{" "}
+        <b>{user.email}</b> para crearla.
       </p>
-      {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"} role="status">{msg.texto}</div>}
+      {msg.texto && (
+        <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"} role="status">
+          {msg.texto}
+        </div>
+      )}
       <div className="tl-actions">
-        <button className="tl-btn" disabled={enviando} onClick={pedirEnlace}>{enviando ? "Enviando…" : "Enviar enlace a mi correo"}</button>
+        <button className="tl-btn" disabled={enviando} onClick={pedirEnlace}>
+          {enviando ? "Enviando…" : "Enviar enlace a mi correo"}
+        </button>
       </div>
     </section>
   );
@@ -107,13 +114,21 @@ function CambiarClave({ user, onUserUpdate }) {
     setGuardando(true);
     try {
       const r = await api.profilePassword(actual, nueva, codigo || undefined);
-      if (r.token) { setToken(r.token); reconnectSocket(); } // las demás sesiones se cierran; esta sigue activa
+      if (r.token) {
+        setToken(r.token);
+        reconnectSocket();
+      } // las demás sesiones se cierran; esta sigue activa
       if (r.user) onUserUpdate?.({ ...user, ...r.user });
       setActual("");
       setNueva("");
       setRepetir("");
       setCodigo("");
-      setMsg({ tipo: "ok", texto: sinClave ? "Contraseña creada. Ya puedes entrar con tu correo y contraseña, además de Google." : "Contraseña cambiada." });
+      setMsg({
+        tipo: "ok",
+        texto: sinClave
+          ? "Contraseña creada. Ya puedes entrar con tu correo y contraseña, además de Google."
+          : "Contraseña cambiada.",
+      });
     } catch (e) {
       setMsg({ tipo: "error", texto: e.message });
     } finally {
@@ -123,12 +138,21 @@ function CambiarClave({ user, onUserUpdate }) {
   return (
     <section className="tl-box tl-form">
       <h2>{sinClave ? "Crear contraseña" : "Cambiar contraseña"}</h2>
-      {sinClave && <p className="ax-step">Tu cuenta entra con Google. Si quieres, crea una contraseña para poder entrar también con tu correo.</p>}
+      {sinClave && (
+        <p className="ax-step">
+          Tu cuenta entra con Google. Si quieres, crea una contraseña para poder entrar también con tu correo.
+        </p>
+      )}
       {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
       {!sinClave && (
         <>
           <label>Contraseña actual</label>
-          <input type="password" autoComplete="current-password" value={actual} onChange={(e) => setActual(e.target.value)} />
+          <input
+            type="password"
+            autoComplete="current-password"
+            value={actual}
+            onChange={(e) => setActual(e.target.value)}
+          />
         </>
       )}
       <label>Contraseña nueva (mínimo 8, con letras y números)</label>
@@ -138,7 +162,15 @@ function CambiarClave({ user, onUserUpdate }) {
       {sinClave && user.twoFactorEnabled && (
         <>
           <label>Código de tu app de autenticación</label>
-          <input type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={11} placeholder="123456" value={codigo} onChange={(e) => setCodigo(e.target.value)} />
+          <input
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={11}
+            placeholder="123456"
+            value={codigo}
+            onChange={(e) => setCodigo(e.target.value)}
+          />
         </>
       )}
       <div className="tl-actions">
@@ -171,10 +203,14 @@ function VerificarCorreo({ user }) {
   return (
     <section className="tl-box tl-form">
       <h2>Confirma tu correo</h2>
-      <p className="ax-step">Enviamos un enlace a <strong>{user.email}</strong>. Confírmalo para proteger tu cuenta y poder recuperarla.</p>
+      <p className="ax-step">
+        Enviamos un enlace a <strong>{user.email}</strong>. Confírmalo para proteger tu cuenta y poder recuperarla.
+      </p>
       {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
       <div className="tl-actions">
-        <button className="tl-btn" disabled={enviando} onClick={reenviar}>{enviando ? "Enviando…" : "Reenviar enlace"}</button>
+        <button className="tl-btn" disabled={enviando} onClick={reenviar}>
+          {enviando ? "Enviando…" : "Reenviar enlace"}
+        </button>
       </div>
     </section>
   );
@@ -189,7 +225,10 @@ function Sesiones() {
     setMsg({ tipo: "", texto: "" });
     try {
       const r = await api.logoutAll();
-      if (r.token) { setToken(r.token); reconnectSocket(); } // esta sesión sigue; las demás dejan de servir
+      if (r.token) {
+        setToken(r.token);
+        reconnectSocket();
+      } // esta sesión sigue; las demás dejan de servir
       setMsg({ tipo: "ok", texto: "Se cerró la sesión en todos los demás dispositivos." });
     } catch (e) {
       setMsg({ tipo: "error", texto: e.message });
@@ -200,10 +239,15 @@ function Sesiones() {
   return (
     <section className="tl-box tl-form">
       <h2>Sesiones abiertas</h2>
-      <p className="ax-step">¿Entraste desde un computador compartido o sospechas que alguien usa tu cuenta? Cierra la sesión en todos los demás dispositivos.</p>
+      <p className="ax-step">
+        ¿Entraste desde un computador compartido o sospechas que alguien usa tu cuenta? Cierra la sesión en todos los
+        demás dispositivos.
+      </p>
       {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
       <div className="tl-actions">
-        <button className="tl-btn ghost" disabled={cerrando} onClick={cerrarTodas}>{cerrando ? "Cerrando…" : "Cerrar las demás sesiones"}</button>
+        <button className="tl-btn ghost" disabled={cerrando} onClick={cerrarTodas}>
+          {cerrando ? "Cerrando…" : "Cerrar las demás sesiones"}
+        </button>
       </div>
     </section>
   );
@@ -213,35 +257,63 @@ function Sesiones() {
 function Ranking() {
   const [r, setR] = useState(null);
   useEffect(() => {
-    api.profileRanking().then(setR).catch(() => setR({ total: 0, top: [], me: null }));
+    api
+      .profileRanking()
+      .then(setR)
+      .catch(() => setR({ total: 0, top: [], me: null }));
   }, []);
-  if (!r) return <section className="tl-box"><h2>Ranking de estudiantes</h2><p className="tl-empty">Cargando…</p></section>;
+  if (!r)
+    return (
+      <section className="tl-box">
+        <h2>Ranking de estudiantes</h2>
+        <p className="tl-empty">Cargando…</p>
+      </section>
+    );
   const meFuera = r.me && !r.top.some((f) => f.me);
   const fila = (f) => (
     <tr key={f.position} className={f.me ? "pf-me" : ""}>
-      <td><span className={"pf-pos" + (f.position <= 3 ? ` p${f.position}` : "")}>{f.position}</span></td>
-      <td><b>{f.name}</b>{f.me ? " (tú)" : ""}</td>
+      <td>
+        <span className={"pf-pos" + (f.position <= 3 ? ` p${f.position}` : "")}>{f.position}</span>
+      </td>
+      <td>
+        <b>{f.name}</b>
+        {f.me ? " (tú)" : ""}
+      </td>
       <td className="num">{f.won}</td>
       <td className="num">{f.played}</td>
-      <td className="num"><b>{f.points}</b></td>
+      <td className="num">
+        <b>{f.points}</b>
+      </td>
     </tr>
   );
   return (
     <section className="tl-box">
       <h2>Ranking de estudiantes</h2>
       {r.top.length === 0 ? (
-        <p className="tl-empty">Todavía no hay estudiantes en el ranking. Termina una partida con tu cuenta iniciada para aparecer.</p>
+        <p className="tl-empty">
+          Todavía no hay estudiantes en el ranking. Termina una partida con tu cuenta iniciada para aparecer.
+        </p>
       ) : (
         <div style={{ overflowX: "auto" }}>
           <table className="pf-table">
             <thead>
-              <tr><th>#</th><th>Estudiante</th><th className="num">Victorias</th><th className="num">Partidas</th><th className="num">Puntos</th></tr>
+              <tr>
+                <th>#</th>
+                <th>Estudiante</th>
+                <th className="num">Victorias</th>
+                <th className="num">Partidas</th>
+                <th className="num">Puntos</th>
+              </tr>
             </thead>
             <tbody>
               {r.top.map(fila)}
               {meFuera && (
                 <>
-                  <tr><td colSpan={5} style={{ textAlign: "center", color: "#94a3b8" }}>⋯</td></tr>
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: "center", color: "#94a3b8" }}>
+                      ⋯
+                    </td>
+                  </tr>
                   {fila(r.me)}
                 </>
               )}
@@ -249,7 +321,9 @@ function Ranking() {
           </table>
         </div>
       )}
-      <p className="pf-note">Puntos = 10 por victoria + 2 por partida terminada. Solo cuentan partidas jugadas con tu cuenta iniciada.</p>
+      <p className="pf-note">
+        Puntos = 10 por victoria + 2 por partida terminada. Solo cuentan partidas jugadas con tu cuenta iniciada.
+      </p>
     </section>
   );
 }
@@ -260,7 +334,10 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
   const [error, setError] = useState("");
 
   useEffect(() => {
-    api.profile().then(setData).catch((e) => setError(e.message));
+    api
+      .profile()
+      .then(setData)
+      .catch((e) => setError(e.message));
   }, []);
 
   const esDocente = user.role === "docente";
@@ -274,7 +351,9 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
         <Brand subtitle="Mi perfil" onClick={goHome} />
       </header>
       <main className="tl-main">
-        <button className="tl-back" onClick={goHome}>← Volver al inicio</button>
+        <button className="tl-back" onClick={goHome}>
+          ← Volver al inicio
+        </button>
         {error && <div className="tl-error">{error}</div>}
 
         <div className="pf-head">
@@ -284,7 +363,9 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
             <p>{user.email}</p>
             <p>
               <span className={"tl-pill " + (esDocente ? "" : "warn")}>{esDocente ? "Docente" : "Estudiante"}</span>
-              {data?.user.created_at && <span style={{ marginLeft: 8 }}>Miembro desde {fecha(data.user.created_at)}</span>}
+              {data?.user.created_at && (
+                <span style={{ marginLeft: 8 }}>Miembro desde {fecha(data.user.created_at)}</span>
+              )}
             </p>
           </div>
           {e && (
@@ -307,8 +388,12 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
               <Tarjeta titulo="Estudiantes con cuenta" valor={d.students} nota="que jugaron en tus partidas" />
             </div>
             <div className="pf-links" style={{ marginBottom: 16 }}>
-              <button className="tl-btn ghost" onClick={onOpenStats}>Ver mis estadísticas</button>
-              <button className="tl-btn ghost" onClick={onOpenQuestions}>Mis preguntas</button>
+              <button className="tl-btn ghost" onClick={onOpenStats}>
+                Ver mis estadísticas
+              </button>
+              <button className="tl-btn ghost" onClick={onOpenQuestions}>
+                Mis preguntas
+              </button>
             </div>
           </>
         )}
@@ -319,23 +404,36 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
               <Tarjeta titulo="Puntos" valor={e.points} nota="10 por victoria + 2 por partida" />
               <Tarjeta titulo="Victorias" valor={e.won} />
               <Tarjeta titulo="Partidas terminadas" valor={e.played} />
-              <Tarjeta titulo="Precisión (Ludo)" valor={total ? `${Math.round((e.correct / total) * 100)}%` : "—"} nota={total ? `${e.correct} de ${total} respuestas` : ""} />
+              <Tarjeta
+                titulo="Precisión (Ludo)"
+                valor={total ? `${Math.round((e.correct / total) * 100)}%` : "—"}
+                nota={total ? `${e.correct} de ${total} respuestas` : ""}
+              />
             </div>
             <section className="tl-box" style={{ marginBottom: 16 }}>
-              <h2>Mis logros ({e.badges.filter((b) => b.unlocked).length}/{e.badges.length})</h2>
+              <h2>
+                Mis logros ({e.badges.filter((b) => b.unlocked).length}/{e.badges.length})
+              </h2>
               <div className="pf-badges">
                 {e.badges.map((b) => (
                   <div key={b.id} className={"pf-badge " + (b.unlocked ? "on" : "off")}>
                     <i>{b.icon}</i>
-                    <span><b>{b.name}</b><small>{b.desc}</small></span>
+                    <span>
+                      <b>{b.name}</b>
+                      <small>{b.desc}</small>
+                    </span>
                   </div>
                 ))}
               </div>
             </section>
             <div className="pf-links" style={{ marginBottom: 16 }}>
-              <button className="tl-btn ghost" onClick={onOpenStats}>Ver mi historial de partidas</button>
+              <button className="tl-btn ghost" onClick={onOpenStats}>
+                Ver mi historial de partidas
+              </button>
             </div>
-            <div style={{ marginBottom: 16 }}><Ranking /></div>
+            <div style={{ marginBottom: 16 }}>
+              <Ranking />
+            </div>
           </>
         )}
 

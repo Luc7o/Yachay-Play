@@ -33,13 +33,25 @@ function encolar(room, descripcion, tarea) {
 // y una partida nueva con ese código fallaba al guardarse (sin que nadie se enterara).
 const cerrarAbandonadas = () =>
   db
-    .prepare("UPDATE crossword_games SET status = 'ended', end_reason = COALESCE(end_reason, 'abandoned'), ended_at = COALESCE(ended_at, now()) WHERE status <> 'ended' AND created_at <= now() - interval '12 hours'")
+    .prepare(
+      "UPDATE crossword_games SET status = 'ended', end_reason = COALESCE(end_reason, 'abandoned'), ended_at = COALESCE(ended_at, now()) WHERE status <> 'ended' AND created_at <= now() - interval '12 hours'",
+    )
     .run();
 
 const insertarPartida = (room) =>
   db
-    .prepare("INSERT INTO crossword_games (id, code, name, minutes, owner_id, grid, class_id) VALUES (?,?,?,?,?,?::jsonb,?)")
-    .run(room.id, room.code, room.name, room.minutes, room.ownerId || null, JSON.stringify(room.grid), room.classId || null);
+    .prepare(
+      "INSERT INTO crossword_games (id, code, name, minutes, owner_id, grid, class_id) VALUES (?,?,?,?,?,?::jsonb,?)",
+    )
+    .run(
+      room.id,
+      room.code,
+      room.name,
+      room.minutes,
+      room.ownerId || null,
+      JSON.stringify(room.grid),
+      room.classId || null,
+    );
 
 hooks.onCreate = (room) =>
   encolar(room, "crear partida", async () => {
@@ -57,19 +69,19 @@ hooks.onPlayer = (room, p) =>
   encolar(room, "nuevo jugador", () =>
     db
       .prepare("INSERT INTO crossword_players (game_id, id, user_id, name) VALUES (?,?,?,?) ON CONFLICT DO NOTHING")
-      .run(room.id, p.id, p.userId || null, p.name)
+      .run(room.id, p.id, p.userId || null, p.name),
   );
 
 hooks.onStart = (room) =>
   encolar(room, "iniciar", () =>
-    db.prepare("UPDATE crossword_games SET status = 'playing', started_at = now() WHERE id = ?").run(room.id)
+    db.prepare("UPDATE crossword_games SET status = 'playing', started_at = now() WHERE id = ?").run(room.id),
   );
 
 hooks.onClose = (room) =>
   encolar(room, "cerrar partida", async () => {
     await db
       .prepare(
-        "UPDATE crossword_games SET status = 'ended', end_reason = ?, winner_player_id = ?, ended_at = now() WHERE id = ?"
+        "UPDATE crossword_games SET status = 'ended', end_reason = ?, winner_player_id = ?, ended_at = now() WHERE id = ?",
       )
       .run(room.endReason, room.winnerId || null, room.id);
 
@@ -82,7 +94,7 @@ hooks.onClose = (room) =>
                 finished_at = to_timestamp(v.fin / 1000.0)
            FROM (SELECT unnest(?::text[]) AS id, unnest(?::int[]) AS score, unnest(?::int[]) AS solved,
                         unnest(?::int[]) AS rank, unnest(?::float8[]) AS fin) v
-          WHERE cp.game_id = ? AND cp.id = v.id`
+          WHERE cp.game_id = ? AND cp.id = v.id`,
       )
       .run(
         jugadores.map((p) => p.id),
@@ -90,7 +102,7 @@ hooks.onClose = (room) =>
         jugadores.map((p) => p.solved.size),
         jugadores.map((p) => p.finishRank ?? null),
         jugadores.map((p) => p.finishedAt ?? null),
-        room.id
+        room.id,
       );
   });
 
@@ -98,18 +110,24 @@ hooks.onReset = (room) =>
   encolar(room, "reiniciar", async () => {
     await db
       .prepare(
-        "UPDATE crossword_games SET status = 'lobby', end_reason = NULL, winner_player_id = NULL, started_at = NULL, ended_at = NULL WHERE id = ?"
+        "UPDATE crossword_games SET status = 'lobby', end_reason = NULL, winner_player_id = NULL, started_at = NULL, ended_at = NULL WHERE id = ?",
       )
       .run(room.id);
     await db
-      .prepare("UPDATE crossword_players SET score = 0, solved_count = 0, finish_rank = NULL, finished_at = NULL WHERE game_id = ?")
+      .prepare(
+        "UPDATE crossword_players SET score = 0, solved_count = 0, finish_rank = NULL, finished_at = NULL WHERE game_id = ?",
+      )
       .run(room.id);
   });
 
 // Recupera las partidas no terminadas. Se llama una vez al arrancar el servidor.
 export async function restoreCrosswordRooms() {
-  await cerrarAbandonadas().catch((e) => console.error("[crucigrama] no se pudieron cerrar partidas viejas:", e.message));
-  const partidas = await db.prepare("SELECT * FROM crossword_games WHERE status <> 'ended' AND created_at > now() - interval '12 hours'").all();
+  await cerrarAbandonadas().catch((e) =>
+    console.error("[crucigrama] no se pudieron cerrar partidas viejas:", e.message),
+  );
+  const partidas = await db
+    .prepare("SELECT * FROM crossword_games WHERE status <> 'ended' AND created_at > now() - interval '12 hours'")
+    .all();
   const recuperadas = [];
   for (const g of partidas) {
     const jugadores = await db

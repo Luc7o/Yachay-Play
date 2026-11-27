@@ -25,7 +25,12 @@ slidesRouter.post("/", requireTeacher, async (req, res) => {
     return res.status(500).json({ error: "No se pudo comprobar la clase. Intenta otra vez." });
   }
   if (classId && !clase) return res.status(404).json({ error: "No encontramos esa clase." });
-  const room = createRoom({ name: req.body?.name, task: req.body?.task, ownerId: req.user.id, classId: clase?.id || null });
+  const room = createRoom({
+    name: req.body?.name,
+    task: req.body?.task,
+    ownerId: req.user.id,
+    classId: clase?.id || null,
+  });
   res.status(201).json({ code: room.code, name: room.name, task: room.task });
 });
 
@@ -42,19 +47,27 @@ slidesRouter.get("/mine", requireTeacher, async (req, res) => {
               COALESCE(jsonb_array_length(data->'decks'), 0) AS decks,
               COALESCE(jsonb_array_length(data->'students'), 0) AS students
          FROM slide_rooms WHERE owner_id = $1 ORDER BY created_at DESC LIMIT 100`,
-      [req.user.id]
+      [req.user.id],
     );
     for (const r of rows) {
       lista.set(r.id, {
-        id: r.id, code: r.code, name: r.name || "Presentaciones de la clase", task: r.task || "", status: r.status === "closed" ? "closed" : "open",
-        createdAt: new Date(r.created_at).getTime(), students: Number(r.students), decks: Number(r.decks), slides: null,
+        id: r.id,
+        code: r.code,
+        name: r.name || "Presentaciones de la clase",
+        task: r.task || "",
+        status: r.status === "closed" ? "closed" : "open",
+        createdAt: new Date(r.created_at).getTime(),
+        students: Number(r.students),
+        decks: Number(r.decks),
+        slides: null,
       });
     }
   } catch (e) {
     console.error("[presentaciones] no se pudo leer la lista de salas:", e.message);
   }
   // 2) Las que están en memoria (más al día que la base).
-  for (const room of rooms.values()) if (room.ownerId === req.user.id && !room.deleted) lista.set(room.id, resumenLista(room));
+  for (const room of rooms.values())
+    if (room.ownerId === req.user.id && !room.deleted) lista.set(room.id, resumenLista(room));
   res.json({ rooms: [...lista.values()].sort((a, b) => b.createdAt - a.createdAt) });
 });
 
@@ -62,9 +75,13 @@ slidesRouter.post("/mine/:id/abrir", requireTeacher, async (req, res) => {
   let room = salaEnMemoria(req.params.id);
   if (!room) {
     try {
-      const { rows } = await db.pool.query("SELECT data FROM slide_rooms WHERE id = $1 AND owner_id = $2", [req.params.id, req.user.id]);
+      const { rows } = await db.pool.query("SELECT data FROM slide_rooms WHERE id = $1 AND owner_id = $2", [
+        req.params.id,
+        req.user.id,
+      ]);
       if (!rows.length) return res.status(404).json({ error: "No encontramos esa sala. Quizá ya fue eliminada." });
-      if (getRoom(rows[0].data?.code)) return res.status(409).json({ error: "Otra sala activa usa ahora ese código. Inténtalo más tarde." });
+      if (getRoom(rows[0].data?.code))
+        return res.status(409).json({ error: "Otra sala activa usa ahora ese código. Inténtalo más tarde." });
       room = restaurar(rows[0].data);
     } catch (e) {
       console.error("[presentaciones] no se pudo reabrir la sala:", e.message);
@@ -121,13 +138,20 @@ slidesRouter.get("/historial", async (req, res) => {
         CROSS JOIN LATERAL (SELECT e AS d FROM jsonb_array_elements(r.data->'decks') e WHERE e->>'key' = s->>'deckKey' LIMIT 1) dd
         WHERE s->>'userId' = $1
         ORDER BY r.updated_at DESC LIMIT 50`,
-      [uid]
+      [uid],
     );
     for (const r of rows) {
       lista.set(r.code, {
-        code: r.code, roomName: r.room_name || "Presentaciones de la clase", task: r.task || "", status: r.status === "closed" ? "closed" : "open",
-        studentId: r.student_id, name: r.student_name || "", deckName: r.deck_name || "", teamCode: /^t:/.test(r.deck_key || "") ? r.deck_key.slice(2) : "",
-        slides: Number(r.slides), updatedAt: Number(r.deck_updated) || new Date(r.updated_at).getTime(),
+        code: r.code,
+        roomName: r.room_name || "Presentaciones de la clase",
+        task: r.task || "",
+        status: r.status === "closed" ? "closed" : "open",
+        studentId: r.student_id,
+        name: r.student_name || "",
+        deckName: r.deck_name || "",
+        teamCode: /^t:/.test(r.deck_key || "") ? r.deck_key.slice(2) : "",
+        slides: Number(r.slides),
+        updatedAt: Number(r.deck_updated) || new Date(r.updated_at).getTime(),
       });
     }
   } catch (e) {
@@ -140,9 +164,16 @@ slidesRouter.get("/historial", async (req, res) => {
       const entry = room.decks.get(st.deckKey);
       if (!entry) continue;
       lista.set(room.code, {
-        code: room.code, roomName: room.name, task: room.task, status: room.status === "closed" ? "closed" : "open",
-        studentId: st.id, name: st.name, deckName: entry.name, teamCode: /^t:/.test(entry.key) ? entry.key.slice(2) : "",
-        slides: entry.deck?.slides?.length || 0, updatedAt: entry.updatedAt || room.createdAt,
+        code: room.code,
+        roomName: room.name,
+        task: room.task,
+        status: room.status === "closed" ? "closed" : "open",
+        studentId: st.id,
+        name: st.name,
+        deckName: entry.name,
+        teamCode: /^t:/.test(entry.key) ? entry.key.slice(2) : "",
+        slides: entry.deck?.slides?.length || 0,
+        updatedAt: entry.updatedAt || room.createdAt,
       });
     }
   }

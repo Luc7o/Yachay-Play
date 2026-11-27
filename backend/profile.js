@@ -60,7 +60,7 @@ export async function ranking(miId, limite = 10) {
        SELECT id, name, played, won, points::int AS points, position::int AS position, total::int AS total
          FROM ordenado
         WHERE position <= ? OR id = ?
-        ORDER BY position`
+        ORDER BY position`,
     )
     .all(PUNTOS_VICTORIA, PUNTOS_PARTIDA, limite, miId);
   const total = filas[0]?.total ?? 0;
@@ -69,7 +69,14 @@ export async function ranking(miId, limite = 10) {
 }
 
 // En el ranking público solo se muestra el nombre (nunca el correo).
-const aPublico = (f, miId) => ({ position: f.position, name: f.name, played: f.played, won: f.won, points: f.points, me: f.id === miId });
+const aPublico = (f, miId) => ({
+  position: f.position,
+  name: f.name,
+  played: f.played,
+  won: f.won,
+  points: f.points,
+  me: f.id === miId,
+});
 
 profileRouter.get("/ranking", async (req, res) => {
   try {
@@ -94,9 +101,27 @@ function logros({ played, won, correct, incorrect, cwBest, jugoLudo, jugoCw }) {
     { id: "victoria", icon: "🏆", name: "Primera victoria", desc: "Gana una partida.", unlocked: won >= 1 },
     { id: "constante", icon: "🔥", name: "Constante", desc: "Juega 5 partidas.", unlocked: played >= 5 },
     { id: "campeon", icon: "👑", name: "Campeón", desc: "Gana 5 partidas.", unlocked: won >= 5 },
-    { id: "punteria", icon: "🎯", name: "Buena puntería", desc: "80 % de aciertos en Ludo (mínimo 10 respuestas).", unlocked: respuestas >= 10 && precision >= 0.8 },
-    { id: "crucigramista", icon: "🔤", name: "Crucigramista", desc: "Resuelve 5 palabras o más en un crucigrama.", unlocked: cwBest >= 5 },
-    { id: "todoterreno", icon: "🧩", name: "Todoterreno", desc: "Juega Ludo y Crucigrama.", unlocked: jugoLudo && jugoCw },
+    {
+      id: "punteria",
+      icon: "🎯",
+      name: "Buena puntería",
+      desc: "80 % de aciertos en Ludo (mínimo 10 respuestas).",
+      unlocked: respuestas >= 10 && precision >= 0.8,
+    },
+    {
+      id: "crucigramista",
+      icon: "🔤",
+      name: "Crucigramista",
+      desc: "Resuelve 5 palabras o más en un crucigrama.",
+      unlocked: cwBest >= 5,
+    },
+    {
+      id: "todoterreno",
+      icon: "🧩",
+      name: "Todoterreno",
+      desc: "Juega Ludo y Crucigrama.",
+      unlocked: jugoLudo && jugoCw,
+    },
   ];
 }
 
@@ -118,7 +143,7 @@ profileRouter.get("/", async (req, res) => {
              SELECT p.user_id FROM players p JOIN games g ON g.id = p.game_id WHERE g.owner_id = ? AND p.user_id IS NOT NULL
              UNION ALL
              SELECT p.user_id FROM crossword_players p JOIN crossword_games g ON g.id = p.game_id WHERE g.owner_id = ? AND p.user_id IS NOT NULL
-           ) x`
+           ) x`,
         )
         .get(u.id, u.id);
       return res.json({ ...base, docente: { ludoGames: l.c, crosswordGames: c.c, questions: q.c, students: e.c } });
@@ -129,14 +154,14 @@ profileRouter.get("/", async (req, res) => {
         `SELECT g.winner_team = p.team AS won, t.correct, t.incorrect
            FROM players p JOIN games g ON g.id = p.game_id
            JOIN teams t ON t.game_id = g.id AND t.color = p.team
-          WHERE p.user_id = ? AND g.phase = 'finished'`
+          WHERE p.user_id = ? AND g.phase = 'finished'`,
       )
       .all(u.id);
     const cw = await db
       .prepare(
         `SELECT (g.winner_player_id = p.id) AS won, p.solved_count
            FROM crossword_players p JOIN crossword_games g ON g.id = p.game_id
-          WHERE p.user_id = ? AND g.status = 'ended'`
+          WHERE p.user_id = ? AND g.status = 'ended'`,
       )
       .all(u.id);
 
@@ -168,8 +193,11 @@ profileRouter.get("/", async (req, res) => {
 
 // ----------------------------- editar nombre -----------------------------
 profileRouter.patch("/", async (req, res) => {
-  const nombre = String(req.body?.name || "").trim().replace(/\s+/g, " ");
-  if (nombre.length < 2 || nombre.length > 40) return res.status(400).json({ error: "Escribe tu nombre (entre 2 y 40 letras)." });
+  const nombre = String(req.body?.name || "")
+    .trim()
+    .replace(/\s+/g, " ");
+  if (nombre.length < 2 || nombre.length > 40)
+    return res.status(400).json({ error: "Escribe tu nombre (entre 2 y 40 letras)." });
   try {
     await db.prepare("UPDATE users SET name = ? WHERE id = ?").run(nombre, req.user.id);
     res.json({ user: publicUser({ ...req.user, name: nombre }) });
@@ -184,10 +212,13 @@ profileRouter.patch("/", async (req, res) => {
 // - Cuenta creada con Google (aún sin contraseña): NO se crea aquí; se manda un enlace al correo
 //   (POST /api/auth/password-link) para que solo la cree quien controla ese correo.
 const intentos = new Map(); // userId -> { n, inicio }: 5 intentos fallidos cada 10 minutos
-setInterval(() => {
-  const limite = Date.now() - 10 * 60 * 1000;
-  for (const [k, v] of intentos) if (v.inicio < limite) intentos.delete(k);
-}, 10 * 60 * 1000).unref();
+setInterval(
+  () => {
+    const limite = Date.now() - 10 * 60 * 1000;
+    for (const [k, v] of intentos) if (v.inicio < limite) intentos.delete(k);
+  },
+  10 * 60 * 1000,
+).unref();
 profileRouter.post("/password", async (req, res) => {
   const actual = String(req.body?.currentPassword || "");
   const nueva = String(req.body?.newPassword || "");
@@ -206,13 +237,17 @@ profileRouter.post("/password", async (req, res) => {
     const u = await db.prepare("SELECT password_hash FROM users WHERE id = ?").get(req.user.id);
     if (u.password_hash === "google") {
       // Crear la primera contraseña va por enlace al correo (POST /api/auth/password-link).
-      return res.status(400).json({ error: "Tu cuenta entra con Google: pide el enlace a tu correo para crear una contraseña." });
+      return res
+        .status(400)
+        .json({ error: "Tu cuenta entra con Google: pide el enlace a tu correo para crear una contraseña." });
     } else if (!(await verifyPassword(actual, u.password_hash))) {
       fallar();
       return res.status(401).json({ error: "La contraseña actual no es correcta." });
     }
     // token_version + 1 cierra las demás sesiones abiertas; a esta se le entrega un token nuevo para que no se salga.
-    await db.prepare("UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE id = ?").run(await hashPassword(nueva), req.user.id);
+    await db
+      .prepare("UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE id = ?")
+      .run(await hashPassword(nueva), req.user.id);
     intentos.delete(req.user.id);
     const fresco = await findUserById(req.user.id);
     res.json({ ok: true, token: signToken(fresco), user: publicUser(fresco) });

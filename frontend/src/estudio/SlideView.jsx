@@ -26,7 +26,8 @@ export function ElementoVista({ el }) {
       </div>
     );
   }
-  if (el.type === "image") return <img src={el.src} alt="" draggable={false} style={{ ...base, objectFit: "fill", userSelect: "none" }} />;
+  if (el.type === "image")
+    return <img src={el.src} alt="" draggable={false} style={{ ...base, objectFit: "fill", userSelect: "none" }} />;
   return <div style={{ ...base, background: el.fill, borderRadius: el.type === "ellipse" ? "50%" : 10 }} />;
 }
 
@@ -35,8 +36,13 @@ export const SlideView = memo(function SlideView({ slide, width }) {
   const s = width / W;
   return (
     <div className="es-sv" style={{ width, height: H * s }}>
-      <div className="es-sv-in" style={{ width: W, height: H, transform: `scale(${s})`, background: slide?.bg || "#fff" }}>
-        {slide?.elements.map((el) => <ElementoVista key={el.id} el={el} />)}
+      <div
+        className="es-sv-in"
+        style={{ width: W, height: H, transform: `scale(${s})`, background: slide?.bg || "#fff" }}
+      >
+        {slide?.elements.map((el) => (
+          <ElementoVista key={el.id} el={el} />
+        ))}
       </div>
     </div>
   );

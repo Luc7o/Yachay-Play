@@ -17,7 +17,15 @@ const ROLES = [
 ];
 
 const IconEye = ({ off }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
     <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
     <circle cx="12" cy="12" r="3" />
     {off && <path d="M4 4l16 16" />}
@@ -31,7 +39,11 @@ function reglasClave(clave, correo) {
     { id: "largo", texto: "8 caracteres o más", ok: clave.length >= 8 && clave.length <= 100 },
     { id: "letra", texto: "Al menos una letra", ok: /[A-Za-z\u00C0-\u017F]/.test(clave) },
     { id: "numero", texto: "Al menos un número", ok: /\d/.test(clave) },
-    { id: "correo", texto: "Distinta de tu correo", ok: !!clave && clave.toLowerCase() !== correo.trim().toLowerCase() },
+    {
+      id: "correo",
+      texto: "Distinta de tu correo",
+      ok: !!clave && clave.toLowerCase() !== correo.trim().toLowerCase(),
+    },
   ];
 }
 
@@ -45,9 +57,18 @@ export function AuthSide({ titulo, texto }) {
         <h2>{titulo}</h2>
         <p>{texto}</p>
         <ul>
-          <li><Check />Clases con sus estudiantes y actividades</li>
-          <li><Check />Juegos en vivo desde el celular, con un código</li>
-          <li><Check />Resultados por partida y por pregunta</li>
+          <li>
+            <Check />
+            Clases con sus estudiantes y actividades
+          </li>
+          <li>
+            <Check />
+            Juegos en vivo desde el celular, con un código
+          </li>
+          <li>
+            <Check />
+            Resultados por partida y por pregunta
+          </li>
         </ul>
       </div>
       <span className="cp-auth-side-foot">yachay: aprender, saber (quechua)</span>
@@ -71,7 +92,10 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
   // Cuentas de prueba (solo si el servidor las ofrece): permiten entrar con un toque
   const [demo, setDemo] = useState([]);
   useEffect(() => {
-    api.demoAccounts().then((r) => setDemo(r.accounts || [])).catch(() => {});
+    api
+      .demoAccounts()
+      .then((r) => setDemo(r.accounts || []))
+      .catch(() => {});
   }, []);
   function usarDemo(c) {
     setEmail(c.email);
@@ -146,7 +170,9 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
   async function entrarConGoogle(credential) {
     if (!credential) return;
     if (registroRef.current && (!roleRef.current || !termsRef.current || !edadRef.current)) {
-      setError("Antes de registrarte con Google, elige si eres docente o estudiante, acepta los Términos y confirma tu edad.");
+      setError(
+        "Antes de registrarte con Google, elige si eres docente o estudiante, acepta los Términos y confirma tu edad.",
+      );
       return;
     }
     setLoading(true);
@@ -157,7 +183,9 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
         setTab("register");
         if (r.name) setName(r.name);
         if (r.email) setEmail(r.email);
-        setError("Aún no tienes cuenta. Elige si eres docente o estudiante, acepta los Términos, confirma tu edad y vuelve a pulsar «Continuar con Google».");
+        setError(
+          "Aún no tienes cuenta. Elige si eres docente o estudiante, acepta los Términos, confirma tu edad y vuelve a pulsar «Continuar con Google».",
+        );
         return;
       }
       if (r.needs2FA) return onNeeds2FA(r.challenge);
@@ -182,15 +210,35 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
 
       <main className="cp-auth-main">
         <div className="cp-auth-top">
-          <button type="button" className="cp-btn quiet" onClick={onBack}>← Volver al inicio</button>
-          <span className="cp-auth-brand-mobile"><Marca onClick={onBack} label="Volver a YachayPlay" /></span>
+          <button type="button" className="cp-btn quiet" onClick={onBack}>
+            ← Volver al inicio
+          </button>
+          <span className="cp-auth-brand-mobile">
+            <Marca onClick={onBack} label="Volver a YachayPlay" />
+          </span>
           <BotonTema />
         </div>
 
         <div className="cp-auth-card">
           <div className="cp-seg" role="tablist" aria-label="Acceso">
-            <button type="button" role="tab" aria-selected={!registro} className={!registro ? "on" : ""} onClick={() => cambiarTab("login")}>Iniciar sesión</button>
-            <button type="button" role="tab" aria-selected={registro} className={registro ? "on" : ""} onClick={() => cambiarTab("register")}>Crear cuenta</button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={!registro}
+              className={!registro ? "on" : ""}
+              onClick={() => cambiarTab("login")}
+            >
+              Iniciar sesión
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={registro}
+              className={registro ? "on" : ""}
+              onClick={() => cambiarTab("register")}
+            >
+              Crear cuenta
+            </button>
           </div>
 
           <form className="cp-auth-form" onSubmit={enviar} noValidate>
@@ -203,19 +251,37 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
                 </legend>
                 {ROLES.map((r) => (
                   <label key={r.id} className={"cp-role" + (role === r.id ? " on" : "")}>
-                    <input type="radio" name="cp-rol" value={r.id} required checked={role === r.id} onChange={() => setRole(r.id)} />
+                    <input
+                      type="radio"
+                      name="cp-rol"
+                      value={r.id}
+                      required
+                      checked={role === r.id}
+                      onChange={() => setRole(r.id)}
+                    />
                     <strong>{r.title}</strong>
                     <small>{r.text}</small>
                   </label>
                 ))}
-                <p id="cp-rol-ayuda" className="cp-help">Se elige una sola vez y no se puede cambiar después.</p>
+                <p id="cp-rol-ayuda" className="cp-help">
+                  Se elige una sola vez y no se puede cambiar después.
+                </p>
               </fieldset>
             )}
 
             {registro && (
               <div className="cp-field">
                 <label htmlFor="cp-a-name">Tu nombre</label>
-                <input id="cp-a-name" ref={primerCampo} className="cp-input" value={name} maxLength={40} autoComplete="name" placeholder="Ej. Andrea Quispe" onChange={(e) => setName(e.target.value)} />
+                <input
+                  id="cp-a-name"
+                  ref={primerCampo}
+                  className="cp-input"
+                  value={name}
+                  maxLength={40}
+                  autoComplete="name"
+                  placeholder="Ej. Andrea Quispe"
+                  onChange={(e) => setName(e.target.value)}
+                />
               </div>
             )}
 
@@ -236,7 +302,11 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
             <div className="cp-field">
               <div className="cp-field-head">
                 <label htmlFor="cp-a-pass">Contraseña</label>
-                {!registro && <button type="button" className="cp-link" onClick={onForgot}>¿Olvidaste tu contraseña?</button>}
+                {!registro && (
+                  <button type="button" className="cp-link" onClick={onForgot}>
+                    ¿Olvidaste tu contraseña?
+                  </button>
+                )}
               </div>
               <div className="cp-pass">
                 <input
@@ -248,7 +318,12 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
                   placeholder={registro ? "Crea una contraseña" : "Tu contraseña"}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <button type="button" className="cp-eye" onClick={() => setVerClave(!verClave)} aria-label={verClave ? "Ocultar contraseña" : "Mostrar contraseña"}>
+                <button
+                  type="button"
+                  className="cp-eye"
+                  onClick={() => setVerClave(!verClave)}
+                  aria-label={verClave ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
                   <IconEye off={verClave} />
                 </button>
               </div>
@@ -269,8 +344,15 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
               <label className="cp-check">
                 <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} />
                 <span>
-                  Acepto los <a href="/terminos-y-condiciones" target="_blank" rel="noopener noreferrer">Términos y Condiciones</a> y la{" "}
-                  <a href="/politica-de-privacidad" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>.
+                  Acepto los{" "}
+                  <a href="/terminos-y-condiciones" target="_blank" rel="noopener noreferrer">
+                    Términos y Condiciones
+                  </a>{" "}
+                  y la{" "}
+                  <a href="/politica-de-privacidad" target="_blank" rel="noopener noreferrer">
+                    Política de Privacidad
+                  </a>
+                  .
                 </span>
               </label>
             )}
@@ -292,29 +374,50 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
               </div>
             )}
 
-            {error && <p className="cp-msg error" role="alert">{error}</p>}
+            {error && (
+              <p className="cp-msg error" role="alert">
+                {error}
+              </p>
+            )}
 
-            <button type="submit" className="cp-btn primary lg cp-full" disabled={!listo || loading} aria-describedby={registro ? "cp-faltan" : undefined}>
+            <button
+              type="submit"
+              className="cp-btn primary lg cp-full"
+              disabled={!listo || loading}
+              aria-describedby={registro ? "cp-faltan" : undefined}
+            >
               {loading ? "Un momento…" : registro ? "Crear mi cuenta" : "Entrar"}
             </button>
             {registro && faltan.length > 0 && (
-              <p id="cp-faltan" className="cp-help">Para crear tu cuenta falta: {faltan.join(", ")}.</p>
+              <p id="cp-faltan" className="cp-help">
+                Para crear tu cuenta falta: {faltan.join(", ")}.
+              </p>
             )}
 
             {googleDisponible && (
               <>
-                <div className="cp-or"><span>o</span></div>
+                <div className="cp-or">
+                  <span>o</span>
+                </div>
                 {googleBloqueado && (
                   <p className="cp-help cp-center" id="cp-google-ayuda">
                     Para registrarte con Google, primero{" "}
-                    {[!role && "elige si eres docente o estudiante", !terms && "acepta los Términos", !edad && "confirma tu edad"]
+                    {[
+                      !role && "elige si eres docente o estudiante",
+                      !terms && "acepta los Términos",
+                      !edad && "confirma tu edad",
+                    ]
                       .filter(Boolean)
                       .join(", ")
                       .replace(/, ([^,]*)$/, " y $1")}
                     .
                   </p>
                 )}
-                <div ref={cajaGoogle} className={"cp-google" + (googleBloqueado ? " off" : "")} aria-describedby={googleBloqueado ? "cp-google-ayuda" : undefined}>
+                <div
+                  ref={cajaGoogle}
+                  className={"cp-google" + (googleBloqueado ? " off" : "")}
+                  aria-describedby={googleBloqueado ? "cp-google-ayuda" : undefined}
+                >
                   <GoogleButton onCredential={entrarConGoogle} />
                 </div>
               </>
@@ -323,11 +426,26 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
 
           <div className="cp-auth-links">
             {registro ? (
-              <span>¿Ya tienes cuenta? <button type="button" className="cp-link" onClick={() => cambiarTab("login")}>Inicia sesión</button></span>
+              <span>
+                ¿Ya tienes cuenta?{" "}
+                <button type="button" className="cp-link" onClick={() => cambiarTab("login")}>
+                  Inicia sesión
+                </button>
+              </span>
             ) : (
-              <span>¿Aún no tienes cuenta? <button type="button" className="cp-link" onClick={() => cambiarTab("register")}>Créala gratis</button></span>
+              <span>
+                ¿Aún no tienes cuenta?{" "}
+                <button type="button" className="cp-link" onClick={() => cambiarTab("register")}>
+                  Créala gratis
+                </button>
+              </span>
             )}
-            <span>¿Solo quieres jugar con un código? <button type="button" className="cp-link" onClick={onGuest}>Entrar como invitado</button></span>
+            <span>
+              ¿Solo quieres jugar con un código?{" "}
+              <button type="button" className="cp-link" onClick={onGuest}>
+                Entrar como invitado
+              </button>
+            </span>
           </div>
         </div>
       </main>

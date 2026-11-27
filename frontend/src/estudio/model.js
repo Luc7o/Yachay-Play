@@ -37,24 +37,46 @@ const color = (v, def) => (typeof v === "string" && HEX.test(v) ? v : def);
 
 // ----------------------- fábricas -----------------------
 export function elementoTexto(over = {}) {
-  return { id: ids(), type: "text", x: 80, y: 80, w: 800, h: 90, text: "Escribe aquí", size: 36, color: "#1E2A5A", bold: false, italic: false, underline: false, align: "left", ...over };
+  return {
+    id: ids(),
+    type: "text",
+    x: 80,
+    y: 80,
+    w: 800,
+    h: 90,
+    text: "Escribe aquí",
+    size: 36,
+    color: "#1E2A5A",
+    bold: false,
+    italic: false,
+    underline: false,
+    align: "left",
+    ...over,
+  };
 }
 export function elementoForma(type, over = {}) {
   return { id: ids(), type, x: 360, y: 190, w: 240, h: 160, fill: "#00A996", ...over };
 }
 export function elementoImagen(src, w, h) {
   const r = Math.min(600 / w, 380 / h, 1);
-  const ww = Math.round(w * r), hh = Math.round(h * r);
+  const ww = Math.round(w * r),
+    hh = Math.round(h * r);
   return { id: ids(), type: "image", x: Math.round((W - ww) / 2), y: Math.round((H - hh) / 2), w: ww, h: hh, src };
 }
 export function diapositiva(plantilla = "blanco") {
   const s = { id: ids(), bg: "#ffffff", elements: [] };
   if (plantilla === "titulo") {
-    s.elements.push(elementoTexto({ y: 170, h: 110, size: 60, bold: true, align: "center", text: "Título de la presentación" }));
-    s.elements.push(elementoTexto({ y: 300, h: 70, size: 28, align: "center", color: "#416773", text: "Tu nombre · Curso" }));
+    s.elements.push(
+      elementoTexto({ y: 170, h: 110, size: 60, bold: true, align: "center", text: "Título de la presentación" }),
+    );
+    s.elements.push(
+      elementoTexto({ y: 300, h: 70, size: 28, align: "center", color: "#416773", text: "Tu nombre · Curso" }),
+    );
   } else if (plantilla === "contenido") {
     s.elements.push(elementoTexto({ y: 40, h: 90, size: 44, bold: true, text: "Título de la diapositiva" }));
-    s.elements.push(elementoTexto({ y: 150, h: 330, size: 28, text: "• Primera idea\n• Segunda idea\n• Tercera idea" }));
+    s.elements.push(
+      elementoTexto({ y: 150, h: 330, size: 28, text: "• Primera idea\n• Segunda idea\n• Tercera idea" }),
+    );
   }
   return s;
 }
@@ -104,7 +126,9 @@ function limpiarParche(p) {
 }
 export function limpiarDiapositiva(s) {
   if (!s || typeof s !== "object") return null;
-  const els = Array.isArray(s.elements) ? s.elements.slice(0, LIMITES.elementos).map(limpiarElemento).filter(Boolean) : [];
+  const els = Array.isArray(s.elements)
+    ? s.elements.slice(0, LIMITES.elementos).map(limpiarElemento).filter(Boolean)
+    : [];
   return { id: String(s.id || ids()).slice(0, 16), bg: color(s.bg, "#ffffff"), elements: els };
 }
 // Devuelve la operación limpia o null si no es válida.
@@ -112,15 +136,28 @@ export function limpiarOp(op) {
   if (!op || typeof op !== "object") return null;
   const sid = String(op.sid || "").slice(0, 16);
   switch (op.t) {
-    case "slide+": { const s = limpiarDiapositiva(op.slide); return s ? { t: "slide+", slide: s, index: num(op.index, 0, LIMITES.slides, 0) } : null; }
-    case "slide-": return { t: "slide-", id: String(op.id || "").slice(0, 16) };
-    case "slide~": return { t: "slide~", id: String(op.id || "").slice(0, 16), bg: color(op.bg, "#ffffff") };
-    case "slide>": return { t: "slide>", id: String(op.id || "").slice(0, 16), to: num(op.to, 0, LIMITES.slides, 0) };
-    case "el+": { const e = limpiarElemento(op.el); return e ? { t: "el+", sid, el: e } : null; }
-    case "el~": return { t: "el~", sid, id: String(op.id || "").slice(0, 16), patch: limpiarParche(op.patch) };
-    case "el-": return { t: "el-", sid, id: String(op.id || "").slice(0, 16) };
-    case "el^": return { t: "el^", sid, id: String(op.id || "").slice(0, 16), z: op.z === "back" ? "back" : "front" };
-    default: return null;
+    case "slide+": {
+      const s = limpiarDiapositiva(op.slide);
+      return s ? { t: "slide+", slide: s, index: num(op.index, 0, LIMITES.slides, 0) } : null;
+    }
+    case "slide-":
+      return { t: "slide-", id: String(op.id || "").slice(0, 16) };
+    case "slide~":
+      return { t: "slide~", id: String(op.id || "").slice(0, 16), bg: color(op.bg, "#ffffff") };
+    case "slide>":
+      return { t: "slide>", id: String(op.id || "").slice(0, 16), to: num(op.to, 0, LIMITES.slides, 0) };
+    case "el+": {
+      const e = limpiarElemento(op.el);
+      return e ? { t: "el+", sid, el: e } : null;
+    }
+    case "el~":
+      return { t: "el~", sid, id: String(op.id || "").slice(0, 16), patch: limpiarParche(op.patch) };
+    case "el-":
+      return { t: "el-", sid, id: String(op.id || "").slice(0, 16) };
+    case "el^":
+      return { t: "el^", sid, id: String(op.id || "").slice(0, 16), z: op.z === "back" ? "back" : "front" };
+    default:
+      return null;
   }
 }
 
@@ -154,7 +191,10 @@ export function aplicarOp(deck, op) {
         return { ...s, elements: ya ? s.elements.map((e) => (e.id === op.el.id ? op.el : e)) : [...s.elements, op.el] };
       });
     case "el~":
-      return enSlide(op.sid, (s) => ({ ...s, elements: s.elements.map((e) => (e.id === op.id ? { ...e, ...op.patch } : e)) }));
+      return enSlide(op.sid, (s) => ({
+        ...s,
+        elements: s.elements.map((e) => (e.id === op.id ? { ...e, ...op.patch } : e)),
+      }));
     case "el-":
       return enSlide(op.sid, (s) => ({ ...s, elements: s.elements.filter((e) => e.id !== op.id) }));
     case "el^":
@@ -170,6 +210,8 @@ export function aplicarOp(deck, op) {
 }
 
 export function limpiarDeck(d) {
-  const slides = Array.isArray(d?.slides) ? d.slides.slice(0, LIMITES.slides).map(limpiarDiapositiva).filter(Boolean) : [];
+  const slides = Array.isArray(d?.slides)
+    ? d.slides.slice(0, LIMITES.slides).map(limpiarDiapositiva).filter(Boolean)
+    : [];
   return { slides: slides.length ? slides : deckInicial().slides };
 }

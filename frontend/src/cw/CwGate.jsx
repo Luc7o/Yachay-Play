@@ -10,12 +10,16 @@ export function CwGate({ onLogin, onRegister, onGuest, onBack }) {
       theme="crossword"
       subtitle="Crucigrama Relámpago"
       eyebrow="Juego · Crucigrama relámpago"
-      title={<>Compite llenando el crucigrama <span className="gate-hl">antes que tus rivales</span></>}
+      title={
+        <>
+          Compite llenando el crucigrama <span className="gate-hl">antes que tus rivales</span>
+        </>
+      }
       description={
         <>
-          Todos reciben el mismo crucigrama y compiten por terminarlo primero. Acertar rápido y en racha
-          junta energía para lanzar <b>sabotajes</b> a tus rivales: congélalos, ponles niebla o róbales puntos.
-          Si nadie lo completa, gana quien tenga más puntos.
+          Todos reciben el mismo crucigrama y compiten por terminarlo primero. Acertar rápido y en racha junta energía
+          para lanzar <b>sabotajes</b> a tus rivales: congélalos, ponles niebla o róbales puntos. Si nadie lo completa,
+          gana quien tenga más puntos.
         </>
       }
       tags={["Carrera individual", "Sabotajes", "Desde el celular", "Ranking en vivo"]}
@@ -37,10 +41,26 @@ export function CwGate({ onLogin, onRegister, onGuest, onBack }) {
       ]}
       guestText="¿Solo quieres unirte con el código de tu docente?"
       steps={[
-        { icon: "", t: "El docente crea la partida", d: "Elige cuántas palabras y cuánto dura, y proyecta el código de 6 dígitos." },
-        { icon: "", t: "Los estudiantes se unen", d: "Cada uno entra desde su celular con el código y escribe su nombre." },
-        { icon: "", t: "Resuelven las pistas", d: "Cada quien llena su propio tablero. Acertar rápido y en racha suma puntos y energía." },
-        { icon: "", t: "Completa y gana", d: "Gana quien complete todo el crucigrama primero. Si se acaba el tiempo, gana quien tenga más puntos." },
+        {
+          icon: "",
+          t: "El docente crea la partida",
+          d: "Elige cuántas palabras y cuánto dura, y proyecta el código de 6 dígitos.",
+        },
+        {
+          icon: "",
+          t: "Los estudiantes se unen",
+          d: "Cada uno entra desde su celular con el código y escribe su nombre.",
+        },
+        {
+          icon: "",
+          t: "Resuelven las pistas",
+          d: "Cada quien llena su propio tablero. Acertar rápido y en racha suma puntos y energía.",
+        },
+        {
+          icon: "",
+          t: "Completa y gana",
+          d: "Gana quien complete todo el crucigrama primero. Si se acaba el tiempo, gana quien tenga más puntos.",
+        },
       ]}
       extra={<CrosswordSabotagesExtra />}
       onLogin={onLogin}

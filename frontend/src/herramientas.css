@@ -283,6 +283,7 @@
   width: 100%;
   min-height: 3.4em;
   max-height: 34vh;
+  max-height: 34dvh;
   resize: none;
   overflow-y: auto;
   text-align: center;
@@ -323,6 +324,7 @@
   font-size: clamp(1.6rem, 4vw, 3.3rem);
   min-height: 0;
   max-height: 30vh;
+  max-height: 30dvh;
   background: transparent;
   border-color: transparent;
 }
@@ -363,6 +365,7 @@
   width: 100%;
   max-width: 760px;
   height: clamp(10px, 1.6vh, 14px);
+  height: clamp(10px, 1.6dvh, 14px);
   background: var(--hr-track);
   border-radius: 999px;
   overflow: hidden;
@@ -631,6 +634,7 @@
   width: 100%;
   max-width: 760px;
   min-height: clamp(60px, 10vh, 96px);
+  min-height: clamp(60px, 10dvh, 96px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -705,6 +709,7 @@
 }
 .hr-btn.hr-grande {
   min-height: clamp(52px, 8vh, 68px);
+  min-height: clamp(52px, 8dvh, 68px);
   font-size: clamp(1.2rem, 2.6vh, 1.5rem);
 }
 
@@ -722,6 +727,7 @@
   align-self: center;
   width: auto;
   height: clamp(70px, 16vh, 130px);
+  height: clamp(70px, 16dvh, 130px);
   flex: none;
   object-fit: contain;
 }
@@ -927,6 +933,7 @@
   }
   .hr-page .hr-activity {
     max-height: 24vh;
+    max-height: 24dvh;
     min-height: 2.6em;
   }
   .hr-activity-label {

@@ -10,6 +10,7 @@ body {
 }
 .app {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 .ref-topbar {
   height: 72px;
@@ -542,6 +543,7 @@ html {
    ========================================================================== */
 .splash {
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
   background: #fff;
@@ -650,6 +652,7 @@ html {
 /* --- Pantalla de juego --- */
 .cw-play-page {
   min-height: 100vh;
+  min-height: 100dvh;
   background: #fff;
 }
 .cw-play-main {
@@ -1151,6 +1154,7 @@ html {
   max-width: calc(100vw - 32px);
   height: 460px;
   max-height: calc(100vh - 150px);
+  max-height: calc(100dvh - 150px);
   background: #fff;
   border: 1px solid var(--navy-border);
   border-radius: 18px;
@@ -1272,6 +1276,7 @@ html {
   max-width: calc(100vw - 32px);
   height: 460px;
   max-height: 70vh;
+  max-height: 70dvh;
   background: #fff;
   border: 1px solid var(--navy-border);
   border-radius: 18px;
@@ -1455,6 +1460,7 @@ html {
 .ai-panel {
   height: 540px;
   max-height: 80vh;
+  max-height: 80dvh;
   width: 360px;
 }
 .ai-panel-head {
@@ -1523,6 +1529,7 @@ html {
   .ai-panel {
     width: calc(100vw - 28px);
     height: 75vh;
+    height: 75dvh;
   }
 }
 
@@ -1572,6 +1579,7 @@ html {
 /* Aviso breve mientras llega una pantalla que se carga bajo demanda (React.lazy). */
 .app-cargando {
   min-height: 60vh;
+  min-height: 60dvh;
   display: grid;
   place-items: center;
   font-weight: 700;

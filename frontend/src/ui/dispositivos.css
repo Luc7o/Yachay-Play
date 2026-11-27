@@ -1,0 +1,108 @@
+/* ==========================================================================
+   CELULAR Y PROYECTOR
+   --------------------------------------------------------------------------
+   Los dos lugares donde de verdad se usa YachayPlay: el estudiante juega con
+   el pulgar en su celular y el docente proyecta en un aula con luz.
+   Se carga al final (main.jsx).
+   ========================================================================== */
+
+/* ---------- Toque: sin destello azul, sin espera de doble toque ---------- */
+button,
+a,
+[role="button"],
+input,
+select,
+textarea,
+label {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 640px), (pointer: coarse) {
+  /* iOS hace zoom en campos con letra menor a 16 px: se evita */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+  /* Objetivos de toque de al menos 44 px */
+  .cp-btn,
+  .stu-team,
+  .ui-tabs button,
+  .cp-side-nav button {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Pantallas del estudiante: el botón principal del formulario queda fijo
+     abajo, en la zona del pulgar, aunque el teclado o la lista de equipos
+     empujen el contenido. */
+  .stu-card form > .cp-btn.primary.cp-full,
+  .stu-card > .cp-btn.primary.cp-full,
+  form.stu-card > .cp-btn.primary.cp-full {
+    position: sticky;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 5;
+    box-shadow: 0 10px 24px -8px rgb(0 0 0 / 0.35);
+  }
+  /* Espacio para el notch y la barra de gestos */
+  .stu-page,
+  .cp-shell,
+  .cp-landing {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  .stu-main {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+  .ai-fab-wrap {
+    bottom: calc(14px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* ---------- Proyector (.cp-proj: salas del docente, siempre oscuras) ----------
+   Se ve a varios metros y con la luz del aula: nada de letra diminuta ni gris
+   tenue. Los textos de ayuda y etiquetas suben a un mínimo legible. */
+.cp-proj {
+  --cp-muted: #b4b7c2; /* más claro que el gris del panel: contraste ≥ 7:1 sobre el fondo */
+}
+.cp-proj small,
+.cp-proj .cp-help,
+.cp-proj .cp-muted,
+.cp-proj .cp-eyebrow,
+.cp-proj label {
+  font-size: max(14px, 1em);
+}
+@media (min-width: 1200px) {
+  .cp-proj p,
+  .cp-proj li {
+    font-size: max(16px, 1em);
+  }
+}
+
+/* Proyectores de 720 px de alto (muy comunes en aulas): la sala de espera entra
+   completa sin desplazar. El código sigue siendo lo más grande de la pantalla. */
+@media (min-width: 1000px) and (max-height: 780px) {
+  .cp-proj .proj-hero-copy h1 {
+    font-size: clamp(28px, 4.4vh, 38px);
+    line-height: 1.1;
+  }
+  .cp-proj .proj-main {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    gap: 14px;
+  }
+  .cp-proj .proj-stage {
+    gap: 12px;
+  }
+  .cp-proj .proj-hero {
+    padding: 20px 24px;
+    gap: 16px 28px;
+  }
+  /* El consejo lateral es lo único prescindible: se oculta para que entre lo demás */
+  .cp-proj .proj-side > .cp-panel + .cp-panel {
+    display: none;
+  }
+}

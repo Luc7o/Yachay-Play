@@ -40,11 +40,13 @@
 }
 .es-page {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
 .es-full {
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -779,6 +781,7 @@
   .es-side {
     order: 3;
     max-height: 26vh;
+    max-height: 26dvh;
     border-left: 0;
     border-top: 1px solid var(--es-line);
   }
@@ -1048,6 +1051,7 @@
 .es-atajos {
   width: min(980px, 100%);
   max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
   overflow: auto;
   background: var(--es-surface);
   color: var(--es-ink);

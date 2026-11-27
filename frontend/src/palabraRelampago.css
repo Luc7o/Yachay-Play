@@ -542,6 +542,7 @@
   border-radius: 26px;
   padding: 35px 30px 55px;
   min-height: calc(100vh - 175px);
+  min-height: calc(100dvh - 175px);
   color-scheme: dark;
 }
 .pr-night .pr-top p,
@@ -764,11 +765,13 @@
   margin-right: calc(50% - 50vw);
   border-radius: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   padding: clamp(14px, 2vw, 30px) clamp(12px, 2.5vw, 44px) 40px;
 }
 .pr-page.pr-fullscreen.pr-night {
   max-width: none;
   min-height: 100vh;
+  min-height: 100dvh;
   border-radius: 0;
 }
 .pr-fullscreen .pr-top {
@@ -814,6 +817,7 @@
   max-width: none;
   min-height: 440px;
   height: clamp(440px, 64vh, 760px);
+  height: clamp(440px, 64dvh, 760px);
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -1015,6 +1019,7 @@
   }
   .pr-fullscreen .pr-arena {
     height: clamp(390px, 58vh, 620px);
+    height: clamp(390px, 58dvh, 620px);
   }
   .pr-fullscreen .pr-top {
     flex-wrap: wrap;

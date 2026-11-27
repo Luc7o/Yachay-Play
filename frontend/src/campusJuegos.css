@@ -104,6 +104,7 @@ body {
   width: 360px;
   height: 520px;
   max-height: min(80vh, calc(100vh - 120px));
+  max-height: min(80dvh, calc(100dvh - 120px));
   border-radius: 16px !important;
   border: 1px solid var(--cp-line) !important;
   background: var(--cp-surface) !important;
@@ -520,6 +521,7 @@ body {
   --cp-logo-fg: #f2a07b;
   --cp-terra: #f2a07b;
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--cp-bg);
   color: var(--cp-ink);
   color-scheme: dark;
@@ -728,6 +730,7 @@ body {
 /* ---------------- 10. Ludo · pantallas del estudiante (celular) ---------------- */
 .stu-page {
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--cp-bg);
   color: var(--cp-ink);
   display: flex;

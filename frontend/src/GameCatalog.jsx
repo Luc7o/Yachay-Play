@@ -406,9 +406,7 @@ function HomeLogged({
             </p>
           </div>
         </div>
-        <div className="cp-tiles">
-          {tilesJuegos}
-        </div>
+        <div className="cp-tiles">{tilesJuegos}</div>
       </div>
     ),
 

@@ -10,6 +10,7 @@ import { Editor } from "./Editor";
 import { TeacherRoom, Miembros } from "./TeacherRoom";
 import { ThemeToggle } from "./ThemeToggle";
 import "./estudio.css";
+import { Button } from "../ui";
 
 const LS_DOCENTE = "yachay_es_docente"; // código de la última sala del docente
 const LS_ALUMNO = "yachay_es_alumno"; // { code, studentId, name, team }
@@ -296,9 +297,9 @@ function Pantalla({ goHome, extra, children }) {
         <div className="es-top-r">
           <ThemeToggle />
           {extra}
-          <button className="es-btn ghost" onClick={goHome}>
+          <Button variant="ghost" size="sm" onClick={goHome}>
             ← Volver al inicio
-          </button>
+          </Button>
         </div>
       </header>
       <main className="es-center">{children}</main>
@@ -315,10 +316,10 @@ function Crear({ goHome, onCrear, cargando, onSalas }) {
       goHome={goHome}
       extra={
         onSalas && (
-          <button className="es-btn ghost" onClick={onSalas}>
+          <Button variant="ghost" size="sm" onClick={onSalas}>
             <IconoEnLinea nombre="lista" />
             Mis salas
-          </button>
+          </Button>
         )
       }
     >
@@ -350,9 +351,14 @@ function Crear({ goHome, onCrear, cargando, onSalas }) {
             {error}
           </p>
         )}
-        <button className="es-btn big" disabled={cargando} onClick={async () => setError(await onCrear(name, task))}>
+        <Button
+          size="lg"
+          className="es-ancho"
+          disabled={cargando}
+          onClick={async () => setError(await onCrear(name, task))}
+        >
           {cargando ? "Creando…" : "Crear sala"}
-        </button>
+        </Button>
       </section>
     </Pantalla>
   );
@@ -406,12 +412,12 @@ function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
         </div>
         <div className="es-top-r">
           <ThemeToggle />
-          <button className="es-btn" onClick={onNueva}>
+          <Button size="sm" onClick={onNueva}>
             + Nueva sala
-          </button>
-          <button className="es-btn ghost" onClick={goHome}>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={goHome}>
             ← Volver al inicio
-          </button>
+          </Button>
         </div>
       </header>
       <main className="es-wrap">
@@ -438,9 +444,9 @@ function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
               <br />
               Crea una nueva cuando quieras trabajar con tus estudiantes.
             </p>
-            <button className="es-btn" onClick={onNueva}>
+            <Button size="sm" onClick={onNueva}>
               + Nueva sala
-            </button>
+            </Button>
           </div>
         )}
         <ul className="es-salas">
@@ -468,14 +474,14 @@ function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
                   {s.task && <p className="es-sala-task">{s.task}</p>}
                 </div>
                 <div className="es-sala-act">
-                  <button className="es-btn" disabled={!!ocupada} onClick={() => abrir(s)}>
+                  <Button size="sm" disabled={!!ocupada} onClick={() => abrir(s)}>
                     {ocupada === s.id ? "Abriendo…" : cerrada ? "Ver trabajos" : "Abrir"}
-                  </button>
+                  </Button>
                   {cerrada && (
-                    <button className="es-btn danger" disabled={!!ocupada} onClick={() => eliminar(s)}>
+                    <Button variant="danger" size="sm" disabled={!!ocupada} onClick={() => eliminar(s)}>
                       <IconoEnLinea nombre="basura" />
                       Eliminar
-                    </button>
+                    </Button>
                   )}
                 </div>
               </li>
@@ -630,8 +636,9 @@ function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "",
             {error}
           </p>
         )}
-        <button
-          className="es-btn big"
+        <Button
+          size="lg"
+          className="es-ancho"
           disabled={!listo || busy}
           onClick={async () => {
             setBusy(true);
@@ -642,7 +649,7 @@ function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "",
           }}
         >
           {busy ? "Entrando…" : "Entrar a crear"}
-        </button>
+        </Button>
         {!user && (
           <p className="es-muted">
             ¿Eres docente?{" "}
@@ -688,18 +695,19 @@ function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "",
                     </div>
                   </div>
                   <div className="es-hist-act">
-                    <button className="es-btn" disabled={!!retomando} onClick={() => retomar(h)}>
+                    <Button size="sm" disabled={!!retomando} onClick={() => retomar(h)}>
                       {retomando === h.code ? "Abriendo…" : h.status === "closed" ? "Ver" : "Retomar"}
-                    </button>
+                    </Button>
                     {local.some((x) => x.code === h.code) && (
-                      <button
-                        className="es-btn ghost"
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         disabled={!!retomando}
                         onClick={() => olvidar(h)}
                         title="Quitar de este dispositivo"
                       >
                         Quitar
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </li>
@@ -841,14 +849,15 @@ function SalaAlumno({ session, initial, onSalir }) {
           </>
         }
         topRight={
-          <button
-            className="es-btn ghost"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => {
               if (window.confirm("¿Salir? Tu trabajo queda guardado en la sala.")) onSalir();
             }}
           >
             Salir
-          </button>
+          </Button>
         }
       />
     </div>

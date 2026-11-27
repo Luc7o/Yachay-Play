@@ -2013,42 +2013,6 @@ body {
   border-bottom: 1px solid var(--cp-line) !important;
 }
 
-/* ---------------- 16. Presentaciones en vivo (tokens --es-*) ---------------- */
-:root .es,
-:root[data-theme="dark"] .es {
-  --es-bg: var(--cp-bg);
-  --es-surface: var(--cp-surface);
-  --es-ink: var(--cp-ink);
-  --es-muted: var(--cp-muted);
-  --es-line: var(--cp-line);
-  --es-primary: var(--cp-accent);
-  --es-primary-d: var(--cp-accent-hover);
-  --es-soft: var(--cp-accent-soft);
-  --es-stage: var(--cp-surface2);
-  --es-danger: var(--cp-danger);
-  font-family: Inter, system-ui, sans-serif;
-}
-.es h1,
-.es h2,
-.es h3,
-.es .es-title {
-  font-family: "Space Grotesk", Inter, sans-serif;
-  letter-spacing: -0.02em;
-}
-.es .es-btn {
-  border-radius: 10px !important;
-  font-weight: 600 !important;
-  box-shadow: none !important;
-}
-.es .es-btn:not(.ghost):not(.danger) {
-  color: var(--cp-on-accent);
-}
-.es .es-card,
-.es .es-card-form {
-  border-radius: 14px !important;
-  box-shadow: none !important;
-}
-
 /* ---------------- 17. Palabra relámpago (fondo, paneles y acento; la arena y la bomba no se tocan) ---------------- */
 .pr-page {
   --pr-accent: #1e2a5a;

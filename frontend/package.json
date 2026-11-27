@@ -11,7 +11,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit -p .",
+    "typecheck": "tsc --noEmit -p . && tsc --noEmit -p tsconfig.pantallas.json",
     "e2e": "playwright test",
     "e2e:visual": "playwright test -c playwright.visual.config.js"
   },

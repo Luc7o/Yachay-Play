@@ -47,20 +47,25 @@ export function StageFrame({ theme, onToggleTheme, onExit, exitLabel = "Salir", 
       <header className="pf-bar">
         <div className="pf-bar-title">
           {kicker && <span className="pf-kicker">{kicker}</span>}
-          <strong>
-            {title}
-          </strong>
+          <strong>{title}</strong>
         </div>
         <div className="pf-bar-actions">
-          <button type="button" className="pf-chip-btn" onClick={onToggleTheme} aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}>
+          <button
+            type="button"
+            className="pf-chip-btn"
+            onClick={onToggleTheme}
+            aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+          >
             {theme === "dark" ? "☀" : "☾"}
           </button>
-          <button type="button" className="pf-chip-btn" onClick={onExit}>{exitLabel}</button>
+          <button type="button" className="pf-chip-btn" onClick={onExit}>
+            {exitLabel}
+          </button>
         </div>
       </header>
       {children}
     </div>,
-    document.body
+    document.body,
   );
 }
 
@@ -69,13 +74,27 @@ export function Clock({ remain, total, low, boom }) {
   const C = 2 * Math.PI * 44;
   const p = Math.max(0, Math.min(1, total ? remain / total : 0));
   return (
-    <div className={"pf-clock" + (low ? " pf-low" : "") + (boom ? " pf-boom" : "")} role="timer" aria-label={`${remain} segundos`}>
+    <div
+      className={"pf-clock" + (low ? " pf-low" : "") + (boom ? " pf-boom" : "")}
+      role="timer"
+      aria-label={`${remain} segundos`}
+    >
       <svg viewBox="0 0 100 100" aria-hidden="true">
         <circle className="pf-ring-track" cx="50" cy="50" r="44" />
-        <circle className="pf-ring" cx="50" cy="50" r="44" strokeDasharray={C} strokeDashoffset={C * (1 - p)} transform="rotate(-90 50 50)" />
+        <circle
+          className="pf-ring"
+          cx="50"
+          cy="50"
+          r="44"
+          strokeDasharray={C}
+          strokeDashoffset={C * (1 - p)}
+          transform="rotate(-90 50 50)"
+        />
       </svg>
       <div className="pf-clock-in">
-        <span className="pf-clock-ico" aria-hidden="true">💣</span>
+        <span className="pf-clock-ico" aria-hidden="true">
+          💣
+        </span>
         <b>{remain}</b>
       </div>
     </div>
@@ -86,13 +105,20 @@ export function Clock({ remain, total, low, boom }) {
 export function UsedList({ items, title = "Palabras usadas" }) {
   return (
     <section className="pf-used" aria-label={title}>
-      <h3>{title} <span>{items.length}</span></h3>
+      <h3>
+        {title} <span>{items.length}</span>
+      </h3>
       <div className="pf-used-list">
         {items.length === 0 ? (
           <p className="pf-empty">Todavía ninguna</p>
         ) : (
           items.map((it, i) => (
-            <span key={(it.word || it) + i} className="pf-word" style={it.color ? { "--w": it.color } : undefined} title={it.by ? `${it.by}` : undefined}>
+            <span
+              key={(it.word || it) + i}
+              className="pf-word"
+              style={it.color ? { "--w": it.color } : undefined}
+              title={it.by ? `${it.by}` : undefined}
+            >
               {it.word || it}
             </span>
           ))
@@ -104,15 +130,37 @@ export function UsedList({ items, title = "Palabras usadas" }) {
 
 // Pantalla de juego completa.
 export function PalabraStage({
-  theme, onToggleTheme, onExit, exitLabel, title, kicker,
-  status, fragment, clock, entry, message, actions, side, used, usedTitle,
+  theme,
+  onToggleTheme,
+  onExit,
+  exitLabel,
+  title,
+  kicker,
+  status,
+  fragment,
+  clock,
+  entry,
+  message,
+  actions,
+  side,
+  used,
+  usedTitle,
 }) {
   return (
-    <StageFrame theme={theme} onToggleTheme={onToggleTheme} onExit={onExit} exitLabel={exitLabel} title={title} kicker={kicker}>
+    <StageFrame
+      theme={theme}
+      onToggleTheme={onToggleTheme}
+      onExit={onExit}
+      exitLabel={exitLabel}
+      title={title}
+      kicker={kicker}
+    >
       <div className="pf-body">
         <main className="pf-main" onClick={() => entry?.inputRef?.current?.focus()}>
           <div className="pf-status">{status}</div>
-          <div className="pf-fragment" aria-label={`Letras: ${fragment}`}>{fragment.toUpperCase()}</div>
+          <div className="pf-fragment" aria-label={`Letras: ${fragment}`}>
+            {fragment.toUpperCase()}
+          </div>
           <Clock {...clock} />
           <form
             className="pf-entry"
@@ -136,10 +184,14 @@ export function PalabraStage({
                 aria-label="Escribe una palabra y pulsa Enter para enviarla"
               />
             ) : (
-              <div className="pf-typed" aria-live="polite">{entry.value || entry.placeholder || "…"}</div>
+              <div className="pf-typed" aria-live="polite">
+                {entry.value || entry.placeholder || "…"}
+              </div>
             )}
           </form>
-          <div className={"pf-msg" + (message?.tone ? " pf-" + message.tone : "")} role="status" aria-live="polite">{message?.text || "\u00A0"}</div>
+          <div className={"pf-msg" + (message?.tone ? " pf-" + message.tone : "")} role="status" aria-live="polite">
+            {message?.text || "\u00A0"}
+          </div>
           <div className="pf-actions">{actions}</div>
         </main>
         <aside className="pf-side">

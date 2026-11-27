@@ -14,7 +14,9 @@ export function CwStudentJoin({ goHome, prefillName, onJoin, error, initialCode 
     <div className="cp stu-page">
       <header className="stu-top">
         <Marca onClick={goHome} label="Volver al inicio de YachayPlay" />
-        <div className="stu-top-right"><BotonTema /></div>
+        <div className="stu-top-right">
+          <BotonTema />
+        </div>
       </header>
       <main className="stu-main">
         <form
@@ -44,11 +46,27 @@ export function CwStudentJoin({ goHome, prefillName, onJoin, error, initialCode 
           </div>
           <div className="cp-field">
             <label htmlFor="cw-name">Tu nombre</label>
-            <input id="cw-name" className="cp-input" value={name} maxLength={30} autoComplete="name" onChange={(e) => setName(e.target.value)} placeholder="Ej. Andrea" />
+            <input
+              id="cw-name"
+              className="cp-input"
+              value={name}
+              maxLength={30}
+              autoComplete="name"
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ej. Andrea"
+            />
           </div>
-          {error && <p className="cp-msg error" role="alert">{error}</p>}
-          <button type="submit" className="cp-btn primary lg cp-full" disabled={!listo}>Entrar a competir</button>
-          <button type="button" className="cp-btn quiet" onClick={goHome}>← Volver al inicio</button>
+          {error && (
+            <p className="cp-msg error" role="alert">
+              {error}
+            </p>
+          )}
+          <button type="submit" className="cp-btn primary lg cp-full" disabled={!listo}>
+            Entrar a competir
+          </button>
+          <button type="button" className="cp-btn quiet" onClick={goHome}>
+            ← Volver al inicio
+          </button>
         </form>
       </main>
     </div>

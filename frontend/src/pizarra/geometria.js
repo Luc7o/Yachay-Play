@@ -49,9 +49,25 @@ export function vertices(o) {
   const x2 = Math.max(o.x1, o.x2);
   const y1 = Math.min(o.y1, o.y2);
   const y2 = Math.max(o.y1, o.y2);
-  if (o.type === "tri") return [[(x1 + x2) / 2, y1], [x2, y2], [x1, y2]];
-  if (o.type === "diamond") return [[(x1 + x2) / 2, y1], [x2, (y1 + y2) / 2], [(x1 + x2) / 2, y2], [x1, (y1 + y2) / 2]];
-  return [[x1, y1], [x2, y1], [x2, y2], [x1, y2]]; // rect
+  if (o.type === "tri")
+    return [
+      [(x1 + x2) / 2, y1],
+      [x2, y2],
+      [x1, y2],
+    ];
+  if (o.type === "diamond")
+    return [
+      [(x1 + x2) / 2, y1],
+      [x2, (y1 + y2) / 2],
+      [(x1 + x2) / 2, y2],
+      [x1, (y1 + y2) / 2],
+    ];
+  return [
+    [x1, y1],
+    [x2, y1],
+    [x2, y2],
+    [x1, y2],
+  ]; // rect
 }
 
 // ¿El punto (x, y) está tocando este objeto? tol = margen en píxeles

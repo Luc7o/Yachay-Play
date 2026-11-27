@@ -6,36 +6,28 @@
       {
         "rule": "border-accent-on-rounded",
         "value": "*",
-        "files": [
-          "src/palabra/palabraFit.css"
-        ],
+        "files": ["src/palabra/palabraFit.css"],
         "createdAt": "2026-11-26T20:25:25.963Z",
         "reason": "Claude: already triaged from repo root (same files): underline input with radius 0, bomb-fuse illustration, and legacy .tl-card overridden by campus.css to a 1px line"
       },
       {
         "rule": "border-accent-on-rounded",
         "value": "*",
-        "files": [
-          "src/palabraRelampago.css"
-        ],
+        "files": ["src/palabraRelampago.css"],
         "createdAt": "2026-11-26T20:25:26.258Z",
         "reason": "Claude: already triaged from repo root (same files): underline input with radius 0, bomb-fuse illustration, and legacy .tl-card overridden by campus.css to a 1px line"
       },
       {
         "rule": "border-accent-on-rounded",
         "value": "*",
-        "files": [
-          "src/tools.css"
-        ],
+        "files": ["src/tools.css"],
         "createdAt": "2026-11-26T20:25:26.574Z",
         "reason": "Claude: already triaged from repo root (same files): underline input with radius 0, bomb-fuse illustration, and legacy .tl-card overridden by campus.css to a 1px line"
       },
       {
         "rule": "border-accent-on-rounded",
         "value": "*",
-        "files": [
-          "src/shell.css"
-        ],
+        "files": ["src/shell.css"],
         "createdAt": "2026-11-26T20:25:26.902Z",
         "reason": "Claude: already triaged from repo root (same files): underline input with radius 0, bomb-fuse illustration, and legacy .tl-card overridden by campus.css to a 1px line"
       }

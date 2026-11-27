@@ -74,12 +74,18 @@ export function RulesTab() {
         </div>
         <div className="cp-card cp-panel">
           <h2>Reglas del tablero</h2>
-          <p><b>Acierta → avanza.</b> La ficha avanza exactamente el número que marcó el dado.</p>
-          <p><b>Falla o se le acaba el tiempo → no se mueve.</b></p>
+          <p>
+            <b>Acierta → avanza.</b> La ficha avanza exactamente el número que marcó el dado.
+          </p>
+          <p>
+            <b>Falla o se le acaba el tiempo → no se mueve.</b>
+          </p>
           <p>Cada ficha recorre 57 pasos: 51 casillas del anillo + 5 de su recta final + la meta.</p>
           <p>Con la primera respuesta correcta la ficha sale de casa a su casilla de salida.</p>
           <p>Para entrar a la meta hace falta el número exacto; si se pasa, se queda donde está.</p>
-          <p>Si cae justo sobre una ficha rival la come y esa ficha vuelve a casa, salvo en las casillas seguras (★).</p>
+          <p>
+            Si cae justo sobre una ficha rival la come y esa ficha vuelve a casa, salvo en las casillas seguras (★).
+          </p>
           <p>Gana el primer equipo que lleve una ficha a la meta; si se acaba el tiempo, gana el de más puntos.</p>
         </div>
       </div>

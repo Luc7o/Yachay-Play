@@ -155,7 +155,9 @@ export function addPlayer(room, { id, name, userId = null }) {
   if (!room) return { error: "La partida no existe." };
   if (room.status === "ended") return { error: "Esa partida ya terminó." };
   if (!room.players.has(id)) {
-    const limpio = String(name || "").trim().slice(0, 30);
+    const limpio = String(name || "")
+      .trim()
+      .slice(0, 30);
     if (!limpio) return { error: "Escribe tu nombre." };
     room.players.set(id, nuevoJugador(id, limpio, userId));
     avisar("onPlayer", room, room.players.get(id));
@@ -333,7 +335,8 @@ export function useSabotage(room, sourceId, targetId, type, now = Date.now()) {
   const target = room.players.get(targetId);
   if (!source || !target) return { error: "Jugador no encontrado." };
   if (target.finishedAt) return { error: "Ese rival ya terminó; ya no se le puede sabotear." };
-  if (!Number.isFinite(source.energy) || source.energy < cfg.cost) return { error: "No tienes suficiente energía todavía." };
+  if (!Number.isFinite(source.energy) || source.energy < cfg.cost)
+    return { error: "No tienes suficiente energía todavía." };
 
   source.energy -= cfg.cost;
   const result = { ok: true, type, targetId, sourceId };

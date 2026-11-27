@@ -58,7 +58,17 @@ function leerTokenVerificar() {
 }
 
 const JUEGOS_RUTA = ["ludo", "crucigrama", "palabra", "evaluacion", "estudio", "cronometro", "ruleta", "pizarra"];
-const RUTAS_PANEL = ["inicio", "juegos", "herramientas", "stats", "questions", "profile", "planes", "contacto", "clases"];
+const RUTAS_PANEL = [
+  "inicio",
+  "juegos",
+  "herramientas",
+  "stats",
+  "questions",
+  "profile",
+  "planes",
+  "contacto",
+  "clases",
+];
 
 function App() {
   const [mode, setMode] = useState(() => leerLocal("ludo_mode") || null);
@@ -101,7 +111,8 @@ function App() {
   const [verifyToken, setVerifyToken] = useState(leerTokenVerificar); // enlace de verificación de correo
   useEffect(() => {
     // Sacamos el token de la barra de direcciones (queda solo en memoria).
-    if (resetToken || verifyToken) window.history.replaceState(null, "", window.location.pathname + window.location.search + "#/inicio");
+    if (resetToken || verifyToken)
+      window.history.replaceState(null, "", window.location.pathname + window.location.search + "#/inicio");
   }, []); // eslint-disable-line
 
   // --- Ingeniero: configuración inicial ---
@@ -242,7 +253,7 @@ function App() {
   useEffect(() => {
     if (!gameInfo) return;
     const libres = gameInfo.activeTeams.filter(
-      (t) => gameInfo.players.filter((p) => p.team === t).length < gameInfo.teams[t].slots
+      (t) => gameInfo.players.filter((p) => p.team === t).length < gameInfo.teams[t].slots,
     );
     if (libres.length && !libres.includes(studentTeam)) setStudentTeam(libres[0]);
   }, [gameInfo]); // eslint-disable-line
@@ -400,13 +411,21 @@ function App() {
   // ADMIN: vuelve a crear la partida con el MISMO código. Los alumnos
   // conectados no tienen que volver a ingresar; solo se reinicia todo.
   function resetGame() {
-    if (!window.confirm("¿Reiniciar la partida? Se borran fichas, puntajes e historial (los alumnos siguen conectados).")) return;
+    if (
+      !window.confirm("¿Reiniciar la partida? Se borran fichas, puntajes e historial (los alumnos siguen conectados).")
+    )
+      return;
     socket.emit("engineer:reset-game", { code: gameCode });
   }
   // ADMIN: cierra esta partida y vuelve a la pantalla de configuración
   // para crear una partida nueva, con código nuevo.
   function newGame() {
-    if (!window.confirm("¿Crear una partida totalmente nueva? Se generará otro código y los alumnos deberán volver a ingresar.")) return;
+    if (
+      !window.confirm(
+        "¿Crear una partida totalmente nueva? Se generará otro código y los alumnos deberán volver a ingresar.",
+      )
+    )
+      return;
     socket.emit("engineer:end-game", { code: gameCode });
     localStorage.removeItem("ludo_engineer_code");
     setEngineerGameCode("");
@@ -431,7 +450,9 @@ function App() {
   const rutaPanel = !user
     ? null
     : toolPage
-      ? toolPage === "clases" && claseAbierta ? `#/app/clases/${claseAbierta}` : `#/app/${toolPage}`
+      ? toolPage === "clases" && claseAbierta
+        ? `#/app/clases/${claseAbierta}`
+        : `#/app/${toolPage}`
       : mode
         ? "#/app/ludo"
         : catalogGame
@@ -443,7 +464,8 @@ function App() {
   useEffect(() => {
     if (!usuarioId || mode || !window.location.hash.startsWith("#/app/")) return;
     const [, r, id] = window.location.hash.match(/^#\/app\/([a-z]+)(?:\/(.+))?$/) || [];
-    const valida = r === "ludo" || r === "clases" || (r === "juego" && JUEGOS_RUTA.includes(id)) || (RUTAS_PANEL.includes(r) && !id);
+    const valida =
+      r === "ludo" || r === "clases" || (r === "juego" && JUEGOS_RUTA.includes(id)) || (RUTAS_PANEL.includes(r) && !id);
     if (valida) aplicarRutaRef.current?.(true);
   }, [usuarioId]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -545,7 +567,14 @@ function App() {
 
   const enMenu = (activo, pagina, hoja = false) =>
     user ? (
-      <AppShell user={user} active={activo} onNavigate={navegar} onLogout={logout} buildVersion={BUILD_VERSION} sheet={hoja}>
+      <AppShell
+        user={user}
+        active={activo}
+        onNavigate={navegar}
+        onLogout={logout}
+        buildVersion={BUILD_VERSION}
+        sheet={hoja}
+      >
         {pagina}
       </AppShell>
     ) : (
@@ -554,23 +583,42 @@ function App() {
 
   // --- Enlaces del correo (verificar / restablecer): van primero, aunque haya una partida o modo guardado ---
   if (verifyToken) {
-    return <VerifyEmailScreen token={verifyToken} onDone={() => { setVerifyToken(null); window.location.reload(); }} />; // recarga: así el perfil ya muestra el correo verificado
+    return (
+      <VerifyEmailScreen
+        token={verifyToken}
+        onDone={() => {
+          setVerifyToken(null);
+          window.location.reload();
+        }}
+      />
+    ); // recarga: así el perfil ya muestra el correo verificado
   }
   if (resetToken) {
-    return <ResetPasswordScreen token={resetToken} onDone={() => { setResetToken(null); setAuthScreen("login"); }} />;
-  }
-
-  if (!mode) {
-  if (challenge2fa) {
     return (
-      <TwoFactorStep
-        challenge={challenge2fa}
-        onSuccess={(r) => { setChallenge2fa(null); handleAuthSuccess(r); }}
-        onCancel={() => setChallenge2fa(null)}
+      <ResetPasswordScreen
+        token={resetToken}
+        onDone={() => {
+          setResetToken(null);
+          setAuthScreen("login");
+        }}
       />
     );
   }
-  if (olvide) return <ForgotPasswordScreen onBack={() => setOlvide(false)} />;
+
+  if (!mode) {
+    if (challenge2fa) {
+      return (
+        <TwoFactorStep
+          challenge={challenge2fa}
+          onSuccess={(r) => {
+            setChallenge2fa(null);
+            handleAuthSuccess(r);
+          }}
+          onCancel={() => setChallenge2fa(null)}
+        />
+      );
+    }
+    if (olvide) return <ForgotPasswordScreen onBack={() => setOlvide(false)} />;
     if (authScreen) {
       return (
         <AuthScreen
@@ -589,7 +637,16 @@ function App() {
     }
     if (toolPage && user) {
       if (toolPage === "clases") {
-        return enMenu("clases", <ClasesPage user={user} initialId={claseAbierta} onCambiar={setClaseAbierta} onLanzar={lanzarEnClase} onEntrar={entrarActividad} />);
+        return enMenu(
+          "clases",
+          <ClasesPage
+            user={user}
+            initialId={claseAbierta}
+            onCambiar={setClaseAbierta}
+            onLanzar={lanzarEnClase}
+            onEntrar={entrarActividad}
+          />,
+        );
       }
       if (toolPage === "planes" || toolPage === "contacto") {
         return enMenu(toolPage, <InfoPage page={toolPage} onNavigate={navegar} />);
@@ -605,7 +662,7 @@ function App() {
             onUserUpdate={setUser}
             onOpenStats={() => setToolPage("stats")}
             onOpenQuestions={() => setToolPage("questions")}
-          />
+          />,
         );
       }
       return toolPage === "questions" && user.role === "docente"
@@ -622,7 +679,7 @@ function App() {
           initialName={nombreInvitado}
           onPick={unirseA}
           onBack={() => setUnirseHub(false)}
-        />
+        />,
       );
     }
     // Herramientas para el docente: no necesitan cuenta ni servidor
@@ -653,7 +710,16 @@ function App() {
         />
       );
     }
-    if (catalogGame === "palabra") return <PalabraRelampago goHome={() => setCatalogGame(null)} user={user} initialCode={codigoInicial} initialName={nombreInvitado} frame={(pagina) => enMenu("juegos", pagina, false)} />;
+    if (catalogGame === "palabra")
+      return (
+        <PalabraRelampago
+          goHome={() => setCatalogGame(null)}
+          user={user}
+          initialCode={codigoInicial}
+          initialName={nombreInvitado}
+          frame={(pagina) => enMenu("juegos", pagina, false)}
+        />
+      );
     if (catalogGame === "crucigrama") {
       return (
         <CrosswordGame
@@ -724,7 +790,7 @@ function App() {
           setupError={setupError}
           creating={creating}
           goHome={changeDevice}
-        />
+        />,
       );
     }
     if (!serverState) return <LoadingScreen code={gameCode} error={connError} onReset={changeDevice} />;
@@ -732,17 +798,17 @@ function App() {
     if (serverState.phase === "lobby") {
       return (
         <>
-        <LobbyScreen
-          gameName={serverState.name}
-          gameCode={gameCode}
-          teams={serverState.teams}
-          activeTeams={serverState.activeTeams}
-          connectedByTeam={connectedByTeam}
-          players={serverState.players}
-          startGame={startGame}
-          newGame={newGame}
-          changeDevice={changeDevice}
-        />
+          <LobbyScreen
+            gameName={serverState.name}
+            gameCode={gameCode}
+            teams={serverState.teams}
+            activeTeams={serverState.activeTeams}
+            connectedByTeam={connectedByTeam}
+            players={serverState.players}
+            startGame={startGame}
+            newGame={newGame}
+            changeDevice={changeDevice}
+          />
         </>
       );
     }
@@ -764,23 +830,23 @@ function App() {
 
     return (
       <>
-      <EngineerGame
-        tab={tab}
-        setTab={setTab}
-        serverState={serverState}
-        timerSeconds={timerSeconds}
-        phaseSeconds={phaseSeconds}
-        toggleTimer={toggleTimer}
-        addTime={addTime}
-        resetTimer={resetTimer}
-        skipTurn={skipTurn}
-        endGame={endGame}
-        resetGame={resetGame}
-        newGame={newGame}
-        positions={serverState.positions}
-        bank={bank}
-        changeDevice={changeDevice}
-      />
+        <EngineerGame
+          tab={tab}
+          setTab={setTab}
+          serverState={serverState}
+          timerSeconds={timerSeconds}
+          phaseSeconds={phaseSeconds}
+          toggleTimer={toggleTimer}
+          addTime={addTime}
+          resetTimer={resetTimer}
+          skipTurn={skipTurn}
+          endGame={endGame}
+          resetGame={resetGame}
+          newGame={newGame}
+          positions={serverState.positions}
+          bank={bank}
+          changeDevice={changeDevice}
+        />
       </>
     );
   }
@@ -799,8 +865,14 @@ function App() {
         joinError={joinError}
         gameInfo={gameInfo}
         goHome={changeDevice}
-        onLogin={() => { changeDevice(); setAuthScreen("login"); }}
-        onRegister={() => { changeDevice(); setAuthScreen("register"); }}
+        onLogin={() => {
+          changeDevice();
+          setAuthScreen("login");
+        }}
+        onRegister={() => {
+          changeDevice();
+          setAuthScreen("register");
+        }}
         isLogged={!!user}
       />
     );
@@ -818,18 +890,18 @@ function App() {
     );
   }
 
-    if (serverState.phase === "finished") {
-      return (
-        <FinishedScreen
-          teams={serverState.teams}
-          gameName={serverState.name}
-          winner={serverState.winner}
-          activeTeams={serverState.activeTeams}
-          myTeam={studentTeam}
-          changeDevice={changeDevice}
-        />
-      );
-    }
+  if (serverState.phase === "finished") {
+    return (
+      <FinishedScreen
+        teams={serverState.teams}
+        gameName={serverState.name}
+        winner={serverState.winner}
+        activeTeams={serverState.activeTeams}
+        myTeam={studentTeam}
+        changeDevice={changeDevice}
+      />
+    );
+  }
 
   return (
     <StudentGame

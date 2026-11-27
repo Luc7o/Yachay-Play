@@ -14,9 +14,27 @@ const PESTANAS = [
   ["rules", "Reglas"],
 ];
 
-export function EngineerGame({ tab, setTab, serverState, timerSeconds, phaseSeconds, toggleTimer, addTime, resetTimer, skipTurn, endGame, resetGame, newGame, positions, bank, changeDevice }) {
+export function EngineerGame({
+  tab,
+  setTab,
+  serverState,
+  timerSeconds,
+  phaseSeconds,
+  toggleTimer,
+  addTime,
+  resetTimer,
+  skipTurn,
+  endGame,
+  resetGame,
+  newGame,
+  positions,
+  bank,
+  changeDevice,
+}) {
   const currentTeam = serverState.currentTeam;
-  const min = Math.floor((timerSeconds ?? 0) / 60).toString().padStart(2, "0");
+  const min = Math.floor((timerSeconds ?? 0) / 60)
+    .toString()
+    .padStart(2, "0");
   const sec = ((timerSeconds ?? 0) % 60).toString().padStart(2, "0");
   const poco = timerSeconds !== null && timerSeconds <= 60;
 
@@ -33,27 +51,57 @@ export function EngineerGame({ tab, setTab, serverState, timerSeconds, phaseSeco
         <div className="eg-clock" role="group" aria-label="Tiempo de la partida">
           <div className={"eg-time" + (poco ? " poco" : "")}>
             <span>Tiempo</span>
-            <b role="timer" aria-live="off">{min}:{sec}</b>
+            <b role="timer" aria-live="off">
+              {min}:{sec}
+            </b>
           </div>
           <div className="eg-time-btns">
-            <button type="button" className="cp-btn ghost sm" title="Quitar 1 minuto" onClick={() => addTime(-60)}>−1 min</button>
-            <button type="button" className="cp-btn ghost sm" title="Agregar 1 minuto" onClick={() => addTime(60)}>+1 min</button>
-            <button type="button" className="cp-btn ghost sm" title="Agregar 5 minutos" onClick={() => addTime(300)}>+5 min</button>
-            <button type="button" className="cp-btn ghost sm" title="Reiniciar el reloj" aria-label="Reiniciar el reloj" onClick={resetTimer}>↺</button>
+            <button type="button" className="cp-btn ghost sm" title="Quitar 1 minuto" onClick={() => addTime(-60)}>
+              −1 min
+            </button>
+            <button type="button" className="cp-btn ghost sm" title="Agregar 1 minuto" onClick={() => addTime(60)}>
+              +1 min
+            </button>
+            <button type="button" className="cp-btn ghost sm" title="Agregar 5 minutos" onClick={() => addTime(300)}>
+              +5 min
+            </button>
+            <button
+              type="button"
+              className="cp-btn ghost sm"
+              title="Reiniciar el reloj"
+              aria-label="Reiniciar el reloj"
+              onClick={resetTimer}
+            >
+              ↺
+            </button>
           </div>
-          <button type="button" className="cp-btn primary" onClick={toggleTimer}>{serverState.timerRunning ? "Pausar" : "Iniciar reloj"}</button>
+          <button type="button" className="cp-btn primary" onClick={toggleTimer}>
+            {serverState.timerRunning ? "Pausar" : "Iniciar reloj"}
+          </button>
         </div>
 
         <div className="eg-actions">
-          <button type="button" className="cp-btn ghost sm" onClick={resetGame}>Reiniciar</button>
-          <button type="button" className="cp-btn ghost sm" onClick={newGame}>Partida nueva</button>
-          <button type="button" className="cp-btn ghost sm danger" onClick={endGame}>Finalizar</button>
+          <button type="button" className="cp-btn ghost sm" onClick={resetGame}>
+            Reiniciar
+          </button>
+          <button type="button" className="cp-btn ghost sm" onClick={newGame}>
+            Partida nueva
+          </button>
+          <button type="button" className="cp-btn ghost sm danger" onClick={endGame}>
+            Finalizar
+          </button>
         </div>
       </header>
 
       <nav className="eg-tabs" aria-label="Secciones de la partida">
         {PESTANAS.map(([id, label]) => (
-          <button key={id} type="button" className={tab === id ? "on" : ""} aria-current={tab === id ? "page" : undefined} onClick={() => setTab(id)}>
+          <button
+            key={id}
+            type="button"
+            className={tab === id ? "on" : ""}
+            aria-current={tab === id ? "page" : undefined}
+            onClick={() => setTab(id)}
+          >
             {label}
             {id === "questions" ? ` (${bank.length || 20})` : ""}
           </button>

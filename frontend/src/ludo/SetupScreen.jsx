@@ -49,9 +49,30 @@ export function SetupScreen({
   const puedeCrear = activos.length >= 2 && gameName.trim().length > 0;
 
   const tiempos = [
-    { titulo: "Duración de la partida", ayuda: "Cuánto dura toda la ronda de juego.", value: minutes, set: setMinutes, opts: [5, 10, 15, 20, 30, 45, 60, 90], fmt: (n) => `${n} min` },
-    { titulo: "Tiempo para responder", ayuda: "Segundos que tiene el equipo para contestar cada pregunta.", value: answerSeconds, set: setAnswerSeconds, opts: [10, 15, 20, 30, 45, 60, 90], fmt: (n) => `${n} s` },
-    { titulo: "Tiempo para lanzar el dado", ayuda: "Si nadie lanza a tiempo, el sistema lo hace solo.", value: rollSeconds, set: setRollSeconds, opts: [5, 10, 15, 20, 30], fmt: (n) => `${n} s` },
+    {
+      titulo: "Duración de la partida",
+      ayuda: "Cuánto dura toda la ronda de juego.",
+      value: minutes,
+      set: setMinutes,
+      opts: [5, 10, 15, 20, 30, 45, 60, 90],
+      fmt: (n) => `${n} min`,
+    },
+    {
+      titulo: "Tiempo para responder",
+      ayuda: "Segundos que tiene el equipo para contestar cada pregunta.",
+      value: answerSeconds,
+      set: setAnswerSeconds,
+      opts: [10, 15, 20, 30, 45, 60, 90],
+      fmt: (n) => `${n} s`,
+    },
+    {
+      titulo: "Tiempo para lanzar el dado",
+      ayuda: "Si nadie lanza a tiempo, el sistema lo hace solo.",
+      value: rollSeconds,
+      set: setRollSeconds,
+      opts: [5, 10, 15, 20, 30],
+      fmt: (n) => `${n} s`,
+    },
   ];
 
   return (
@@ -62,16 +83,23 @@ export function SetupScreen({
           <h1>Crear una partida</h1>
           <p>Configúrala en tres pasos y obtendrás un código de 6 dígitos para proyectar a tu clase.</p>
         </div>
-        <button type="button" className="cp-btn ghost" onClick={goHome}>Cancelar</button>
+        <button type="button" className="cp-btn ghost" onClick={goHome}>
+          Cancelar
+        </button>
       </div>
 
       <div className="cfg2-grid">
         <div className="cfg2-form">
           {/* PASO 1 */}
           <section className="cp-card cp-panel" aria-labelledby="cfg2-p1">
-            <div className="cfg2-step"><span>1</span><h2 id="cfg2-p1">Nombre de la partida</h2></div>
+            <div className="cfg2-step">
+              <span>1</span>
+              <h2 id="cfg2-p1">Nombre de la partida</h2>
+            </div>
             <p>Así la verán tus estudiantes al entrar.</p>
-            <label htmlFor="cfg2-nombre" className="cp-sr">Nombre de la partida</label>
+            <label htmlFor="cfg2-nombre" className="cp-sr">
+              Nombre de la partida
+            </label>
             <input
               id="cfg2-nombre"
               className="cp-input"
@@ -84,8 +112,14 @@ export function SetupScreen({
 
           {/* PASO 2 */}
           <section className="cp-card cp-panel" aria-labelledby="cfg2-p2">
-            <div className="cfg2-step"><span>2</span><h2 id="cfg2-p2">Equipos que juegan</h2></div>
-            <p>Elige cuántos estudiantes hay en cada color (hasta 4). Los colores en «No juega» quedan fuera. Hacen falta al menos 2.</p>
+            <div className="cfg2-step">
+              <span>2</span>
+              <h2 id="cfg2-p2">Equipos que juegan</h2>
+            </div>
+            <p>
+              Elige cuántos estudiantes hay en cada color (hasta 4). Los colores en «No juega» quedan fuera. Hacen falta
+              al menos 2.
+            </p>
             <div className="cfg2-teams">
               {TURN_ORDER.map((t) => {
                 const n = counts[t];
@@ -113,7 +147,10 @@ export function SetupScreen({
 
           {/* PASO 3 */}
           <section className="cp-card cp-panel" aria-labelledby="cfg2-p3">
-            <div className="cfg2-step"><span>3</span><h2 id="cfg2-p3">Tiempos</h2></div>
+            <div className="cfg2-step">
+              <span>3</span>
+              <h2 id="cfg2-p3">Tiempos</h2>
+            </div>
             <p>Durante la partida podrás pausar, sumar o restar tiempo.</p>
             <div className="cfg2-times">
               {tiempos.map((x) => (
@@ -145,21 +182,47 @@ export function SetupScreen({
               )}
             </div>
             <dl className="cfg2-dl">
-              <div><dt>Equipos</dt><dd>{activos.length}</dd></div>
-              <div><dt>Estudiantes</dt><dd>{totalStudents}</dd></div>
-              <div><dt>Duración</dt><dd>{minutes} min</dd></div>
-              <div><dt>Para responder</dt><dd>{answerSeconds} s</dd></div>
-              <div><dt>Para lanzar el dado</dt><dd>{rollSeconds} s</dd></div>
+              <div>
+                <dt>Equipos</dt>
+                <dd>{activos.length}</dd>
+              </div>
+              <div>
+                <dt>Estudiantes</dt>
+                <dd>{totalStudents}</dd>
+              </div>
+              <div>
+                <dt>Duración</dt>
+                <dd>{minutes} min</dd>
+              </div>
+              <div>
+                <dt>Para responder</dt>
+                <dd>{answerSeconds} s</dd>
+              </div>
+              <div>
+                <dt>Para lanzar el dado</dt>
+                <dd>{rollSeconds} s</dd>
+              </div>
             </dl>
 
             {activos.length < 2 && <p className="cp-help">Elige al menos 2 equipos para poder jugar.</p>}
             {gameName.trim().length === 0 && <p className="cp-help">Escribe un nombre para la partida.</p>}
-            {setupError && <p className="cp-msg error" role="alert">{setupError}</p>}
+            {setupError && (
+              <p className="cp-msg error" role="alert">
+                {setupError}
+              </p>
+            )}
 
-            <button type="button" className="cp-btn primary lg cp-full" disabled={!puedeCrear || creating} onClick={createGame}>
+            <button
+              type="button"
+              className="cp-btn primary lg cp-full"
+              disabled={!puedeCrear || creating}
+              onClick={createGame}
+            >
               {creating ? "Creando…" : "Crear partida"}
             </button>
-            <p className="cp-help">Se generará un código de 6 dígitos para que tus estudiantes entren desde el celular.</p>
+            <p className="cp-help">
+              Se generará un código de 6 dígitos para que tus estudiantes entren desde el celular.
+            </p>
           </div>
 
           <div className="cp-card cp-panel cfg2-how">

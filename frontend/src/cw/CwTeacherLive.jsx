@@ -11,9 +11,8 @@ export function CwTeacherLive({ live, ended }) {
   const avgProgress = total ? Math.round(board.reduce((s, p) => s + p.progress, 0) / total) : 0;
   const finishedCount = board.filter((p) => p.finished).length;
   const intentadas = clues.filter((c) => c.solvedCount > 0);
-  const masDificil = total > 0 && intentadas.length
-    ? [...intentadas].sort((a, b) => a.solvedCount - b.solvedCount)[0]
-    : null;
+  const masDificil =
+    total > 0 && intentadas.length ? [...intentadas].sort((a, b) => a.solvedCount - b.solvedCount)[0] : null;
 
   const across = clues.filter((c) => c.dir === "H").sort((a, b) => a.number - b.number);
   const down = clues.filter((c) => c.dir === "V").sort((a, b) => a.number - b.number);
@@ -64,7 +63,10 @@ export function CwTeacherLive({ live, ended }) {
           <div className="cw-grid-wrap">
             <div
               className="cw-grid"
-              style={{ gridTemplateColumns: `repeat(${live.grid.width}, 1fr)`, aspectRatio: `${live.grid.width}/${live.grid.height}` }}
+              style={{
+                gridTemplateColumns: `repeat(${live.grid.width}, 1fr)`,
+                aspectRatio: `${live.grid.width}/${live.grid.height}`,
+              }}
             >
               {cellGrid.flatMap((row, r) =>
                 row.map((cell, c) => (
@@ -76,11 +78,14 @@ export function CwTeacherLive({ live, ended }) {
                     {cell?.number && <span className="cw-cell-num">{cell.number}</span>}
                     {cell?.letter && <span className="cw-cell-letter">{cell.letter}</span>}
                   </div>
-                ))
+                )),
               )}
             </div>
           </div>
-          <p className="cw-heat-legend"><span className="cw-legend-dot cw-legend-gray" /> En progreso &nbsp; <span className="cw-legend-dot cw-legend-green" /> Todos la resolvieron</p>
+          <p className="cw-heat-legend">
+            <span className="cw-legend-dot cw-legend-gray" /> En progreso &nbsp;{" "}
+            <span className="cw-legend-dot cw-legend-green" /> Todos la resolvieron
+          </p>
         </div>
 
         <div className="cw-side-col cw-teacher-clues">
@@ -94,11 +99,15 @@ export function CwTeacherLive({ live, ended }) {
             <div className="cw-panel-scroll">
               <div className="cw-side-title">Pistas horizontales</div>
               <ul className="cw-clue-list cw-clue-list-readonly">
-                {across.map((c) => <CwClueProgress key={c.id} c={c} total={total} />)}
+                {across.map((c) => (
+                  <CwClueProgress key={c.id} c={c} total={total} />
+                ))}
               </ul>
               <div className="cw-side-title">Pistas verticales</div>
               <ul className="cw-clue-list cw-clue-list-readonly">
-                {down.map((c) => <CwClueProgress key={c.id} c={c} total={total} />)}
+                {down.map((c) => (
+                  <CwClueProgress key={c.id} c={c} total={total} />
+                ))}
               </ul>
             </div>
           </div>
@@ -111,7 +120,6 @@ export function CwTeacherLive({ live, ended }) {
           </div>
         </div>
       </div>
-
     </div>
   );
 }
@@ -140,10 +148,16 @@ export function CwClueProgress({ c, total }) {
   return (
     <li className={completa ? "done" : ""}>
       <div className="cw-clue-progress-row">
-        <span><b>{c.number}.</b> {c.clue} <small>({c.length})</small></span>
-        <small className="cw-clue-count">{c.solvedCount}/{total}</small>
+        <span>
+          <b>{c.number}.</b> {c.clue} <small>({c.length})</small>
+        </span>
+        <small className="cw-clue-count">
+          {c.solvedCount}/{total}
+        </small>
       </div>
-      <span className="cw-lb-bar"><i style={{ width: `${pct}%` }} /></span>
+      <span className="cw-lb-bar">
+        <i style={{ width: `${pct}%` }} />
+      </span>
     </li>
   );
 }
@@ -156,7 +170,9 @@ export function CwLeaderboard({ board, showMedals }) {
         <div className="cw-lb-row" key={p.id}>
           <span className="cw-lb-rank">{showMedals ? medal(i) : `${i + 1}.`}</span>
           <span className="cw-lb-name">{p.name}</span>
-          <span className="cw-lb-bar"><i style={{ width: `${p.progress}%` }} /></span>
+          <span className="cw-lb-bar">
+            <i style={{ width: `${p.progress}%` }} />
+          </span>
           <span className="cw-lb-score">{p.score} pts</span>
           {p.finished && <span className="cw-lb-done">✓</span>}
         </div>

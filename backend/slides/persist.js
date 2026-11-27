@@ -32,7 +32,10 @@ export async function obtenerSala(code) {
   if (viva) return viva;
   if (!/^\d{6}$/.test(c)) return null;
   try {
-    const { rows } = await db.pool.query("SELECT data FROM slide_rooms WHERE code = $1 ORDER BY updated_at DESC LIMIT 1", [c]);
+    const { rows } = await db.pool.query(
+      "SELECT data FROM slide_rooms WHERE code = $1 ORDER BY updated_at DESC LIMIT 1",
+      [c],
+    );
     if (!rows.length) return null;
     return rooms.get(c) || restaurar(rows[0].data);
   } catch (e) {
@@ -60,7 +63,10 @@ export async function startSlidesPersistence() {
     for (const r of rows) if (restaurar(r.data)) n++;
     if (n) console.log(`[presentaciones] ${n} sala(s) recuperada(s).`);
   } catch (e) {
-    console.error("[presentaciones] no se pudo preparar la base (la herramienta funciona, pero no se guardará):", e.message);
+    console.error(
+      "[presentaciones] no se pudo preparar la base (la herramienta funciona, pero no se guardará):",
+      e.message,
+    );
     return;
   }
 
@@ -77,7 +83,7 @@ export async function startSlidesPersistence() {
             `INSERT INTO slide_rooms (id, code, owner_id, status, data, updated_at)
              VALUES ($1,$2,$3,$4,$5::jsonb, now())
              ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status, data = EXCLUDED.data, updated_at = now()`,
-            [room.id, room.code, room.ownerId, room.status, JSON.stringify(serializar(room))]
+            [room.id, room.code, room.ownerId, room.status, JSON.stringify(serializar(room))],
           );
         } catch (e) {
           room.dirty = true; // reintenta en el próximo ciclo

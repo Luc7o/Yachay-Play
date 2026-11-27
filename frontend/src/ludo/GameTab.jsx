@@ -18,8 +18,8 @@ export function phaseMessage({ turnPhase, currentTeam, phaseSeconds, dice, rolle
       return lastResult?.isCorrect
         ? describeMove(lastResult)
         : lastResult?.timedOut
-        ? "Se acabó el tiempo, nadie respondió. La ficha no se mueve."
-        : "Respuesta incorrecta. La ficha se queda donde está.";
+          ? "Se acabó el tiempo, nadie respondió. La ficha no se mueve."
+          : "Respuesta incorrecta. La ficha se queda donde está.";
     default:
       return "";
   }
@@ -49,7 +49,10 @@ export function GameTab({
         <LudoBoard players={players} positions={positions} activeTeams={activeTeams} />
         <div className="eg-legend">
           {activeTeams.map((t) => (
-            <span key={t}><i style={{ background: COLORS[t].hex }} aria-hidden="true" />{COLORS[t].name}</span>
+            <span key={t}>
+              <i style={{ background: COLORS[t].hex }} aria-hidden="true" />
+              {COLORS[t].name}
+            </span>
           ))}
         </div>
       </section>
@@ -58,21 +61,31 @@ export function GameTab({
         <div className="cp-card cp-panel eg-turn" style={{ "--tc": turno.hex }}>
           <div className="eg-turn-head">
             <span className="cp-eyebrow">Turno · automático</span>
-            <span className="eg-team"><i aria-hidden="true" />{turno.name}</span>
+            <span className="eg-team">
+              <i aria-hidden="true" />
+              {turno.name}
+            </span>
           </div>
           <div className="eg-dice">
             <Dice value={dice} rolling={turnPhase === "rolling"} />
             <div className="eg-dice-info">
               <div className="proj-bar" aria-hidden="true">
-                <i className={"eg-phase-" + turnPhase} style={{ width: `${Math.min(100, ((phaseSeconds ?? 0) / (phaseTotal || 20)) * 100)}%` }} />
+                <i
+                  className={"eg-phase-" + turnPhase}
+                  style={{ width: `${Math.min(100, ((phaseSeconds ?? 0) / (phaseTotal || 20)) * 100)}%` }}
+                />
               </div>
               <p>{phaseMessage({ turnPhase, currentTeam, phaseSeconds, dice, rolledBy, lastResult })}</p>
               {turnPhase !== "roll" && rolledBy && <small>Lanzó: {rolledBy}</small>}
               {turnPhase !== "roll" && !rolledBy && dice && <small>Lo lanzó el sistema (nadie llegó a tiempo)</small>}
             </div>
           </div>
-          <p className="cp-help">La partida avanza sola: el estudiante lanza el dado desde su celular y el turno cambia automáticamente.</p>
-          <button type="button" className="cp-btn ghost sm" onClick={skipTurn}>Saltar turno (solo si algo se traba)</button>
+          <p className="cp-help">
+            La partida avanza sola: el estudiante lanza el dado desde su celular y el turno cambia automáticamente.
+          </p>
+          <button type="button" className="cp-btn ghost sm" onClick={skipTurn}>
+            Saltar turno (solo si algo se traba)
+          </button>
         </div>
 
         <div className="cp-card cp-panel eg-question">
@@ -104,24 +117,37 @@ export function GameTab({
         <div className="cp-card cp-panel">
           <div className="eg-turn-head">
             <span className="cp-eyebrow">Progreso</span>
-            <span className="cp-muted" style={{ fontSize: 13 }}>{players.length} {players.length === 1 ? "estudiante" : "estudiantes"}</span>
+            <span className="cp-muted" style={{ fontSize: 13 }}>
+              {players.length} {players.length === 1 ? "estudiante" : "estudiantes"}
+            </span>
           </div>
           <div className="eg-scores">
             {activeTeams.map((t) => (
               <div key={t} style={{ "--tc": COLORS[t].hex }}>
-                <span><i aria-hidden="true" />{COLORS[t].name}</span>
+                <span>
+                  <i aria-hidden="true" />
+                  {COLORS[t].name}
+                </span>
                 <b>{teams[t].score} pts</b>
               </div>
             ))}
           </div>
           <ul className="cp-rows eg-pieces">
-            {players.length === 0 && <li><span className="cp-muted">Nadie se ha conectado todavía.</span></li>}
+            {players.length === 0 && (
+              <li>
+                <span className="cp-muted">Nadie se ha conectado todavía.</span>
+              </li>
+            )}
             {players.map((p) => {
               const step = positions[p.id] ?? -1;
               return (
                 <li key={p.id}>
-                  <span className="board-piece" style={{ background: COLORS[p.team].hex }} aria-hidden="true">{p.name.trim()[0]?.toUpperCase()}</span>
-                  <span className="cp-rows-main"><strong>{p.name}</strong></span>
+                  <span className="board-piece" style={{ background: COLORS[p.team].hex }} aria-hidden="true">
+                    {p.name.trim()[0]?.toUpperCase()}
+                  </span>
+                  <span className="cp-rows-main">
+                    <strong>{p.name}</strong>
+                  </span>
                   <span className="cp-rows-end">{describeStep(step)}</span>
                 </li>
               );

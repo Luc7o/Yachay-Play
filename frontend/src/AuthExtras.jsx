@@ -14,11 +14,18 @@ import { Marca, BotonTema } from "./campusUi";
 function Marco({ children, onBack, backText = "Volver" }) {
   return (
     <div className="cp cp-auth">
-      <AuthSide titulo="Tu cuenta, protegida." texto="Contraseñas guardadas con cifrado, enlaces de un solo uso y verificación en dos pasos opcional." />
+      <AuthSide
+        titulo="Tu cuenta, protegida."
+        texto="Contraseñas guardadas con cifrado, enlaces de un solo uso y verificación en dos pasos opcional."
+      />
       <main className="cp-auth-main">
         <div className="cp-auth-top">
-          <button type="button" className="cp-btn quiet" onClick={onBack}>← {backText}</button>
-          <span className="cp-auth-brand-mobile"><Marca /></span>
+          <button type="button" className="cp-btn quiet" onClick={onBack}>
+            ← {backText}
+          </button>
+          <span className="cp-auth-brand-mobile">
+            <Marca />
+          </span>
           <BotonTema />
         </div>
         <div className="cp-auth-card cp-auth-form">{children}</div>
@@ -72,11 +79,25 @@ export function TwoFactorStep({ challenge, onSuccess, onCancel }) {
             onChange={(e) => setCodigo(e.target.value)}
           />
         </div>
-        {error && <p className="cp-msg error" role="alert">{error}</p>}
-        <button type="submit" className="cp-btn primary lg cp-full" disabled={!codigo.trim() || cargando}>{cargando ? "Verificando…" : "Verificar y entrar"}</button>
+        {error && (
+          <p className="cp-msg error" role="alert">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="cp-btn primary lg cp-full" disabled={!codigo.trim() || cargando}>
+          {cargando ? "Verificando…" : "Verificar y entrar"}
+        </button>
         <div className="cp-auth-links">
           <span>
-            <button type="button" className="cp-link" onClick={() => { setUsarRecuperacion(!usarRecuperacion); setCodigo(""); setError(""); }}>
+            <button
+              type="button"
+              className="cp-link"
+              onClick={() => {
+                setUsarRecuperacion(!usarRecuperacion);
+                setCodigo("");
+                setError("");
+              }}
+            >
               {usarRecuperacion ? "Usar el código de mi app" : "Perdí mi celular: usar un código de recuperación"}
             </button>
           </span>
@@ -114,19 +135,42 @@ export function ForgotPasswordScreen({ onBack }) {
         <h1>Recuperar contraseña</h1>
         {enviado ? (
           <>
-            <p className="cp-msg ok" role="status">{enviado}</p>
-            <p className="cp-auth-lead">El enlace vale 30 minutos. Si no llega, revisa la carpeta de spam o inténtalo de nuevo.</p>
-            <button type="button" className="cp-btn primary lg cp-full" onClick={onBack}>Volver a iniciar sesión</button>
+            <p className="cp-msg ok" role="status">
+              {enviado}
+            </p>
+            <p className="cp-auth-lead">
+              El enlace vale 30 minutos. Si no llega, revisa la carpeta de spam o inténtalo de nuevo.
+            </p>
+            <button type="button" className="cp-btn primary lg cp-full" onClick={onBack}>
+              Volver a iniciar sesión
+            </button>
           </>
         ) : (
           <>
-            <p className="cp-auth-lead">Escribe el correo de tu cuenta y te enviaremos un enlace para crear una nueva contraseña.</p>
+            <p className="cp-auth-lead">
+              Escribe el correo de tu cuenta y te enviaremos un enlace para crear una nueva contraseña.
+            </p>
             <div className="cp-field">
               <label htmlFor="ax-email">Correo electrónico</label>
-              <input className="cp-input" id="ax-email" type="email" value={email} autoFocus autoComplete="email" placeholder="tucorreo@ejemplo.com" onChange={(e) => setEmail(e.target.value)} />
+              <input
+                className="cp-input"
+                id="ax-email"
+                type="email"
+                value={email}
+                autoFocus
+                autoComplete="email"
+                placeholder="tucorreo@ejemplo.com"
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-            {error && <p className="cp-msg error" role="alert">{error}</p>}
-            <button type="submit" className="cp-btn primary lg cp-full" disabled={!email.trim() || cargando}>{cargando ? "Enviando…" : "Enviarme el enlace"}</button>
+            {error && (
+              <p className="cp-msg error" role="alert">
+                {error}
+              </p>
+            )}
+            <button type="submit" className="cp-btn primary lg cp-full" disabled={!email.trim() || cargando}>
+              {cargando ? "Enviando…" : "Enviarme el enlace"}
+            </button>
           </>
         )}
       </form>
@@ -165,23 +209,50 @@ export function ResetPasswordScreen({ token, onDone }) {
         <h1>Nueva contraseña</h1>
         {listo ? (
           <>
-            <p className="cp-msg ok" role="status">Contraseña actualizada. Por seguridad se cerraron las demás sesiones.</p>
-            <button type="button" className="cp-btn primary lg cp-full" onClick={onDone}>Iniciar sesión</button>
+            <p className="cp-msg ok" role="status">
+              Contraseña actualizada. Por seguridad se cerraron las demás sesiones.
+            </p>
+            <button type="button" className="cp-btn primary lg cp-full" onClick={onDone}>
+              Iniciar sesión
+            </button>
           </>
         ) : (
           <>
             <p className="cp-auth-lead">Mínimo 8 caracteres, con al menos una letra y un número.</p>
             <div className="cp-field">
               <label htmlFor="ax-p1">Contraseña nueva</label>
-              <input className="cp-input" id="ax-p1" type={ver ? "text" : "password"} value={clave} autoFocus autoComplete="new-password" onChange={(e) => setClave(e.target.value)} />
+              <input
+                className="cp-input"
+                id="ax-p1"
+                type={ver ? "text" : "password"}
+                value={clave}
+                autoFocus
+                autoComplete="new-password"
+                onChange={(e) => setClave(e.target.value)}
+              />
             </div>
             <div className="cp-field">
               <label htmlFor="ax-p2">Repite la contraseña</label>
-              <input className="cp-input" id="ax-p2" type={ver ? "text" : "password"} value={repetir} autoComplete="new-password" onChange={(e) => setRepetir(e.target.value)} />
+              <input
+                className="cp-input"
+                id="ax-p2"
+                type={ver ? "text" : "password"}
+                value={repetir}
+                autoComplete="new-password"
+                onChange={(e) => setRepetir(e.target.value)}
+              />
             </div>
-            <label className="cp-check"><input type="checkbox" checked={ver} onChange={(e) => setVer(e.target.checked)} /> Mostrar contraseñas</label>
-            {error && <p className="cp-msg error" role="alert">{error}</p>}
-            <button type="submit" className="cp-btn primary lg cp-full" disabled={!clave || !repetir || cargando}>{cargando ? "Guardando…" : "Guardar contraseña"}</button>
+            <label className="cp-check">
+              <input type="checkbox" checked={ver} onChange={(e) => setVer(e.target.checked)} /> Mostrar contraseñas
+            </label>
+            {error && (
+              <p className="cp-msg error" role="alert">
+                {error}
+              </p>
+            )}
+            <button type="submit" className="cp-btn primary lg cp-full" disabled={!clave || !repetir || cargando}>
+              {cargando ? "Guardando…" : "Guardar contraseña"}
+            </button>
           </>
         )}
       </form>
@@ -198,9 +269,21 @@ export function VerifyEmailScreen({ token, onDone }) {
     let vivo = true;
     api
       .verifyEmail(token)
-      .then((r) => { if (vivo) { setEstado("ok"); setMensaje(r.message || "Correo verificado."); } })
-      .catch((e) => { if (vivo) { setEstado("error"); setMensaje(e.message); } });
-    return () => { vivo = false; };
+      .then((r) => {
+        if (vivo) {
+          setEstado("ok");
+          setMensaje(r.message || "Correo verificado.");
+        }
+      })
+      .catch((e) => {
+        if (vivo) {
+          setEstado("error");
+          setMensaje(e.message);
+        }
+      });
+    return () => {
+      vivo = false;
+    };
   }, [token]);
 
   return (
@@ -208,9 +291,21 @@ export function VerifyEmailScreen({ token, onDone }) {
       <div>
         <h1>Confirmar correo</h1>
         {estado === "cargando" && <p className="cp-auth-lead">Verificando tu enlace…</p>}
-        {estado === "ok" && <p className="cp-msg ok" role="status">{mensaje}</p>}
-        {estado === "error" && <p className="cp-msg error" role="alert">{mensaje}</p>}
-        {estado !== "cargando" && <button type="button" className="cp-btn primary lg cp-full" onClick={onDone}>Continuar</button>}
+        {estado === "ok" && (
+          <p className="cp-msg ok" role="status">
+            {mensaje}
+          </p>
+        )}
+        {estado === "error" && (
+          <p className="cp-msg error" role="alert">
+            {mensaje}
+          </p>
+        )}
+        {estado !== "cargando" && (
+          <button type="button" className="cp-btn primary lg cp-full" onClick={onDone}>
+            Continuar
+          </button>
+        )}
       </div>
     </Marco>
   );

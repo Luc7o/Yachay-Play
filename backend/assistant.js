@@ -21,10 +21,13 @@ pregunta es un docente con poco tiempo entre clases.`;
 const USOS_POR_HORA = 20;
 const usos = new Map(); // userId -> { n, inicio }
 // Limpia las entradas viejas cada 10 min (si no, el mapa crecía para siempre).
-setInterval(() => {
-  const limite = Date.now() - 60 * 60 * 1000;
-  for (const [k, v] of usos) if (v.inicio < limite) usos.delete(k);
-}, 10 * 60 * 1000).unref();
+setInterval(
+  () => {
+    const limite = Date.now() - 60 * 60 * 1000;
+    for (const [k, v] of usos) if (v.inicio < limite) usos.delete(k);
+  },
+  10 * 60 * 1000,
+).unref();
 function demasiados(userId) {
   const ahora = Date.now();
   const u = usos.get(userId);
@@ -40,10 +43,14 @@ assistantRouter.post("/chat", requireTeacher, async (req, res) => {
   // Se lee aquí (y no arriba) porque server.js carga el .env después de importar este archivo.
   const MODELO = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
   if (!process.env.GEMINI_API_KEY) {
-    return res.status(500).json({ error: "El asistente no está configurado todavía (falta GEMINI_API_KEY en el servidor)." });
+    return res
+      .status(500)
+      .json({ error: "El asistente no está configurado todavía (falta GEMINI_API_KEY en el servidor)." });
   }
   if (demasiados(req.user.id)) {
-    return res.status(429).json({ error: `Llegaste al límite de ${USOS_POR_HORA} mensajes por hora. Prueba de nuevo más tarde.` });
+    return res
+      .status(429)
+      .json({ error: `Llegaste al límite de ${USOS_POR_HORA} mensajes por hora. Prueba de nuevo más tarde.` });
   }
 
   const entrada = Array.isArray(req.body?.messages) ? req.body.messages : null;
@@ -82,12 +89,14 @@ assistantRouter.post("/chat", requireTeacher, async (req, res) => {
           generationConfig: { maxOutputTokens: 1000 },
         }),
         signal: AbortSignal.timeout(30_000), // que no quede colgada si Gemini no responde
-      }
+      },
     );
     const data = await r.json().catch(() => ({}));
     if (!r.ok) {
       if (r.status === 429) {
-        return res.status(429).json({ error: "El asistente alcanzó su límite gratuito por ahora. Prueba de nuevo en unos minutos." });
+        return res
+          .status(429)
+          .json({ error: "El asistente alcanzó su límite gratuito por ahora. Prueba de nuevo en unos minutos." });
       }
       console.error("Gemini error:", r.status, data?.error?.message);
       // El detalle de Gemini queda solo en la consola; al cliente, un mensaje genérico.

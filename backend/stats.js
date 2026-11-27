@@ -27,20 +27,22 @@ async function statsDocente(uid) {
     .prepare(
       `SELECT COUNT(*)::int AS total,
               COUNT(*) FILTER (WHERE phase = 'finished')::int AS finished
-         FROM games WHERE owner_id = ?`
+         FROM games WHERE owner_id = ?`,
     )
     .get(uid);
   const ludoPlayers = await db
     .prepare("SELECT COUNT(*)::int AS c FROM players p JOIN games g ON g.id = p.game_id WHERE g.owner_id = ?")
     .get(uid);
   const wins = await db
-    .prepare("SELECT winner_team, COUNT(*)::int AS c FROM games WHERE owner_id = ? AND winner_team IS NOT NULL GROUP BY winner_team")
+    .prepare(
+      "SELECT winner_team, COUNT(*)::int AS c FROM games WHERE owner_id = ? AND winner_team IS NOT NULL GROUP BY winner_team",
+    )
     .all(uid);
   const ludoRecent = await db
     .prepare(
       `SELECT g.code, g.name, g.phase, g.winner_team, g.end_reason, g.created_at,
               (SELECT COUNT(*)::int FROM players p WHERE p.game_id = g.id) AS players
-         FROM games g WHERE g.owner_id = ? ORDER BY g.created_at DESC LIMIT 8`
+         FROM games g WHERE g.owner_id = ? ORDER BY g.created_at DESC LIMIT 8`,
     )
     .all(uid);
   const hard = await db
@@ -53,25 +55,27 @@ async function statsDocente(uid) {
         GROUP BY q.id
        HAVING COUNT(*) >= 2
         ORDER BY (SUM(t.correct)::float / COUNT(*)) ASC, COUNT(*) DESC
-        LIMIT 5`
+        LIMIT 5`,
     )
     .all(uid);
 
   const cwTot = await db
     .prepare(
       `SELECT COUNT(*)::int AS total, COUNT(*) FILTER (WHERE status = 'ended')::int AS finished
-         FROM crossword_games WHERE owner_id = ?`
+         FROM crossword_games WHERE owner_id = ?`,
     )
     .get(uid);
   const cwPlayers = await db
-    .prepare("SELECT COUNT(*)::int AS c FROM crossword_players p JOIN crossword_games g ON g.id = p.game_id WHERE g.owner_id = ?")
+    .prepare(
+      "SELECT COUNT(*)::int AS c FROM crossword_players p JOIN crossword_games g ON g.id = p.game_id WHERE g.owner_id = ?",
+    )
     .get(uid);
   const cwRecent = await db
     .prepare(
       `SELECT g.code, g.name, g.status, g.end_reason, g.created_at,
               (SELECT COUNT(*)::int FROM crossword_players p WHERE p.game_id = g.id) AS players,
               (SELECT p.name FROM crossword_players p WHERE p.game_id = g.id AND p.id = g.winner_player_id) AS winner
-         FROM crossword_games g WHERE g.owner_id = ? ORDER BY g.created_at DESC LIMIT 8`
+         FROM crossword_games g WHERE g.owner_id = ? ORDER BY g.created_at DESC LIMIT 8`,
     )
     .all(uid);
   const cwTop = await db
@@ -79,7 +83,7 @@ async function statsDocente(uid) {
       `SELECT p.name, MAX(p.score)::int AS best, COUNT(*)::int AS games
          FROM crossword_players p JOIN crossword_games g ON g.id = p.game_id
         WHERE g.owner_id = ?
-        GROUP BY p.name ORDER BY best DESC LIMIT 5`
+        GROUP BY p.name ORDER BY best DESC LIMIT 5`,
     )
     .all(uid);
 
@@ -112,7 +116,7 @@ async function statsEstudiante(uid) {
          JOIN games g ON g.id = p.game_id
          JOIN teams t ON t.game_id = g.id AND t.color = p.team
         WHERE p.user_id = ?
-        ORDER BY g.created_at DESC LIMIT 30`
+        ORDER BY g.created_at DESC LIMIT 30`,
     )
     .all(uid);
   const cw = await db
@@ -121,7 +125,7 @@ async function statsEstudiante(uid) {
               (g.winner_player_id = p.id) AS won
          FROM crossword_players p JOIN crossword_games g ON g.id = p.game_id
         WHERE p.user_id = ?
-        ORDER BY g.created_at DESC LIMIT 30`
+        ORDER BY g.created_at DESC LIMIT 30`,
     )
     .all(uid);
 

@@ -6,7 +6,8 @@
 // navegador. Si agregas palabras a la lista base, agrégalas en AMBOS archivos.
 // Las palabras extra de una sala solo las puede definir el docente que la crea.
 // ============================================================================
-const BASE = `paisaje paisajes pasado pasados pasajero pasajeros mensaje mensajes ensalada ensaladas bocado bocados bocadillo bocadillos casa casas casado casada pasarela pasar pasillo casilla cascabel cascabeles
+const BASE =
+  `paisaje paisajes pasado pasados pasajero pasajeros mensaje mensajes ensalada ensaladas bocado bocados bocadillo bocadillos casa casas casado casada pasarela pasar pasillo casilla cascabel cascabeles
 
 sandalia sandalias sandía sandías sapo sapos salud saludable saludo saludos salvar salvación salmón salmones salsa salsas salero salida salidas sábana sábanas sábado sábados saber sabiduría sacapuntas sacar sacrificio saco sacos salto saltar salvavidas salchicha salchichas sartén sartenes satélite satélites
 camino caminos camiseta camisetas camaleón camaleones camión camiones campana campanas campo campos campeón campeones camilla cámara cámaras camuflaje caminar cambio cambiar cama camas caballero cabeza cabezas cabello caballo caballos cabina cacao cadena cadenas cafetería café caja cajas calendario calendarios calor calabaza calabazas calcular calle calles callar calma
@@ -55,21 +56,67 @@ tabla tablas tablero tableros tarea tareas taza tazas techo techos tecnología t
 universidad universidades universo universos uno una uña uñas urgente usuario usuarios utensilio utensilios uva uvas
 vacaciones vacuna vacunas valle valles vapor valores valor vaso vasos viento vientos viernes viaje viajes vida vidas video videos vidrio vidrios villano villanos violín violines vista vistas vitamina vitaminas vocabulario vocal vocales voz voces vuelo vuelos
 web yate yates yema yemas yeso yoga yogur yogures yoyo
-`.trim().split(/\s+/u);
+`
+    .trim()
+    .split(/\s+/u);
 
 export const normalizeWord = (input) =>
-  String(input || "").toLocaleLowerCase("es").replace(/ñ/g, "__enie__").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/__enie__/g, "ñ").trim();
+  String(input || "")
+    .toLocaleLowerCase("es")
+    .replace(/ñ/g, "__enie__")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/__enie__/g, "ñ")
+    .trim();
 export const safeWord = (value) => /^[a-zñü]{4,35}$/u.test(normalizeWord(value));
 export const baseWords = new Set(BASE.filter(safeWord).map(normalizeWord));
 export const BASE_COUNT = baseWords.size;
 
-export const FRAGMENTS = ["sa","ca","ma","pl","lu","pe","co","pi","fr","es","bi","ve","nu","re","te","ro","za","ar","li","so","tr","fl","br","cr","an","en","al","ra","ta","le","na","pa","la","io","or","er"];
+export const FRAGMENTS = [
+  "sa",
+  "ca",
+  "ma",
+  "pl",
+  "lu",
+  "pe",
+  "co",
+  "pi",
+  "fr",
+  "es",
+  "bi",
+  "ve",
+  "nu",
+  "re",
+  "te",
+  "ro",
+  "za",
+  "ar",
+  "li",
+  "so",
+  "tr",
+  "fl",
+  "br",
+  "cr",
+  "an",
+  "en",
+  "al",
+  "ra",
+  "ta",
+  "le",
+  "na",
+  "pa",
+  "la",
+  "io",
+  "or",
+  "er",
+];
 
 // Devuelve "" si la palabra es válida; si no, el motivo (se lo mostramos a quien la escribió).
 export function checkWord(value, fragment, used, extra) {
   const w = normalizeWord(value);
   if (!safeWord(w)) return "Escribe una palabra de 4 a 35 letras.";
-  if (!w.includes(normalizeWord(fragment))) return `La palabra debe contener «${fragment.toUpperCase()}» en cualquier posición.`;
+  if (!w.includes(normalizeWord(fragment)))
+    return `La palabra debe contener «${fragment.toUpperCase()}» en cualquier posición.`;
   if (used.has(w)) return "Esa palabra ya fue utilizada en esta partida.";
   if (!baseWords.has(w) && !(extra && extra.has(w))) return "No aparece en el diccionario disponible.";
   return "";

@@ -23,14 +23,28 @@ import { CwStudentRoom } from "./CwStudentRoom";
 // Si App.jsx pasa `frame`, la configuración del docente se muestra dentro del menú lateral.
 export const conMarco = (frame, pagina) => (frame ? frame(pagina) : pagina);
 
-export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode = "", initialName = "", startJoin = false, onGuestCode, frame }) {
+export function CrosswordGame({
+  user,
+  onLogin,
+  onRegister,
+  goHome,
+  initialCode = "",
+  initialName = "",
+  startJoin = false,
+  onGuestCode,
+  frame,
+}) {
   // Si ya hay sesión, arrancamos directo en la pantalla de su rol (sin pasar
   // primero por "gate"): así no se alcanza a ver un parpadeo de esa pantalla
   // antes de que el useEffect de abajo la cambie.
   const [view, setView] = useState(() =>
     initialCode || startJoin
       ? "student-join" // llegó con un código (acceso de invitado): directo a unirse
-      : user?.role === "docente" ? "teacher-setup" : user?.role === "estudiante" ? "student-join" : "gate"
+      : user?.role === "docente"
+        ? "teacher-setup"
+        : user?.role === "estudiante"
+          ? "student-join"
+          : "gate",
   ); // gate | teacher-setup | teacher-room | student-join | student-room
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
@@ -88,7 +102,7 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
         } else {
           saveJSON(LS_STUDENT, null);
         }
-      }
+      },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -106,7 +120,7 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
         socket.emit(
           "cw:join-room",
           { code: guardado.code, playerId: guardado.playerId, secret: guardado.secret, name: user?.name || "" },
-          (ack) => ack?.ok && setLive(ack.state)
+          (ack) => ack?.ok && setLive(ack.state),
         );
       } else if (v === "teacher-room") {
         const codigo = loadJSON(LS_TEACHER);
@@ -203,7 +217,7 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
             })
             .catch((e) => setError(e.message));
         }}
-      />
+      />,
     );
   }
 
@@ -216,11 +230,17 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
         goHome={volverAlCatalogo}
         onStart={() => emitConTiempoLimite("cw:start", { code }, (ack) => ack?.error && setError(ack.error))}
         onEnd={() => {
-          if (!window.confirm("¿Finalizar la partida ahora mismo para todos? Verán los resultados de inmediato.")) return;
+          if (!window.confirm("¿Finalizar la partida ahora mismo para todos? Verán los resultados de inmediato."))
+            return;
           emitConTiempoLimite("cw:end", { code }, (ack) => ack?.error && setError(ack.error));
         }}
         onReset={() => {
-          if (!window.confirm("Esto pone el marcador de todos en cero y los regresa a la sala de espera (el código sigue siendo el mismo). ¿Continuar?")) return;
+          if (
+            !window.confirm(
+              "Esto pone el marcador de todos en cero y los regresa a la sala de espera (el código sigue siendo el mismo). ¿Continuar?",
+            )
+          )
+            return;
           emitConTiempoLimite("cw:reset", { code }, (ack) => ack?.error && setError(ack.error));
         }}
         onNewGame={() => {
@@ -270,9 +290,7 @@ export function CrosswordGame({ user, onLogin, onRegister, goHome, initialCode =
         onSubmit={(placementId, guess, cb) =>
           emitConTiempoLimite("cw:submit", { placementId, guess }, (ack) => cb(ack))
         }
-        onSabotage={(targetId, type, cb) =>
-          emitConTiempoLimite("cw:sabotage", { targetId, type }, (ack) => cb(ack))
-        }
+        onSabotage={(targetId, type, cb) => emitConTiempoLimite("cw:sabotage", { targetId, type }, (ack) => cb(ack))}
       />
     );
   }

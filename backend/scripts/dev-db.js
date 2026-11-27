@@ -36,7 +36,9 @@ await new Promise((resolve, reject) => {
 });
 
 console.log("\nArranca el backend en otra terminal con:");
-console.log(`  DATABASE_URL=${URL} SEED_DEMO_USERS=true AUTH_SECRET=dev-local-solo-pruebas NODE_ENV=development npm run dev`);
+console.log(
+  `  DATABASE_URL=${URL} SEED_DEMO_USERS=true AUTH_SECRET=dev-local-solo-pruebas NODE_ENV=development npm run dev`,
+);
 console.log("Ctrl+C para cerrar (los datos se borran).");
 
 const cerrar = async () => {

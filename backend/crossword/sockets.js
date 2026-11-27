@@ -10,7 +10,18 @@
 // ============================================================================
 import crypto from "node:crypto";
 import { nanoid } from "nanoid";
-import { getRoom, addPlayer, startRoom, endRoom, resetRoom, submitAnswer, useSabotage, publicRoomState, tick, rooms } from "./engine.js";
+import {
+  getRoom,
+  addPlayer,
+  startRoom,
+  endRoom,
+  resetRoom,
+  submitAnswer,
+  useSabotage,
+  publicRoomState,
+  tick,
+  rooms,
+} from "./engine.js";
 
 const roomKey = (code) => `cw:${code}`;
 
@@ -33,7 +44,8 @@ function requireOwner(socket, room) {
   const u = socket.data.user;
   if (!u || u.role !== "docente") return "Inicia sesión como docente para controlar esta partida.";
   // Sin dueño (el docente borró su cuenta): nadie la controla; antes podía cualquier docente.
-  if (room.ownerId !== u.id) return room.ownerId ? "Esta partida pertenece a otro docente." : "Ya no hay un docente a cargo.";
+  if (room.ownerId !== u.id)
+    return room.ownerId ? "Esta partida pertenece a otro docente." : "Ya no hay un docente a cargo.";
   return null;
 }
 

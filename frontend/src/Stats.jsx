@@ -20,7 +20,12 @@ const fecha = (v) => {
 
 const plural = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
 
-const MOTIVOS = { goal: "llegó a la meta", time: "se acabó el tiempo", teacher: "lo cerró el docente", completed: "completó el crucigrama" };
+const MOTIVOS = {
+  goal: "llegó a la meta",
+  time: "se acabó el tiempo",
+  teacher: "lo cerró el docente",
+  completed: "completó el crucigrama",
+};
 
 function Tarjeta({ titulo, valor, nota }) {
   return (
@@ -55,9 +60,14 @@ function VistaDocente({ d }) {
               const n = ludo.winsByColor[k] || 0;
               return (
                 <div className="tl-row" key={k}>
-                  <span><i className="tl-dot" style={{ background: c.hex }} />{c.nombre}</span>
+                  <span>
+                    <i className="tl-dot" style={{ background: c.hex }} />
+                    {c.nombre}
+                  </span>
                   <b>{n}</b>
-                  <div className="tl-bar"><i style={{ width: `${(n / maxVictorias) * 100}%`, background: c.hex }} /></div>
+                  <div className="tl-bar">
+                    <i style={{ width: `${(n / maxVictorias) * 100}%`, background: c.hex }} />
+                  </div>
                 </div>
               );
             })
@@ -73,10 +83,14 @@ function VistaDocente({ d }) {
               <div className="tl-row" key={q.id}>
                 <span>
                   <b>{q.question}</b>
-                  <small>{q.topic} · {q.correct} de {q.asked} {q.asked === 1 ? "acierto" : "aciertos"}</small>
+                  <small>
+                    {q.topic} · {q.correct} de {q.asked} {q.asked === 1 ? "acierto" : "aciertos"}
+                  </small>
                 </span>
                 <span className={"tl-pill " + (q.pct < 40 ? "lose" : q.pct < 70 ? "warn" : "win")}>{q.pct}%</span>
-                <div className="tl-bar"><i className={q.pct < 40 ? "bad" : q.pct < 70 ? "mid" : "good"} style={{ width: `${q.pct}%` }} /></div>
+                <div className="tl-bar">
+                  <i className={q.pct < 40 ? "bad" : q.pct < 70 ? "mid" : "good"} style={{ width: `${q.pct}%` }} />
+                </div>
               </div>
             ))
           )}
@@ -93,12 +107,18 @@ function VistaDocente({ d }) {
               <div className="tl-row" key={g.code}>
                 <span>
                   <b>{g.name}</b>
-                  <small>Código {g.code} · {fecha(g.created_at)} · {plural(g.players, "jugador", "jugadores")}{g.end_reason ? ` · ${MOTIVOS[g.end_reason]}` : ""}</small>
+                  <small>
+                    Código {g.code} · {fecha(g.created_at)} · {plural(g.players, "jugador", "jugadores")}
+                    {g.end_reason ? ` · ${MOTIVOS[g.end_reason]}` : ""}
+                  </small>
                 </span>
                 {g.phase !== "finished" ? (
                   <span className="tl-pill warn">en curso</span>
                 ) : g.winner_team ? (
-                  <span className="tl-pill win"><i className="tl-dot" style={{ background: COLORES[g.winner_team]?.hex, marginRight: 5 }} />{COLORES[g.winner_team]?.nombre}</span>
+                  <span className="tl-pill win">
+                    <i className="tl-dot" style={{ background: COLORES[g.winner_team]?.hex, marginRight: 5 }} />
+                    {COLORES[g.winner_team]?.nombre}
+                  </span>
                 ) : (
                   <span className="tl-pill">sin ganador</span>
                 )}
@@ -116,7 +136,10 @@ function VistaDocente({ d }) {
               <div className="tl-row" key={g.code}>
                 <span>
                   <b>{g.name}</b>
-                  <small>Código {g.code} · {fecha(g.created_at)} · {plural(g.players, "jugador", "jugadores")}{g.end_reason ? ` · ${MOTIVOS[g.end_reason]}` : ""}</small>
+                  <small>
+                    Código {g.code} · {fecha(g.created_at)} · {plural(g.players, "jugador", "jugadores")}
+                    {g.end_reason ? ` · ${MOTIVOS[g.end_reason]}` : ""}
+                  </small>
                 </span>
                 {g.status !== "ended" ? (
                   <span className="tl-pill warn">{g.status === "playing" ? "en juego" : "en espera"}</span>
@@ -133,7 +156,14 @@ function VistaDocente({ d }) {
               <h3 style={{ marginTop: 14 }}>Mejores puntajes</h3>
               {crossword.top.map((p, i) => (
                 <div className="tl-row" key={p.name}>
-                  <span><b>{i + 1}. {p.name}</b><small>{p.games} {p.games === 1 ? "partida" : "partidas"}</small></span>
+                  <span>
+                    <b>
+                      {i + 1}. {p.name}
+                    </b>
+                    <small>
+                      {p.games} {p.games === 1 ? "partida" : "partidas"}
+                    </small>
+                  </span>
                   <span className="tl-pill">{p.best} pts</span>
                 </div>
               ))}
@@ -172,10 +202,17 @@ function VistaEstudiante({ d }) {
                     <b>{g.name}</b>
                     <small>
                       <i className="tl-dot" style={{ background: COLORES[g.team]?.hex, width: 8, height: 8 }} />
-                      Equipo {COLORES[g.team]?.nombre} · {plural(g.correct, "acierto", "aciertos")}, {plural(g.incorrect, "fallo", "fallos")} · {fecha(g.created_at)}
+                      Equipo {COLORES[g.team]?.nombre} · {plural(g.correct, "acierto", "aciertos")},{" "}
+                      {plural(g.incorrect, "fallo", "fallos")} · {fecha(g.created_at)}
                     </small>
                   </span>
-                  {g.phase !== "finished" ? <span className="tl-pill warn">en curso</span> : gano ? <span className="tl-pill win">Ganó</span> : <span className="tl-pill">Terminó</span>}
+                  {g.phase !== "finished" ? (
+                    <span className="tl-pill warn">en curso</span>
+                  ) : gano ? (
+                    <span className="tl-pill win">Ganó</span>
+                  ) : (
+                    <span className="tl-pill">Terminó</span>
+                  )}
                 </div>
               );
             })
@@ -190,9 +227,17 @@ function VistaEstudiante({ d }) {
               <div className="tl-row" key={g.code + g.created_at}>
                 <span>
                   <b>{g.name}</b>
-                  <small>{plural(g.solved_count, "palabra", "palabras")} · {g.score} pts · {fecha(g.created_at)}</small>
+                  <small>
+                    {plural(g.solved_count, "palabra", "palabras")} · {g.score} pts · {fecha(g.created_at)}
+                  </small>
                 </span>
-                {g.status !== "ended" ? <span className="tl-pill warn">en curso</span> : g.won ? <span className="tl-pill win">Ganó</span> : <span className="tl-pill">Terminó</span>}
+                {g.status !== "ended" ? (
+                  <span className="tl-pill warn">en curso</span>
+                ) : g.won ? (
+                  <span className="tl-pill win">Ganó</span>
+                ) : (
+                  <span className="tl-pill">Terminó</span>
+                )}
               </div>
             ))
           )}
@@ -220,7 +265,9 @@ export function StatsPage({ user, goHome }) {
         <Brand subtitle={esDocente ? "Estadísticas" : "Mis resultados"} onClick={goHome} />
       </header>
       <main className="tl-main">
-        <button className="tl-back" onClick={goHome}>← Volver al inicio</button>
+        <button className="tl-back" onClick={goHome}>
+          ← Volver al inicio
+        </button>
         <h1 className="tl-title">{esDocente ? "Estadísticas de tus clases" : "Mis resultados"}</h1>
         <p className="tl-sub">
           {esDocente

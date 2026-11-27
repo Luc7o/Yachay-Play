@@ -65,14 +65,19 @@ function EnVivo({ actividades, esDocente, onEntrar }) {
           <div className="cp-band cp-band-live" key={a.kind + a.code}>
             <div>
               <span className="cp-live">En vivo</span>
-              <h3>{t.nombre} · {a.name}</h3>
+              <h3>
+                {t.nombre} · {a.name}
+              </h3>
               <p>
-                {a.clase ? `${a.clase} · ` : ""}Código <b className="cp-code-inline">{codigoBonito(a.code)}</b> · {a.players} {a.players === 1 ? "conectado" : "conectados"}
+                {a.clase ? `${a.clase} · ` : ""}Código <b className="cp-code-inline">{codigoBonito(a.code)}</b> ·{" "}
+                {a.players} {a.players === 1 ? "conectado" : "conectados"}
                 {a.status === "lobby" ? " · en sala de espera" : ""}
               </p>
             </div>
             {!esDocente && (
-              <button type="button" className="cp-btn primary" onClick={() => onEntrar(a)}>Entrar</button>
+              <button type="button" className="cp-btn primary" onClick={() => onEntrar(a)}>
+                Entrar
+              </button>
             )}
           </div>
         );
@@ -100,7 +105,7 @@ function Lista({ user, onAbrir, onEntrar }) {
         .classes()
         .then((r) => setClases(r.classes))
         .catch((e) => !silencioso && setMsg({ tipo: "error", texto: e.message })),
-    []
+    [],
   );
   useRefresco(cargar, []);
 
@@ -141,7 +146,12 @@ function Lista({ user, onAbrir, onEntrar }) {
   // "Eliminar" archiva la clase en el servidor: deja de listarse y su código deja de servir,
   // pero las partidas ya jugadas se conservan en las estadísticas del docente.
   async function eliminar(c) {
-    if (!window.confirm(`¿Eliminar «${c.name}»? Dejará de aparecer en tus clases y su código ya no servirá. Las partidas jugadas se conservan en tus estadísticas.`)) return;
+    if (
+      !window.confirm(
+        `¿Eliminar «${c.name}»? Dejará de aparecer en tus clases y su código ya no servirá. Las partidas jugadas se conservan en tus estadísticas.`,
+      )
+    )
+      return;
     setMsg({});
     try {
       await api.classArchive(c.id);
@@ -167,7 +177,9 @@ function Lista({ user, onAbrir, onEntrar }) {
           </p>
         </div>
         {esDocente && !creando && (
-          <button type="button" className="cp-btn primary" onClick={() => setCreando(true)}>+ Nueva clase</button>
+          <button type="button" className="cp-btn primary" onClick={() => setCreando(true)}>
+            + Nueva clase
+          </button>
         )}
       </div>
 
@@ -179,16 +191,33 @@ function Lista({ user, onAbrir, onEntrar }) {
           <div className="cp-form-row">
             <label>
               Nombre del curso
-              <input className="cp-input" value={nombre} maxLength={80} required placeholder="Ej. Cálculo Diferencial" onChange={(e) => setNombre(e.target.value)} />
+              <input
+                className="cp-input"
+                value={nombre}
+                maxLength={80}
+                required
+                placeholder="Ej. Cálculo Diferencial"
+                onChange={(e) => setNombre(e.target.value)}
+              />
             </label>
             <label>
               Sección (opcional)
-              <input className="cp-input" value={seccion} maxLength={40} placeholder="Ej. Sección B" onChange={(e) => setSeccion(e.target.value)} />
+              <input
+                className="cp-input"
+                value={seccion}
+                maxLength={40}
+                placeholder="Ej. Sección B"
+                onChange={(e) => setSeccion(e.target.value)}
+              />
             </label>
           </div>
           <div className="cp-join">
-            <button type="submit" className="cp-btn primary" disabled={ocupado || !nombre.trim()}>{ocupado ? "Creando…" : "Crear clase"}</button>
-            <button type="button" className="cp-btn quiet" onClick={() => setCreando(false)}>Cancelar</button>
+            <button type="submit" className="cp-btn primary" disabled={ocupado || !nombre.trim()}>
+              {ocupado ? "Creando…" : "Crear clase"}
+            </button>
+            <button type="button" className="cp-btn quiet" onClick={() => setCreando(false)}>
+              Cancelar
+            </button>
           </div>
         </form>
       )}
@@ -197,7 +226,9 @@ function Lista({ user, onAbrir, onEntrar }) {
         <form className="cp-card cp-panel cp-form" onSubmit={unirse}>
           <h2>Unirme a una clase</h2>
           <p>Pide a tu docente el código de la clase (6 letras y números). Es distinto del código de cada partida.</p>
-          <label htmlFor="cp-class-code" className="cp-sr">Código de la clase</label>
+          <label htmlFor="cp-class-code" className="cp-sr">
+            Código de la clase
+          </label>
           <div className="cp-join">
             <input
               id="cp-class-code"
@@ -207,52 +238,84 @@ function Lista({ user, onAbrir, onEntrar }) {
               autoCapitalize="characters"
               autoComplete="off"
               placeholder="ABC123"
-              onChange={(e) => setCodigo(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6))}
+              onChange={(e) =>
+                setCodigo(
+                  e.target.value
+                    .toUpperCase()
+                    .replace(/[^A-Z0-9]/g, "")
+                    .slice(0, 6),
+                )
+              }
             />
-            <button type="submit" className="cp-btn primary" disabled={ocupado || codigo.length !== 6}>{ocupado ? "Uniendo…" : "Unirme"}</button>
+            <button type="submit" className="cp-btn primary" disabled={ocupado || codigo.length !== 6}>
+              {ocupado ? "Uniendo…" : "Unirme"}
+            </button>
           </div>
         </form>
       )}
 
       {!esDocente && enVivo.length > 0 && (
         <section aria-labelledby="cp-vivo-t">
-          <h2 id="cp-vivo-t" className="cp-sec-title">Ahora en tus clases</h2>
+          <h2 id="cp-vivo-t" className="cp-sec-title">
+            Ahora en tus clases
+          </h2>
           <EnVivo actividades={enVivo} esDocente={false} onEntrar={onEntrar} />
         </section>
       )}
 
       <section aria-labelledby="cp-lista-t">
-        <h2 id="cp-lista-t" className="cp-sec-title">{esDocente ? "Clases activas" : "Inscrito en"}</h2>
+        <h2 id="cp-lista-t" className="cp-sec-title">
+          {esDocente ? "Clases activas" : "Inscrito en"}
+        </h2>
         {clases === null ? (
           <p className="cp-muted">Cargando…</p>
         ) : clases.length === 0 ? (
           <div className="cp-card cp-panel cp-empty con-condor">
             <img className="cp-condor" src="/condor-256.png" alt="" aria-hidden="true" width="256" height="256" />
-            <p>{esDocente ? "Todavía no tienes clases. Crea la primera para compartir su código con tus estudiantes." : "Aún no estás inscrito en ninguna clase."}</p>
+            <p>
+              {esDocente
+                ? "Todavía no tienes clases. Crea la primera para compartir su código con tus estudiantes."
+                : "Aún no estás inscrito en ninguna clase."}
+            </p>
           </div>
         ) : (
           <div className="cp-tiles">
             {clases.map((c) => (
               <div className="cp-tile-wrap" key={c.id}>
-              <button type="button" className={"cp-tile" + (c.live.length ? " is-live" : "")} onClick={() => onAbrir(c.id)}>
-                <span className="cp-tile-top">
-                  <span className="cp-chip accent">{esDocente ? codigoBonito(c.code) : c.section || "Clase"}</span>
-                  {c.live.length > 0 && <span className="cp-live">En vivo</span>}
-                </span>
-                <strong>{c.name}</strong>
-                <p>{esDocente ? c.section || "Sin sección" : `Prof. ${c.teacher}${c.section ? ` · ${c.section}` : ""}`}</p>
-                {esDocente && (
-                  <span className="cp-tile-meta">
-                    <span>{c.members} {c.members === 1 ? "estudiante" : "estudiantes"}</span>
-                    <span>{c.activities} {c.activities === 1 ? "actividad" : "actividades"}</span>
+                <button
+                  type="button"
+                  className={"cp-tile" + (c.live.length ? " is-live" : "")}
+                  onClick={() => onAbrir(c.id)}
+                >
+                  <span className="cp-tile-top">
+                    <span className="cp-chip accent">{esDocente ? codigoBonito(c.code) : c.section || "Clase"}</span>
+                    {c.live.length > 0 && <span className="cp-live">En vivo</span>}
                   </span>
-                )}
-              </button>
-              {esDocente && (
-                <button type="button" className="cp-btn quiet sm danger cp-tile-delete" onClick={() => eliminar(c)} aria-label={`Eliminar la clase ${c.name}`}>
-                  Eliminar clase
+                  <strong>{c.name}</strong>
+                  <p>
+                    {esDocente ? c.section || "Sin sección" : `Prof. ${c.teacher}${c.section ? ` · ${c.section}` : ""}`}
+                  </p>
+                  {esDocente && (
+                    <span className="cp-tile-meta">
+                      <span>
+                        {c.members} {c.members === 1 ? "estudiante" : "estudiantes"}
+                      </span>
+                      <span>
+                        {c.activities} {c.activities === 1 ? "actividad" : "actividades"}
+                      </span>
+                    </span>
+                  )}
                 </button>
-              )}
+                {esDocente && (
+                  <button
+                    type="button"
+                    className="cp-btn quiet sm danger cp-tile-delete"
+                    onClick={() => eliminar(c)}
+                    aria-label={`Eliminar la clase ${c.name}`}
+                  >
+                    Eliminar clase
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -279,7 +342,7 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
         .classGet(id)
         .then((r) => setClase(r.class))
         .catch((e) => !silencioso && setMsg({ tipo: "error", texto: e.message })),
-    [id]
+    [id],
   );
   useRefresco(cargar, [id]);
 
@@ -300,7 +363,9 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
   if (!clase) {
     return (
       <div className="cp cp-home">
-        <button type="button" className="cp-back" onClick={onVolver}>← Mis clases</button>
+        <button type="button" className="cp-back" onClick={onVolver}>
+          ← Mis clases
+        </button>
         <Aviso msg={msg} />
         {!msg.texto && <p className="cp-muted">Cargando…</p>}
       </div>
@@ -318,24 +383,52 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
 
   return (
     <div className="cp cp-home">
-      <button type="button" className="cp-back" onClick={onVolver}>← Mis clases</button>
+      <button type="button" className="cp-back" onClick={onVolver}>
+        ← Mis clases
+      </button>
 
       <div className="cp-pagehead">
         <div>
-          <span className="cp-eyebrow">{clase.section || "Clase"}{!esDocente ? ` · Prof. ${clase.teacher}` : ""}</span>
+          <span className="cp-eyebrow">
+            {clase.section || "Clase"}
+            {!esDocente ? ` · Prof. ${clase.teacher}` : ""}
+          </span>
           {editando ? (
             <form
               className="cp-form-row"
               onSubmit={(e) => {
                 e.preventDefault();
-                accion(() => api.classUpdate(clase.id, { name: nombre, section: seccion }), "Clase actualizada.").then((bien) => bien && setEditando(false));
+                accion(() => api.classUpdate(clase.id, { name: nombre, section: seccion }), "Clase actualizada.").then(
+                  (bien) => bien && setEditando(false),
+                );
               }}
             >
-              <label>Nombre<input className="cp-input" value={nombre} maxLength={80} required onChange={(e) => setNombre(e.target.value)} /></label>
-              <label>Sección<input className="cp-input" value={seccion} maxLength={40} onChange={(e) => setSeccion(e.target.value)} /></label>
+              <label>
+                Nombre
+                <input
+                  className="cp-input"
+                  value={nombre}
+                  maxLength={80}
+                  required
+                  onChange={(e) => setNombre(e.target.value)}
+                />
+              </label>
+              <label>
+                Sección
+                <input
+                  className="cp-input"
+                  value={seccion}
+                  maxLength={40}
+                  onChange={(e) => setSeccion(e.target.value)}
+                />
+              </label>
               <div className="cp-join" style={{ alignSelf: "flex-end" }}>
-                <button type="submit" className="cp-btn primary">Guardar</button>
-                <button type="button" className="cp-btn quiet" onClick={() => setEditando(false)}>Cancelar</button>
+                <button type="submit" className="cp-btn primary">
+                  Guardar
+                </button>
+                <button type="button" className="cp-btn quiet" onClick={() => setEditando(false)}>
+                  Cancelar
+                </button>
               </div>
             </form>
           ) : (
@@ -343,7 +436,17 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
           )}
         </div>
         {esDocente && !editando && (
-          <button type="button" className="cp-btn ghost" onClick={() => { setNombre(clase.name); setSeccion(clase.section); setEditando(true); }}>Editar</button>
+          <button
+            type="button"
+            className="cp-btn ghost"
+            onClick={() => {
+              setNombre(clase.name);
+              setSeccion(clase.section);
+              setEditando(true);
+            }}
+          >
+            Editar
+          </button>
         )}
       </div>
 
@@ -353,15 +456,23 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
         <section className="cp-card cp-panel cp-classcode" aria-labelledby="cp-cc-t">
           <div>
             <h2 id="cp-cc-t">Código de la clase</h2>
-            <p>Compártelo con tus estudiantes: lo escriben en <b>Mis clases → Unirme a una clase</b>.</p>
+            <p>
+              Compártelo con tus estudiantes: lo escriben en <b>Mis clases → Unirme a una clase</b>.
+            </p>
           </div>
           <strong className="cp-code-big">{codigoBonito(clase.code)}</strong>
           <div className="cp-join">
-            <button type="button" className="cp-btn ghost" onClick={copiar}>Copiar</button>
+            <button type="button" className="cp-btn ghost" onClick={copiar}>
+              Copiar
+            </button>
             <button
               type="button"
               className="cp-btn quiet"
-              onClick={() => window.confirm("¿Generar un código nuevo? El anterior dejará de servir para inscribirse (los estudiantes ya inscritos siguen en la clase).") && accion(() => api.classNewCode(clase.id), "Código nuevo generado.")}
+              onClick={() =>
+                window.confirm(
+                  "¿Generar un código nuevo? El anterior dejará de servir para inscribirse (los estudiantes ya inscritos siguen en la clase).",
+                ) && accion(() => api.classNewCode(clase.id), "Código nuevo generado.")
+              }
             >
               Generar otro
             </button>
@@ -371,21 +482,29 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
 
       {clase.live.length > 0 && (
         <section aria-labelledby="cp-dv-t">
-          <h2 id="cp-dv-t" className="cp-sec-title">En vivo ahora</h2>
+          <h2 id="cp-dv-t" className="cp-sec-title">
+            En vivo ahora
+          </h2>
           <EnVivo actividades={clase.live} esDocente={esDocente} onEntrar={onEntrar} />
         </section>
       )}
 
       {esDocente && (
         <section aria-labelledby="cp-lz-t">
-          <h2 id="cp-lz-t" className="cp-sec-title">Lanzar una actividad en esta clase</h2>
+          <h2 id="cp-lz-t" className="cp-sec-title">
+            Lanzar una actividad en esta clase
+          </h2>
           <div className="cp-tiles">
             {LANZABLES.map((k) => {
               const t = TIPOS[k];
               const Ico = t.icono;
               return (
                 <button type="button" key={k} className={`cp-tile tono-${k}`} onClick={() => onLanzar(clase, k)}>
-                  <span className="cp-tile-top"><span className="cp-ico"><Ico /></span></span>
+                  <span className="cp-tile-top">
+                    <span className="cp-ico">
+                      <Ico />
+                    </span>
+                  </span>
                   <strong>{t.nombre}</strong>
                   <span className="cp-tile-cta">Crear en {clase.name}</span>
                 </button>
@@ -411,12 +530,20 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
               <ul className="cp-rows">
                 {clase.members.map((m) => (
                   <li key={m.id}>
-                    <span className="cp-avatar" aria-hidden="true">{m.name.trim().charAt(0).toUpperCase()}</span>
-                    <span className="cp-rows-main"><strong>{m.name}</strong><small>Desde el {fecha(m.joinedAt)}</small></span>
+                    <span className="cp-avatar" aria-hidden="true">
+                      {m.name.trim().charAt(0).toUpperCase()}
+                    </span>
+                    <span className="cp-rows-main">
+                      <strong>{m.name}</strong>
+                      <small>Desde el {fecha(m.joinedAt)}</small>
+                    </span>
                     <button
                       type="button"
                       className="cp-btn quiet sm"
-                      onClick={() => window.confirm(`¿Quitar a ${m.name} de la clase?`) && accion(() => api.classRemoveMember(clase.id, m.id), `${m.name} ya no está en la clase.`)}
+                      onClick={() =>
+                        window.confirm(`¿Quitar a ${m.name} de la clase?`) &&
+                        accion(() => api.classRemoveMember(clase.id, m.id), `${m.name} ya no está en la clase.`)
+                      }
                     >
                       Quitar
                     </button>
@@ -430,7 +557,11 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
         <section className="cp-card cp-panel" aria-labelledby="cp-hist-t">
           <h2 id="cp-hist-t">Actividades de la clase</h2>
           {clase.history.length === 0 ? (
-            <p>{esDocente ? "Las partidas de Ludo y Crucigrama que lances desde aquí aparecerán en esta lista." : "Todavía no hay actividades guardadas en esta clase."}</p>
+            <p>
+              {esDocente
+                ? "Las partidas de Ludo y Crucigrama que lances desde aquí aparecerán en esta lista."
+                : "Todavía no hay actividades guardadas en esta clase."}
+            </p>
           ) : (
             <ul className="cp-rows">
               {clase.history.map((h, i) => {
@@ -438,9 +569,19 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
                 const Ico = t.icono;
                 return (
                   <li key={i}>
-                    <span className={`cp-ico sm tono-${h.kind}`}><Ico /></span>
-                    <span className="cp-rows-main"><strong>{h.name}</strong><small>{t.nombre} · {fecha(h.createdAt)}</small></span>
-                    <span className="cp-rows-end">{h.players} {h.players === 1 ? "jugador" : "jugadores"}{h.status === "open" ? " · abierta" : ""}</span>
+                    <span className={`cp-ico sm tono-${h.kind}`}>
+                      <Ico />
+                    </span>
+                    <span className="cp-rows-main">
+                      <strong>{h.name}</strong>
+                      <small>
+                        {t.nombre} · {fecha(h.createdAt)}
+                      </small>
+                    </span>
+                    <span className="cp-rows-end">
+                      {h.players} {h.players === 1 ? "jugador" : "jugadores"}
+                      {h.status === "open" ? " · abierta" : ""}
+                    </span>
                   </li>
                 );
               })}
@@ -455,7 +596,9 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
             type="button"
             className="cp-btn ghost danger"
             onClick={() =>
-              window.confirm(`¿Eliminar «${clase.name}»? Dejará de aparecer en tus clases y su código ya no servirá. Las partidas jugadas se conservan en tus estadísticas.`) &&
+              window.confirm(
+                `¿Eliminar «${clase.name}»? Dejará de aparecer en tus clases y su código ya no servirá. Las partidas jugadas se conservan en tus estadísticas.`,
+              ) &&
               accion(() => api.classArchive(clase.id), null, { recargar: false }).then((bien) => bien && onVolver())
             }
           >
@@ -465,7 +608,12 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
           <button
             type="button"
             className="cp-btn ghost danger"
-            onClick={() => window.confirm(`¿Salir de «${clase.name}»? Podrás volver con el código de la clase.`) && accion(() => api.classRemoveMember(clase.id, "me"), null, { recargar: false }).then((bien) => bien && onVolver())}
+            onClick={() =>
+              window.confirm(`¿Salir de «${clase.name}»? Podrás volver con el código de la clase.`) &&
+              accion(() => api.classRemoveMember(clase.id, "me"), null, { recargar: false }).then(
+                (bien) => bien && onVolver(),
+              )
+            }
           >
             Salir de la clase
           </button>

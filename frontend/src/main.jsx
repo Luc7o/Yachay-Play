@@ -17,7 +17,13 @@ createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ErrorBoundary>
       {/* Mientras llega el código de una pantalla que se carga bajo demanda. */}
-      <Suspense fallback={<div className="app-cargando" role="status" aria-live="polite">Cargando…</div>}>
+      <Suspense
+        fallback={
+          <div className="app-cargando" role="status" aria-live="polite">
+            Cargando…
+          </div>
+        }
+      >
         <App />
       </Suspense>
       {/* Fuera de <App/> a propósito: se muestra en CUALQUIER pantalla donde
@@ -29,5 +35,5 @@ createRoot(document.getElementById("root")).render(
       {/* "Esta actividad quedará en la clase X" mientras el docente prepara una actividad desde una clase. */}
       <AvisoDestino />
     </ErrorBoundary>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

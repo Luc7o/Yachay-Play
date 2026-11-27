@@ -36,10 +36,20 @@ export function crearPDF(imgs, pw, ph, titulo) {
   };
   const n = imgs.length;
   const num = (v) => (Math.round(v * 100) / 100).toString();
-  const hexTitulo = "FEFF" + Array.from(String(titulo || "")).map((ch) => ch.codePointAt(0)).flatMap((cp) => {
-    if (cp > 0xffff) { const c = cp - 0x10000; return [0xd800 + (c >> 10), 0xdc00 + (c & 0x3ff)]; }
-    return [cp];
-  }).map((u) => u.toString(16).padStart(4, "0")).join("").toUpperCase();
+  const hexTitulo =
+    "FEFF" +
+    Array.from(String(titulo || ""))
+      .map((ch) => ch.codePointAt(0))
+      .flatMap((cp) => {
+        if (cp > 0xffff) {
+          const c = cp - 0x10000;
+          return [0xd800 + (c >> 10), 0xdc00 + (c & 0x3ff)];
+        }
+        return [cp];
+      })
+      .map((u) => u.toString(16).padStart(4, "0"))
+      .join("")
+      .toUpperCase();
 
   push("%PDF-1.4\n");
   offs[1] = largo;
@@ -51,12 +61,16 @@ export function crearPDF(imgs, pw, ph, titulo) {
     const ct = pg + 1;
     const ig = pg + 2;
     offs[pg] = largo;
-    push(`${pg} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${num(pw)} ${num(ph)}] /Resources << /XObject << /Im0 ${ig} 0 R >> >> /Contents ${ct} 0 R >>\nendobj\n`);
+    push(
+      `${pg} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${num(pw)} ${num(ph)}] /Resources << /XObject << /Im0 ${ig} 0 R >> >> /Contents ${ct} 0 R >>\nendobj\n`,
+    );
     const cont = `q ${num(pw)} 0 0 ${num(ph)} 0 0 cm /Im0 Do Q`;
     offs[ct] = largo;
     push(`${ct} 0 obj\n<< /Length ${cont.length} >>\nstream\n${cont}\nendstream\nendobj\n`);
     offs[ig] = largo;
-    push(`${ig} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${im.w} /Height ${im.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${im.bytes.length} >>\nstream\n`);
+    push(
+      `${ig} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${im.w} /Height ${im.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${im.bytes.length} >>\nstream\n`,
+    );
     push(im.bytes);
     push("\nendstream\nendobj\n");
   });

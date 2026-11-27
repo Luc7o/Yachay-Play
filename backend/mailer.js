@@ -9,10 +9,13 @@
 // Sin RESEND_API_KEY: en desarrollo el enlace se imprime en la consola del backend,
 // para que puedas probar sin enviar correos reales.
 // ============================================================================
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const esc = (s) =>
+  String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 export const frontendUrl = () =>
-  (process.env.FRONTEND_URL || (process.env.CORS_ORIGIN || "").split(",")[0] || "http://localhost:5173").trim().replace(/\/+$/, "");
+  (process.env.FRONTEND_URL || (process.env.CORS_ORIGIN || "").split(",")[0] || "http://localhost:5173")
+    .trim()
+    .replace(/\/+$/, "");
 
 async function enviar({ to, subject, html, text }) {
   const key = process.env.RESEND_API_KEY;
@@ -28,7 +31,13 @@ async function enviar({ to, subject, html, text }) {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: process.env.MAIL_FROM || "YachayPlay <onboarding@resend.dev>", to: [to], subject, html, text }),
+      body: JSON.stringify({
+        from: process.env.MAIL_FROM || "YachayPlay <onboarding@resend.dev>",
+        to: [to],
+        subject,
+        html,
+        text,
+      }),
     });
     if (!r.ok) {
       console.error("[mailer] Resend respondió", r.status, (await r.text()).slice(0, 300));

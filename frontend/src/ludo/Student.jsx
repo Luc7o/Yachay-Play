@@ -23,7 +23,21 @@ function Barra({ onHome, derecha }) {
   );
 }
 
-export function StudentJoin({ joinCode, setJoinCode, studentName, setStudentName, studentTeam, setStudentTeam, submitJoin, joinError, gameInfo, goHome, onLogin, onRegister, isLogged = false }) {
+export function StudentJoin({
+  joinCode,
+  setJoinCode,
+  studentName,
+  setStudentName,
+  studentTeam,
+  setStudentTeam,
+  submitJoin,
+  joinError,
+  gameInfo,
+  goHome,
+  onLogin,
+  onRegister,
+  isLogged = false,
+}) {
   // Colores que juegan en ESA partida, con su cupo disponible
   const opciones = (gameInfo?.activeTeams || TURN_ORDER).map((t) => {
     const ocupados = gameInfo ? gameInfo.players.filter((p) => p.team === t).length : 0;
@@ -41,7 +55,11 @@ export function StudentJoin({ joinCode, setJoinCode, studentName, setStudentName
         derecha={
           <>
             <BotonTema />
-            {!isLogged && onLogin && <button type="button" className="cp-btn quiet" onClick={onLogin}>Iniciar sesión</button>}
+            {!isLogged && onLogin && (
+              <button type="button" className="cp-btn quiet" onClick={onLogin}>
+                Iniciar sesión
+              </button>
+            )}
           </>
         }
       />
@@ -74,13 +92,29 @@ export function StudentJoin({ joinCode, setJoinCode, studentName, setStudentName
               aria-describedby="join-code-estado"
             />
             <p id="join-code-estado" className={"cp-help" + (gameInfo ? " stu-ok" : "")} role="status">
-              {gameInfo ? <>Partida encontrada: <b>{gameInfo.name}</b></> : codigoCompleto ? "Buscando la partida… si no aparece, revisa el código." : "Son 6 números."}
+              {gameInfo ? (
+                <>
+                  Partida encontrada: <b>{gameInfo.name}</b>
+                </>
+              ) : codigoCompleto ? (
+                "Buscando la partida… si no aparece, revisa el código."
+              ) : (
+                "Son 6 números."
+              )}
             </p>
           </div>
 
           <div className="cp-field">
             <label htmlFor="join-name">Tu nombre</label>
-            <input id="join-name" className="cp-input" value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="Ej. Andrea" maxLength={30} autoComplete="name" />
+            <input
+              id="join-name"
+              className="cp-input"
+              value={studentName}
+              onChange={(e) => setStudentName(e.target.value)}
+              placeholder="Ej. Andrea"
+              maxLength={30}
+              autoComplete="name"
+            />
           </div>
 
           <fieldset className="stu-teams-field">
@@ -96,10 +130,22 @@ export function StudentJoin({ joinCode, setJoinCode, studentName, setStudentName
                         className={"stu-team" + (elegido ? " on" : "") + (o.lleno ? " lleno" : "")}
                         style={{ "--tc": COLORS[o.team].hex }}
                       >
-                        <input type="radio" name="stu-team" value={o.team} checked={elegido} disabled={o.lleno} onChange={() => setStudentTeam(o.team)} />
-                        <span className="stu-team-head"><i aria-hidden="true" /><b>{COLORS[o.team].name}</b></span>
+                        <input
+                          type="radio"
+                          name="stu-team"
+                          value={o.team}
+                          checked={elegido}
+                          disabled={o.lleno}
+                          onChange={() => setStudentTeam(o.team)}
+                        />
+                        <span className="stu-team-head">
+                          <i aria-hidden="true" />
+                          <b>{COLORS[o.team].name}</b>
+                        </span>
                         <span className="stu-pips" aria-hidden="true">
-                          {Array.from({ length: o.cupo }, (_, i) => <i key={i} className={i < o.ocupados ? "full" : ""} />)}
+                          {Array.from({ length: o.cupo }, (_, i) => (
+                            <i key={i} className={i < o.ocupados ? "full" : ""} />
+                          ))}
                         </span>
                         <small>{o.lleno ? "Equipo lleno" : `${o.ocupados} de ${o.cupo} lugares`}</small>
                       </label>
@@ -113,11 +159,20 @@ export function StudentJoin({ joinCode, setJoinCode, studentName, setStudentName
             )}
           </fieldset>
 
-          {joinError && <p className="cp-msg error" role="alert">{joinError}</p>}
-          <button type="submit" className="cp-btn primary lg cp-full" disabled={!puedeUnirse}>Entrar a la partida</button>
+          {joinError && (
+            <p className="cp-msg error" role="alert">
+              {joinError}
+            </p>
+          )}
+          <button type="submit" className="cp-btn primary lg cp-full" disabled={!puedeUnirse}>
+            Entrar a la partida
+          </button>
           {!isLogged && onRegister && (
             <p className="cp-help stu-center">
-              Con una cuenta, la partida queda en tu historial. <button type="button" className="cp-link" onClick={onRegister}>Crear cuenta</button>
+              Con una cuenta, la partida queda en tu historial.{" "}
+              <button type="button" className="cp-link" onClick={onRegister}>
+                Crear cuenta
+              </button>
             </p>
           )}
         </form>
@@ -130,7 +185,14 @@ export function StudentWaiting({ gameCode, studentName, studentTeam, changeDevic
   const color = COLORS[studentTeam] || COLORS.rojo;
   return (
     <div className="cp cp-proj stu-page">
-      <Barra onHome={changeDevice} derecha={<button type="button" className="cp-btn ghost" onClick={changeDevice}>Salir</button>} />
+      <Barra
+        onHome={changeDevice}
+        derecha={
+          <button type="button" className="cp-btn ghost" onClick={changeDevice}>
+            Salir
+          </button>
+        }
+      />
       <main className="stu-main">
         <div className="stu-card stu-wait" style={{ "--tc": color.hex }}>
           <span className="cp-live">Partida {gameCode}</span>
@@ -155,7 +217,16 @@ export function StudentWaiting({ gameCode, studentName, studentTeam, changeDevic
   );
 }
 
-export function StudentGame({ serverState, playerId, selected, phaseSeconds, positions, submitAnswer, rollDice, changeDevice }) {
+export function StudentGame({
+  serverState,
+  playerId,
+  selected,
+  phaseSeconds,
+  positions,
+  submitAnswer,
+  rollDice,
+  changeDevice,
+}) {
   const me = serverState.players.find((p) => p.id === playerId);
   const myTeam = me?.team;
   const isMyTurn = serverState.currentTeam === myTeam;
@@ -175,7 +246,10 @@ export function StudentGame({ serverState, playerId, selected, phaseSeconds, pos
           <span className="cp-eyebrow">Ludo · partida {serverState.code}</span>
           <strong>{isMyTurn ? "Turno de tu equipo" : `Turno del equipo ${rival.name}`}</strong>
         </div>
-        <span className="stu-chip" style={{ "--tc": color.hex }}><i aria-hidden="true" />Equipo {color.name}</span>
+        <span className="stu-chip" style={{ "--tc": color.hex }}>
+          <i aria-hidden="true" />
+          Equipo {color.name}
+        </span>
       </header>
 
       <main className="stu-main stu-main-game">
@@ -186,8 +260,12 @@ export function StudentGame({ serverState, playerId, selected, phaseSeconds, pos
             {isMyTurn ? (
               <>
                 <h2>¡Es tu turno!</h2>
-                <button type="button" className="cp-btn primary lg cp-full" onClick={rollDice}>Lanzar el dado</button>
-                <p className="cp-help">Si nadie lanza en <b>{quedan} s</b>, el sistema lo lanza por ustedes.</p>
+                <button type="button" className="cp-btn primary lg cp-full" onClick={rollDice}>
+                  Lanzar el dado
+                </button>
+                <p className="cp-help">
+                  Si nadie lanza en <b>{quedan} s</b>, el sistema lo lanza por ustedes.
+                </p>
               </>
             ) : (
               <>
@@ -214,21 +292,41 @@ export function StudentGame({ serverState, playerId, selected, phaseSeconds, pos
               <Dice value={lastDice} rolling={false} size="mini" />
               <div>
                 <strong>Salió {lastDice}</strong>
-                <small>{isMyTurn ? `Si aciertan, avanzan ${lastDice} casilla${lastDice > 1 ? "s" : ""}` : `Turno de ${rival.name}`}</small>
+                <small>
+                  {isMyTurn
+                    ? `Si aciertan, avanzan ${lastDice} casilla${lastDice > 1 ? "s" : ""}`
+                    : `Turno de ${rival.name}`}
+                </small>
               </div>
             </div>
 
             {turnPhase === "question" && (
               <div className="stu-timer">
-                <div><span>Tiempo para responder</span><b className={quedan <= 5 ? "urgente" : ""}>0:{String(quedan).padStart(2, "0")}</b></div>
-                <div className="stu-timer-bar" role="progressbar" aria-label="Tiempo restante" aria-valuemin={0} aria-valuemax={limite} aria-valuenow={quedan}>
-                  <i style={{ width: `${Math.min(100, (quedan / limite) * 100)}%` }} className={quedan <= 5 ? "urgente" : ""} />
+                <div>
+                  <span>Tiempo para responder</span>
+                  <b className={quedan <= 5 ? "urgente" : ""}>0:{String(quedan).padStart(2, "0")}</b>
+                </div>
+                <div
+                  className="stu-timer-bar"
+                  role="progressbar"
+                  aria-label="Tiempo restante"
+                  aria-valuemin={0}
+                  aria-valuemax={limite}
+                  aria-valuenow={quedan}
+                >
+                  <i
+                    style={{ width: `${Math.min(100, (quedan / limite) * 100)}%` }}
+                    className={quedan <= 5 ? "urgente" : ""}
+                  />
                 </div>
               </div>
             )}
 
             <section className="stu-card stu-question">
-              <span className="cp-eyebrow">{question.topic}{question.level ? ` · ${question.level}` : ""}</span>
+              <span className="cp-eyebrow">
+                {question.topic}
+                {question.level ? ` · ${question.level}` : ""}
+              </span>
               <h2>{question.question}</h2>
             </section>
 
@@ -240,7 +338,14 @@ export function StudentGame({ serverState, playerId, selected, phaseSeconds, pos
                   else if (i === lastResult.selectedIndex) estado = "incorrecta";
                 } else if (selected === i) estado = "elegida";
                 return (
-                  <button key={o} type="button" disabled={!canAnswer} className={"stu-opt " + estado} aria-pressed={selected === i} onClick={() => submitAnswer(i)}>
+                  <button
+                    key={o}
+                    type="button"
+                    disabled={!canAnswer}
+                    className={"stu-opt " + estado}
+                    aria-pressed={selected === i}
+                    onClick={() => submitAnswer(i)}
+                  >
                     <span className="stu-opt-letra">{String.fromCharCode(65 + i)}</span>
                     <span className="stu-opt-txt">{o}</span>
                   </button>
@@ -248,7 +353,11 @@ export function StudentGame({ serverState, playerId, selected, phaseSeconds, pos
               })}
             </div>
 
-            {turnPhase === "question" && selected !== null && <p className="cp-help stu-center" role="status">Respuesta enviada. Esperando el resultado…</p>}
+            {turnPhase === "question" && selected !== null && (
+              <p className="cp-help stu-center" role="status">
+                Respuesta enviada. Esperando el resultado…
+              </p>
+            )}
 
             {revealed && (
               <div className={"stu-result " + (lastResult.isCorrect ? "ok" : "bad")} role="status">
@@ -257,8 +366,8 @@ export function StudentGame({ serverState, playerId, selected, phaseSeconds, pos
                     ? lastResult.isCorrect
                       ? describeMove(lastResult)
                       : lastResult.timedOut
-                      ? `Se acabó el tiempo. La respuesta correcta era: ${lastResult.correctText}`
-                      : `Incorrecto. La respuesta correcta era: ${lastResult.correctText}`
+                        ? `Se acabó el tiempo. La respuesta correcta era: ${lastResult.correctText}`
+                        : `Incorrecto. La respuesta correcta era: ${lastResult.correctText}`
                     : `El equipo ${COLORS[lastResult.team].name} respondió ${lastResult.isCorrect ? "correctamente" : "de forma incorrecta"}.`}
                 </strong>
                 <small>Siguiente turno en {quedan} s…</small>
@@ -272,7 +381,9 @@ export function StudentGame({ serverState, playerId, selected, phaseSeconds, pos
           <LudoBoard players={serverState.players} positions={positions} activeTeams={serverState.activeTeams} small />
         </section>
 
-        <button type="button" className="cp-btn ghost" onClick={changeDevice}>Salir de la partida</button>
+        <button type="button" className="cp-btn ghost" onClick={changeDevice}>
+          Salir de la partida
+        </button>
       </main>
     </div>
   );

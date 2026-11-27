@@ -36,10 +36,22 @@ const writeSaved = (code, id) => {
 export function OnlineSetup({ user, extraWords = [], initialCode = "", initialName = "", onEnter }) {
   const esDocente = user?.role === "docente";
   const destino = useClaseDestino();
-  const [codigo, setCodigo] = useState(String(initialCode || "").replace(/\D/g, "").slice(0, 6));
+  const [codigo, setCodigo] = useState(
+    String(initialCode || "")
+      .replace(/\D/g, "")
+      .slice(0, 6),
+  );
   const [nombre, setNombre] = useState(initialName || user?.name || "");
   const [err, setErr] = useState("");
-  const [crear, setCrear] = useState({ name: "", mode: "individual", teams: 2, seconds: 20, maxRounds: 30, hostPlays: false, useExtra: true });
+  const [crear, setCrear] = useState({
+    name: "",
+    mode: "individual",
+    teams: 2,
+    seconds: 20,
+    maxRounds: 30,
+    hostPlays: false,
+    useExtra: true,
+  });
   const [ocupado, setOcupado] = useState(false);
   const set = (k, v) => setCrear((c) => ({ ...c, [k]: v }));
 
@@ -80,9 +92,32 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
       <form onSubmit={unirse} className="pr-online-box">
         <h3>Unirme a una partida</h3>
         <p className="pr-small">Pide el código de 6 números a quien creó la partida.</p>
-        <label>Código<input className="pr-name-input" inputMode="numeric" autoComplete="off" placeholder="000000" value={codigo} maxLength={6} onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))} /></label>
-        <label>Tu nombre<input className="pr-name-input" value={nombre} maxLength={30} autoComplete="name" placeholder="Ej. Andrea" onChange={(e) => setNombre(e.target.value)} /></label>
-        <button type="submit" className="pr-primary">Unirme →</button>
+        <label>
+          Código
+          <input
+            className="pr-name-input"
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder="000000"
+            value={codigo}
+            maxLength={6}
+            onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
+          />
+        </label>
+        <label>
+          Tu nombre
+          <input
+            className="pr-name-input"
+            value={nombre}
+            maxLength={30}
+            autoComplete="name"
+            placeholder="Ej. Andrea"
+            onChange={(e) => setNombre(e.target.value)}
+          />
+        </label>
+        <button type="submit" className="pr-primary">
+          Unirme →
+        </button>
       </form>
 
       <form onSubmit={crearPartida} className="pr-online-box">
@@ -98,32 +133,97 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
                   : "Tus estudiantes se unen con el código. Si la lanzas desde una clase, les aparece en vivo."
                 : "Comparte el código con tus compañeros: juegan entre ustedes, sin docente."}
             </p>
-            <label>Nombre de la partida (opcional)<input className="pr-name-input" value={crear.name} maxLength={60} placeholder="Ej. Repaso de vocabulario" onChange={(e) => set("name", e.target.value)} /></label>
+            <label>
+              Nombre de la partida (opcional)
+              <input
+                className="pr-name-input"
+                value={crear.name}
+                maxLength={60}
+                placeholder="Ej. Repaso de vocabulario"
+                onChange={(e) => set("name", e.target.value)}
+              />
+            </label>
             <div className="pr-mode" role="group" aria-label="Modalidad de la partida">
-              <button type="button" className={crear.mode === "individual" ? "chosen" : ""} onClick={() => set("mode", "individual")}>👤 Cada quien por su cuenta</button>
-              <button type="button" className={crear.mode === "equipos" ? "chosen" : ""} onClick={() => set("mode", "equipos")}>👥 Por equipos</button>
+              <button
+                type="button"
+                className={crear.mode === "individual" ? "chosen" : ""}
+                onClick={() => set("mode", "individual")}
+              >
+                👤 Cada quien por su cuenta
+              </button>
+              <button
+                type="button"
+                className={crear.mode === "equipos" ? "chosen" : ""}
+                onClick={() => set("mode", "equipos")}
+              >
+                👥 Por equipos
+              </button>
             </div>
             <div className="pr-config">
-              <label>Tiempo por turno<select value={crear.seconds} onChange={(e) => set("seconds", Number(e.target.value))}><option value={15}>15 segundos</option><option value={20}>20 segundos</option><option value={30}>30 segundos</option></select></label>
-              <label>Turnos máximos<select value={crear.maxRounds} onChange={(e) => set("maxRounds", Number(e.target.value))}><option value={12}>12 turnos</option><option value={30}>30 turnos</option><option value={60}>60 turnos</option><option value={100}>100 turnos</option></select></label>
+              <label>
+                Tiempo por turno
+                <select value={crear.seconds} onChange={(e) => set("seconds", Number(e.target.value))}>
+                  <option value={15}>15 segundos</option>
+                  <option value={20}>20 segundos</option>
+                  <option value={30}>30 segundos</option>
+                </select>
+              </label>
+              <label>
+                Turnos máximos
+                <select value={crear.maxRounds} onChange={(e) => set("maxRounds", Number(e.target.value))}>
+                  <option value={12}>12 turnos</option>
+                  <option value={30}>30 turnos</option>
+                  <option value={60}>60 turnos</option>
+                  <option value={100}>100 turnos</option>
+                </select>
+              </label>
             </div>
             {crear.mode === "equipos" && (
-              <label>Número de equipos<select value={crear.teams} onChange={(e) => set("teams", Number(e.target.value))}><option value={2}>2 equipos</option><option value={3}>3 equipos</option><option value={4}>4 equipos</option></select></label>
+              <label>
+                Número de equipos
+                <select value={crear.teams} onChange={(e) => set("teams", Number(e.target.value))}>
+                  <option value={2}>2 equipos</option>
+                  <option value={3}>3 equipos</option>
+                  <option value={4}>4 equipos</option>
+                </select>
+              </label>
             )}
             {esDocente && (
               <>
-                <label className="pr-check"><input type="checkbox" checked={crear.hostPlays} onChange={(e) => set("hostPlays", e.target.checked)} /> Yo también quiero jugar (si no, solo controlas y proyectas la partida)</label>
+                <label className="pr-check">
+                  <input
+                    type="checkbox"
+                    checked={crear.hostPlays}
+                    onChange={(e) => set("hostPlays", e.target.checked)}
+                  />{" "}
+                  Yo también quiero jugar (si no, solo controlas y proyectas la partida)
+                </label>
                 {extraWords.length > 0 && (
-                  <label className="pr-check"><input type="checkbox" checked={crear.useExtra} onChange={(e) => set("useExtra", e.target.checked)} /> Incluir mi diccionario personalizado ({extraWords.length.toLocaleString("es")} palabras)</label>
+                  <label className="pr-check">
+                    <input
+                      type="checkbox"
+                      checked={crear.useExtra}
+                      onChange={(e) => set("useExtra", e.target.checked)}
+                    />{" "}
+                    Incluir mi diccionario personalizado ({extraWords.length.toLocaleString("es")} palabras)
+                  </label>
                 )}
               </>
             )}
-            <p className="pr-small">3 vidas por participante · +10 puntos y el tiempo restante por acierto · Sin palabras repetidas.</p>
-            <button type="submit" className="pr-primary" disabled={ocupado}>{ocupado ? "Creando…" : "Crear partida →"}</button>
+            <p className="pr-small">
+              3 vidas por participante · +10 puntos y el tiempo restante por acierto · Sin palabras repetidas.
+            </p>
+            <button type="submit" className="pr-primary" disabled={ocupado}>
+              {ocupado ? "Creando…" : "Crear partida →"}
+            </button>
           </>
         )}
       </form>
-      {err && <div className="pr-alert pr-online-err" role="alert">{err}</div>}
+      {err && (
+        <div className="pr-alert pr-online-err" role="alert">
+          {err}
+        </div>
+      )}
     </div>
   );
 }
@@ -198,27 +298,60 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
     if (state?.status === "lobby" && !onlyWatches) socket.emit("pr:leave", {}, () => {});
     onExit();
   };
-  const accion = (evento, extra = {}) => socket.emit(evento, extra, (r) => r?.error && setLocalMsg({ text: r.error, tone: "bad" }));
+  const accion = (evento, extra = {}) =>
+    socket.emit(evento, extra, (r) => r?.error && setLocalMsg({ text: r.error, tone: "bad" }));
 
   if (error) {
     return (
-      <StageFrame theme={theme} onToggleTheme={toggleTheme} onExit={onExit} exitLabel="Volver" title="Palabra Relámpago" kicker="EN LÍNEA">
+      <StageFrame
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        onExit={onExit}
+        exitLabel="Volver"
+        title="Palabra Relámpago"
+        kicker="EN LÍNEA"
+      >
         <div className="pf-center">
-          <section className="pf-card"><h2>No pudimos entrar</h2><p className="pf-err" role="alert">{error}</p><button type="button" className="pf-btn primary" onClick={onExit}>Volver</button></section>
+          <section className="pf-card">
+            <h2>No pudimos entrar</h2>
+            <p className="pf-err" role="alert">
+              {error}
+            </p>
+            <button type="button" className="pf-btn primary" onClick={onExit}>
+              Volver
+            </button>
+          </section>
         </div>
       </StageFrame>
     );
   }
   if (!state) {
     return (
-      <StageFrame theme={theme} onToggleTheme={toggleTheme} onExit={onExit} exitLabel="Volver" title="Palabra Relámpago" kicker="EN LÍNEA">
-        <div className="pf-center"><section className="pf-card"><p>Conectando con la partida…</p></section></div>
+      <StageFrame
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        onExit={onExit}
+        exitLabel="Volver"
+        title="Palabra Relámpago"
+        kicker="EN LÍNEA"
+      >
+        <div className="pf-center">
+          <section className="pf-card">
+            <p>Conectando con la partida…</p>
+          </section>
+        </div>
       </StageFrame>
     );
   }
 
   const me = state.me;
-  const marco = { theme, onToggleTheme: toggleTheme, onExit: salir, title: state.name, kicker: "PALABRA RELÁMPAGO · EN LÍNEA" };
+  const marco = {
+    theme,
+    onToggleTheme: toggleTheme,
+    onExit: salir,
+    title: state.name,
+    kicker: "PALABRA RELÁMPAGO · EN LÍNEA",
+  };
 
   // ------------------------------- sala de espera -------------------------------
   if (state.status === "lobby") {
@@ -230,9 +363,12 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
             <span className="pf-kicker">SALA DE ESPERA</span>
             <h2>{state.name}</h2>
             <p>Comparte este código con quienes van a jugar:</p>
-            <div className="pf-bigcode" aria-label={`Código ${state.code.split("").join(" ")}`}>{state.code}</div>
+            <div className="pf-bigcode" aria-label={`Código ${state.code.split("").join(" ")}`}>
+              {state.code}
+            </div>
             <p>
-              {state.mode === "equipos" ? "Por equipos" : "Cada quien por su cuenta"} · {state.seconds} s por turno · 3 vidas · hasta {state.maxRounds} turnos
+              {state.mode === "equipos" ? "Por equipos" : "Cada quien por su cuenta"} · {state.seconds} s por turno · 3
+              vidas · hasta {state.maxRounds} turnos
               {state.extraCount > 0 ? ` · ${state.extraCount} palabras extra del docente` : ""}
             </p>
 
@@ -240,26 +376,66 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
               <div className="pf-teams">
                 {state.teams.map((t) => (
                   <div className="pf-team" key={t.id} style={{ "--c": t.color }}>
-                    <h3>{t.name}<span>{nombresDe(t.id).length}</span></h3>
-                    <ul>{nombresDe(t.id).map((p) => <li key={p.id}>{p.name}{p.id === me?.id ? " (tú)" : ""}</li>)}</ul>
-                    {me && <button type="button" className={"pf-btn" + (me.team === t.id ? " primary" : "")} onClick={() => accion("pr:team", { team: t.id })}>{me.team === t.id ? "Estás aquí" : "Unirme"}</button>}
+                    <h3>
+                      {t.name}
+                      <span>{nombresDe(t.id).length}</span>
+                    </h3>
+                    <ul>
+                      {nombresDe(t.id).map((p) => (
+                        <li key={p.id}>
+                          {p.name}
+                          {p.id === me?.id ? " (tú)" : ""}
+                        </li>
+                      ))}
+                    </ul>
+                    {me && (
+                      <button
+                        type="button"
+                        className={"pf-btn" + (me.team === t.id ? " primary" : "")}
+                        onClick={() => accion("pr:team", { team: t.id })}
+                      >
+                        {me.team === t.id ? "Estás aquí" : "Unirme"}
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
             ) : (
               <div className="pf-people" aria-label="Jugadores en la sala">
-                {state.players.length === 0 ? <p>Todavía no se une nadie.</p> : state.players.map((p) => <span className="pf-word" key={p.id}>{p.name}{p.id === me?.id ? " (tú)" : ""}</span>)}
+                {state.players.length === 0 ? (
+                  <p>Todavía no se une nadie.</p>
+                ) : (
+                  state.players.map((p) => (
+                    <span className="pf-word" key={p.id}>
+                      {p.name}
+                      {p.id === me?.id ? " (tú)" : ""}
+                    </span>
+                  ))
+                )}
               </div>
             )}
-            {state.mode === "equipos" && state.players.some((p) => !p.team) && <p>Quien no elija equipo entrará al que tenga menos integrantes.</p>}
-            {localMsg && <p className="pf-err" role="alert">{localMsg.text}</p>}
+            {state.mode === "equipos" && state.players.some((p) => !p.team) && (
+              <p>Quien no elija equipo entrará al que tenga menos integrantes.</p>
+            )}
+            {localMsg && (
+              <p className="pf-err" role="alert">
+                {localMsg.text}
+              </p>
+            )}
             <div className="pf-actions">
               {state.isHost ? (
-                <button type="button" className="pf-btn primary" onClick={() => accion("pr:start")} disabled={state.players.length < 2}>
+                <button
+                  type="button"
+                  className="pf-btn primary"
+                  onClick={() => accion("pr:start")}
+                  disabled={state.players.length < 2}
+                >
                   {state.players.length < 2 ? "Esperando jugadores (mínimo 2)" : "Empezar partida"}
                 </button>
               ) : (
-                <p>Esperando a que <strong>{state.hostName || "quien creó la partida"}</strong> empiece…</p>
+                <p>
+                  Esperando a que <strong>{state.hostName || "quien creó la partida"}</strong> empiece…
+                </p>
               )}
             </div>
           </section>
@@ -276,17 +452,40 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
       <StageFrame {...marco} exitLabel="Volver">
         <div className="pf-center">
           <section className="pf-card">
-            <div style={{ fontSize: 54 }} aria-hidden="true">🏆</div>
+            <div style={{ fontSize: 54 }} aria-hidden="true">
+              🏆
+            </div>
             <h2>¡Partida terminada!</h2>
-            {lider && <p>{empate ? "Empate en el primer lugar" : "Ganador"}: <strong>{(state.ranking || []).filter((r) => r.score === lider.score).map((r) => r.name).join(" y ")}</strong> · {lider.score} puntos</p>}
+            {lider && (
+              <p>
+                {empate ? "Empate en el primer lugar" : "Ganador"}:{" "}
+                <strong>
+                  {(state.ranking || [])
+                    .filter((r) => r.score === lider.score)
+                    .map((r) => r.name)
+                    .join(" y ")}
+                </strong>{" "}
+                · {lider.score} puntos
+              </p>
+            )}
             <div>
               {(state.ranking || []).map((r) => (
                 <div key={r.id} className={"pf-rank" + (r.rank === 1 ? " pf-first" : "")}>
-                  <span>{r.rank}.</span><span>{r.name} <Hearts lives={r.lives} /></span><strong>{r.score} pts · {r.words} {r.words === 1 ? "palabra" : "palabras"}</strong>
+                  <span>{r.rank}.</span>
+                  <span>
+                    {r.name} <Hearts lives={r.lives} />
+                  </span>
+                  <strong>
+                    {r.score} pts · {r.words} {r.words === 1 ? "palabra" : "palabras"}
+                  </strong>
                 </div>
               ))}
             </div>
-            <div className="pf-actions"><button type="button" className="pf-btn primary" onClick={onExit}>Volver a juegos</button></div>
+            <div className="pf-actions">
+              <button type="button" className="pf-btn primary" onClick={onExit}>
+                Volver a juegos
+              </button>
+            </div>
           </section>
         </div>
       </StageFrame>
@@ -306,7 +505,10 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
   if (enResultado && r) {
     mensaje = r.ok
       ? { text: `✔ ${r.playerName}: «${r.word}» · +${r.points} puntos`, tone: "good" }
-      : { text: `${r.reason === "skip" ? "Pasó el turno" : "Se acabó el tiempo"} · ${r.entityName} pierde una vida${r.eliminated ? " y queda eliminado" : ""}`, tone: "bad" };
+      : {
+          text: `${r.reason === "skip" ? "Pasó el turno" : "Se acabó el tiempo"} · ${r.entityName} pierde una vida${r.eliminated ? " y queda eliminado" : ""}`,
+          tone: "bad",
+        };
   }
   const visto = tengoTurno ? answer : typing.n === t?.n ? typing.text : t?.typing || "";
 
@@ -322,7 +524,12 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
       exitLabel="Salir"
       status={status}
       fragment={t?.fragment || "··"}
-      clock={{ remain: enResultado ? 0 : remain, total: state.seconds, low: !enResultado && remain <= 5, boom: enResultado && !!r && !r.ok }}
+      clock={{
+        remain: enResultado ? 0 : remain,
+        total: state.seconds,
+        low: !enResultado && remain <= 5,
+        boom: enResultado && !!r && !r.ok,
+      }}
       entry={{
         editable: tengoTurno,
         value: visto,
@@ -333,22 +540,55 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
         },
         onSubmit: () => {
           if (!tengoTurno || !answer.trim()) return;
-          socket.emit("pr:submit", { word: answer }, (res) => res?.error && setLocalMsg({ text: res.error, tone: "bad" }));
+          socket.emit(
+            "pr:submit",
+            { word: answer },
+            (res) => res?.error && setLocalMsg({ text: res.error, tone: "bad" }),
+          );
         },
         inputRef,
       }}
       message={mensaje}
-      actions={tengoTurno ? <button type="button" className="pf-btn" onClick={() => accion("pr:skip")}>Pasar turno (−1 vida)</button> : state.isHost && onlyWatches ? <button type="button" className="pf-btn" onClick={() => window.confirm("¿Terminar la partida ahora?") && accion("pr:end")}>Terminar partida</button> : null}
+      actions={
+        tengoTurno ? (
+          <button type="button" className="pf-btn" onClick={() => accion("pr:skip")}>
+            Pasar turno (−1 vida)
+          </button>
+        ) : state.isHost && onlyWatches ? (
+          <button
+            type="button"
+            className="pf-btn"
+            onClick={() => window.confirm("¿Terminar la partida ahora?") && accion("pr:end")}
+          >
+            Terminar partida
+          </button>
+        ) : null
+      }
       side={
         <>
           <h2>🏆 Clasificación</h2>
-          {[...state.entities].sort((a, b) => b.score - a.score || b.lives - a.lives).map((e) => (
-            <div key={e.id} className={"pf-row" + (e.id === t?.entityId ? " pf-turn" : "") + (e.lives === 0 ? " pf-out" : "")} style={{ "--c": e.color }}>
-              <span className="pf-dot" />
-              <span className="pf-row-name">{e.name}{e.id === me?.id || e.id === me?.team ? " (tú)" : ""}{state.mode === "equipos" && <small>{e.members.join(", ")}</small>}</span>
-              <span className="pf-row-pts">{e.score} pts<small><Hearts lives={e.lives} /></small></span>
-            </div>
-          ))}
+          {[...state.entities]
+            .sort((a, b) => b.score - a.score || b.lives - a.lives)
+            .map((e) => (
+              <div
+                key={e.id}
+                className={"pf-row" + (e.id === t?.entityId ? " pf-turn" : "") + (e.lives === 0 ? " pf-out" : "")}
+                style={{ "--c": e.color }}
+              >
+                <span className="pf-dot" />
+                <span className="pf-row-name">
+                  {e.name}
+                  {e.id === me?.id || e.id === me?.team ? " (tú)" : ""}
+                  {state.mode === "equipos" && <small>{e.members.join(", ")}</small>}
+                </span>
+                <span className="pf-row-pts">
+                  {e.score} pts
+                  <small>
+                    <Hearts lives={e.lives} />
+                  </small>
+                </span>
+              </div>
+            ))}
         </>
       }
       used={state.used.map((u) => ({ word: u.word, by: u.by, color: u.color }))}

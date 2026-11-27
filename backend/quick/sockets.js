@@ -4,7 +4,19 @@
 // manda SU vista (el docente ve más cosas; el estudiante nunca ve la respuesta
 // correcta antes de que se cierre la pregunta).
 // ============================================================================
-import { getRoom, addPlayer, start, next, reveal, end, answer, tick, publicState, exportRows, rooms } from "./engine.js";
+import {
+  getRoom,
+  addPlayer,
+  start,
+  next,
+  reveal,
+  end,
+  answer,
+  tick,
+  publicState,
+  exportRows,
+  rooms,
+} from "./engine.js";
 
 const key = (code) => `qz:${code}`;
 
@@ -12,7 +24,8 @@ function requireOwner(socket, room) {
   const u = socket.data.user;
   if (!u || u.role !== "docente") return "Inicia sesión como docente para controlar esta evaluación.";
   // Sin dueño (el docente borró su cuenta): nadie la controla; antes podía cualquier docente.
-  if (room.ownerId !== u.id) return room.ownerId ? "Esta evaluación pertenece a otro docente." : "Ya no hay un docente a cargo.";
+  if (room.ownerId !== u.id)
+    return room.ownerId ? "Esta evaluación pertenece a otro docente." : "Ya no hay un docente a cargo.";
   return null;
 }
 

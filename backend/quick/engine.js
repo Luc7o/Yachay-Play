@@ -15,12 +15,23 @@ import crypto from "node:crypto";
 
 export const rooms = new Map(); // code -> room
 
-export const LIMITS = { maxQuestions: 30, minOptions: 2, maxOptions: 4, minSeconds: 5, maxSeconds: 300, maxPlayers: 300 };
+export const LIMITS = {
+  maxQuestions: 30,
+  minOptions: 2,
+  maxOptions: 4,
+  minSeconds: 5,
+  maxSeconds: 300,
+  maxPlayers: 300,
+};
 const BASE_POINTS = 100; // por acertar
 const SPEED_POINTS = 50; // extra por responder rápido (proporcional al tiempo que sobraba)
 
 const code6 = () => String(crypto.randomInt(100000, 1000000)); // crypto: códigos no predecibles
-const clean = (s, n) => String(s ?? "").replace(/\s+/g, " ").trim().slice(0, n);
+const clean = (s, n) =>
+  String(s ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, n);
 
 // Valida y limpia las preguntas que manda el docente. Devuelve { questions } o { error }.
 export function sanitizeQuestions(input) {
@@ -37,8 +48,10 @@ export function sanitizeQuestions(input) {
     if (options.length < LIMITS.minOptions || options.length > LIMITS.maxOptions) {
       return { error: `La pregunta ${i + 1} necesita entre ${LIMITS.minOptions} y ${LIMITS.maxOptions} opciones.` };
     }
-    if (new Set(options.map((o) => o.toLowerCase())).size !== options.length) return { error: `La pregunta ${i + 1} tiene opciones repetidas.` };
-    if (!Number.isInteger(correct) || correct < 0 || correct >= options.length) return { error: `Marca la respuesta correcta de la pregunta ${i + 1}.` };
+    if (new Set(options.map((o) => o.toLowerCase())).size !== options.length)
+      return { error: `La pregunta ${i + 1} tiene opciones repetidas.` };
+    if (!Number.isInteger(correct) || correct < 0 || correct >= options.length)
+      return { error: `Marca la respuesta correcta de la pregunta ${i + 1}.` };
     questions.push({
       text,
       options,
@@ -80,7 +93,8 @@ export function addPlayer(room, { id, name }) {
   if (room.status === "ended") return { error: "Esta evaluación ya terminó." };
   if (room.players.size >= LIMITS.maxPlayers) return { error: "La sala está llena." };
   const lower = nombre.toLowerCase();
-  if ([...room.players.values()].some((p) => p.name.toLowerCase() === lower)) return { error: "Ya hay alguien con ese nombre. Agrega tu apellido o inicial." };
+  if ([...room.players.values()].some((p) => p.name.toLowerCase() === lower))
+    return { error: "Ya hay alguien con ese nombre. Agrega tu apellido o inicial." };
   const player = { id: crypto.randomUUID(), name: nombre, answers: {}, score: 0 };
   room.players.set(player.id, player);
   return { player };
@@ -105,7 +119,10 @@ export function closeQuestion(room) {
   for (const p of room.players.values()) {
     const a = p.answers[room.qIndex];
     if (a && a.points == null) {
-      a.points = a.choice === q.correct ? BASE_POINTS + Math.round(SPEED_POINTS * Math.max(0, 1 - a.ms / (q.seconds * 1000))) : 0;
+      a.points =
+        a.choice === q.correct
+          ? BASE_POINTS + Math.round(SPEED_POINTS * Math.max(0, 1 - a.ms / (q.seconds * 1000)))
+          : 0;
       p.score += a.points;
     }
   }
@@ -143,7 +160,11 @@ export function answer(room, playerId, choice) {
   if (p.answers[room.qIndex]) return { error: "Ya respondiste esta pregunta." };
   const c = Number(choice);
   if (!Number.isInteger(c) || c < 0 || c >= q.options.length) return { error: "Opción inválida." };
-  p.answers[room.qIndex] = { choice: c, ms: Math.max(0, q.seconds * 1000 - (room.deadline - Date.now())), points: null };
+  p.answers[room.qIndex] = {
+    choice: c,
+    ms: Math.max(0, q.seconds * 1000 - (room.deadline - Date.now())),
+    points: null,
+  };
   return { ok: true };
 }
 // Reloj: cierra la pregunta si se acabó el tiempo o si ya respondieron todos.
@@ -158,7 +179,13 @@ export function tick(room) {
 // abierta, el puesto delataría si la opción marcada es la correcta.
 function ranking(room) {
   return [...room.players.values()]
-    .map((p) => ({ id: p.id, name: p.name, score: p.score, correct: Object.entries(p.answers).filter(([i, a]) => a.points != null && a.choice === room.questions[i]?.correct).length }))
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      score: p.score,
+      correct: Object.entries(p.answers).filter(([i, a]) => a.points != null && a.choice === room.questions[i]?.correct)
+        .length,
+    }))
     .sort((a, b) => b.score - a.score || b.correct - a.correct || a.name.localeCompare(b.name))
     .map((r, i) => ({ ...r, rank: i + 1 }));
 }
@@ -188,12 +215,18 @@ export function publicState(room, playerId = null, isTeacher = false) {
   const showCorrect = isTeacher || room.status === "reveal" || room.status === "ended";
   if ((room.status === "question" || room.status === "reveal") && room.qIndex >= 0) {
     const q = room.questions[room.qIndex];
-    base.question = { text: q.text, options: q.options, seconds: q.seconds, ...(showCorrect ? { correct: q.correct } : {}) };
+    base.question = {
+      text: q.text,
+      options: q.options,
+      seconds: q.seconds,
+      ...(showCorrect ? { correct: q.correct } : {}),
+    };
     base.deadline = room.deadline;
     base.answered = [...room.players.values()].filter((p) => p.answers[room.qIndex]).length;
     if (isTeacher || room.status === "reveal") base.counts = distribution(room, room.qIndex);
   }
-  if (room.status === "reveal" || room.status === "ended") base.top = rank.slice(0, 5).map(({ name, score, rank: r }) => ({ name, score, rank: r }));
+  if (room.status === "reveal" || room.status === "ended")
+    base.top = rank.slice(0, 5).map(({ name, score, rank: r }) => ({ name, score, rank: r }));
   if (playerId) {
     const p = room.players.get(playerId);
     const r = rank.find((x) => x.id === playerId);
@@ -217,7 +250,14 @@ export function publicState(room, playerId = null, isTeacher = false) {
     base.review = room.questions.map((q, i) => {
       const counts = distribution(room, i);
       const respondieron = counts.reduce((x, y) => x + y, 0);
-      return { text: q.text, options: q.options, correct: q.correct, counts, respondieron, aciertos: counts[q.correct] };
+      return {
+        text: q.text,
+        options: q.options,
+        correct: q.correct,
+        counts,
+        respondieron,
+        aciertos: counts[q.correct],
+      };
     });
   }
   return base;
@@ -228,7 +268,12 @@ export function exportRows(room) {
   const header = ["Estudiante", "Puntaje", "Aciertos", ...room.questions.map((_, i) => `P${i + 1}`)];
   const rows = ranking(room).map((r) => {
     const p = room.players.get(r.id);
-    return [r.name, r.score, r.correct, ...room.questions.map((q, i) => (p.answers[i] ? (p.answers[i].choice === q.correct ? "✔" : "✘") : "—"))];
+    return [
+      r.name,
+      r.score,
+      r.correct,
+      ...room.questions.map((q, i) => (p.answers[i] ? (p.answers[i].choice === q.correct ? "✔" : "✘") : "—")),
+    ];
   });
   return [header, ...rows];
 }

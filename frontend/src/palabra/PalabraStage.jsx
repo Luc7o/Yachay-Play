@@ -48,7 +48,7 @@ export function StageFrame({ theme, onToggleTheme, onExit, exitLabel = "Salir", 
         <div className="pf-bar-title">
           {kicker && <span className="pf-kicker">{kicker}</span>}
           <strong>
-            <span aria-hidden="true">💣</span> {title}
+            {title}
           </strong>
         </div>
         <div className="pf-bar-actions">

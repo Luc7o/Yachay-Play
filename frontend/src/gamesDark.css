@@ -28,7 +28,7 @@
 :root[data-theme="dark"] :is(.ref-secondary,.cw-btn-ghost,.cfg-page button:not(.cfg-create),.join-page button:not(.join-btn)){border-color:#39404b;color:#e8fffb}
 :root[data-theme="dark"] :is(.create-ref,.next-btn,.join-btn,.cfg-create){background:#00a898;color:#0f1114}
 :root[data-theme="dark"] :is(.create-ref,.next-btn,.join-btn,.cfg-create):hover{background:#4ae1c9}
-:root[data-theme="dark"] :is(button,input,textarea,select):focus-visible{outline:2px solid #70e7d3;outline-offset:3px}
+:root[data-theme="dark"] :is(button,input,textarea,select):focus-visible{outline:2px solid #8FA0F0;outline-offset:3px} /* acento Campus (antes turquesa) */
 /* Ludo: conserve la identidad de los 4 equipos y las celdas del tablero */
 :root[data-theme="dark"] :is(.answer-options button,.mobile-options button){background:#1d2127;color:#f8f8f9;border-color:#38404a}
 :root[data-theme="dark"] :is(.answer-options button b,.mobile-options .opt-letter){background:#282e35;color:#f4fffe}

@@ -384,7 +384,7 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
               const t = TIPOS[k];
               const Ico = t.icono;
               return (
-                <button type="button" key={k} className="cp-tile" onClick={() => onLanzar(clase, k)}>
+                <button type="button" key={k} className={`cp-tile tono-${k}`} onClick={() => onLanzar(clase, k)}>
                   <span className="cp-tile-top"><span className="cp-ico"><Ico /></span></span>
                   <strong>{t.nombre}</strong>
                   <span className="cp-tile-cta">Crear en {clase.name}</span>
@@ -438,7 +438,7 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
                 const Ico = t.icono;
                 return (
                   <li key={i}>
-                    <span className="cp-ico sm"><Ico /></span>
+                    <span className={`cp-ico sm tono-${h.kind}`}><Ico /></span>
                     <span className="cp-rows-main"><strong>{h.name}</strong><small>{t.nombre} · {fecha(h.createdAt)}</small></span>
                     <span className="cp-rows-end">{h.players} {h.players === 1 ? "jugador" : "jugadores"}{h.status === "open" ? " · abierta" : ""}</span>
                   </li>

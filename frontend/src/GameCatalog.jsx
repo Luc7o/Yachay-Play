@@ -73,9 +73,10 @@ function CampoCodigo({ id, onEntrar, etiqueta = "Código de la partida", boton =
   );
 }
 
-function Tile({ icono: Ico, titulo, desc, cta, onClick, disabled, extra }) {
+// `tono` = id de la actividad: le da su color propio (ver "Color por actividad" en campus.css).
+function Tile({ icono: Ico, titulo, desc, cta, onClick, disabled, extra, tono }) {
   return (
-    <button type="button" className="cp-tile" onClick={onClick} disabled={disabled}>
+    <button type="button" className={`cp-tile${tono ? ` tono-${tono}` : ""}`} onClick={onClick} disabled={disabled}>
       <span className="cp-tile-top">
         <span className="cp-ico">{Ico ? <Ico /> : null}</span>
         {extra}
@@ -173,6 +174,7 @@ function HomeLogged({ onSelectGame, onJoinWithCode, buildVersion, user, onLogout
   const tilesJuegos = JUEGOS.map((g) => (
     <Tile
       key={g.id}
+      tono={g.id}
       icono={g.icono}
       titulo={g.nombre}
       desc={g.desc}
@@ -210,7 +212,7 @@ function HomeLogged({ onSelectGame, onJoinWithCode, buildVersion, user, onLogout
           <h2 id="cp-tools-t" className="cp-sec-title">Herramientas de aula</h2>
           <div className="cp-tiles">
             {HERRAMIENTAS.map((t) => (
-              <Tile key={t.id} icono={t.icono} titulo={t.nombre} desc={t.desc} cta="Abrir" onClick={() => onSelectGame(t.id)} />
+              <Tile key={t.id} tono={t.id} icono={t.icono} titulo={t.nombre} desc={t.desc} cta="Abrir" onClick={() => onSelectGame(t.id)} />
             ))}
           </div>
         </section>
@@ -294,10 +296,10 @@ function HomeLogged({ onSelectGame, onJoinWithCode, buildVersion, user, onLogout
         </div>
         <div className="cp-tiles">
           {HERRAMIENTAS.map((t) => (
-            <Tile key={t.id} icono={t.icono} titulo={t.nombre} desc={t.desc} cta="Abrir" onClick={() => onSelectGame(t.id)} />
+            <Tile key={t.id} tono={t.id} icono={t.icono} titulo={t.nombre} desc={t.desc} cta="Abrir" onClick={() => onSelectGame(t.id)} />
           ))}
           {JUEGOS.filter((g) => g.id === "evaluacion" || g.id === "estudio").map((g) => (
-            <Tile key={g.id} icono={g.icono} titulo={g.nombre} desc={g.desc} cta={g.docente} onClick={() => onSelectGame(g.id)} />
+            <Tile key={g.id} tono={g.id} icono={g.icono} titulo={g.nombre} desc={g.desc} cta={g.docente} onClick={() => onSelectGame(g.id)} />
           ))}
         </div>
       </div>
@@ -406,7 +408,7 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
               <h2 id="cp-como-t">Tres pasos, de la clase a la partida.</h2>
               <p>Todo pasa en el navegador: el docente proyecta y el estudiante juega desde su celular.</p>
             </div>
-            <div className="cp-grid">
+            <div className="cp-grid cp-grid-3">
               <div className="cp-card cp-step"><span>01</span><strong>Prepara tu actividad</strong><p>Elige un juego o una evaluación y usa las preguntas oficiales o las de tu propio banco.</p></div>
               <div className="cp-card cp-step"><span>02</span><strong>Comparte el código</strong><p>Proyecta el código de seis dígitos: la clase entra desde el celular o la laptop.</p></div>
               <div className="cp-card cp-step"><span>03</span><strong>Revisa qué se aprendió</strong><p>Mira quién participó y qué preguntas se fallan más, para reforzar en la siguiente sesión.</p></div>
@@ -448,9 +450,9 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
               <h2 id="cp-juegos-t">Actividades para la clase</h2>
               <p>Más actividades en camino: {PROXIMAMENTE.slice(0, 3).join(", ").toLowerCase()} y otras.</p>
             </div>
-            <div className="cp-grid">
+            <div className="cp-grid cp-grid-4">
               {JUEGOS.slice(0, 4).map((g) => (
-                <div className="cp-card cp-game" key={g.id}>
+                <div className={`cp-card cp-game tono-${g.id}`} key={g.id}>
                   <span className="cp-ico"><g.icono /></span>
                   <strong>{g.nombre}</strong>
                   <p>{g.desc}</p>

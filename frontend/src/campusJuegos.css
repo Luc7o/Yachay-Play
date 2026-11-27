@@ -23,9 +23,9 @@
   --orange:#1E2A5A; --orange-dark:#172147; --orange-soft:#E8EBF5;
 }
 :root[data-theme="dark"]{
-  --navy:#1C2340; --navy-dark:#151A2E; --navy-light:#323A5A; --navy-line:#9CA2BC;
-  --navy-border:#323A5A; --navy-soft:#1C2340;
-  --orange:#1E2A5A; --orange-dark:#172147; --orange-soft:#1E2850;
+  --navy:#232429; --navy-dark:#1A1B1F; --navy-light:#383A41; --navy-line:#9A9CA6;
+  --navy-border:#383A41; --navy-soft:#232429;
+  --orange:#1E2A5A; --orange-dark:#172147; --orange-soft:#262940;
 }
 
 /* ---------------- 2. Tipografía ---------------- */
@@ -46,7 +46,7 @@ body{font-family:Inter,system-ui,sans-serif;background:var(--cp-bg);color:var(--
 .ai-fab-wrap{left:auto!important;right:20px!important;bottom:20px;align-items:flex-end!important;transition:bottom .2s}
 .has-cm-mini .ai-fab-wrap{bottom:104px} /* sube si la ventanita del cronómetro está a la vista */
 .ai-fab{left:auto!important;width:56px!important;height:56px!important;border-radius:50%!important;border:0!important;background:#161A2E!important;color:#8FA0F0!important;box-shadow:0 8px 24px rgba(18,23,21,.28)!important;animation:none!important;display:grid;place-items:center}
-.ai-fab:hover{transform:translateY(-2px)!important;background:#1C2340!important}
+.ai-fab:hover{transform:translateY(-2px)!important;background:#232429!important}
 .ai-fab svg{width:26px;height:26px}
 .ai-fab.is-open{width:48px!important;height:48px!important;background:#343A52!important}
 .ai-fab:focus-visible{outline:3px solid var(--cp-accent);outline-offset:3px}
@@ -129,15 +129,15 @@ body{font-family:Inter,system-ui,sans-serif;background:var(--cp-bg);color:var(--
 /* ---------------- 9. Modo proyección (salas en vivo del docente) ---------------- */
 /* Siempre oscuro y de alto contraste, aunque la app esté en modo claro. */
 .cp-proj{
-  --cp-bg:#0E1120; --cp-surface:#151A2E; --cp-surface2:#1C2340; --cp-ink:#EEF0F8; --cp-ink2:#C9CDE0;
-  --cp-muted:#9CA2BC; --cp-line:#252C47; --cp-line2:#323A5A;
-  --cp-accent:#8FA0F0; --cp-accent-hover:#B3BFF6; --cp-accent-soft:#1E2850; --cp-on-accent:#0E1120;
+  --cp-bg:#111214; --cp-surface:#1A1B1F; --cp-surface2:#232429; --cp-ink:#F2F2F4; --cp-ink2:#CFD0D6;
+  --cp-muted:#9A9CA6; --cp-line:#2A2C31; --cp-line2:#383A41;
+  --cp-accent:#8FA0F0; --cp-accent-hover:#B3BFF6; --cp-accent-soft:#262940; --cp-on-accent:#111214;
   --cp-live:#F59E0B; --cp-live-ink:#FBBF5D; --cp-danger:#F5A49A; --cp-danger-soft:#2B1715;
   /* Tokens antiguos que usan las piezas heredadas (marcador, pistas, tablero...): también en oscuro */
-  --bg:#0E1120; --surface:#151A2E; --surface2:#1C2340; --ink:#EEF0F8; --muted:#9CA2BC; --line:#252C47;
-  --primary:#8FA0F0; --primary2:#8FA0F0; --mint:#1E2850; --btn-ink:#EEF0F8;
-  --navy-border:#323A5A; --navy-soft:#1C2340; --navy-line:#9CA2BC; --orange-soft:#1E2850;
-  --cp-logo-bg:#2B3A7A; --cp-logo-fg:#F2A07B; --cp-terra:#F2A07B;
+  --bg:#111214; --surface:#1A1B1F; --surface2:#232429; --ink:#F2F2F4; --muted:#9A9CA6; --line:#2A2C31;
+  --primary:#8FA0F0; --primary2:#8FA0F0; --mint:#262940; --btn-ink:#F2F2F4;
+  --navy-border:#383A41; --navy-soft:#232429; --navy-line:#9A9CA6; --orange-soft:#262940;
+  --cp-logo-bg:#2E3354; --cp-logo-fg:#F2A07B; --cp-terra:#F2A07B;
   min-height:100vh;background:var(--cp-bg);color:var(--cp-ink);color-scheme:dark
 }
 .proj-top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:14px clamp(16px,3vw,36px);border-bottom:1px solid var(--cp-line)}
@@ -377,7 +377,7 @@ body{font-family:Inter,system-ui,sans-serif;background:var(--cp-bg);color:var(--
 .cwp .cw-side-col{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:12px}
 .cwp .cw-grid{background:#323A5A!important;border-color:#323A5A!important;border-radius:10px!important}
 .cwp .cw-cell{background:#EEF0F8!important;color:#161A2E!important;font-family:"Space Grotesk",sans-serif}
-.cwp .cw-cell.blank{background:#151A2E!important}
+.cwp .cw-cell.blank{background:#1A1B1F!important}
 .cwp .cw-cell-num{color:#5C6178!important}
 .cwp .cw-overlay{background:rgba(13,18,17,.86)!important;border-radius:10px;color:#B3BFF6!important;font:600 20px "Space Grotesk",sans-serif!important}
 .cwp .cw-answer-bar{background:var(--cp-surface)!important;border:1px solid var(--cp-line2)!important;border-radius:14px!important;color:var(--cp-ink)!important;display:flex;flex-direction:column;gap:10px;box-shadow:none!important}
@@ -448,15 +448,15 @@ body{font-family:Inter,system-ui,sans-serif;background:var(--cp-bg);color:var(--
 .pr-page{--pr-accent:#1E2A5A;font-family:Inter,system-ui,sans-serif}
 .pr-page h1,.pr-page h2,.pr-page h3{font-family:"Space Grotesk",Inter,sans-serif;letter-spacing:-.02em}
 .pr-page.pr-day{background:#F7F5F0!important;--pr-ink:#161A2E;--pr-edge:#E4E2DC;color:#161A2E}
-.pr-page.pr-night{background:#0E1120!important;--pr-ink:#EEF0F8;--pr-accent:#8FA0F0;--pr-edge:#252C47;color:#EEF0F8}
+.pr-page.pr-night{background:#111214!important;--pr-ink:#F2F2F4;--pr-accent:#8FA0F0;--pr-edge:#2A2C31;color:#F2F2F4}
 .pr-day .pr-panel{background:#FFFFFF!important;border:1px solid #E4E2DC!important;box-shadow:none!important;border-radius:16px!important}
-.pr-night .pr-panel{background:#151A2E!important;border:1px solid #252C47!important;box-shadow:none!important;border-radius:16px!important}
-.pr-fullscreen.pr-night{background:#0E1120!important}
+.pr-night .pr-panel{background:#1A1B1F!important;border:1px solid #2A2C31!important;box-shadow:none!important;border-radius:16px!important}
+.pr-fullscreen.pr-night{background:#111214!important}
 .pr-fullscreen.pr-day{background:#F7F5F0!important}
 /* Dentro del menú de la app no se estira a todo el ancho de la ventana (taparía el menú lateral) */
 .cp-main .pr-page.pr-fullscreen{width:auto!important;margin-left:0!important;margin-right:0!important;max-width:none!important;min-height:0!important;border-radius:16px!important}
 .pr-day :is(input,select,textarea){background:#FFFFFF!important;border:1px solid #CFCCC3!important;border-radius:10px!important;color:#161A2E!important}
-.pr-night :is(input,select,textarea){background:#151A2E!important;border:1px solid #323A5A!important;border-radius:10px!important;color:#EEF0F8!important}
+.pr-night :is(input,select,textarea){background:#1A1B1F!important;border:1px solid #383A41!important;border-radius:10px!important;color:#F2F2F4!important}
 .pr-page :is(input,select,textarea):focus{outline:none;border-color:var(--pr-accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--pr-accent) 20%,transparent)!important}
 
 /* ---------------- 18. Pantalla previa de cada juego (GameGate) ---------------- */

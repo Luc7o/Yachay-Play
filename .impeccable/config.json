@@ -1,0 +1,44 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "frontend/src/tools.css"
+        ],
+        "createdAt": "2026-11-26T18:52:43.728Z",
+        "reason": "Claude: legacy .tl-card rule predates this session (git blame Nov 7/9); campus.css overrides it, computed border-top in the app is 1px line color, so the accent never renders"
+      },
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "frontend/src/shell.css"
+        ],
+        "createdAt": "2026-11-26T18:52:43.944Z",
+        "reason": "Claude: legacy .tl-card rule predates this session (git blame Nov 7/9); campus.css overrides it, computed border-top in the app is 1px line color, so the accent never renders"
+      },
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "frontend/src/palabra/palabraFit.css"
+        ],
+        "createdAt": "2026-11-26T19:32:19.635Z",
+        "reason": "Claude: .pf-entry input is an underline-style text field with border-radius:0, not a rounded card"
+      },
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "frontend/src/palabraRelampago.css"
+        ],
+        "createdAt": "2026-11-26T19:32:19.949Z",
+        "reason": "Claude: .pr-bomb-fuse draws the bomb's curved fuse with border-top/right plus a radius; it is an illustration, not a card"
+      }
+    ]
+  }
+}

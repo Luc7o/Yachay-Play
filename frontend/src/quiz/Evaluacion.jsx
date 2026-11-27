@@ -7,6 +7,7 @@ import { Brand } from "../Brand";
 import { emitConTiempoLimite, loadJSON, saveJSON } from "../cw/helpers";
 import "../herramientas.css";
 import "./quiz.css";
+import { Button } from "../ui";
 
 // ============================================================================
 // EVALUACIÓN RÁPIDA
@@ -226,9 +227,9 @@ export function Evaluacion({ user, goHome, onLogin, onRegister, initialCode = ""
     <div className="app hr-page qz-page">
       <header className="ref-topbar">
         <Brand subtitle="Evaluación rápida" onClick={goHome} />
-        <button className="hr-back" onClick={goHome}>
+        <Button variant="ghost" className="hr-back" onClick={goHome}>
           ← Volver al inicio
-        </button>
+        </Button>
       </header>
       <main className="qz-main">{cuerpo()}</main>
     </div>
@@ -392,16 +393,17 @@ function Editor({ onCreada }) {
       ))}
 
       <div className="hr-row qz-acciones">
-        <button
-          className="hr-btn"
+        <Button
+          variant="ghost"
+          size="lg"
           disabled={preguntas.length >= 30}
           onClick={() => setPreguntas([...preguntas, preguntaNueva()])}
         >
           + Agregar pregunta
-        </button>
-        <button className="hr-btn" onClick={() => setPegar(!pegar)}>
+        </Button>
+        <Button variant="ghost" size="lg" onClick={() => setPegar(!pegar)}>
           Pegar desde un documento
-        </button>
+        </Button>
       </div>
       {pegar && (
         <div className="hr-card">
@@ -416,9 +418,9 @@ function Editor({ onCreada }) {
             placeholder={"1. ¿Cuál es la capital de Perú?\na) Lima *\nb) Cusco\nc) Arequipa"}
           />
           <div className="hr-row">
-            <button className="hr-btn hr-primary hr-sm" onClick={importar}>
+            <Button size="sm" onClick={importar}>
               Importar preguntas
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -428,9 +430,9 @@ function Editor({ onCreada }) {
         </p>
       )}
       <div className="qz-crear">
-        <button className="hr-btn hr-primary hr-grande" disabled={busy} onClick={crear}>
+        <Button size="lg" className="hr-grande" disabled={busy} onClick={crear}>
           {busy ? "Creando…" : `Crear sala (${preguntas.length} ${preguntas.length === 1 ? "pregunta" : "preguntas"})`}
-        </button>
+        </Button>
       </div>
     </section>
   );
@@ -521,13 +523,9 @@ function VistaDocente({ sala, onNueva }) {
               </span>
             ))}
           </div>
-          <button
-            className="hr-btn hr-primary hr-grande"
-            disabled={st.players === 0}
-            onClick={() => accion("qz:start")}
-          >
+          <Button size="lg" className="hr-grande" disabled={st.players === 0} onClick={() => accion("qz:start")}>
             ▶ Iniciar ({st.total} {st.total === 1 ? "pregunta" : "preguntas"})
-          </button>
+          </Button>
         </div>
       )}
 
@@ -561,13 +559,13 @@ function VistaDocente({ sala, onNueva }) {
           )}
           <div className="hr-row qz-acciones">
             {st.status === "question" && (
-              <button className="hr-btn" onClick={() => accion("qz:reveal")}>
+              <Button variant="ghost" size="lg" onClick={() => accion("qz:reveal")}>
                 👁 Mostrar respuesta
-              </button>
+              </Button>
             )}
-            <button className="hr-btn hr-primary" onClick={() => accion("qz:next")}>
+            <Button size="lg" onClick={() => accion("qz:next")}>
               {ultima ? "Ver resultados" : "Siguiente pregunta"}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -631,12 +629,12 @@ function VistaDocente({ sala, onNueva }) {
             })}
           </div>
           <div className="hr-row qz-acciones">
-            <button className="hr-btn hr-primary" onClick={exportar}>
+            <Button size="lg" onClick={exportar}>
               ⬇ Descargar resultados (Excel/CSV)
-            </button>
-            <button className="hr-btn" onClick={onNueva}>
+            </Button>
+            <Button variant="ghost" size="lg" onClick={onNueva}>
               + Nueva evaluación
-            </button>
+            </Button>
           </div>
         </>
       )}
@@ -702,9 +700,9 @@ function Unirse({ user, onLogin, onRegister, onEntrar, initialCode = "", initial
           {error}
         </p>
       )}
-      <button className="hr-btn hr-primary hr-grande" disabled={!listo || busy} onClick={entrar}>
+      <Button size="lg" className="hr-grande" disabled={!listo || busy} onClick={entrar}>
         {busy ? "Entrando…" : "Entrar"}
-      </button>
+      </Button>
       {!user && (
         <p className="hr-muted qz-docente-link">
           ¿Eres docente?{" "}
@@ -838,9 +836,9 @@ function VistaAlumno({ alumno, onSalir }) {
               ))}
             </ol>
           )}
-          <button className="hr-btn hr-primary" onClick={onSalir}>
+          <Button size="lg" onClick={onSalir}>
             Salir
-          </button>
+          </Button>
         </div>
       )}
     </section>

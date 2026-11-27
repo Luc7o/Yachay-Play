@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { IconoEnLinea } from "../campusUi";
 import { candidateFragments, checkWord, normalizeWord } from "../palabraDiccionario";
 import { Hearts, PalabraStage, StageFrame, useStageTheme } from "./PalabraStage";
+import { Button } from "../ui";
 
 // ============================================================================
 // PALABRA RELÁMPAGO · INDIVIDUAL (una persona contra el reloj)
@@ -198,12 +199,10 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
               </div>
             )}
             <div className="pf-actions">
-              <button type="button" className="pf-btn primary" onClick={restart}>
-                Jugar otra vez
-              </button>
-              <button type="button" className="pf-btn" onClick={onExit}>
+              <Button onClick={restart}>Jugar otra vez</Button>
+              <Button variant="ghost" onClick={onExit}>
                 Volver a juegos
-              </button>
+              </Button>
             </div>
           </section>
         </div>
@@ -225,9 +224,9 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
       entry={{ editable: true, value: g.answer, onChange: (v) => commit({ answer: v }), onSubmit: submit, inputRef }}
       message={g.message}
       actions={
-        <button type="button" className="pf-btn" onClick={skip}>
+        <Button variant="ghost" onClick={skip}>
           Cambiar letras (−1 vida)
-        </button>
+        </Button>
       }
       side={
         <>

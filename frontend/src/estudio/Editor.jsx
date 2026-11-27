@@ -14,6 +14,7 @@ import {
 } from "./model";
 import { ElementoVista, SlideView } from "./SlideView";
 import { ThemeToggle } from "./ThemeToggle";
+import { Button } from "../ui";
 
 // ---------- utilidades ----------
 function inverso(deck, op) {
@@ -616,11 +617,11 @@ export function Editor({
         <div className="es-top-r">
           {topRight}
           <ThemeToggle />
-          <button className="es-btn ghost" onClick={() => setAyuda(true)} title="Atajos de teclado (?)">
+          <Button variant="ghost" size="sm" onClick={() => setAyuda(true)} title="Atajos de teclado (?)">
             ⌨ Atajos
-          </button>
-          <button
-            className="es-btn"
+          </Button>
+          <Button
+            size="sm"
             onClick={() =>
               setPresentando(
                 Math.max(
@@ -632,7 +633,7 @@ export function Editor({
             title="Presentar desde esta diapositiva (Ctrl + Enter). Desde el inicio: F5"
           >
             ▶ Presentar
-          </button>
+          </Button>
         </div>
       </header>
       {aviso && <div className="es-aviso">{aviso}</div>}
@@ -827,13 +828,13 @@ export function Editor({
           ))}
           {!bloqueado && (
             <div className="es-nueva">
-              <button
-                className="es-btn"
+              <Button
+                size="sm"
                 onClick={() => setMenuNueva(!menuNueva)}
                 disabled={deck.slides.length >= LIMITES.slides}
               >
                 ＋ Diapositiva
-              </button>
+              </Button>
               {menuNueva && (
                 <div className="es-menu" role="menu">
                   {PLANTILLAS.map(([id, nombre]) => (
@@ -1145,9 +1146,9 @@ function Atajos({ onCerrar }) {
       >
         <div className="es-atajos-head">
           <h2>⌨ Atajos de teclado</h2>
-          <button className="es-btn ghost" onClick={onCerrar} autoFocus>
+          <Button variant="ghost" size="sm" onClick={onCerrar} autoFocus>
             Cerrar
-          </button>
+          </Button>
         </div>
         <p className="es-muted">
           En Mac usa ⌘ en lugar de Ctrl. Funcionan cuando no estás escribiendo dentro de un texto.

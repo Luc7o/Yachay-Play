@@ -303,3 +303,8 @@ select.cp-input {
   line-height: 1.7;
   color: var(--cp-ink2);
 }
+
+/* Botón danger por sí solo (sin ghost): mismo fondo que ghost */
+.cp-btn.danger {
+  background: var(--cp-surface);
+}

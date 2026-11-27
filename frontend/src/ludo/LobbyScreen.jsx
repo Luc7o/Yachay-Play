@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Brand } from "../Brand";
 import { COLORS, TURN_ORDER } from "../constants";
 import { Step } from "./SetupScreen";
+import { Button } from "../ui";
 
 // ============================================================================
 // LUDO · SALA DE ESPERA (docente, para proyectar) — diseño "Campus", modo proyección
@@ -47,9 +48,9 @@ export function LobbyScreen({
           <span className="cp-eyebrow">Ludo por equipos · sala de espera</span>
           <strong>{gameName}</strong>
         </div>
-        <button type="button" className="cp-btn ghost" onClick={changeDevice}>
+        <Button variant="ghost" onClick={changeDevice}>
           Salir al inicio
-        </button>
+        </Button>
       </header>
 
       <main className="proj-main">
@@ -68,9 +69,9 @@ export function LobbyScreen({
                 </p>
               )}
               <div>
-                <button type="button" className="cp-btn ghost" onClick={copiarEnlace}>
+                <Button variant="ghost" onClick={copiarEnlace}>
                   {copied ? "Enlace copiado" : "Copiar enlace directo"}
-                </button>
+                </Button>
               </div>
             </div>
             <div className="proj-code" aria-label={`Código ${codigo.split("").join(" ")}`}>
@@ -134,12 +135,12 @@ export function LobbyScreen({
           </div>
 
           <div className="proj-actions">
-            <button type="button" className="cp-btn primary lg" onClick={startGame}>
+            <Button size="lg" onClick={startGame}>
               Iniciar partida
-            </button>
-            <button type="button" className="cp-btn ghost lg" onClick={newGame}>
+            </Button>
+            <Button variant="ghost" size="lg" onClick={newGame}>
               Crear partida nueva
-            </button>
+            </Button>
           </div>
         </section>
 

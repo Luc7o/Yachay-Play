@@ -5,7 +5,7 @@ import cors from "cors";
 import http from "http";
 import crypto from "node:crypto";
 import { Server } from "socket.io";
-import { nanoid, customAlphabet } from "nanoid";
+import { nanoid } from "nanoid";
 import db from "./db.js";
 import { ensureQuestions, reloadQuestions, poolFor, questionsRouter } from "./questionBank.js";
 import { statsRouter } from "./stats.js";
@@ -30,6 +30,8 @@ import { rooms as slidesRooms } from "./slides/engine.js";
 import { classesRouter, claseDelDocente } from "./classes/routes.js";
 import { registrarFuente } from "./classes/live.js";
 import { crearReloj } from "./live/reloj.js";
+import { reservarCodigo } from "./live/codigos.js";
+import { crearGuardDueno } from "./live/dueno.js";
 import { palabraRouter } from "./palabra/routes.js";
 import { attachPalabraSocket, palabraTick } from "./palabra/sockets.js";
 import { purgeOldRooms as purgeOldPalabra, rooms as palabraRooms } from "./palabra/engine.js";
@@ -113,7 +115,6 @@ app.use("/api/my-questions", questionsRouter); // banco de preguntas propias del
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: ORIGENES.length ? ORIGENES : "*" } });
 
-const codeGen = customAlphabet("0123456789", 6);
 const TEAM_COLORS = ["rojo", "verde", "amarillo", "azul"];
 
 // ============================================================================
@@ -344,32 +345,24 @@ app.post("/api/games", requireTeacher, async (req, res) => {
     const rollLimit = Math.min(60, Math.max(3, Number(rollSeconds) || DEFAULT_ROLL_SECONDS));
 
     const id = nanoid();
-    let code;
-    for (let intento = 0; ; intento++) {
-      code = codeGen();
-      if (games.has(code)) continue;
-      try {
-        await db
-          .prepare(
-            "INSERT INTO games (id, code, name, minutes, answer_seconds, roll_seconds, active_teams, owner_id, class_id) VALUES (?,?,?,?,?,?,?,?,?)",
-          )
-          .run(
-            id,
-            code,
-            String(name).slice(0, 80),
-            durationMinutes,
-            answerLimit,
-            rollLimit,
-            activeTeams.join(","),
-            req.user.id,
-            clase?.id || null,
-          );
-        break;
-      } catch (e) {
-        // 23505 = código repetido (choca con una partida vieja): probamos otro
-        if (e.code !== "23505" || intento >= 8) throw e;
-      }
-    }
+    // Código libre en memoria; si choca en la BD con una partida vieja (23505) se prueba otro (live/codigos.js).
+    const code = await reservarCodigo(games, (c) =>
+      db
+        .prepare(
+          "INSERT INTO games (id, code, name, minutes, answer_seconds, roll_seconds, active_teams, owner_id, class_id) VALUES (?,?,?,?,?,?,?,?,?)",
+        )
+        .run(
+          id,
+          c,
+          String(name).slice(0, 80),
+          durationMinutes,
+          answerLimit,
+          rollLimit,
+          activeTeams.join(","),
+          req.user.id,
+          clase?.id || null,
+        ),
+    );
 
     const teams = {};
     for (const color of TEAM_COLORS) {
@@ -583,21 +576,20 @@ io.use(async (socket, next) => {
   next();
 });
 
+// Solo el docente que creó la partida la controla; sin dueño, nadie (ver live/dueno.js).
+const problemaDeDuenoLudo = crearGuardDueno({
+  sinSesion: "Inicia sesión como docente para controlar la partida.",
+  otro: "Esta partida pertenece a otro docente.",
+  sinDueno: "Esta partida ya no tiene docente a cargo.",
+});
+
 // Devuelve la partida solo si quien pregunta es el docente que la creó.
 function teacherGame(socket, code) {
   const game = games.get(code);
   if (!game) return null;
-  const u = socket.data.user;
-  if (!u || u.role !== "docente") {
-    socket.emit("error-message", "Inicia sesión como docente para controlar la partida.");
-    return null;
-  }
-  // Sin dueño (p. ej. el docente borró su cuenta): nadie la controla; antes podía cualquier docente.
-  if (game.ownerId !== u.id) {
-    socket.emit(
-      "error-message",
-      game.ownerId ? "Esta partida pertenece a otro docente." : "Esta partida ya no tiene docente a cargo.",
-    );
+  const problema = problemaDeDuenoLudo(socket.data.user, game);
+  if (problema) {
+    socket.emit("error-message", problema);
     return null;
   }
   return game;
@@ -894,9 +886,9 @@ function resolveAnswer(game, code, currentTeam, playerId, optionIndex) {
 }
 
 // ============================================================================
-// EL RELOJ: un tick por segundo mueve la partida sola
+// EL RELOJ: un tick por segundo mueve la partida sola (registrado en el reloj único, abajo)
 // ============================================================================
-setInterval(() => {
+function ludoTick() {
   games.forEach((game, code) => {
     // Cronómetro general de la clase (lo activa el docente)
     if (game.timerRunning && game.timerSeconds > 0) {
@@ -935,10 +927,11 @@ setInterval(() => {
         break;
     }
   });
-}, 1000);
+}
 
 // Un solo reloj para los juegos en vivo: cada uno registra su tick con su periodo (ver live/reloj.js).
 const reloj = crearReloj();
+reloj.registrar("ludo", 1000, ludoTick);
 reloj.registrar("crucigrama", 1000, () => crosswordTick(io));
 reloj.registrar("evaluación rápida", 1000, () => quizTick(io));
 reloj.registrar("palabra relámpago", 500, () => palabraTick(io)); // medio segundo: turnos más precisos

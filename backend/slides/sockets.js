@@ -42,6 +42,10 @@ const problemaDeDueno = crearGuardDueno({
 const requireOwner = (socket, room) => problemaDeDueno(socket.data.user, room);
 const texto = (v) => String(v ?? "").trim();
 
+/**
+ * @param {import("../tipos").ServidorApp} io
+ * @param {import("../tipos").SocketApp} socket
+ */
 export function attachSlidesSocket(io, socket) {
   // Freno sencillo: un navegador no debería mandar más de ~80 cambios por segundo.
   let ventana = 0;

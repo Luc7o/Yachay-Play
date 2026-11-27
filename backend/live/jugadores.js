@@ -55,6 +55,10 @@ export function mismoSecreto(a, b) {
 
 // ¿Puede quien llama retomar al jugador `existente`? Sí si es la misma cuenta que
 // lo creó, o si trae su llave privada (`secreto`).
+/**
+ * @param {any} existente
+ * @param {{ secreto?: string, userId?: string | null }} [llave]
+ */
 export function puedeReanudar(existente, { secreto, userId } = {}) {
   if (!existente) return false;
   if (existente.userId && userId && existente.userId === userId) return true;
@@ -65,6 +69,10 @@ export function puedeReanudar(existente, { secreto, userId } = {}) {
 //   - Sin id o id desconocido: { jugador: null } (entra como nuevo).
 //   - exigirLlave = false: basta el id (juegos donde el id no se publica).
 //   - exigirLlave = true: además debe pasar `puedeReanudar`; si no: { jugador: null, rechazado: true }.
+/**
+ * @param {Map<string, any>} jugadores
+ * @param {{ id?: string, secreto?: string, userId?: string | null, exigirLlave?: boolean }} [opciones]
+ */
 export function reanudar(jugadores, { id, secreto, userId, exigirLlave = false } = {}) {
   const jugador = typeof id === "string" && id ? jugadores.get(id) || null : null;
   if (!jugador) return { jugador: null };

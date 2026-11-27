@@ -12,103 +12,7 @@
    Las pantallas de juego (Ludo, Crucigrama, etc.) todavía no se tocan aquí.
    ========================================================================== */
 
-:root {
-  /* Paleta Campus, modo claro */
-  --cp-bg: #f7f5f0;
-  --cp-surface: #ffffff;
-  --cp-surface2: #efede7;
-  --cp-ink: #161a2e;
-  --cp-ink2: #343a52;
-  --cp-muted: #5c6178;
-  --cp-line: #e4e2dc;
-  --cp-line2: #cfccc3;
-  --cp-accent: #1e2a5a;
-  --cp-accent-hover: #172147;
-  --cp-accent-soft: #e8ebf5;
-  --cp-on-accent: #ffffff;
-  --cp-live: #d97706;
-  --cp-live-ink: #8a4b08;
-  --cp-live-soft: #fcefdd;
-  --cp-danger: #b42318;
-  --cp-danger-soft: #fdecea;
-  --cp-invert: #1e2a5a;
-  --cp-on-invert: #eef0f8;
-  --cp-invert-muted: #b9bed4;
-  --cp-invert-accent: #f2a07b;
-  /* Logo "Tocapu" y terracota (segundo color de la marca: la palabra "play", detalles) */
-  --cp-logo-bg: #1e2a5a;
-  --cp-logo-fg: #e07a4f;
-  --cp-terra: #b4471f;
-  --cp-gold: #d9a441;
-  --cp-display: "Space Grotesk", Inter, system-ui, sans-serif;
-  --cp-text: Inter, system-ui, sans-serif;
-
-  /* Tokens que ya usan shell.css y las páginas internas */
-  --bg: var(--cp-bg);
-  --surface: var(--cp-surface);
-  --surface2: var(--cp-surface2);
-  --ink: var(--cp-ink);
-  --muted: var(--cp-muted);
-  --line: var(--cp-line);
-  --primary: var(--cp-accent);
-  --primary2: #6f82e3;
-  --mint: var(--cp-accent-soft);
-  --btn-ink: #172147;
-  --hero: var(--cp-accent);
-  --hero2: #172147;
-  --nav: var(--cp-surface);
-  --blue: #2f6fdb;
-  --cyan: var(--cp-accent-soft);
-  --avatar: var(--cp-accent);
-  --shadow: none;
-}
-:root[data-theme="dark"] {
-  --cp-logo-bg: #2e3354;
-  --cp-logo-fg: #f2a07b;
-  --cp-terra: #f2a07b;
-  --cp-gold: #e8c068;
-  --cp-bg: #111214;
-  --cp-surface: #1a1b1f;
-  --cp-surface2: #232429;
-  --cp-ink: #f2f2f4;
-  --cp-ink2: #cfd0d6;
-  --cp-muted: #9a9ca6;
-  --cp-line: #2a2c31;
-  --cp-line2: #383a41;
-  --cp-accent: #8fa0f0;
-  --cp-accent-hover: #b3bff6;
-  --cp-accent-soft: #262940;
-  --cp-on-accent: #111214;
-  --cp-live: #f59e0b;
-  --cp-live-ink: #fbbf5d;
-  --cp-live-soft: #2e2210;
-  --cp-danger: #f5a49a;
-  --cp-danger-soft: #2b1715;
-  --cp-invert: #232429;
-  --cp-on-invert: #f2f2f4;
-  --cp-invert-muted: #9a9ca6;
-  --cp-invert-accent: #f2a07b;
-
-  --primary2: #8fa0f0;
-  --btn-ink: #111214;
-  --hero2: #172147;
-  --avatar: #8fa0f0;
-  /* shell.css define estos tokens con su propio selector de modo oscuro (turquesa y gris);
-     se repiten aquí para que en oscuro también sigan la paleta Campus. */
-  --bg: var(--cp-bg);
-  --surface: var(--cp-surface);
-  --surface2: var(--cp-surface2);
-  --ink: var(--cp-ink);
-  --muted: var(--cp-muted);
-  --line: var(--cp-line);
-  --primary: var(--cp-accent);
-  --mint: var(--cp-accent-soft);
-  --hero: var(--cp-accent);
-  --nav: var(--cp-surface);
-  --blue: #8fa0f0;
-  --cyan: var(--cp-accent-soft);
-  --shadow: none;
-}
+/* Los tokens (paleta, tonos y alias antiguos) viven en ui/tokens.css. */
 
 /* ---------------------------- primitivas ---------------------------- */
 .cp {
@@ -1797,11 +1701,9 @@
   margin-top: 0;
 }
 .cp-shell .sh-content .tl-box,
-.cp-shell .sh-content .pf-head,
+.cp-shell .sh-content .pfl-head,
 .cp-shell .sh-content .tl-card,
-.cp-shell .sh-content .ip-grid article,
-.cp-shell .sh-content .dh-card,
-.cp-shell .sh-content .dh-toolcard {
+.cp-shell .sh-content .ip-grid article {
   border-radius: 14px;
   box-shadow: none;
 }
@@ -1835,9 +1737,6 @@
   background: var(--cp-surface);
   border-color: var(--cp-line2);
   color: var(--cp-ink);
-}
-.cp-shell .sh-sheet {
-  border-radius: 16px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2194,54 +2093,6 @@
    oscuros (texto legible sobre blanco); en oscuro, versiones claras.
    El fondo de la app sigue sobrio: el color va en íconos, enlaces y bordes.
    ======================================================================== */
-.tono-ludo {
-  --tono: #c2410c;
-} /* coral */
-.tono-palabra {
-  --tono: #a16207;
-} /* ámbar */
-.tono-cronometro {
-  --tono: #15803d;
-} /* verde */
-.tono-pizarra {
-  --tono: #0e7490;
-} /* cian */
-.tono-crucigrama {
-  --tono: #1d4ed8;
-} /* azul */
-.tono-ruleta {
-  --tono: #6d28d9;
-} /* violeta */
-.tono-evaluacion {
-  --tono: #be185d;
-} /* rosa */
-.tono-estudio {
-  --tono: #3b4bb8;
-} /* índigo */
-:root[data-theme="dark"] .tono-ludo {
-  --tono: #fb8a5e;
-}
-:root[data-theme="dark"] .tono-palabra {
-  --tono: #f5b544;
-}
-:root[data-theme="dark"] .tono-cronometro {
-  --tono: #5fd38d;
-}
-:root[data-theme="dark"] .tono-pizarra {
-  --tono: #4cc9e6;
-}
-:root[data-theme="dark"] .tono-crucigrama {
-  --tono: #7aa7ff;
-}
-:root[data-theme="dark"] .tono-ruleta {
-  --tono: #b49bff;
-}
-:root[data-theme="dark"] .tono-evaluacion {
-  --tono: #f37ab6;
-}
-:root[data-theme="dark"] .tono-estudio {
-  --tono: #8fa0f0;
-}
 
 [class*="tono-"] .cp-ico,
 .cp-ico[class*="tono-"] {

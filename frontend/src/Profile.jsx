@@ -271,9 +271,9 @@ function Ranking() {
     );
   const meFuera = r.me && !r.top.some((f) => f.me);
   const fila = (f) => (
-    <tr key={f.position} className={f.me ? "pf-me" : ""}>
+    <tr key={f.position} className={f.me ? "pfl-me" : ""}>
       <td>
-        <span className={"pf-pos" + (f.position <= 3 ? ` p${f.position}` : "")}>{f.position}</span>
+        <span className={"pfl-pos" + (f.position <= 3 ? ` p${f.position}` : "")}>{f.position}</span>
       </td>
       <td>
         <b>{f.name}</b>
@@ -295,7 +295,7 @@ function Ranking() {
         </p>
       ) : (
         <div style={{ overflowX: "auto" }}>
-          <table className="pf-table">
+          <table className="pfl-table">
             <thead>
               <tr>
                 <th>#</th>
@@ -321,7 +321,7 @@ function Ranking() {
           </table>
         </div>
       )}
-      <p className="pf-note">
+      <p className="pfl-note">
         Puntos = 10 por victoria + 2 por partida terminada. Solo cuentan partidas jugadas con tu cuenta iniciada.
       </p>
     </section>
@@ -356,9 +356,9 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
         </button>
         {error && <div className="tl-error">{error}</div>}
 
-        <div className="pf-head">
-          <div className="pf-avatar">{user.name.trim().charAt(0).toUpperCase()}</div>
-          <div className="pf-info">
+        <div className="pfl-head">
+          <div className="pfl-avatar">{user.name.trim().charAt(0).toUpperCase()}</div>
+          <div className="pfl-info">
             <h1>{user.name}</h1>
             <p>{user.email}</p>
             <p>
@@ -369,7 +369,7 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
             </p>
           </div>
           {e && (
-            <div className="pf-rank">
+            <div className="pfl-rank">
               <span>MI POSICIÓN</span>
               <strong>{e.rank ? `#${e.rank}` : "—"}</strong>
               <small>{e.rank ? `de ${e.totalRanked} estudiantes` : "juega para entrar"}</small>
@@ -387,7 +387,7 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
               <Tarjeta titulo="Mis preguntas" valor={d.questions} />
               <Tarjeta titulo="Estudiantes con cuenta" valor={d.students} nota="que jugaron en tus partidas" />
             </div>
-            <div className="pf-links" style={{ marginBottom: 16 }}>
+            <div className="pfl-links" style={{ marginBottom: 16 }}>
               <button className="tl-btn ghost" onClick={onOpenStats}>
                 Ver mis estadísticas
               </button>
@@ -414,9 +414,9 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
               <h2>
                 Mis logros ({e.badges.filter((b) => b.unlocked).length}/{e.badges.length})
               </h2>
-              <div className="pf-badges">
+              <div className="pfl-badges">
                 {e.badges.map((b) => (
-                  <div key={b.id} className={"pf-badge " + (b.unlocked ? "on" : "off")}>
+                  <div key={b.id} className={"pfl-badge " + (b.unlocked ? "on" : "off")}>
                     <i>{b.icon}</i>
                     <span>
                       <b>{b.name}</b>
@@ -426,7 +426,7 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
                 ))}
               </div>
             </section>
-            <div className="pf-links" style={{ marginBottom: 16 }}>
+            <div className="pfl-links" style={{ marginBottom: 16 }}>
               <button className="tl-btn ghost" onClick={onOpenStats}>
                 Ver mi historial de partidas
               </button>

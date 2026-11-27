@@ -54,8 +54,12 @@
 }
 
 /* ---- 3. Colores de equipo: se conservan, pero el texto encima ahora se lee ---- */
-.board-piece[style*="234, 179, 8"],
-.board-piece[style*="16, 185, 129"] {
+.board-piece[style*="234,
+179,
+8"],
+.board-piece[style*="16,
+185,
+129"] {
   color: #0b2a31 !important;
   text-shadow: none;
 }
@@ -101,11 +105,15 @@
 }
 
 /* ---- 5. Fichas y nombres de equipo (los colores de equipo se conservan) ---- */
-.board-piece[style*="239, 68, 68"] {
+.board-piece[style*="239,
+68,
+68"] {
   background: #dc2626 !important;
   color: #fff !important;
 }
-.board-piece[style*="59, 130, 246"] {
+.board-piece[style*="59,
+130,
+246"] {
   background: #2563eb !important;
   color: #fff !important;
 }
@@ -202,28 +210,44 @@
 
 /* ---- 9. Texto con el color de un equipo: versión que se lee sobre claro y sobre oscuro ----
    (el texto lleva el color del equipo en su atributo style; las fichas y fondos no se tocan) */
-[style^="color: rgb(239, 68, 68)"] {
+[style^="color: rgb(239,
+68,
+68)"] {
   color: #b91c1c !important;
 }
-[style^="color: rgb(16, 185, 129)"] {
+[style^="color: rgb(16,
+185,
+129)"] {
   color: #047857 !important;
 }
-[style^="color: rgb(234, 179, 8)"] {
+[style^="color: rgb(234,
+179,
+8)"] {
   color: #8a6100 !important;
 }
-[style^="color: rgb(59, 130, 246)"] {
+[style^="color: rgb(59,
+130,
+246)"] {
   color: #1d4ed8 !important;
 }
-:root[data-theme="dark"] [style^="color: rgb(239, 68, 68)"] {
+:root[data-theme="dark"] [style^="color: rgb(239,
+68,
+68)"] {
   color: #ff9a9a !important;
 }
-:root[data-theme="dark"] [style^="color: rgb(16, 185, 129)"] {
+:root[data-theme="dark"] [style^="color: rgb(16,
+185,
+129)"] {
   color: #4ade9f !important;
 }
-:root[data-theme="dark"] [style^="color: rgb(234, 179, 8)"] {
+:root[data-theme="dark"] [style^="color: rgb(234,
+179,
+8)"] {
   color: #fbd34d !important;
 }
-:root[data-theme="dark"] [style^="color: rgb(59, 130, 246)"] {
+:root[data-theme="dark"] [style^="color: rgb(59,
+130,
+246)"] {
   color: #8ab8ff !important;
 }
 
@@ -266,11 +290,17 @@
 .cw-cell-num {
   color: #0b3642;
 }
-.cw-cell[style*="rgba(100, 116, 139"] .cw-cell-num {
+.cw-cell[style*="rgba(100,
+116,
+139"] .cw-cell-num {
   color: #f1fbfa;
 }
-.cw-cell[style*="rgba(16, 185, 129"] .cw-cell-num,
-.cw-cell[style*="rgba(16, 185, 129"] .cw-cell-letter {
+.cw-cell[style*="rgba(16,
+185,
+129"] .cw-cell-num,
+.cw-cell[style*="rgba(16,
+185,
+129"] .cw-cell-letter {
   color: #06251f;
 }
 :root[data-theme="dark"] .cw-activity-scroll span {
@@ -278,22 +308,34 @@
 }
 
 /* El cartel de turno conserva su fondo claro también en modo oscuro: su texto usa el color más fuerte del equipo */
-:root[data-theme="dark"] .turn-banner b[style^="color: rgb(239, 68, 68)"] {
+:root[data-theme="dark"] .turn-banner b[style^="color: rgb(239,
+68,
+68)"] {
   color: #b91c1c !important;
 }
-:root[data-theme="dark"] .turn-banner b[style^="color: rgb(16, 185, 129)"] {
+:root[data-theme="dark"] .turn-banner b[style^="color: rgb(16,
+185,
+129)"] {
   color: #047857 !important;
 }
-:root[data-theme="dark"] .turn-banner b[style^="color: rgb(234, 179, 8)"] {
+:root[data-theme="dark"] .turn-banner b[style^="color: rgb(234,
+179,
+8)"] {
   color: #8a6100 !important;
 }
-:root[data-theme="dark"] .turn-banner b[style^="color: rgb(59, 130, 246)"] {
+:root[data-theme="dark"] .turn-banner b[style^="color: rgb(59,
+130,
+246)"] {
   color: #1d4ed8 !important;
 }
-:root[data-theme="dark"] .cw-cell[style*="rgba(100, 116, 139"] .cw-cell-num {
+:root[data-theme="dark"] .cw-cell[style*="rgba(100,
+116,
+139"] .cw-cell-num {
   color: #f1fbfa;
 }
-:root[data-theme="dark"] .cw-cell[style*="rgba(16, 185, 129"] :is(.cw-cell-num, .cw-cell-letter) {
+:root[data-theme="dark"] .cw-cell[style*="rgba(16,
+185,
+129"] :is(.cw-cell-num, .cw-cell-letter) {
   color: #06251f;
 }
 .phone-mini-field {
@@ -345,15 +387,8 @@
   color: #0b2a31;
 }
 
-:root:not([data-theme="dark"]) .dh-tag,
 :root:not([data-theme="dark"]) .sh-content .tl-pill {
   color: #00665c;
-}
-/* La configuración de partida ya tiene modo oscuro propio (gamesDark.css): ya no necesita la hoja clara */
-:root[data-theme="dark"] .sh-sheet {
-  background: transparent;
-  border-color: transparent;
-  color-scheme: dark;
 }
 :root[data-theme="dark"] .cfg-chip:not(.on) {
   background: var(--surface2);

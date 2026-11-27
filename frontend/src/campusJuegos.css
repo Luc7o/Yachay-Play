@@ -15,30 +15,7 @@
    ========================================================================== */
 
 /* ---------------- 1. Tokens antiguos → paleta Campus ---------------- */
-:root {
-  --navy: #161a2e;
-  --navy-dark: #0b0e1a;
-  --navy-light: #343a52;
-  --navy-line: #5c6178;
-  --navy-border: #e4e2dc;
-  --navy-soft: #efede7;
-  /* --orange es el acento histórico: se usa como fondo con texto blanco, así que
-     queda oscuro en los dos temas (el verde azulado claro no da contraste con blanco). */
-  --orange: #1e2a5a;
-  --orange-dark: #172147;
-  --orange-soft: #e8ebf5;
-}
-:root[data-theme="dark"] {
-  --navy: #232429;
-  --navy-dark: #1a1b1f;
-  --navy-light: #383a41;
-  --navy-line: #9a9ca6;
-  --navy-border: #383a41;
-  --navy-soft: #232429;
-  --orange: #1e2a5a;
-  --orange-dark: #172147;
-  --orange-soft: #262940;
-}
+/* (Los tokens antiguos --navy / --orange se movieron a ui/tokens.css.) */
 
 /* ---------------- 2. Tipografía ---------------- */
 body {

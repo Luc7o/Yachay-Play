@@ -1,15 +1,4 @@
-:root {
-  /* === Paleta Yachay Play === */
-  --navy: #143841; /* ahora: verde-azulado oscuro (Aula Fresca) */
-  --navy-dark: #0b2a31;
-  --navy-light: #1f5560;
-  --navy-line: #2f7f89;
-  --navy-border: #d5eae7;
-  --navy-soft: #eaf8f5;
-  --orange: #00796f; /* ahora: verde-azulado de acento (nombre histórico) */
-  --orange-dark: #006158;
-  --orange-soft: #e2f7f2;
-}
+/* (Los colores --navy / --orange viven en ui/tokens.css.) */
 * {
   box-sizing: border-box;
 }
@@ -4846,10 +4835,6 @@ html {
 }
 .join-guide > p {
   background: #0d535b !important;
-}
-:root {
-  --orange: #00796f;
-  --orange-soft: #e0f8f2;
 }
 
 /* Aviso breve mientras llega una pantalla que se carga bajo demanda (React.lazy). */

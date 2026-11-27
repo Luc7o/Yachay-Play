@@ -565,16 +565,9 @@ function App() {
     setToolPage("clases");
   };
 
-  const enMenu = (activo, pagina, hoja = false) =>
+  const enMenu = (activo, pagina) =>
     user ? (
-      <AppShell
-        user={user}
-        active={activo}
-        onNavigate={navegar}
-        onLogout={logout}
-        buildVersion={BUILD_VERSION}
-        sheet={hoja}
-      >
+      <AppShell user={user} active={activo} onNavigate={navegar} onLogout={logout} buildVersion={BUILD_VERSION}>
         {pagina}
       </AppShell>
     ) : (
@@ -717,7 +710,7 @@ function App() {
           user={user}
           initialCode={codigoInicial}
           initialName={nombreInvitado}
-          frame={(pagina) => enMenu("juegos", pagina, false)}
+          frame={(pagina) => enMenu("juegos", pagina)}
         />
       );
     if (catalogGame === "crucigrama") {

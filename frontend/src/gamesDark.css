@@ -2,11 +2,6 @@
    y sus pantallas de preparación, sala, alumnos y resultados.
    Se activa con el selector existente html[data-theme="dark"].
    No se modifican casillas, fichas, respuestas ni colores semánticos del tablero. */
-:root[data-theme="dark"] {
-  --navy-soft: #1b1f24;
-  --navy-border: #323842;
-  --orange-soft: #174c4b;
-}
 :root[data-theme="dark"] body {
   background: #0e1013;
   color: #f2f4f6;

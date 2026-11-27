@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import { createRoot } from "react-dom/client";
+import "./ui/tokens.css"; // colores, tipografía y tonos: la única fuente (va primero)
 import "./styles.css";
 import "./estilos"; // TODOS los CSS en su orden de siempre (ver el comentario en estilos.js)
 import App from "./App";

@@ -93,7 +93,10 @@ export const api = {
     request<AuthOk | AuthNecesita2FA>("/api/auth/login", post({ email, password })),
   login2fa: (challenge: string, code: string) => request<AuthOk>("/api/auth/login/2fa", post({ challenge, code })),
   google: (credential: string, role: Rol | undefined, acceptTerms?: boolean, confirmAge?: boolean) =>
-    request<AuthOk | AuthNecesita2FA>("/api/auth/google", post({ credential, role, acceptTerms, confirmAge })),
+    request<AuthOk | AuthNecesita2FA | { needsRole: true; email: string; name: string }>(
+      "/api/auth/google",
+      post({ credential, role, acceptTerms, confirmAge }),
+    ),
   forgotPassword: (email: string) => request<Msg>("/api/auth/forgot", post({ email })),
   resetPassword: (token: string, password: string) => request<Msg>("/api/auth/reset", post({ token, password })),
   verifyEmail: (token: string) => request<Msg>("/api/auth/verify-email", post({ token })),
@@ -149,7 +152,8 @@ export const api = {
     ),
   crosswordGet: (code: string) => request(`/api/crossword-games/${code}`),
   // Palabra relámpago en línea (cualquier persona con sesión crea; las palabras extra y la clase solo las toma el servidor si es docente)
-  palabraCreate: (data: SinTipo) => request<{ code: string }>("/api/palabra-games", post(data)).then(olvidarDestino),
+  palabraCreate: (data: SinTipo) =>
+    request<{ code: string; hostPlays: boolean }>("/api/palabra-games", post(data)).then(olvidarDestino),
   palabraGet: (code: string) => request(`/api/palabra-games/${id(code)}`),
   // Clases (curso + sección)
   classes: () => request<{ classes: (ClaseDocente | ClaseEstudiante)[] }>("/api/classes"),

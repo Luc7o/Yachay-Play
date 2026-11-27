@@ -27,7 +27,7 @@ export interface AuthOk {
 }
 /** Login de una cuenta con 2FA: falta el segundo paso. */
 export interface AuthNecesita2FA {
-  needs2fa: true;
+  needs2FA: true;
   challenge: string;
 }
 

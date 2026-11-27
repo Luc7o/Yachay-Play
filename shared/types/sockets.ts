@@ -5,6 +5,13 @@
 // ============================================================================
 
 type Codigo = { code: string };
+/**
+ * Respuesta (ack) del servidor: siempre puede traer `ok` o `error`; el resto
+ * depende del evento (state, playerId, code...).
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Respuesta = { ok?: boolean; error?: string } & Record<string, any>;
+type Ack = (r: Respuesta) => void;
 type Jugador = { code: string; playerId: string };
 
 /** Cliente → servidor */
@@ -21,47 +28,41 @@ export interface EventosAlServidor {
   "player:roll-dice": (d: Jugador & { playerKey: string }) => void;
   "team:answer": (d: Jugador & { playerKey: string; optionIndex: number }) => void;
   // Crucigrama
-  "cw:watch-room": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "cw:join-room": (
-    d: Codigo & { name: string; playerId?: string; secret?: string },
-    ack?: (r: unknown) => void,
-  ) => void;
-  "cw:start": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "cw:end": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "cw:reset": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "cw:submit": (d: { placementId: string; guess: string }, ack?: (r: unknown) => void) => void;
-  "cw:sabotage": (d: { targetId: string; type: string }, ack?: (r: unknown) => void) => void;
+  "cw:watch-room": (d: Codigo, ack?: Ack) => void;
+  "cw:join-room": (d: Codigo & { name: string; playerId?: string; secret?: string }, ack?: Ack) => void;
+  "cw:start": (d: Codigo, ack?: Ack) => void;
+  "cw:end": (d: Codigo, ack?: Ack) => void;
+  "cw:reset": (d: Codigo, ack?: Ack) => void;
+  "cw:submit": (d: { placementId: string; guess: string }, ack?: Ack) => void;
+  "cw:sabotage": (d: { targetId: string; type: string }, ack?: Ack) => void;
   // Palabra
-  "pr:watch": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "pr:join": (d: Codigo & { name: string; playerId?: string }, ack?: (r: unknown) => void) => void;
-  "pr:leave": (d: Record<string, never>, ack?: (r: unknown) => void) => void;
-  "pr:team": (d: { team: string }, ack?: (r: unknown) => void) => void;
-  "pr:start": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "pr:end": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "pr:submit": (d: { word: string }, ack?: (r: unknown) => void) => void;
-  "pr:skip": (d: Record<string, never>, ack?: (r: unknown) => void) => void;
+  "pr:watch": (d: Codigo, ack?: Ack) => void;
+  "pr:join": (d: Codigo & { name: string; playerId?: string }, ack?: Ack) => void;
+  "pr:leave": (d: Record<string, never>, ack?: Ack) => void;
+  "pr:team": (d: { team: string }, ack?: Ack) => void;
+  "pr:start": (d: Codigo, ack?: Ack) => void;
+  "pr:end": (d: Codigo, ack?: Ack) => void;
+  "pr:submit": (d: { word: string }, ack?: Ack) => void;
+  "pr:skip": (d: Record<string, never>, ack?: Ack) => void;
   "pr:typing": (d: { text: string }) => void;
   // Evaluación rápida
-  "qz:watch": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "qz:join": (d: Codigo & { name: string; playerId?: string }, ack?: (r: unknown) => void) => void;
-  "qz:start": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "qz:next": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "qz:reveal": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "qz:end": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "qz:export": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "qz:answer": (d: { choice: number }, ack?: (r: unknown) => void) => void;
+  "qz:watch": (d: Codigo, ack?: Ack) => void;
+  "qz:join": (d: Codigo & { name: string; playerId?: string }, ack?: Ack) => void;
+  "qz:start": (d: Codigo, ack?: Ack) => void;
+  "qz:next": (d: Codigo, ack?: Ack) => void;
+  "qz:reveal": (d: Codigo, ack?: Ack) => void;
+  "qz:end": (d: Codigo, ack?: Ack) => void;
+  "qz:export": (d: Codigo, ack?: Ack) => void;
+  "qz:answer": (d: { choice: number }, ack?: Ack) => void;
   // Presentaciones
-  "ss:watch": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "ss:join": (
-    d: Codigo & { studentId?: string; name: string; team?: string; teamCode?: string },
-    ack?: (r: unknown) => void,
-  ) => void;
-  "ss:op": (d: { op: Record<string, unknown> }, ack?: (r: unknown) => void) => void;
+  "ss:watch": (d: Codigo, ack?: Ack) => void;
+  "ss:join": (d: Codigo & { studentId?: string; name: string; team?: string; teamCode?: string }, ack?: Ack) => void;
+  "ss:op": (d: { op: Record<string, unknown> }, ack?: Ack) => void;
   "ss:view": (d: { slideId: string }) => void;
-  "ss:comment": (d: Codigo & { key: string; sid: string; text: string }, ack?: (r: unknown) => void) => void;
-  "ss:lock": (d: Codigo & { locked: boolean }, ack?: (r: unknown) => void) => void;
-  "ss:reopen": (d: Codigo, ack?: (r: unknown) => void) => void;
-  "ss:close": (d: Codigo, ack?: (r: unknown) => void) => void;
+  "ss:comment": (d: Codigo & { key: string; sid: string; text: string }, ack?: Ack) => void;
+  "ss:lock": (d: Codigo & { locked: boolean }, ack?: Ack) => void;
+  "ss:reopen": (d: Codigo, ack?: Ack) => void;
+  "ss:close": (d: Codigo, ack?: Ack) => void;
 }
 
 /** Servidor → cliente */

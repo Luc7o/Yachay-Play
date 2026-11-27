@@ -1,8 +1,9 @@
+import type { SinTipo } from "../tipos";
 export const LS_STUDENT = "yachay_cw_student"; // { code, playerId } — para reconectar si recarga la página
 
 export const LS_TEACHER = "yachay_cw_teacher_code"; // código de la última sala creada por este docente
 
-export function loadJSON<T = unknown>(key: string): T | null {
+export function loadJSON<T = SinTipo>(key: string): T | null {
   try {
     return JSON.parse(localStorage.getItem(key) || "null");
   } catch {

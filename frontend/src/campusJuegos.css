@@ -59,24 +59,24 @@ body {
 
 /* ---------------- 5. Asistente IA (esquina inferior DERECHA) ---------------- */
 .ai-fab-wrap {
-  left: auto !important;
+  left: auto;
   right: 20px !important;
   bottom: 20px;
-  align-items: flex-end !important;
+  align-items: flex-end;
   transition: bottom 0.2s;
 }
 .has-cm-mini .ai-fab-wrap {
   bottom: 104px;
 } /* sube si la ventanita del cronómetro está a la vista */
 .ai-fab {
-  left: auto !important;
-  width: 56px !important;
-  height: 56px !important;
-  border-radius: 50% !important;
-  border: 0 !important;
-  background: #161a2e !important;
-  color: #8fa0f0 !important;
-  box-shadow: 0 8px 24px rgba(18, 23, 21, 0.28) !important;
+  left: auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 0;
+  background: #161a2e;
+  color: #8fa0f0;
+  box-shadow: 0 8px 24px rgba(18, 23, 21, 0.28);
   animation: none !important;
   display: grid;
   place-items: center;
@@ -798,7 +798,7 @@ body {
   box-shadow: 0 0 0 3px var(--cp-accent-soft);
 }
 .stu-ok {
-  color: var(--cp-accent) !important;
+  color: var(--cp-accent);
 }
 .stu-center {
   text-align: center;
@@ -2152,22 +2152,22 @@ body {
 .gate2-extra .gate-sab {
   background: var(--cp-surface) !important;
   border: 1px solid var(--cp-line) !important;
-  border-radius: 14px !important;
-  box-shadow: none !important;
-  padding: 20px !important;
-  color: var(--cp-ink) !important;
+  border-radius: 14px;
+  box-shadow: none;
+  padding: 20px;
+  color: var(--cp-ink);
 }
 .gate2-extra .gate-sab strong {
   font-size: 16px;
 }
 .gate2-extra .gate-sab p {
-  color: var(--cp-ink2) !important;
+  color: var(--cp-ink2);
   font-size: 14px;
 }
 .gate2-extra .gate-sab-cost {
-  color: var(--cp-accent) !important;
-  background: var(--cp-accent-soft) !important;
-  border-radius: 6px !important;
+  color: var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 6px;
   font-weight: 600;
 }
 .gate2-extra .gate-teams {

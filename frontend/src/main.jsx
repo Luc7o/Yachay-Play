@@ -9,8 +9,6 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { AssistantFab } from "./AssistantFab";
 import { CronometroMini } from "./CronometroMini";
 import { AvisoDestino } from "./clases/AvisoDestino";
-import "./gamesDark.css";
-import "./aulaFinal.css";
 import "./campus.css"; // diseño "Campus": va el ÚLTIMO para ganar sobre los estilos antiguos
 import "./campusJuegos.css"; // diseño "Campus" para juegos y herramientas (después de campus.css)
 import "./ui/dispositivos.css"; // celular y proyector (va al final)

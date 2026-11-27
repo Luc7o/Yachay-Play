@@ -38,6 +38,10 @@ export function palabraTick(io) {
   for (const code of rooms.keys()) broadcastPalabra(io, code).catch(() => {});
 }
 
+/**
+ * @param {import("../tipos").ServidorApp} io
+ * @param {import("../tipos").SocketApp} socket
+ */
 export function attachPalabraSocket(io, socket) {
   // Anfitrión que NO juega (docente): mira y controla.
   socket.on("pr:watch", ({ code } = {}, ack) => {

@@ -54,6 +54,10 @@ export function crosswordTick(io) {
   }
 }
 
+/**
+ * @param {import("../tipos").ServidorApp} io
+ * @param {import("../tipos").SocketApp} socket
+ */
 export function attachCrosswordSocket(io, socket) {
   // --- El docente observa su propia sala (no juega, solo mira el marcador en vivo) ---
   socket.on("cw:watch-room", ({ code } = {}, ack) => {

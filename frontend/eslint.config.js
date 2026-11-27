@@ -35,7 +35,14 @@ export default [
     },
   },
   {
-    files: ["**/*.test.{js,jsx}", "e2e/**", "vite.config.js", "vitest.config.js", "eslint.config.js", "playwright.config.js"],
+    files: [
+      "**/*.test.{js,jsx}",
+      "e2e/**",
+      "vite.config.js",
+      "vitest.config.js",
+      "eslint.config.js",
+      "playwright*.config.js",
+    ],
     languageOptions: { globals: { ...globals.node } },
   },
   // TypeScript: el analizador de typescript-eslint y sus reglas recomendadas, solo para .ts/.tsx

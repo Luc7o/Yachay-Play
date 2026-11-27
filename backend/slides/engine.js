@@ -13,8 +13,17 @@
 // ============================================================================
 import crypto from "node:crypto";
 import { LIMITES, aplicarOp, deckInicial, limpiarDeck, limpiarOp } from "./model.js";
+import { crearRegistro } from "../live/salas.js";
 
-export const rooms = new Map(); // code -> sala
+// Una sala sigue "en uso" si se creó, la abrió el docente o algún estudiante hizo algo
+// después del límite (ver purgeOld).
+const ultimoUso = (r) => {
+  let ultimo = Math.max(r.createdAt || 0, r.lastUsed || 0);
+  for (const s of r.students.values()) ultimo = Math.max(ultimo, s.lastSeen || 0);
+  return ultimo;
+};
+const registro = crearRegistro({ ultimoUso });
+export const rooms = registro.salas; // code -> sala
 export const hooks = { onDirty: null };
 const avisar = (room) => {
   room.dirty = true;
@@ -33,13 +42,9 @@ const nombreLimpio = (s, max = LIMITES.nombre) =>
     .slice(0, max);
 
 export function createRoom({ name, task, ownerId, classId = null }) {
-  let code;
-  do {
-    code = String(crypto.randomInt(100000, 1000000)); // crypto: códigos no predecibles
-  } while (rooms.has(code));
   const room = {
     id: crypto.randomUUID(),
-    code,
+    code: registro.nuevoCodigo(), // 6 dígitos, único en memoria
     name: nombreLimpio(name, 60) || "Presentaciones de la clase",
     task: String(task || "")
       .trim()
@@ -54,12 +59,12 @@ export function createRoom({ name, task, ownerId, classId = null }) {
     students: new Map(), // studentId -> { id, name, userId, deckKey, online, slideId, lastSeen }
     dirty: true,
   };
-  rooms.set(code, room);
+  registro.guardar(room);
   avisar(room);
   return room;
 }
 
-export const getRoom = (code) => rooms.get(String(code || "").trim()) || null;
+export const getRoom = registro.obtener;
 
 // ---- equipos ----
 // Antes la "llave" del equipo era su nombre escrito a mano: cualquiera que lo adivinara
@@ -205,7 +210,7 @@ export function reopenRoom(room) {
 // Elimina la sala de la memoria. La marca `deleted` evita que el guardado automático la vuelva a escribir en la base.
 export function deleteRoom(room) {
   room.deleted = true;
-  if (rooms.get(room.code) === room) rooms.delete(room.code);
+  registro.quitar(room);
 }
 export const marcarUso = (room) => {
   room.lastUsed = Date.now();
@@ -323,16 +328,9 @@ export function restaurar(d) {
   for (const s of d.students || [])
     if (room.decks.has(s.deckKey))
       room.students.set(s.id, { ...s, online: false, slideId: null, lastSeen: Date.now() });
-  rooms.set(room.code, room);
-  return room;
+  return registro.guardar(room);
 }
 
 // Saca de la memoria las salas sin uso. Una sala sigue "en uso" si se creó, la abrió el docente
 // o algún estudiante hizo algo después del límite. (Siguen guardadas en la base y salen en "Mis salas".)
-export function purgeOld(limite) {
-  for (const [code, r] of rooms) {
-    let ultimo = Math.max(r.createdAt || 0, r.lastUsed || 0);
-    for (const s of r.students.values()) ultimo = Math.max(ultimo, s.lastSeen || 0);
-    if (ultimo < limite) rooms.delete(code);
-  }
-}
+export const purgeOld = (limite) => registro.purgarViejas(limite);

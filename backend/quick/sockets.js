@@ -17,32 +17,28 @@ import {
   exportRows,
   rooms,
 } from "./engine.js";
+import { crearGuardDueno, crearAccionesDeAnfitrion } from "../live/dueno.js";
+import { enviarVistas } from "../live/difusion.js";
 
 const key = (code) => `qz:${code}`;
 
-function requireOwner(socket, room) {
-  const u = socket.data.user;
-  if (!u || u.role !== "docente") return "Inicia sesión como docente para controlar esta evaluación.";
-  // Sin dueño (el docente borró su cuenta): nadie la controla; antes podía cualquier docente.
-  if (room.ownerId !== u.id)
-    return room.ownerId ? "Esta evaluación pertenece a otro docente." : "Ya no hay un docente a cargo.";
-  return null;
-}
+// Solo el docente que creó la evaluación la controla (ver live/dueno.js).
+const problemaDeDueno = crearGuardDueno({
+  sinSesion: "Inicia sesión como docente para controlar esta evaluación.",
+  otro: "Esta evaluación pertenece a otro docente.",
+  sinDueno: "Ya no hay un docente a cargo.",
+});
+const requireOwner = (socket, room) => problemaDeDueno(socket.data.user, room);
 
 export async function broadcastQuiz(io, code) {
   const room = getRoom(code);
   if (!room) return;
   tick(room);
-  let sockets;
-  try {
-    sockets = await io.in(key(code)).fetchSockets();
-  } catch {
-    return;
-  }
-  for (const s of sockets) {
-    if (s.data.qzCode !== code) continue;
-    s.emit("qz:state", publicState(room, s.data.qzPlayerId || null, !!s.data.qzTeacher));
-  }
+  await enviarVistas(io, key(code), {
+    evento: "qz:state",
+    pertenece: (data) => data.qzCode === code,
+    vista: (data) => publicState(room, data.qzPlayerId || null, !!data.qzTeacher),
+  });
 }
 
 export function quizTick(io) {
@@ -51,17 +47,12 @@ export function quizTick(io) {
 
 export function attachQuizSocket(io, socket) {
   // Atajo para los eventos del docente: valida sala y dueño, ejecuta y avisa a todos.
-  const docente = (evento, accion) =>
-    socket.on(evento, ({ code } = {}, ack) => {
-      const room = getRoom(code);
-      if (!room) return ack?.({ error: "No existe esa evaluación." });
-      const problema = requireOwner(socket, room);
-      if (problema) return ack?.({ error: problema });
-      const r = accion(room);
-      if (r?.error) return ack?.({ error: r.error });
-      ack?.({ ok: true, ...(r || {}) });
-      broadcastQuiz(io, room.code);
-    });
+  const docente = crearAccionesDeAnfitrion(socket, {
+    buscar: ({ code }) => getRoom(code),
+    noExiste: "No existe esa evaluación.",
+    problema: (room) => requireOwner(socket, room),
+    despues: (room) => broadcastQuiz(io, room.code),
+  });
 
   socket.on("qz:watch", ({ code } = {}, ack) => {
     const room = getRoom(code);
@@ -87,10 +78,10 @@ export function attachQuizSocket(io, socket) {
     broadcastQuiz(io, room.code);
   });
 
-  docente("qz:start", start);
-  docente("qz:next", next);
-  docente("qz:reveal", reveal);
-  docente("qz:end", end);
+  docente("qz:start", (room) => start(room));
+  docente("qz:next", (room) => next(room));
+  docente("qz:reveal", (room) => reveal(room));
+  docente("qz:end", (room) => end(room));
 
   socket.on("qz:export", ({ code } = {}, ack) => {
     const room = getRoom(code);

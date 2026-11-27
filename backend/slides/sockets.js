@@ -25,6 +25,7 @@ import {
   codigoDeEquipo,
 } from "./engine.js";
 import { obtenerSala } from "./persist.js";
+import { crearGuardDueno, crearAccionesDeAnfitrion } from "../live/dueno.js";
 
 const salaDocente = (code) => `ss:${code}:teacher`;
 const salaDeck = (code, key) => `ss:${code}:d:${key}`;
@@ -32,14 +33,13 @@ const salaTodos = (code) => `ss:${code}`;
 
 const conexiones = new Map(); // "código:studentId" -> cuántos sockets tiene abiertos
 
-function requireOwner(socket, room) {
-  const u = socket.data.user;
-  if (!u || u.role !== "docente") return "Inicia sesión como docente para controlar esta sala.";
-  // Sin dueño (el docente borró su cuenta): nadie la controla; antes podía cualquier docente.
-  if (room.ownerId !== u.id)
-    return room.ownerId ? "Esta sala pertenece a otro docente." : "Ya no hay un docente a cargo.";
-  return null;
-}
+// Solo el docente que creó la sala la controla (ver live/dueno.js).
+const problemaDeDueno = crearGuardDueno({
+  sinSesion: "Inicia sesión como docente para controlar esta sala.",
+  otro: "Esta sala pertenece a otro docente.",
+  sinDueno: "Ya no hay un docente a cargo.",
+});
+const requireOwner = (socket, room) => problemaDeDueno(socket.data.user, room);
 const texto = (v) => String(v ?? "").trim();
 
 export function attachSlidesSocket(io, socket) {
@@ -147,35 +147,16 @@ export function attachSlidesSocket(io, socket) {
     socket.to(salaDocente(room.code)).emit("ss:comment", payload);
   });
 
-  socket.on("ss:lock", ({ code, locked } = {}, ack) => {
-    const room = getRoom(code);
-    if (!room) return ack?.({ error: "No existe la sala." });
-    const problema = requireOwner(socket, room);
-    if (problema) return ack?.({ error: problema });
-    setLocked(room, locked);
-    ack?.({ ok: true });
-    io.to(salaTodos(room.code)).emit("ss:room", { locked: room.locked, status: room.status });
+  // --- El docente bloquea, reabre o cierra la sala: todos reciben el nuevo estado ---
+  const docente = crearAccionesDeAnfitrion(socket, {
+    buscar: ({ code }) => getRoom(code),
+    noExiste: "No existe la sala.",
+    problema: (room) => requireOwner(socket, room),
+    despues: (room) => io.to(salaTodos(room.code)).emit("ss:room", { locked: room.locked, status: room.status }),
   });
-
-  socket.on("ss:reopen", ({ code } = {}, ack) => {
-    const room = getRoom(code);
-    if (!room) return ack?.({ error: "No existe la sala." });
-    const problema = requireOwner(socket, room);
-    if (problema) return ack?.({ error: problema });
-    reopenRoom(room);
-    ack?.({ ok: true });
-    io.to(salaTodos(room.code)).emit("ss:room", { locked: room.locked, status: room.status });
-  });
-
-  socket.on("ss:close", ({ code } = {}, ack) => {
-    const room = getRoom(code);
-    if (!room) return ack?.({ error: "No existe la sala." });
-    const problema = requireOwner(socket, room);
-    if (problema) return ack?.({ error: problema });
-    closeRoom(room);
-    ack?.({ ok: true });
-    io.to(salaTodos(room.code)).emit("ss:room", { locked: room.locked, status: room.status });
-  });
+  docente("ss:lock", (room, { locked }) => void setLocked(room, locked));
+  docente("ss:reopen", (room) => void reopenRoom(room));
+  docente("ss:close", (room) => void closeRoom(room));
 
   socket.on("disconnect", () => {
     const { ssCode: code, ssStudent: id } = socket.data;

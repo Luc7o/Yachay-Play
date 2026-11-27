@@ -45,7 +45,7 @@ crosswordRouter.post("/", requireTeacher, async (req, res) => {
 });
 
 crosswordRouter.get("/:code", (req, res) => {
-  const room = getRoom(String(req.params.code || "").trim());
+  const room = getRoom(req.params.code);
   if (!room) return res.status(404).json({ error: "No existe una partida con ese código." });
   res.json({
     code: room.code,

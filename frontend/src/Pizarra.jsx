@@ -11,6 +11,7 @@ import { DialogoDescarga, muestraFondo } from "./pizarra/DialogoDescarga";
 import { Btn } from "./pizarra/Btn";
 import "./herramientas.css";
 import "./pizarra.css";
+import { Button } from "./ui";
 
 // ============================================================================
 // PIZARRA PARA EL DOCENTE
@@ -810,9 +811,9 @@ export function Pizarra({ goHome }) {
                   : "⚠ No se pudo guardar (espacio lleno)"}
             </span>
           </div>
-          <button className="hr-back" onClick={goHome}>
+          <Button variant="ghost" className="hr-back" onClick={goHome}>
             ← Volver al inicio
-          </button>
+          </Button>
         </header>
       )}
 

@@ -2,6 +2,7 @@ import { Brand } from "../Brand";
 import { phaseTotal } from "../constants";
 import { GameTab } from "./GameTab";
 import { QuestionsTab, ScoresTab, RulesTab } from "./InfoTabs";
+import { Button } from "../ui";
 
 // ============================================================================
 // LUDO · PARTIDA EN CURSO (docente, para proyectar) — diseño "Campus", modo proyección.
@@ -56,40 +57,38 @@ export function EngineerGame({
             </b>
           </div>
           <div className="eg-time-btns">
-            <button type="button" className="cp-btn ghost sm" title="Quitar 1 minuto" onClick={() => addTime(-60)}>
+            <Button variant="ghost" size="sm" title="Quitar 1 minuto" onClick={() => addTime(-60)}>
               −1 min
-            </button>
-            <button type="button" className="cp-btn ghost sm" title="Agregar 1 minuto" onClick={() => addTime(60)}>
+            </Button>
+            <Button variant="ghost" size="sm" title="Agregar 1 minuto" onClick={() => addTime(60)}>
               +1 min
-            </button>
-            <button type="button" className="cp-btn ghost sm" title="Agregar 5 minutos" onClick={() => addTime(300)}>
+            </Button>
+            <Button variant="ghost" size="sm" title="Agregar 5 minutos" onClick={() => addTime(300)}>
               +5 min
-            </button>
-            <button
-              type="button"
-              className="cp-btn ghost sm"
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               title="Reiniciar el reloj"
               aria-label="Reiniciar el reloj"
               onClick={resetTimer}
             >
               ↺
-            </button>
+            </Button>
           </div>
-          <button type="button" className="cp-btn primary" onClick={toggleTimer}>
-            {serverState.timerRunning ? "Pausar" : "Iniciar reloj"}
-          </button>
+          <Button onClick={toggleTimer}>{serverState.timerRunning ? "Pausar" : "Iniciar reloj"}</Button>
         </div>
 
         <div className="eg-actions">
-          <button type="button" className="cp-btn ghost sm" onClick={resetGame}>
+          <Button variant="ghost" size="sm" onClick={resetGame}>
             Reiniciar
-          </button>
-          <button type="button" className="cp-btn ghost sm" onClick={newGame}>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={newGame}>
             Partida nueva
-          </button>
-          <button type="button" className="cp-btn ghost sm danger" onClick={endGame}>
+          </Button>
+          <Button variant="danger" size="sm" className="ghost" onClick={endGame}>
             Finalizar
-          </button>
+          </Button>
         </div>
       </header>
 

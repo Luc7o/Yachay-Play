@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { IconoEnLinea } from "../campusUi";
 import { socket } from "../socket";
 import { emitConTiempoLimite } from "../cw/helpers";
 import { Brand } from "../Brand";
@@ -6,6 +7,7 @@ import { aplicarOp } from "./model";
 import { Editor } from "./Editor";
 import { SlideView } from "./SlideView";
 import { ThemeToggle } from "./ThemeToggle";
+import { Button } from "../ui";
 
 const hace = (ms) => {
   const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
@@ -161,9 +163,9 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
           comments={entrada.comments}
           topLeft={
             <>
-              <button className="es-btn ghost" onClick={() => setAbierta(null)}>
+              <Button variant="ghost" size="sm" onClick={() => setAbierta(null)}>
                 ← Todas
-              </button>
+              </Button>
               <strong className="es-title">{entrada.name}</strong>
               <Miembros members={entrada.members} />
             </>
@@ -186,12 +188,13 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
         </div>
         <div className="es-top-r">
           <ThemeToggle />
-          <button className="es-btn ghost" onClick={onSalas}>
-            📋 Mis salas
-          </button>
-          <button className="es-btn ghost" onClick={onExit}>
+          <Button variant="ghost" size="sm" onClick={onSalas}>
+            <IconoEnLinea nombre="lista" />
+            Mis salas
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onExit}>
             ← Volver al inicio
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -230,30 +233,47 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
               {room.status === "closed" ? (
                 <>
                   <span className="es-chip warn">Sala cerrada</span>
-                  <button
-                    className="es-btn"
+                  <Button
+                    size="sm"
                     onClick={() => accion("ss:reopen")}
                     title="Los estudiantes podrán entrar y seguir editando con el mismo código"
                   >
                     ↺ Reabrir para continuar
-                  </button>
-                  <button className="es-btn danger" onClick={eliminar} disabled={eliminando}>
-                    {eliminando ? "Eliminando…" : "🗑 Eliminar sala"}
-                  </button>
+                  </Button>
+                  <Button variant="danger" size="sm" onClick={eliminar} disabled={eliminando}>
+                    {eliminando ? (
+                      "Eliminando…"
+                    ) : (
+                      <>
+                        <IconoEnLinea nombre="basura" />
+                        Eliminar sala
+                      </>
+                    )}
+                  </Button>
                 </>
               ) : (
                 <>
-                  <button className="es-btn" onClick={() => accion("ss:lock", { locked: !room.locked })}>
-                    {room.locked ? "🔓 Permitir editar" : "🔒 Bloquear edición"}
-                  </button>
-                  <button className="es-btn danger" onClick={cerrar}>
+                  <Button size="sm" onClick={() => accion("ss:lock", { locked: !room.locked })}>
+                    {room.locked ? (
+                      <>
+                        <IconoEnLinea nombre="abierto" />
+                        Permitir editar
+                      </>
+                    ) : (
+                      <>
+                        <IconoEnLinea nombre="candado" />
+                        Bloquear edición
+                      </>
+                    )}
+                  </Button>
+                  <Button variant="danger" size="sm" onClick={cerrar}>
                     ⏹ Cerrar sala
-                  </button>
+                  </Button>
                 </>
               )}
-              <button className="es-btn ghost" onClick={onNuevaSala}>
+              <Button variant="ghost" size="sm" onClick={onNuevaSala}>
                 Nueva sala
-              </button>
+              </Button>
             </div>
             {room.locked && room.status !== "closed" && (
               <span className="es-chip warn">Edición bloqueada: los estudiantes solo pueden mirar</span>
@@ -334,8 +354,8 @@ function Comentar({ onEnviar }) {
           setOk(false);
         }}
       />
-      <button
-        className="es-btn"
+      <Button
+        size="sm"
         disabled={!t.trim()}
         onClick={() => {
           onEnviar(t.trim());
@@ -344,7 +364,7 @@ function Comentar({ onEnviar }) {
         }}
       >
         Enviar comentario
-      </button>
+      </Button>
       {ok && <small className="es-muted">Enviado ✓ — el estudiante lo ve al instante.</small>}
     </div>
   );

@@ -1,0 +1,72 @@
+/* Banco de preguntas (QuestionBank.jsx). Colores desde ui/tokens.css y ui/ui.css. */
+.qb-item {
+  padding: 14px 0;
+  border-top: 1px solid var(--cp-line);
+}
+.qb-item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.qb-item.off {
+  opacity: 0.55;
+}
+.qb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.qb-item p {
+  margin: 8px 0 6px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--cp-ink);
+}
+.qb-item ol {
+  margin: 0;
+  padding-left: 22px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--cp-ink2);
+}
+.qb-item li.right {
+  color: var(--ui-good);
+  font-weight: 600;
+}
+.qb-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+.qb-danger {
+  color: var(--cp-danger);
+}
+.qb-opciones {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.qb-opciones legend {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cp-ink2);
+  margin-bottom: 6px;
+  padding: 0;
+}
+.qb-opt {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 40px;
+  gap: 8px;
+  align-items: center;
+}
+.qb-opt input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--cp-accent);
+}
+.qb-opciones > .cp-btn {
+  align-self: flex-start;
+}

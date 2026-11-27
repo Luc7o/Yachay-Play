@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Brand } from "./Brand";
 import { api } from "./api";
-import "./tools.css";
+import { Button, Card, Chip, Empty, Field, Input, Loading, Notice, PageHeader, Select, Tabs, Textarea } from "./ui";
+import "./questionBank.css";
 
 const VACIA = { topic: "", level: "Comprensión", question: "", options: ["", "", "", ""], answerIndex: 0 };
 const LETRAS = ["A", "B", "C", "D"];
 
 function PreguntaItem({ q, onEdit, onToggle, onDelete }) {
   return (
-    <div className={"tl-q" + (q.active === false ? " off" : "")}>
-      <div className="tl-q-top">
-        <span className="tl-pill">{q.topic}</span>
-        <span className="tl-pill warn">{q.level}</span>
-        {q.active === false && <span className="tl-pill lose">desactivada</span>}
+    <div className={"qb-item" + (q.active === false ? " off" : "")}>
+      <div className="qb-chips">
+        <Chip tone="accent">{q.topic}</Chip>
+        <Chip tone="warn">{q.level}</Chip>
+        {q.active === false && <Chip tone="lose">desactivada</Chip>}
       </div>
       <p>{q.question}</p>
       <ol type="A">
@@ -24,23 +24,23 @@ function PreguntaItem({ q, onEdit, onToggle, onDelete }) {
         ))}
       </ol>
       {onEdit && (
-        <div className="tl-q-actions">
-          <button className="tl-link" onClick={() => onEdit(q)}>
+        <div className="qb-actions">
+          <Button variant="quiet" size="sm" onClick={() => onEdit(q)}>
             Editar
-          </button>
-          <button className="tl-link" onClick={() => onToggle(q)}>
+          </Button>
+          <Button variant="quiet" size="sm" onClick={() => onToggle(q)}>
             {q.active === false ? "Activar" : "Desactivar"}
-          </button>
-          <button className="tl-link danger" onClick={() => onDelete(q)}>
+          </Button>
+          <Button variant="quiet" size="sm" className="qb-danger" onClick={() => onDelete(q)}>
             Borrar
-          </button>
+          </Button>
         </div>
       )}
     </div>
   );
 }
 
-export function QuestionBankPage({ goHome }) {
+export function QuestionBankPage() {
   const [data, setData] = useState(null); // { levels, max, mine, official }
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
@@ -134,48 +134,46 @@ export function QuestionBankPage({ goHome }) {
 
   const niveles = data?.levels || ["Comprensión", "Aplicación", "Análisis", "Pensamiento Crítico"];
   return (
-    <div className="app tl-page">
-      <header className="ref-topbar">
-        <Brand subtitle="Mis preguntas" onClick={goHome} />
-      </header>
-      <main className="tl-main">
-        <button className="tl-back" onClick={goHome}>
-          ← Volver al inicio
-        </button>
-        <h1 className="tl-title">Mis preguntas</h1>
-        <p className="tl-sub">
-          Crea tus propias preguntas de opción múltiple. En tus partidas de Ludo se usan junto con el banco oficial. Las
-          preguntas oficiales no se pueden editar.
-        </p>
-        {error && <div className="tl-error">{error}</div>}
-        {ok && <div className="tl-ok">{ok}</div>}
+    <>
+      <PageHeader
+        eyebrow="Docente"
+        title="Mis preguntas"
+        lead="Crea tus propias preguntas de opción múltiple. En tus partidas de Ludo se usan junto con el banco oficial. Las preguntas oficiales no se pueden editar."
+      />
+      <Notice tone="error">{error}</Notice>
+      <Notice tone="ok">{ok}</Notice>
 
-        <section className="tl-box tl-form" style={{ marginBottom: 16 }}>
-          <h2>{editId ? "Editar pregunta" : "Nueva pregunta"}</h2>
-          <label>Tema</label>
-          <input
+      <Card title={editId ? "Editar pregunta" : "Nueva pregunta"}>
+        <Field label="Tema" htmlFor="qb-tema">
+          <Input
+            id="qb-tema"
             type="text"
             maxLength={60}
             value={form.topic}
             onChange={(e) => set("topic", e.target.value)}
             placeholder="Ej.: Revolución Industrial"
           />
-          <label>Nivel</label>
-          <select value={form.level} onChange={(e) => set("level", e.target.value)}>
+        </Field>
+        <Field label="Nivel" htmlFor="qb-nivel">
+          <Select id="qb-nivel" value={form.level} onChange={(e) => set("level", e.target.value)}>
             {niveles.map((n) => (
               <option key={n}>{n}</option>
             ))}
-          </select>
-          <label>Pregunta</label>
-          <textarea
+          </Select>
+        </Field>
+        <Field label="Pregunta" htmlFor="qb-pregunta">
+          <Textarea
+            id="qb-pregunta"
             maxLength={300}
             value={form.question}
             onChange={(e) => set("question", e.target.value)}
             placeholder="Escribe la pregunta…"
           />
-          <label>Opciones (marca la correcta)</label>
+        </Field>
+        <fieldset className="qb-opciones">
+          <legend>Opciones (marca la correcta)</legend>
           {form.options.map((o, i) => (
-            <div className="tl-opt" key={i}>
+            <div className="qb-opt" key={i}>
               <input
                 type="radio"
                 name="correcta"
@@ -183,62 +181,69 @@ export function QuestionBankPage({ goHome }) {
                 onChange={() => set("answerIndex", i)}
                 aria-label={`Opción ${LETRAS[i]} correcta`}
               />
-              <input
+              <Input
                 type="text"
                 maxLength={120}
                 value={o}
                 onChange={(e) => setOpcion(i, e.target.value)}
                 placeholder={`Opción ${LETRAS[i]}`}
+                aria-label={`Opción ${LETRAS[i]}`}
               />
               {form.options.length > 2 ? (
-                <button className="tl-x" onClick={() => quitarOpcion(i)} title="Quitar opción">
+                <Button
+                  variant="quiet"
+                  size="sm"
+                  onClick={() => quitarOpcion(i)}
+                  aria-label={`Quitar opción ${LETRAS[i]}`}
+                >
                   ×
-                </button>
+                </Button>
               ) : (
                 <span />
               )}
             </div>
           ))}
           {form.options.length < 4 && (
-            <button className="tl-link" onClick={agregarOpcion}>
+            <Button variant="quiet" size="sm" onClick={agregarOpcion}>
               + Agregar otra opción
-            </button>
+            </Button>
           )}
-          <div className="tl-actions">
-            <button className="tl-btn orange" disabled={saving} onClick={guardar}>
-              {saving ? "Guardando…" : editId ? "Guardar cambios" : "Guardar pregunta"}
-            </button>
-            {(editId || form.question || form.topic) && (
-              <button className="tl-btn ghost" onClick={limpiar}>
-                Cancelar
-              </button>
-            )}
-          </div>
-        </section>
-
-        <div className="tl-tabs">
-          <button className={"tl-tab" + (tab === "mine" ? " on" : "")} onClick={() => setTab("mine")}>
-            Mis preguntas ({data?.mine.length ?? 0})
-          </button>
-          <button className={"tl-tab" + (tab === "official" ? " on" : "")} onClick={() => setTab("official")}>
-            Banco oficial ({data?.official.length ?? 0})
-          </button>
+        </fieldset>
+        <div className="ui-actions">
+          <Button disabled={saving} onClick={guardar}>
+            {saving ? "Guardando…" : editId ? "Guardar cambios" : "Guardar pregunta"}
+          </Button>
+          {(editId || form.question || form.topic) && (
+            <Button variant="ghost" onClick={limpiar}>
+              Cancelar
+            </Button>
+          )}
         </div>
+      </Card>
 
-        <section className="tl-box">
-          {!data && !error && <div className="tl-loading">Cargando…</div>}
-          {data &&
-            tab === "mine" &&
-            (data.mine.length === 0 ? (
-              <p className="tl-empty">Aún no has creado preguntas. Usa el formulario de arriba (máximo {data.max}).</p>
-            ) : (
-              data.mine.map((q) => (
-                <PreguntaItem key={q.id} q={q} onEdit={editar} onToggle={alternar} onDelete={borrar} />
-              ))
-            ))}
-          {data && tab === "official" && data.official.map((q) => <PreguntaItem key={q.id} q={q} />)}
-        </section>
-      </main>
-    </div>
+      <Tabs
+        label="Preguntas"
+        value={tab}
+        onChange={setTab}
+        items={[
+          { id: "mine", label: `Mis preguntas (${data?.mine.length ?? 0})` },
+          { id: "official", label: `Banco oficial (${data?.official.length ?? 0})` },
+        ]}
+      />
+
+      <Card>
+        {!data && !error && <Loading />}
+        {data &&
+          tab === "mine" &&
+          (data.mine.length === 0 ? (
+            <Empty>Aún no has creado preguntas. Usa el formulario de arriba (máximo {data.max}).</Empty>
+          ) : (
+            data.mine.map((q) => (
+              <PreguntaItem key={q.id} q={q} onEdit={editar} onToggle={alternar} onDelete={borrar} />
+            ))
+          ))}
+        {data && tab === "official" && data.official.map((q) => <PreguntaItem key={q.id} q={q} />)}
+      </Card>
+    </>
   );
 }

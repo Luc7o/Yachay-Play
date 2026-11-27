@@ -1,4 +1,5 @@
 import { Marca } from "../campusUi";
+import { Button } from "../ui";
 
 // ============================================================================
 // LUDO · CONECTANDO / ERROR AL ENTRAR — diseño "Campus". Props sin cambios.
@@ -19,9 +20,9 @@ export function LoadingScreen({ code, error, onReset }) {
               <p className="stu-lead">
                 La partida <b>{code}</b> ya no existe. Pide el código nuevo a tu docente y vuelve a entrar.
               </p>
-              <button type="button" className="cp-btn primary lg cp-full" onClick={onReset}>
+              <Button size="lg" className="cp-full" onClick={onReset}>
                 Volver a entrar
-              </button>
+              </Button>
             </>
           ) : (
             <>

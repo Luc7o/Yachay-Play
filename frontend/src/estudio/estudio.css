@@ -2,36 +2,30 @@
    PRESENTACIONES EN VIVO — estilos (todo lleva el prefijo .es- para no pisar nada)
    ============================================================================ */
 .es {
-  --es-bg: #f2faf8;
-  --es-surface: #ffffff;
-  --es-ink: #123b48;
-  --es-muted: #5b7f89;
-  --es-line: #d4eae7;
-  --es-primary: #00796f;
-  --es-primary-d: #006158;
-  --es-soft: #e2f7f2;
-  --es-stage: #e3efed;
-  --es-danger: #b91c1c;
-  --es-warn: #fef3c7;
-  --es-warn-ink: #8a5a00;
-  font-family: Nunito, Poppins, system-ui, sans-serif;
+  /* Colores de ui/tokens.css (siguen el tema de la app) */
+  --es-bg: var(--cp-bg);
+  --es-surface: var(--cp-surface);
+  --es-ink: var(--cp-ink);
+  --es-muted: var(--cp-muted);
+  --es-line: var(--cp-line);
+  --es-primary: var(--cp-accent);
+  --es-primary-d: var(--cp-accent-hover);
+  --es-soft: var(--cp-accent-soft);
+  --es-stage: var(--cp-surface2);
+  --es-danger: var(--cp-danger);
+  --es-warn: var(--cp-live-soft);
+  --es-warn-ink: var(--cp-live-ink);
+  font-family: var(--cp-text);
   color: var(--es-ink);
   background: var(--es-bg);
   box-sizing: border-box;
 }
-:root[data-theme="dark"] .es {
-  --es-bg: #0f1114;
-  --es-surface: #16191d;
-  --es-ink: #f2f4f6;
-  --es-muted: #b0b5bb;
-  --es-line: #292f37;
-  --es-primary: #2dd4bf;
-  --es-primary-d: #5eead4;
-  --es-soft: #1e2228;
-  --es-stage: #121418;
-  --es-danger: #fca5a5;
-  --es-warn: #4a3a12;
-  --es-warn-ink: #fde68a;
+.es h1,
+.es h2,
+.es h3,
+.es .es-title {
+  font-family: var(--cp-display);
+  letter-spacing: -0.02em;
 }
 .es *,
 .es *::before,
@@ -40,11 +34,13 @@
 }
 .es-page {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
 .es-full {
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -71,9 +67,6 @@
 }
 .es-top-r {
   justify-content: flex-end;
-}
-.es .brand-logo {
-  height: 30px;
 }
 .es .ref-brand {
   display: flex;
@@ -117,56 +110,9 @@
   flex: none;
 }
 
-/* botones */
-.es-btn {
-  white-space: nowrap;
-  font: inherit;
-  font-weight: 800;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 10px;
-  padding: 9px 16px;
-  border: 1px solid var(--es-primary);
-  background: var(--es-primary);
-  color: #fff;
-}
-:root[data-theme="dark"] .es-btn {
-  color: #04211d;
-}
-.es-btn:hover:not(:disabled) {
-  background: var(--es-primary-d);
-  border-color: var(--es-primary-d);
-}
-.es-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-.es-btn.ghost {
-  background: transparent;
-  color: var(--es-ink);
-  border-color: var(--es-line);
-}
-:root[data-theme="dark"] .es-btn.ghost {
-  color: var(--es-ink);
-}
-.es-btn.ghost:hover:not(:disabled) {
-  background: var(--es-soft);
-  border-color: var(--es-primary);
-}
-.es-btn.danger {
-  background: transparent;
-  color: var(--es-danger);
-  border-color: var(--es-danger);
-}
-.es-btn.danger:hover:not(:disabled) {
-  background: var(--es-danger);
-  color: #fff;
-  border-color: var(--es-danger);
-}
-.es-btn.big {
+/* Botón a todo el ancho (Button size="lg" className="es-ancho") */
+.cp-btn.es-ancho {
   width: 100%;
-  padding: 13px;
-  font-size: 16px;
   margin-top: 6px;
 }
 .es-link {
@@ -344,7 +290,7 @@
   position: relative;
   margin-top: 4px;
 }
-.es-nueva .es-btn {
+.es-nueva .cp-btn {
   width: 100%;
 }
 .es-menu {
@@ -576,8 +522,7 @@
   width: min(520px, 100%);
   background: var(--es-surface);
   border: 1px solid var(--es-line);
-  border-radius: 20px;
-  box-shadow: 0 12px 36px #0f172a14;
+  border-radius: 14px;
   padding: 28px;
   display: flex;
   flex-direction: column;
@@ -698,7 +643,7 @@
   cursor: pointer;
   background: var(--es-surface);
   border: 1px solid var(--es-line);
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -707,7 +652,6 @@
 }
 .es-card:hover {
   border-color: var(--es-primary);
-  box-shadow: 0 8px 24px #0001;
 }
 .es-card-info {
   width: 100%;
@@ -782,6 +726,7 @@
   .es-side {
     order: 3;
     max-height: 26vh;
+    max-height: 26dvh;
     border-left: 0;
     border-top: 1px solid var(--es-line);
   }
@@ -807,22 +752,6 @@
 /* ============================================================================
    AJUSTES DE LEGIBILIDAD, MODO CLARO/OSCURO Y LISTA "MIS SALAS"
    ============================================================================ */
-/* Modo oscuro: los botones rojos (Cerrar / Eliminar) se veían con letra oscura sobre fondo oscuro.
-   La regla de `.es-btn` en modo oscuro tenía más peso que `.es-btn.danger`; aquí se iguala. */
-:root[data-theme="dark"] .es-btn.danger {
-  background: transparent;
-  color: var(--es-danger);
-  border-color: var(--es-danger);
-}
-:root[data-theme="dark"] .es-btn.danger:hover:not(:disabled) {
-  background: var(--es-danger);
-  color: #3b0a0a;
-  border-color: var(--es-danger);
-}
-.es-btn.danger {
-  font-weight: 800;
-}
-
 /* Botón pequeño de modo claro / oscuro */
 .es-theme {
   flex: none;
@@ -967,7 +896,7 @@
   .es-sala-act {
     width: 100%;
   }
-  .es-sala-act .es-btn {
+  .es-sala-act .cp-btn {
     flex: 1;
   }
   .es-code {
@@ -1051,6 +980,7 @@
 .es-atajos {
   width: min(980px, 100%);
   max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
   overflow: auto;
   background: var(--es-surface);
   color: var(--es-ink);

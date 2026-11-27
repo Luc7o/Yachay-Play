@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
+import { IconoEnLinea } from "./campusUi";
 import { Brand } from "./Brand";
 import { prepararAudio, nota } from "./herramientasAudio";
 import "./herramientas.css";
+import { Button } from "./ui";
 
 // ============================================================================
 // RULETA DE SORTEOS
@@ -423,7 +425,7 @@ export function Ruleta({ goHome }) {
     const items = [...pool];
     setOcupada(true);
     setResaltado(-1);
-    setResultado({ etiqueta: "Girando…", texto: "🎡", clave: Date.now(), gano: false });
+    setResultado({ etiqueta: "Girando…", texto: "…", clave: Date.now(), gano: false });
 
     const seg = TAU / n;
     const elegido = azarEntero(n);
@@ -617,9 +619,9 @@ export function Ruleta({ goHome }) {
     <div className={"app hr-page" + (pestana === "ruleta" ? " hr-fullh" : "")}>
       <header className="ref-topbar">
         <Brand subtitle="Ruleta de sorteos" onClick={goHome} />
-        <button className="hr-back" onClick={goHome}>
+        <Button variant="ghost" className="hr-back" onClick={goHome}>
           ← Volver al inicio
-        </button>
+        </Button>
       </header>
 
       <main className={"hr-main" + (pestana === "ruleta" ? " hr-main-full" : "")}>
@@ -631,7 +633,8 @@ export function Ruleta({ goHome }) {
               className={"hr-tab" + (pestana === "ruleta" ? " on" : "")}
               onClick={() => setPestana("ruleta")}
             >
-              🎡 Ruleta
+              <IconoEnLinea nombre="ruleta" />
+              Ruleta
             </button>
             <button
               role="tab"
@@ -639,7 +642,8 @@ export function Ruleta({ goHome }) {
               className={"hr-tab" + (pestana === "repartir" ? " on" : "")}
               onClick={() => setPestana("repartir")}
             >
-              🎲 Repartir listas
+              <IconoEnLinea nombre="dados" />
+              Repartir listas
             </button>
             <button
               role="tab"
@@ -647,7 +651,8 @@ export function Ruleta({ goHome }) {
               className={"hr-tab" + (pestana === "grupos" ? " on" : "")}
               onClick={() => setPestana("grupos")}
             >
-              👥 Formar grupos
+              <IconoEnLinea nombre="grupo" />
+              Formar grupos
             </button>
           </div>
           <span className="hr-tools">
@@ -706,12 +711,13 @@ export function Ruleta({ goHome }) {
                   ))}
                 </select>
                 <div className="hr-row">
-                  <button className="hr-btn hr-sm" disabled={ocupada} onClick={nuevaLista}>
+                  <Button variant="ghost" size="sm" disabled={ocupada} onClick={nuevaLista}>
                     ➕ Nueva
-                  </button>
-                  <button className="hr-btn hr-sm" disabled={ocupada} onClick={borrarLista}>
-                    🗑️ Borrar
-                  </button>
+                  </Button>
+                  <Button variant="ghost" size="sm" disabled={ocupada} onClick={borrarLista}>
+                    <IconoEnLinea nombre="basura" />
+                    Borrar
+                  </Button>
                 </div>
 
                 <label className="hr-label" htmlFor="hr-nombre">
@@ -743,12 +749,12 @@ export function Ruleta({ goHome }) {
                 </p>
 
                 <div className="hr-row">
-                  <button className="hr-btn hr-sm" disabled={ocupada || pool.length < 2} onClick={mezclarLista}>
+                  <Button variant="ghost" size="sm" disabled={ocupada || pool.length < 2} onClick={mezclarLista}>
                     🔀 Mezclar
-                  </button>
-                  <button className="hr-btn hr-sm" disabled={ocupada || !hayCambios} onClick={restaurarLista}>
+                  </Button>
+                  <Button variant="ghost" size="sm" disabled={ocupada || !hayCambios} onClick={restaurarLista}>
                     ↩️ Restaurar lista
-                  </button>
+                  </Button>
                 </div>
                 <label className="hr-check">
                   <input
@@ -781,9 +787,9 @@ export function Ruleta({ goHome }) {
                   />
                 </div>
               </div>
-              <button className="hr-btn hr-primary hr-grande" disabled={ocupada || sinElementos} onClick={girar}>
-                🎯 Girar
-              </button>
+              <Button size="lg" className="hr-grande" disabled={ocupada || sinElementos} onClick={girar}>
+                Girar
+              </Button>
             </section>
 
             {/* DERECHA: mascota e historial de los que ya salieron */}
@@ -855,9 +861,9 @@ export function Ruleta({ goHome }) {
                   ))}
                 </select>
               </div>
-              <button className="hr-btn hr-primary" onClick={repartir}>
+              <Button size="lg" onClick={repartir}>
                 Repartir al azar
-              </button>
+              </Button>
             </div>
             {avisoReparto && (
               <p className="hr-aviso" role="status">
@@ -890,9 +896,10 @@ export function Ruleta({ goHome }) {
                   </table>
                 </div>
                 <div className="hr-row">
-                  <button className="hr-btn hr-sm" onClick={copiarTabla}>
-                    📋 Copiar tabla
-                  </button>
+                  <Button variant="ghost" size="sm" onClick={copiarTabla}>
+                    <IconoEnLinea nombre="lista" />
+                    Copiar tabla
+                  </Button>
                 </div>
               </>
             )}
@@ -955,9 +962,9 @@ export function Ruleta({ goHome }) {
                     ))}
                 </select>
               </div>
-              <button className="hr-btn hr-primary" onClick={formarGrupos}>
+              <Button size="lg" onClick={formarGrupos}>
                 Formar grupos
-              </button>
+              </Button>
             </div>
             <label className="hr-check">
               <input type="checkbox" checked={grupoLider} onChange={(e) => setGrupoLider(e.target.checked)} />
@@ -974,7 +981,7 @@ export function Ruleta({ goHome }) {
                   {grupos.map((g) => (
                     <article key={g.n} className="hr-grupo">
                       <h3>Grupo {g.n}</h3>
-                      {g.tema && <p className="hr-grupo-tema">📌 {g.tema}</p>}
+                      {g.tema && <p className="hr-grupo-tema">Tema: {g.tema}</p>}
                       <ul>
                         {g.miembros.map((m, i) => (
                           <li key={i}>
@@ -987,12 +994,13 @@ export function Ruleta({ goHome }) {
                   ))}
                 </div>
                 <div className="hr-row">
-                  <button className="hr-btn hr-sm" onClick={copiarGrupos}>
-                    📋 Copiar grupos
-                  </button>
-                  <button className="hr-btn hr-sm" onClick={formarGrupos}>
+                  <Button variant="ghost" size="sm" onClick={copiarGrupos}>
+                    <IconoEnLinea nombre="lista" />
+                    Copiar grupos
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={formarGrupos}>
                     🔁 Volver a sortear
-                  </button>
+                  </Button>
                 </div>
               </>
             )}

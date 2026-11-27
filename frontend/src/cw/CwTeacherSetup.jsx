@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Step, Options } from "./Common";
+import { Button } from "../ui";
 
 // ============================================================================
 // CRUCIGRAMA · CREAR PARTIDA (docente) — diseño "Campus". Va dentro del menú de la app.
@@ -29,9 +30,9 @@ export function CwTeacherSetup({ goHome, onCreate, error }) {
           <h1>Crear un crucigrama en vivo</h1>
           <p>Todos tus estudiantes reciben el mismo crucigrama y compiten por terminarlo.</p>
         </div>
-        <button type="button" className="cp-btn ghost" onClick={goHome}>
+        <Button variant="ghost" onClick={goHome}>
           Cancelar
-        </button>
+        </Button>
       </div>
 
       <div className="cfg2-grid">
@@ -110,14 +111,9 @@ export function CwTeacherSetup({ goHome, onCreate, error }) {
                 {error}
               </p>
             )}
-            <button
-              type="button"
-              className="cp-btn primary lg cp-full"
-              disabled={creating || !name.trim()}
-              onClick={crear}
-            >
+            <Button size="lg" className="cp-full" disabled={creating || !name.trim()} onClick={crear}>
               {creating ? "Creando…" : "Crear crucigrama"}
-            </button>
+            </Button>
             <p className="cp-help">
               Se generará un código de 6 dígitos para que tus estudiantes entren desde el celular.
             </p>

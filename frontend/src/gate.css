@@ -9,6 +9,7 @@
   --g-b: #00796f; /* …y su final */
   --g-hl: #7ff0d3; /* color del texto resaltado */
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: #f5f8fc;
   background-image: radial-gradient(#d9e5f2 1.4px, transparent 1.4px);
   background-size: 22px 22px;
@@ -23,9 +24,6 @@
   max-width: 1080px;
   margin: 0 auto;
   padding: 20px 24px 28px;
-}
-.gate-main .back-link {
-  padding-bottom: 14px;
 }
 
 /* ------------------------------- HERO ------------------------------- */

@@ -15,30 +15,7 @@
    ========================================================================== */
 
 /* ---------------- 1. Tokens antiguos → paleta Campus ---------------- */
-:root {
-  --navy: #161a2e;
-  --navy-dark: #0b0e1a;
-  --navy-light: #343a52;
-  --navy-line: #5c6178;
-  --navy-border: #e4e2dc;
-  --navy-soft: #efede7;
-  /* --orange es el acento histórico: se usa como fondo con texto blanco, así que
-     queda oscuro en los dos temas (el verde azulado claro no da contraste con blanco). */
-  --orange: #1e2a5a;
-  --orange-dark: #172147;
-  --orange-soft: #e8ebf5;
-}
-:root[data-theme="dark"] {
-  --navy: #232429;
-  --navy-dark: #1a1b1f;
-  --navy-light: #383a41;
-  --navy-line: #9a9ca6;
-  --navy-border: #383a41;
-  --navy-soft: #232429;
-  --orange: #1e2a5a;
-  --orange-dark: #172147;
-  --orange-soft: #262940;
-}
+/* (Los tokens antiguos --navy / --orange se movieron a ui/tokens.css.) */
 
 /* ---------------- 2. Tipografía ---------------- */
 body {
@@ -127,6 +104,7 @@ body {
   width: 360px;
   height: 520px;
   max-height: min(80vh, calc(100vh - 120px));
+  max-height: min(80dvh, calc(100dvh - 120px));
   border-radius: 16px !important;
   border: 1px solid var(--cp-line) !important;
   background: var(--cp-surface) !important;
@@ -475,14 +453,12 @@ body {
   margin: 0 0 4px;
   font-size: 16px;
 }
-.cfg2-howstep,
-.preview-step {
+.cfg2-howstep {
   display: flex;
   gap: 12px;
   align-items: flex-start;
 }
-.cfg2-howstep > b,
-.preview-step > b {
+.cfg2-howstep > b {
   width: 24px;
   height: 24px;
   flex: none;
@@ -495,14 +471,12 @@ body {
     600 12px "Space Grotesk",
     sans-serif;
 }
-.cfg2-howstep strong,
-.preview-step strong {
+.cfg2-howstep strong {
   display: block;
   font-size: 14px;
   color: var(--cp-ink);
 }
-.cfg2-howstep p,
-.preview-step p {
+.cfg2-howstep p {
   margin: 2px 0 0;
   font-size: 13px;
   line-height: 1.5;
@@ -547,6 +521,7 @@ body {
   --cp-logo-fg: #f2a07b;
   --cp-terra: #f2a07b;
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--cp-bg);
   color: var(--cp-ink);
   color-scheme: dark;
@@ -755,6 +730,7 @@ body {
 /* ---------------- 10. Ludo · pantallas del estudiante (celular) ---------------- */
 .stu-page {
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--cp-bg);
   color: var(--cp-ink);
   display: flex;
@@ -1658,22 +1634,22 @@ body {
   gap: 12px;
 }
 .cp-proj .cw-stat-card {
-  background: var(--cp-surface) !important;
-  border: 1px solid var(--cp-line) !important;
-  border-radius: 14px !important;
-  padding: 14px 16px !important;
-  box-shadow: none !important;
-  color: var(--cp-ink) !important;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: none;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-stat-card span {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
   font-size: 12px;
 }
 .cp-proj .cw-stat-card b {
   font:
     600 24px "Space Grotesk",
     sans-serif;
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-stat-wide b {
   font-size: 15px;
@@ -1689,21 +1665,21 @@ body {
 .cp-proj .cw-board-panel {
   flex: 999 1 460px;
   min-width: 0;
-  background: var(--cp-surface) !important;
-  border: 1px solid var(--cp-line) !important;
-  border-radius: 14px !important;
-  box-shadow: none !important;
-  padding: 16px !important;
-  color: var(--cp-ink) !important;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 14px;
+  box-shadow: none;
+  padding: 16px;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-board-panel h3 {
   margin: 0 0 4px;
   font-size: 16px;
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-board-sub,
 .cp-proj .cw-heat-legend {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
   font-size: 13px;
 }
 .cp-proj .cw-side-col {
@@ -1714,67 +1690,67 @@ body {
   gap: 12px;
 }
 .cp-proj .cw-panel-card {
-  background: var(--cp-surface) !important;
-  border: 1px solid var(--cp-line) !important;
-  border-radius: 14px !important;
-  box-shadow: none !important;
-  padding: 14px 16px !important;
-  color: var(--cp-ink) !important;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 14px;
+  box-shadow: none;
+  padding: 14px 16px;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-side-title {
   font:
     600 12px Inter,
-    sans-serif !important;
+    sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
   margin: 4px 0 10px;
 }
 .cp-proj .cw-clue-list li {
-  color: var(--cp-ink2) !important;
-  border-color: var(--cp-line) !important;
+  color: var(--cp-ink2);
+  border-color: var(--cp-line);
   font-size: 13px;
 }
 .cp-proj .cw-clue-list li.done {
-  color: #8be3b4 !important;
+  color: #8be3b4;
 }
 .cp-proj .cw-clue-count,
 .cp-proj .cw-clue-list small {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
 }
 .cp-proj .cw-lb-bar {
-  background: var(--cp-surface2) !important;
+  background: var(--cp-surface2);
   border-radius: 3px;
 }
 .cp-proj .cw-lb-bar i {
-  background: var(--cp-accent) !important;
+  background: var(--cp-accent);
   border-radius: 3px;
 }
 .cp-proj .cw-lb-row {
-  border-bottom: 1px solid var(--cp-line) !important;
-  color: var(--cp-ink) !important;
+  border-bottom: 1px solid var(--cp-line);
+  color: var(--cp-ink);
   font-size: 14px;
 }
 .cp-proj .cw-lb-rank {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
 }
 .cp-proj .cw-lb-score {
   font-weight: 600;
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-lb-done {
-  color: #8be3b4 !important;
+  color: #8be3b4;
 }
 .cp-proj .cw-activity-list li {
-  color: var(--cp-ink2) !important;
-  border-color: var(--cp-line) !important;
+  color: var(--cp-ink2);
+  border-color: var(--cp-line);
   font-size: 13px;
 }
 .cp-proj .cw-activity-time {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
 }
 .cp-proj .muted {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
 }
 
 /* ---------------- 14. Crucigrama · tablero del estudiante (proyección) ---------------- */
@@ -1806,41 +1782,41 @@ body {
   gap: 12px;
 }
 .cwp .cw-grid {
-  background: #323a5a !important;
-  border-color: #323a5a !important;
-  border-radius: 10px !important;
+  background: #323a5a;
+  border-color: #323a5a;
+  border-radius: 10px;
 }
 .cwp .cw-cell {
-  background: #eef0f8 !important;
-  color: #161a2e !important;
+  background: #eef0f8;
+  color: #161a2e;
   font-family: "Space Grotesk", sans-serif;
 }
 .cwp .cw-cell.blank {
-  background: #1a1b1f !important;
+  background: #1a1b1f;
 }
 .cwp .cw-cell-num {
-  color: #5c6178 !important;
+  color: #5c6178;
 }
 .cwp .cw-overlay {
-  background: rgba(13, 18, 17, 0.86) !important;
+  background: rgba(13, 18, 17, 0.86);
   border-radius: 10px;
-  color: #b3bff6 !important;
+  color: #b3bff6;
   font:
     600 20px "Space Grotesk",
-    sans-serif !important;
+    sans-serif;
 }
 .cwp .cw-answer-bar {
-  background: var(--cp-surface) !important;
-  border: 1px solid var(--cp-line2) !important;
-  border-radius: 14px !important;
-  color: var(--cp-ink) !important;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line2);
+  border-radius: 14px;
+  color: var(--cp-ink);
   display: flex;
   flex-direction: column;
   gap: 10px;
-  box-shadow: none !important;
+  box-shadow: none;
 }
 .cwp .cw-answer-bar small {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
 }
 .cwp .cw-answer-row {
   display: flex;
@@ -1851,66 +1827,66 @@ body {
   min-width: 0;
   font:
     600 18px "Space Grotesk",
-    sans-serif !important;
+    sans-serif;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 .cwp .cw-mystats,
 .cwp .cw-energy,
 .cwp .cw-sabotage {
-  background: var(--cp-surface) !important;
-  border: 1px solid var(--cp-line) !important;
-  border-radius: 14px !important;
-  color: var(--cp-ink) !important;
-  box-shadow: none !important;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 14px;
+  color: var(--cp-ink);
+  box-shadow: none;
 }
 .cwp .cw-mystats b {
   font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
 }
 .cwp .cw-energy > span {
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink);
   font-weight: 600;
 }
 .cwp .cw-energy-bar {
-  background: var(--cp-surface2) !important;
-  border-radius: 4px !important;
+  background: var(--cp-surface2);
+  border-radius: 4px;
 }
 .cwp .cw-energy-bar i {
-  background: #f59e0b !important;
-  border-radius: 4px !important;
+  background: #f59e0b;
+  border-radius: 4px;
 }
 .cwp .cw-rival {
-  background: var(--cp-surface2) !important;
-  border: 1px solid var(--cp-line2) !important;
-  color: var(--cp-ink) !important;
-  border-radius: 10px !important;
-  font-weight: 600 !important;
+  background: var(--cp-surface2);
+  border: 1px solid var(--cp-line2);
+  color: var(--cp-ink);
+  border-radius: 10px;
+  font-weight: 600;
 }
 .cwp .cw-rival small {
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
 }
 .cwp .cw-rival.on {
-  border-color: var(--cp-accent) !important;
-  background: var(--cp-accent-soft) !important;
+  border-color: var(--cp-accent);
+  background: var(--cp-accent-soft);
 }
 .cwp .cw-sabo-btn {
-  background: var(--cp-surface2) !important;
-  border: 1px solid var(--cp-line2) !important;
-  color: var(--cp-ink) !important;
-  border-radius: 10px !important;
+  background: var(--cp-surface2);
+  border: 1px solid var(--cp-line2);
+  color: var(--cp-ink);
+  border-radius: 10px;
   min-height: 44px;
-  font-weight: 600 !important;
+  font-weight: 600;
 }
 .cwp .cw-sabo-btn:not(:disabled):hover {
-  border-color: var(--cp-accent) !important;
+  border-color: var(--cp-accent);
 }
 .cwp .cw-sabo-btn:disabled {
   opacity: 0.45;
 }
 .cwp .cw-sabo-btn small {
   margin-left: auto;
-  color: var(--cp-muted) !important;
+  color: var(--cp-muted);
   font-weight: 500;
 }
 .cwp .cw-sabo-btn span {
@@ -1926,9 +1902,9 @@ body {
   gap: 6px;
 }
 .cwp .cw-clue-list li {
-  padding: 0 !important;
-  background: none !important;
-  border: 0 !important;
+  padding: 0;
+  background: none;
+  border: 0;
   min-height: 0;
 }
 .cwp .cwp-clue {
@@ -1973,225 +1949,113 @@ body {
   cursor: default;
 }
 .cwp .cw-toast {
-  background: #161a2e !important;
-  color: #eef0f8 !important;
-  border: 1px solid #323a5a !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+  background: #161a2e;
+  color: #eef0f8;
+  border: 1px solid #323a5a;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 @media (max-width: 760px) {
   .cwp .cw-answer-bar {
-    position: fixed !important;
+    position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
-    border-radius: 14px 14px 0 0 !important;
-    border-width: 1px 0 0 !important;
+    border-radius: 14px 14px 0 0;
+    border-width: 1px 0 0;
   }
 }
 .cp-proj .cw-leaderboard {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  padding: 0 !important;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
 }
 .cp-proj .cw-lb-row {
-  background: transparent !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  padding: 10px 0 !important;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 10px 0;
 }
 .cp-proj .cw-lb-name {
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink);
   font-weight: 500;
 }
 .cp-proj .cw-clue-list li {
-  background: var(--cp-surface2) !important;
-  border: 1px solid var(--cp-line2) !important;
-  border-radius: 10px !important;
+  background: var(--cp-surface2);
+  border: 1px solid var(--cp-line2);
+  border-radius: 10px;
 }
 .cwp .cw-clue-list li {
-  background: none !important;
-  border: 0 !important;
+  background: none;
+  border: 0;
 }
 .cp-proj .cw-activity-list li {
-  background: var(--cp-surface2) !important;
-  border: 1px solid var(--cp-line) !important;
-  border-radius: 10px !important;
+  background: var(--cp-surface2);
+  border: 1px solid var(--cp-line);
+  border-radius: 10px;
 }
 .cp-proj .cw-grid-wrap {
-  background: transparent !important;
-  border: 0 !important;
-  padding: 0 !important;
-  box-shadow: none !important;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
 }
 .cp-proj .cw-clue-list li b,
 .cp-proj b.cw-cell-num {
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink);
 }
 .cp-proj .cw-clue-list li.done b {
-  color: #8be3b4 !important;
+  color: #8be3b4;
 }
 .cp-proj .cw-lb-row {
-  border: 0 !important;
-  border-bottom: 1px solid var(--cp-line) !important;
-}
-
-/* ---------------- 15. Herramientas y Evaluación (tokens --hr-*) ---------------- */
-/* Siguen el tema de la APP (data-theme), no el del sistema operativo. Los estados del
-   cronómetro (aviso / urgente / fin) conservan sus colores: van con más especificidad. */
-.hr-page {
-  --hr-bg: var(--cp-bg);
-  --hr-fg: var(--cp-ink);
-  --hr-muted: var(--cp-muted);
-  --hr-card: var(--cp-surface);
-  --hr-line: var(--cp-line);
-  --hr-field: var(--cp-surface);
-  --hr-track: var(--cp-surface2);
-  --hr-bar: var(--cp-accent);
-  --hr-time: var(--cp-ink);
-  font-family: Inter, system-ui, sans-serif;
-}
-.hr-page h1,
-.hr-page h2,
-.hr-page h3 {
-  font-family: "Space Grotesk", Inter, sans-serif;
-  letter-spacing: -0.02em;
-}
-.hr-page :focus-visible {
-  outline-color: var(--cp-accent);
-}
-.hr-btn {
-  border-radius: 10px !important;
-  font-family: Inter, sans-serif !important;
-  font-weight: 600 !important;
-  box-shadow: none !important;
-}
-.hr-btn.hr-primary {
-  background: var(--cp-accent) !important;
-  border-color: var(--cp-accent) !important;
-  color: var(--cp-on-accent) !important;
-}
-.hr-card,
-.hr-box,
-.hr-panel {
-  border-radius: 14px !important;
-  box-shadow: none !important;
-}
-.hr-page input,
-.hr-page select,
-.hr-page textarea {
-  border-radius: 10px;
-  font-family: Inter, sans-serif;
-}
-.hr-time {
-  font-family: "Space Grotesk", Inter, sans-serif;
-}
-
-/* ---------------- 16. Presentaciones en vivo (tokens --es-*) ---------------- */
-:root .es,
-:root[data-theme="dark"] .es {
-  --es-bg: var(--cp-bg);
-  --es-surface: var(--cp-surface);
-  --es-ink: var(--cp-ink);
-  --es-muted: var(--cp-muted);
-  --es-line: var(--cp-line);
-  --es-primary: var(--cp-accent);
-  --es-primary-d: var(--cp-accent-hover);
-  --es-soft: var(--cp-accent-soft);
-  --es-stage: var(--cp-surface2);
-  --es-danger: var(--cp-danger);
-  font-family: Inter, system-ui, sans-serif;
-}
-.es h1,
-.es h2,
-.es h3,
-.es .es-title {
-  font-family: "Space Grotesk", Inter, sans-serif;
-  letter-spacing: -0.02em;
-}
-.es .es-btn {
-  border-radius: 10px !important;
-  font-weight: 600 !important;
-  box-shadow: none !important;
-}
-.es .es-btn:not(.ghost):not(.danger) {
-  color: var(--cp-on-accent);
-}
-.es .es-card,
-.es .es-card-form,
-.es .es-panel {
-  border-radius: 14px !important;
-  box-shadow: none !important;
+  border: 0;
+  border-bottom: 1px solid var(--cp-line);
 }
 
 /* ---------------- 17. Palabra relámpago (fondo, paneles y acento; la arena y la bomba no se tocan) ---------------- */
+/* pr-day / pr-night siguen a data-theme, así que basta con los tokens de ui/tokens.css. */
 .pr-page {
-  --pr-accent: #1e2a5a;
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--cp-text);
 }
 .pr-page h1,
 .pr-page h2,
 .pr-page h3 {
-  font-family: "Space Grotesk", Inter, sans-serif;
+  font-family: var(--cp-display);
   letter-spacing: -0.02em;
 }
-.pr-page.pr-day {
-  background: #f7f5f0 !important;
-  --pr-ink: #161a2e;
-  --pr-edge: #e4e2dc;
-  color: #161a2e;
+.pr-page:is(.pr-day, .pr-night) {
+  --pr-ink: var(--cp-ink);
+  --pr-accent: var(--cp-accent);
+  --pr-edge: var(--cp-line);
+  background: var(--cp-bg);
+  color: var(--cp-ink);
 }
-.pr-page.pr-night {
-  background: #111214 !important;
-  --pr-ink: #f2f2f4;
-  --pr-accent: #8fa0f0;
-  --pr-edge: #2a2c31;
-  color: #f2f2f4;
-}
-.pr-day .pr-panel {
-  background: #ffffff !important;
-  border: 1px solid #e4e2dc !important;
-  box-shadow: none !important;
-  border-radius: 16px !important;
-}
-.pr-night .pr-panel {
-  background: #1a1b1f !important;
-  border: 1px solid #2a2c31 !important;
-  box-shadow: none !important;
-  border-radius: 16px !important;
-}
-.pr-fullscreen.pr-night {
-  background: #111214 !important;
-}
-.pr-fullscreen.pr-day {
-  background: #f7f5f0 !important;
+:is(.pr-day, .pr-night) .pr-panel {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  box-shadow: none;
+  border-radius: 16px;
 }
 /* Dentro del menú de la app no se estira a todo el ancho de la ventana (taparía el menú lateral) */
 .cp-main .pr-page.pr-fullscreen {
-  width: auto !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  max-width: none !important;
-  min-height: 0 !important;
-  border-radius: 16px !important;
+  width: auto;
+  margin-left: 0;
+  margin-right: 0;
+  max-width: none;
+  min-height: 0;
+  border-radius: 16px;
 }
-.pr-day :is(input, select, textarea) {
-  background: #ffffff !important;
-  border: 1px solid #cfccc3 !important;
-  border-radius: 10px !important;
-  color: #161a2e !important;
-}
-.pr-night :is(input, select, textarea) {
-  background: #1a1b1f !important;
-  border: 1px solid #383a41 !important;
-  border-radius: 10px !important;
-  color: #f2f2f4 !important;
+:is(.pr-day, .pr-night) :is(input, select, textarea) {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line2);
+  border-radius: 10px;
+  color: var(--cp-ink);
 }
 .pr-page :is(input, select, textarea):focus {
   outline: none;
-  border-color: var(--pr-accent) !important;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pr-accent) 20%, transparent) !important;
+  border-color: var(--pr-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pr-accent) 20%, transparent);
 }
 
 /* ---------------- 18. Pantalla previa de cada juego (GameGate) ---------------- */

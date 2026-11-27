@@ -2,6 +2,7 @@ import { Brand } from "../Brand";
 import { mmss } from "./helpers";
 import { Step } from "./Common";
 import { CwTeacherLive, CwLeaderboard } from "./CwTeacherLive";
+import { Button } from "../ui";
 
 // ============================================================================
 // CRUCIGRAMA · SALA DEL DOCENTE (espera → en curso → resultados, según live.status)
@@ -42,9 +43,9 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
     return (
       <div className="cp cp-proj">
         <Barra live={live} code={code} goHome={goHome}>
-          <button type="button" className="cp-btn ghost" onClick={goHome}>
+          <Button variant="ghost" onClick={goHome}>
             Salir al inicio
-          </button>
+          </Button>
         </Barra>
         <main className="proj-main">
           <section className="proj-stage" aria-labelledby="cwr-t">
@@ -66,9 +67,8 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
                   <p>Que entren y elijan «Unirme con código» o «Entrar como invitado».</p>
                 )}
                 <div>
-                  <button
-                    type="button"
-                    className="cp-btn ghost"
+                  <Button
+                    variant="ghost"
                     onClick={(e) => {
                       navigator.clipboard?.writeText(codigo);
                       const btn = e.currentTarget;
@@ -79,7 +79,7 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
                     }}
                   >
                     Copiar código
-                  </button>
+                  </Button>
                 </div>
               </div>
               <div className="proj-code" aria-label={`Código ${codigo.split("").join(" ")}`}>
@@ -117,11 +117,11 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
               </p>
             )}
             <div className="proj-actions">
-              <button type="button" className="cp-btn primary lg" disabled={board.length === 0} onClick={onStart}>
+              <Button size="lg" disabled={board.length === 0} onClick={onStart}>
                 {board.length === 0
                   ? "Esperando estudiantes…"
                   : `Iniciar con ${board.length} estudiante${board.length === 1 ? "" : "s"}`}
-              </button>
+              </Button>
             </div>
             <p className="cp-help">
               Puedes iniciar cuando quieras: quien entre después se suma con la partida en curso.
@@ -163,12 +163,12 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
             </b>
           </div>
           <div className="eg-actions">
-            <button type="button" className="cp-btn ghost sm" onClick={onReset}>
+            <Button variant="ghost" size="sm" onClick={onReset}>
               Reiniciar
-            </button>
-            <button type="button" className="cp-btn ghost sm danger" onClick={onEnd}>
+            </Button>
+            <Button variant="danger" size="sm" className="ghost" onClick={onEnd}>
               Finalizar partida
-            </button>
+            </Button>
           </div>
         </Barra>
         <main className="proj-main cwr-main">
@@ -195,12 +195,10 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
     <div className="cp cp-proj">
       <Barra live={live} code={code} goHome={goHome}>
         <div className="eg-actions">
-          <button type="button" className="cp-btn ghost" onClick={onReset}>
+          <Button variant="ghost" onClick={onReset}>
             Repetir con el mismo código
-          </button>
-          <button type="button" className="cp-btn primary" onClick={onNewGame}>
-            Crear otra partida
-          </button>
+          </Button>
+          <Button onClick={onNewGame}>Crear otra partida</Button>
         </div>
       </Barra>
       <main className="proj-main cwr-main">

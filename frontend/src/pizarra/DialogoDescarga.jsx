@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { hoy, nombreSeguro } from "./utils";
+import { Button } from "../ui";
 
 // Cuadro "Guardar tu trabajo": nombre, formato y páginas
 export function DialogoDescarga({ vista, nombreInicial, paginas, ocupado, onCancelar, onConfirmar }) {
@@ -109,12 +110,12 @@ export function DialogoDescarga({ vista, nombreInicial, paginas, ocupado, onCanc
           </b>
         </p>
         <div className="pz-acciones">
-          <button type="button" className="hr-btn" onClick={onCancelar}>
+          <Button variant="ghost" size="lg" onClick={onCancelar}>
             Cancelar
-          </button>
-          <button type="submit" className="hr-btn hr-primary" disabled={ocupado}>
+          </Button>
+          <Button type="submit" size="lg" disabled={ocupado}>
             {ocupado ? "Guardando…" : "Descargar"}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

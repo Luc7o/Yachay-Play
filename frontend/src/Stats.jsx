@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Brand } from "./Brand";
 import { api } from "./api";
-import "./tools.css";
+import { PageHeader, Card, StatCard, StatGrid, Row, Bar, Dot, Chip, Empty, Loading, Notice, Grid } from "./ui";
 
 const COLORES = {
   rojo: { nombre: "Rojo", hex: "#ef4444" },
@@ -27,15 +26,29 @@ const MOTIVOS = {
   completed: "completó el crucigrama",
 };
 
-function Tarjeta({ titulo, valor, nota }) {
-  return (
-    <div className="tl-card">
-      <span>{titulo}</span>
-      <strong>{valor}</strong>
-      {nota && <small>{nota}</small>}
-    </div>
+// Estado de una partida en la lista: en curso, con ganador o sin ganador.
+const Estado = ({ enCurso, textoEnCurso = "en curso", ganador }) =>
+  enCurso ? (
+    <Chip tone="warn">{textoEnCurso}</Chip>
+  ) : ganador ? (
+    <Chip tone="win">{ganador}</Chip>
+  ) : (
+    <Chip>sin ganador</Chip>
   );
-}
+
+const detallePartida = (g) => (
+  <>
+    Código {g.code} · {fecha(g.created_at)} · {plural(g.players, "jugador", "jugadores")}
+    {g.end_reason ? ` · ${MOTIVOS[g.end_reason]}` : ""}
+  </>
+);
+
+const Equipo = ({ color }) => (
+  <>
+    <Dot color={COLORES[color]?.hex} />
+    {COLORES[color]?.nombre}
+  </>
+);
 
 // ------------------------------- DOCENTE -------------------------------
 function VistaDocente({ d }) {
@@ -43,211 +56,171 @@ function VistaDocente({ d }) {
   const maxVictorias = Math.max(1, ...Object.values(ludo.winsByColor));
   return (
     <>
-      <div className="tl-cards">
-        <Tarjeta titulo="Partidas de Ludo" valor={ludo.total} nota={`${ludo.finished} terminadas`} />
-        <Tarjeta titulo="Crucigramas" valor={crossword.total} nota={`${crossword.finished} terminados`} />
-        <Tarjeta titulo="Jugadores en Ludo" valor={ludo.players} />
-        <Tarjeta titulo="Jugadores en Crucigrama" valor={crossword.players} />
-      </div>
+      <StatGrid>
+        <StatCard label="Partidas de Ludo" value={ludo.total} note={`${ludo.finished} terminadas`} />
+        <StatCard label="Crucigramas" value={crossword.total} note={`${crossword.finished} terminados`} />
+        <StatCard label="Jugadores en Ludo" value={ludo.players} />
+        <StatCard label="Jugadores en Crucigrama" value={crossword.players} />
+      </StatGrid>
 
-      <div className="tl-grid">
-        <section className="tl-box">
-          <h2>Victorias por equipo (Ludo)</h2>
+      <Grid>
+        <Card title="Victorias por equipo (Ludo)">
           {Object.keys(ludo.winsByColor).length === 0 ? (
-            <p className="tl-empty">Aún no hay partidas con ganador.</p>
+            <Empty>Aún no hay partidas con ganador.</Empty>
           ) : (
             Object.entries(COLORES).map(([k, c]) => {
               const n = ludo.winsByColor[k] || 0;
               return (
-                <div className="tl-row" key={k}>
-                  <span>
-                    <i className="tl-dot" style={{ background: c.hex }} />
-                    {c.nombre}
-                  </span>
-                  <b>{n}</b>
-                  <div className="tl-bar">
-                    <i style={{ width: `${(n / maxVictorias) * 100}%`, background: c.hex }} />
-                  </div>
-                </div>
+                <Row
+                  key={k}
+                  title={<Equipo color={k} />}
+                  end={<b>{n}</b>}
+                  bar={<Bar value={(n / maxVictorias) * 100} color={c.hex} />}
+                />
               );
             })
           )}
-        </section>
+        </Card>
 
-        <section className="tl-box">
-          <h2>Preguntas que más se fallan</h2>
+        <Card title="Preguntas que más se fallan">
           {ludo.hardQuestions.length === 0 ? (
-            <p className="tl-empty">Se mostrarán cuando una pregunta se haya jugado al menos 2 veces.</p>
+            <Empty>Se mostrarán cuando una pregunta se haya jugado al menos 2 veces.</Empty>
           ) : (
-            ludo.hardQuestions.map((q) => (
-              <div className="tl-row" key={q.id}>
-                <span>
-                  <b>{q.question}</b>
-                  <small>
-                    {q.topic} · {q.correct} de {q.asked} {q.asked === 1 ? "acierto" : "aciertos"}
-                  </small>
-                </span>
-                <span className={"tl-pill " + (q.pct < 40 ? "lose" : q.pct < 70 ? "warn" : "win")}>{q.pct}%</span>
-                <div className="tl-bar">
-                  <i className={q.pct < 40 ? "bad" : q.pct < 70 ? "mid" : "good"} style={{ width: `${q.pct}%` }} />
-                </div>
-              </div>
-            ))
+            ludo.hardQuestions.map((q) => {
+              const nivel = q.pct < 40 ? "bad" : q.pct < 70 ? "mid" : "good";
+              const chip = { bad: "lose", mid: "warn", good: "win" }[nivel];
+              return (
+                <Row
+                  key={q.id}
+                  title={q.question}
+                  detail={`${q.topic} · ${q.correct} de ${q.asked} ${q.asked === 1 ? "acierto" : "aciertos"}`}
+                  end={<Chip tone={chip}>{q.pct}%</Chip>}
+                  bar={<Bar value={q.pct} tone={nivel} />}
+                />
+              );
+            })
           )}
-        </section>
-      </div>
+        </Card>
+      </Grid>
 
-      <div className="tl-grid">
-        <section className="tl-box">
-          <h2>Últimas partidas de Ludo</h2>
+      <Grid>
+        <Card title="Últimas partidas de Ludo">
           {ludo.recent.length === 0 ? (
-            <p className="tl-empty">Todavía no has creado partidas de Ludo.</p>
+            <Empty>Todavía no has creado partidas de Ludo.</Empty>
           ) : (
             ludo.recent.map((g) => (
-              <div className="tl-row" key={g.code}>
-                <span>
-                  <b>{g.name}</b>
-                  <small>
-                    Código {g.code} · {fecha(g.created_at)} · {plural(g.players, "jugador", "jugadores")}
-                    {g.end_reason ? ` · ${MOTIVOS[g.end_reason]}` : ""}
-                  </small>
-                </span>
-                {g.phase !== "finished" ? (
-                  <span className="tl-pill warn">en curso</span>
-                ) : g.winner_team ? (
-                  <span className="tl-pill win">
-                    <i className="tl-dot" style={{ background: COLORES[g.winner_team]?.hex, marginRight: 5 }} />
-                    {COLORES[g.winner_team]?.nombre}
-                  </span>
-                ) : (
-                  <span className="tl-pill">sin ganador</span>
-                )}
-              </div>
+              <Row
+                key={g.code}
+                title={g.name}
+                detail={detallePartida(g)}
+                end={
+                  <Estado
+                    enCurso={g.phase !== "finished"}
+                    ganador={g.winner_team && <Equipo color={g.winner_team} />}
+                  />
+                }
+              />
             ))
           )}
-        </section>
+        </Card>
 
-        <section className="tl-box">
-          <h2>Crucigramas</h2>
+        <Card title="Crucigramas">
           {crossword.recent.length === 0 ? (
-            <p className="tl-empty">Todavía no has creado crucigramas.</p>
+            <Empty>Todavía no has creado crucigramas.</Empty>
           ) : (
             crossword.recent.map((g) => (
-              <div className="tl-row" key={g.code}>
-                <span>
-                  <b>{g.name}</b>
-                  <small>
-                    Código {g.code} · {fecha(g.created_at)} · {plural(g.players, "jugador", "jugadores")}
-                    {g.end_reason ? ` · ${MOTIVOS[g.end_reason]}` : ""}
-                  </small>
-                </span>
-                {g.status !== "ended" ? (
-                  <span className="tl-pill warn">{g.status === "playing" ? "en juego" : "en espera"}</span>
-                ) : g.winner ? (
-                  <span className="tl-pill win">{g.winner}</span>
-                ) : (
-                  <span className="tl-pill">sin ganador</span>
-                )}
-              </div>
+              <Row
+                key={g.code}
+                title={g.name}
+                detail={detallePartida(g)}
+                end={
+                  <Estado
+                    enCurso={g.status !== "ended"}
+                    textoEnCurso={g.status === "playing" ? "en juego" : "en espera"}
+                    ganador={g.winner}
+                  />
+                }
+              />
             ))
           )}
           {crossword.top.length > 0 && (
             <>
-              <h3 style={{ marginTop: 14 }}>Mejores puntajes</h3>
+              <h3>Mejores puntajes</h3>
               {crossword.top.map((p, i) => (
-                <div className="tl-row" key={p.name}>
-                  <span>
-                    <b>
-                      {i + 1}. {p.name}
-                    </b>
-                    <small>
-                      {p.games} {p.games === 1 ? "partida" : "partidas"}
-                    </small>
-                  </span>
-                  <span className="tl-pill">{p.best} pts</span>
-                </div>
+                <Row
+                  key={p.name}
+                  title={`${i + 1}. ${p.name}`}
+                  detail={`${p.games} ${p.games === 1 ? "partida" : "partidas"}`}
+                  end={<Chip>{p.best} pts</Chip>}
+                />
               ))}
             </>
           )}
-        </section>
-      </div>
+        </Card>
+      </Grid>
     </>
   );
 }
 
 // ------------------------------ ESTUDIANTE ------------------------------
+const Final = ({ enCurso, gano }) =>
+  enCurso ? <Chip tone="warn">en curso</Chip> : gano ? <Chip tone="win">Ganó</Chip> : <Chip>Terminó</Chip>;
+
 function VistaEstudiante({ d }) {
   const { summary, ludo, crossword } = d;
   const total = summary.correct + summary.incorrect;
   const pct = total ? Math.round((summary.correct / total) * 100) : 0;
   return (
     <>
-      <div className="tl-cards">
-        <Tarjeta titulo="Partidas jugadas" valor={summary.played} />
-        <Tarjeta titulo="Partidas ganadas" valor={summary.won} />
-        <Tarjeta titulo="Aciertos (Ludo)" valor={summary.correct} nota={`${summary.incorrect} fallos`} />
-        <Tarjeta titulo="Precisión" valor={total ? `${pct}%` : "—"} />
-      </div>
-      <div className="tl-grid">
-        <section className="tl-box">
-          <h2>Mis partidas de Ludo</h2>
+      <StatGrid>
+        <StatCard label="Partidas jugadas" value={summary.played} />
+        <StatCard label="Partidas ganadas" value={summary.won} />
+        <StatCard label="Aciertos (Ludo)" value={summary.correct} note={`${summary.incorrect} fallos`} />
+        <StatCard label="Precisión" value={total ? `${pct}%` : "—"} />
+      </StatGrid>
+      <Grid>
+        <Card title="Mis partidas de Ludo">
           {ludo.length === 0 ? (
-            <p className="tl-empty">Aquí aparecerán las partidas que juegues con tu cuenta iniciada.</p>
+            <Empty>Aquí aparecerán las partidas que juegues con tu cuenta iniciada.</Empty>
           ) : (
-            ludo.map((g) => {
-              const gano = g.phase === "finished" && g.winner_team === g.team;
-              return (
-                <div className="tl-row" key={g.code + g.created_at}>
-                  <span>
-                    <b>{g.name}</b>
-                    <small>
-                      <i className="tl-dot" style={{ background: COLORES[g.team]?.hex, width: 8, height: 8 }} />
-                      Equipo {COLORES[g.team]?.nombre} · {plural(g.correct, "acierto", "aciertos")},{" "}
-                      {plural(g.incorrect, "fallo", "fallos")} · {fecha(g.created_at)}
-                    </small>
-                  </span>
-                  {g.phase !== "finished" ? (
-                    <span className="tl-pill warn">en curso</span>
-                  ) : gano ? (
-                    <span className="tl-pill win">Ganó</span>
-                  ) : (
-                    <span className="tl-pill">Terminó</span>
-                  )}
-                </div>
-              );
-            })
-          )}
-        </section>
-        <section className="tl-box">
-          <h2>Mis crucigramas</h2>
-          {crossword.length === 0 ? (
-            <p className="tl-empty">Aquí aparecerán tus crucigramas jugados con tu cuenta.</p>
-          ) : (
-            crossword.map((g) => (
-              <div className="tl-row" key={g.code + g.created_at}>
-                <span>
-                  <b>{g.name}</b>
-                  <small>
-                    {plural(g.solved_count, "palabra", "palabras")} · {g.score} pts · {fecha(g.created_at)}
-                  </small>
-                </span>
-                {g.status !== "ended" ? (
-                  <span className="tl-pill warn">en curso</span>
-                ) : g.won ? (
-                  <span className="tl-pill win">Ganó</span>
-                ) : (
-                  <span className="tl-pill">Terminó</span>
-                )}
-              </div>
+            ludo.map((g) => (
+              <Row
+                key={g.code + g.created_at}
+                title={g.name}
+                detail={
+                  <>
+                    <Dot color={COLORES[g.team]?.hex} />
+                    Equipo {COLORES[g.team]?.nombre} · {plural(g.correct, "acierto", "aciertos")},{" "}
+                    {plural(g.incorrect, "fallo", "fallos")} · {fecha(g.created_at)}
+                  </>
+                }
+                end={
+                  <Final enCurso={g.phase !== "finished"} gano={g.phase === "finished" && g.winner_team === g.team} />
+                }
+              />
             ))
           )}
-        </section>
-      </div>
+        </Card>
+        <Card title="Mis crucigramas">
+          {crossword.length === 0 ? (
+            <Empty>Aquí aparecerán tus crucigramas jugados con tu cuenta.</Empty>
+          ) : (
+            crossword.map((g) => (
+              <Row
+                key={g.code + g.created_at}
+                title={g.name}
+                detail={`${plural(g.solved_count, "palabra", "palabras")} · ${g.score} pts · ${fecha(g.created_at)}`}
+                end={<Final enCurso={g.status !== "ended"} gano={g.won} />}
+              />
+            ))
+          )}
+        </Card>
+      </Grid>
     </>
   );
 }
 
-export function StatsPage({ user, goHome }) {
+export function StatsPage({ user }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
 
@@ -260,24 +233,19 @@ export function StatsPage({ user, goHome }) {
 
   const esDocente = user?.role === "docente";
   return (
-    <div className="app tl-page">
-      <header className="ref-topbar">
-        <Brand subtitle={esDocente ? "Estadísticas" : "Mis resultados"} onClick={goHome} />
-      </header>
-      <main className="tl-main">
-        <button className="tl-back" onClick={goHome}>
-          ← Volver al inicio
-        </button>
-        <h1 className="tl-title">{esDocente ? "Estadísticas de tus clases" : "Mis resultados"}</h1>
-        <p className="tl-sub">
-          {esDocente
+    <>
+      <PageHeader
+        eyebrow={esDocente ? "Docente" : "Estudiante"}
+        title={esDocente ? "Estadísticas de tus clases" : "Mis resultados"}
+        lead={
+          esDocente
             ? "Resumen de las partidas que has creado: quién ganó, cuántos jugaron y qué preguntas cuestan más."
-            : "Tu historial de partidas. Solo se guardan las que juegas con tu cuenta iniciada."}
-        </p>
-        {error && <div className="tl-error">{error}</div>}
-        {!data && !error && <div className="tl-loading">Cargando…</div>}
-        {data && (data.role === "docente" ? <VistaDocente d={data} /> : <VistaEstudiante d={data} />)}
-      </main>
-    </div>
+            : "Tu historial de partidas. Solo se guardan las que juegas con tu cuenta iniciada."
+        }
+      />
+      <Notice tone="error">{error}</Notice>
+      {!data && !error && <Loading />}
+      {data && (data.role === "docente" ? <VistaDocente d={data} /> : <VistaEstudiante d={data} />)}
+    </>
   );
 }

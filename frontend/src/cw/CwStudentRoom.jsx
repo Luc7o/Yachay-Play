@@ -1,6 +1,7 @@
 import { Marca } from "../campusUi";
 import { CwLeaderboard } from "./CwTeacherLive";
 import { CwBoardPlay } from "./CwBoardPlay";
+import { Button } from "../ui";
 
 // ============================================================================
 // CRUCIGRAMA · SALA DEL ESTUDIANTE (espera → jugando → resultados)
@@ -11,9 +12,9 @@ function Marco({ live, goHome, children }) {
     <div className="cp cp-proj stu-page">
       <header className="stu-top">
         <Marca onClick={goHome} label="Volver al inicio de YachayPlay" />
-        <button type="button" className="cp-btn ghost" onClick={goHome}>
+        <Button variant="ghost" onClick={goHome}>
           Salir
-        </button>
+        </Button>
       </header>
       <main className="stu-main">
         <span className="cp-eyebrow">Crucigrama relámpago · {live.name}</span>
@@ -98,9 +99,9 @@ export function CwStudentRoom({ live, now, myId, code, solvedMap, toasts, goHome
           <h2>Marcador final</h2>
           <CwLeaderboard board={live.leaderboard} showMedals />
         </div>
-        <button type="button" className="cp-btn primary lg" onClick={goHome}>
+        <Button size="lg" onClick={goHome}>
           Volver al inicio
-        </button>
+        </Button>
       </Marco>
     );
   }

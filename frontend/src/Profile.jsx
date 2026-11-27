@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Brand } from "./Brand";
 import { api, setToken } from "./api";
 import { reconnectSocket } from "./socket";
 import { TwoFactorSettings } from "./TwoFactorSettings";
+import { Button, Card, Chip, Empty, Field, Grid, Input, Loading, Notice, StatCard, StatGrid } from "./ui";
 import "./tools.css";
 
 const fecha = (v) => {
@@ -13,15 +13,9 @@ const fecha = (v) => {
   }
 };
 
-function Tarjeta({ titulo, valor, nota }) {
-  return (
-    <div className="tl-card">
-      <span>{titulo}</span>
-      <strong>{valor}</strong>
-      {nota && <small>{nota}</small>}
-    </div>
-  );
-}
+// Mensaje { tipo: "ok" | "error", texto } -> aviso
+const Mensaje = ({ msg }) => <Notice tone={msg.tipo === "ok" ? "ok" : "error"}>{msg.texto}</Notice>;
+const Acciones = ({ children }) => <div className="ui-actions">{children}</div>;
 
 // ------------------------- editar datos -------------------------
 function EditarDatos({ user, onUserUpdate }) {
@@ -43,19 +37,20 @@ function EditarDatos({ user, onUserUpdate }) {
     }
   }
   return (
-    <section className="tl-box tl-form">
-      <h2>Mis datos</h2>
-      {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
-      <label>Nombre</label>
-      <input type="text" maxLength={40} value={nombre} onChange={(e) => setNombre(e.target.value)} />
-      <label>Correo</label>
-      <input type="text" value={user.email} disabled title="El correo no se puede cambiar" />
-      <div className="tl-actions">
-        <button className="tl-btn orange" disabled={guardando || nombre.trim() === user.name} onClick={guardar}>
+    <Card title="Mis datos">
+      <Mensaje msg={msg} />
+      <Field label="Nombre" htmlFor="pf-nombre">
+        <Input id="pf-nombre" type="text" maxLength={40} value={nombre} onChange={(e) => setNombre(e.target.value)} />
+      </Field>
+      <Field label="Correo" htmlFor="pf-correo" hint="El correo no se puede cambiar.">
+        <Input id="pf-correo" type="text" value={user.email} disabled />
+      </Field>
+      <Acciones>
+        <Button disabled={guardando || nombre.trim() === user.name} onClick={guardar}>
           {guardando ? "Guardando…" : "Guardar nombre"}
-        </button>
-      </div>
-    </section>
+        </Button>
+      </Acciones>
+    </Card>
   );
 }
 
@@ -77,23 +72,18 @@ function CrearClavePorCorreo({ user }) {
     }
   }
   return (
-    <section className="tl-box tl-form">
-      <h2>Crear contraseña</h2>
-      <p className="ax-step">
+    <Card title="Crear contraseña">
+      <p className="ui-text">
         Tu cuenta entra con Google. Si quieres entrar también con tu correo y una contraseña, te enviamos un enlace a{" "}
         <b>{user.email}</b> para crearla.
       </p>
-      {msg.texto && (
-        <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"} role="status">
-          {msg.texto}
-        </div>
-      )}
-      <div className="tl-actions">
-        <button className="tl-btn" disabled={enviando} onClick={pedirEnlace}>
+      <Mensaje msg={msg} />
+      <Acciones>
+        <Button disabled={enviando} onClick={pedirEnlace}>
           {enviando ? "Enviando…" : "Enviar enlace a mi correo"}
-        </button>
-      </div>
-    </section>
+        </Button>
+      </Acciones>
+    </Card>
   );
 }
 
@@ -102,7 +92,6 @@ function CambiarClave({ user, onUserUpdate }) {
   const [actual, setActual] = useState("");
   const [nueva, setNueva] = useState("");
   const [repetir, setRepetir] = useState("");
-  const [codigo, setCodigo] = useState("");
   const [msg, setMsg] = useState({ tipo: "", texto: "" });
   const [guardando, setGuardando] = useState(false);
   // Cuenta creada con Google (sin contraseña): se crea con un enlace al correo. Va después de los hooks.
@@ -113,7 +102,7 @@ function CambiarClave({ user, onUserUpdate }) {
     if (nueva !== repetir) return setMsg({ tipo: "error", texto: "Las contraseñas nuevas no coinciden." });
     setGuardando(true);
     try {
-      const r = await api.profilePassword(actual, nueva, codigo || undefined);
+      const r = await api.profilePassword(actual, nueva);
       if (r.token) {
         setToken(r.token);
         reconnectSocket();
@@ -122,13 +111,7 @@ function CambiarClave({ user, onUserUpdate }) {
       setActual("");
       setNueva("");
       setRepetir("");
-      setCodigo("");
-      setMsg({
-        tipo: "ok",
-        texto: sinClave
-          ? "Contraseña creada. Ya puedes entrar con tu correo y contraseña, además de Google."
-          : "Contraseña cambiada.",
-      });
+      setMsg({ tipo: "ok", texto: "Contraseña cambiada." });
     } catch (e) {
       setMsg({ tipo: "error", texto: e.message });
     } finally {
@@ -136,49 +119,41 @@ function CambiarClave({ user, onUserUpdate }) {
     }
   }
   return (
-    <section className="tl-box tl-form">
-      <h2>{sinClave ? "Crear contraseña" : "Cambiar contraseña"}</h2>
-      {sinClave && (
-        <p className="ax-step">
-          Tu cuenta entra con Google. Si quieres, crea una contraseña para poder entrar también con tu correo.
-        </p>
-      )}
-      {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
-      {!sinClave && (
-        <>
-          <label>Contraseña actual</label>
-          <input
-            type="password"
-            autoComplete="current-password"
-            value={actual}
-            onChange={(e) => setActual(e.target.value)}
-          />
-        </>
-      )}
-      <label>Contraseña nueva (mínimo 8, con letras y números)</label>
-      <input type="password" autoComplete="new-password" value={nueva} onChange={(e) => setNueva(e.target.value)} />
-      <label>Repite la contraseña nueva</label>
-      <input type="password" autoComplete="new-password" value={repetir} onChange={(e) => setRepetir(e.target.value)} />
-      {sinClave && user.twoFactorEnabled && (
-        <>
-          <label>Código de tu app de autenticación</label>
-          <input
-            type="text"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={11}
-            placeholder="123456"
-            value={codigo}
-            onChange={(e) => setCodigo(e.target.value)}
-          />
-        </>
-      )}
-      <div className="tl-actions">
-        <button className="tl-btn" disabled={guardando || (!sinClave && !actual) || !nueva} onClick={guardar}>
-          {guardando ? "Guardando…" : sinClave ? "Crear contraseña" : "Cambiar contraseña"}
-        </button>
-      </div>
-    </section>
+    <Card title="Cambiar contraseña">
+      <Mensaje msg={msg} />
+      <Field label="Contraseña actual" htmlFor="pf-actual">
+        <Input
+          id="pf-actual"
+          type="password"
+          autoComplete="current-password"
+          value={actual}
+          onChange={(e) => setActual(e.target.value)}
+        />
+      </Field>
+      <Field label="Contraseña nueva" htmlFor="pf-nueva" hint="Mínimo 8 caracteres, con letras y números.">
+        <Input
+          id="pf-nueva"
+          type="password"
+          autoComplete="new-password"
+          value={nueva}
+          onChange={(e) => setNueva(e.target.value)}
+        />
+      </Field>
+      <Field label="Repite la contraseña nueva" htmlFor="pf-repetir">
+        <Input
+          id="pf-repetir"
+          type="password"
+          autoComplete="new-password"
+          value={repetir}
+          onChange={(e) => setRepetir(e.target.value)}
+        />
+      </Field>
+      <Acciones>
+        <Button disabled={guardando || !actual || !nueva} onClick={guardar}>
+          {guardando ? "Guardando…" : "Cambiar contraseña"}
+        </Button>
+      </Acciones>
+    </Card>
   );
 }
 
@@ -201,18 +176,17 @@ function VerificarCorreo({ user }) {
     }
   }
   return (
-    <section className="tl-box tl-form">
-      <h2>Confirma tu correo</h2>
-      <p className="ax-step">
+    <Card title="Confirma tu correo">
+      <p className="ui-text">
         Enviamos un enlace a <strong>{user.email}</strong>. Confírmalo para proteger tu cuenta y poder recuperarla.
       </p>
-      {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
-      <div className="tl-actions">
-        <button className="tl-btn" disabled={enviando} onClick={reenviar}>
+      <Mensaje msg={msg} />
+      <Acciones>
+        <Button disabled={enviando} onClick={reenviar}>
           {enviando ? "Enviando…" : "Reenviar enlace"}
-        </button>
-      </div>
-    </section>
+        </Button>
+      </Acciones>
+    </Card>
   );
 }
 
@@ -237,19 +211,18 @@ function Sesiones() {
     }
   }
   return (
-    <section className="tl-box tl-form">
-      <h2>Sesiones abiertas</h2>
-      <p className="ax-step">
+    <Card title="Sesiones abiertas">
+      <p className="ui-text">
         ¿Entraste desde un computador compartido o sospechas que alguien usa tu cuenta? Cierra la sesión en todos los
         demás dispositivos.
       </p>
-      {msg.texto && <div className={msg.tipo === "ok" ? "tl-ok" : "tl-error"}>{msg.texto}</div>}
-      <div className="tl-actions">
-        <button className="tl-btn ghost" disabled={cerrando} onClick={cerrarTodas}>
+      <Mensaje msg={msg} />
+      <Acciones>
+        <Button variant="ghost" disabled={cerrando} onClick={cerrarTodas}>
           {cerrando ? "Cerrando…" : "Cerrar las demás sesiones"}
-        </button>
-      </div>
-    </section>
+        </Button>
+      </Acciones>
+    </Card>
   );
 }
 
@@ -264,16 +237,15 @@ function Ranking() {
   }, []);
   if (!r)
     return (
-      <section className="tl-box">
-        <h2>Ranking de estudiantes</h2>
-        <p className="tl-empty">Cargando…</p>
-      </section>
+      <Card title="Ranking de estudiantes">
+        <Loading />
+      </Card>
     );
   const meFuera = r.me && !r.top.some((f) => f.me);
   const fila = (f) => (
-    <tr key={f.position} className={f.me ? "pf-me" : ""}>
+    <tr key={f.position} className={f.me ? "pfl-me" : ""}>
       <td>
-        <span className={"pf-pos" + (f.position <= 3 ? ` p${f.position}` : "")}>{f.position}</span>
+        <span className={"pfl-pos" + (f.position <= 3 ? ` p${f.position}` : "")}>{f.position}</span>
       </td>
       <td>
         <b>{f.name}</b>
@@ -287,15 +259,14 @@ function Ranking() {
     </tr>
   );
   return (
-    <section className="tl-box">
-      <h2>Ranking de estudiantes</h2>
+    <Card title="Ranking de estudiantes">
       {r.top.length === 0 ? (
-        <p className="tl-empty">
+        <Empty>
           Todavía no hay estudiantes en el ranking. Termina una partida con tu cuenta iniciada para aparecer.
-        </p>
+        </Empty>
       ) : (
         <div style={{ overflowX: "auto" }}>
-          <table className="pf-table">
+          <table className="pfl-table">
             <thead>
               <tr>
                 <th>#</th>
@@ -310,7 +281,7 @@ function Ranking() {
               {meFuera && (
                 <>
                   <tr>
-                    <td colSpan={5} style={{ textAlign: "center", color: "#94a3b8" }}>
+                    <td colSpan={5} className="pfl-gap">
                       ⋯
                     </td>
                   </tr>
@@ -321,15 +292,15 @@ function Ranking() {
           </table>
         </div>
       )}
-      <p className="pf-note">
+      <p className="pfl-note">
         Puntos = 10 por victoria + 2 por partida terminada. Solo cuentan partidas jugadas con tu cuenta iniciada.
       </p>
-    </section>
+    </Card>
   );
 }
 
 // ------------------------- página -------------------------
-export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQuestions }) {
+export function ProfilePage({ user, onUserUpdate, onOpenStats, onOpenQuestions }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
 
@@ -346,105 +317,90 @@ export function ProfilePage({ user, goHome, onUserUpdate, onOpenStats, onOpenQue
   const total = e ? e.correct + e.incorrect : 0;
 
   return (
-    <div className="app tl-page">
-      <header className="ref-topbar">
-        <Brand subtitle="Mi perfil" onClick={goHome} />
-      </header>
-      <main className="tl-main">
-        <button className="tl-back" onClick={goHome}>
-          ← Volver al inicio
-        </button>
-        {error && <div className="tl-error">{error}</div>}
+    <>
+      <Notice tone="error">{error}</Notice>
 
-        <div className="pf-head">
-          <div className="pf-avatar">{user.name.trim().charAt(0).toUpperCase()}</div>
-          <div className="pf-info">
-            <h1>{user.name}</h1>
-            <p>{user.email}</p>
-            <p>
-              <span className={"tl-pill " + (esDocente ? "" : "warn")}>{esDocente ? "Docente" : "Estudiante"}</span>
-              {data?.user.created_at && (
-                <span style={{ marginLeft: 8 }}>Miembro desde {fecha(data.user.created_at)}</span>
-              )}
-            </p>
-          </div>
-          {e && (
-            <div className="pf-rank">
-              <span>MI POSICIÓN</span>
-              <strong>{e.rank ? `#${e.rank}` : "—"}</strong>
-              <small>{e.rank ? `de ${e.totalRanked} estudiantes` : "juega para entrar"}</small>
-            </div>
-          )}
+      <div className="pfl-head">
+        <div className="pfl-avatar">{user.name.trim().charAt(0).toUpperCase()}</div>
+        <div className="pfl-info">
+          <h1>{user.name}</h1>
+          <p>{user.email}</p>
+          <p>
+            <Chip tone={esDocente ? "accent" : "warn"}>{esDocente ? "Docente" : "Estudiante"}</Chip>
+            {data?.user.created_at && <span className="pfl-desde">Miembro desde {fecha(data.user.created_at)}</span>}
+          </p>
         </div>
-
-        {!data && !error && <div className="tl-loading">Cargando…</div>}
-
-        {d && (
-          <>
-            <div className="tl-cards">
-              <Tarjeta titulo="Partidas de Ludo" valor={d.ludoGames} />
-              <Tarjeta titulo="Crucigramas" valor={d.crosswordGames} />
-              <Tarjeta titulo="Mis preguntas" valor={d.questions} />
-              <Tarjeta titulo="Estudiantes con cuenta" valor={d.students} nota="que jugaron en tus partidas" />
-            </div>
-            <div className="pf-links" style={{ marginBottom: 16 }}>
-              <button className="tl-btn ghost" onClick={onOpenStats}>
-                Ver mis estadísticas
-              </button>
-              <button className="tl-btn ghost" onClick={onOpenQuestions}>
-                Mis preguntas
-              </button>
-            </div>
-          </>
-        )}
-
         {e && (
-          <>
-            <div className="tl-cards">
-              <Tarjeta titulo="Puntos" valor={e.points} nota="10 por victoria + 2 por partida" />
-              <Tarjeta titulo="Victorias" valor={e.won} />
-              <Tarjeta titulo="Partidas terminadas" valor={e.played} />
-              <Tarjeta
-                titulo="Precisión (Ludo)"
-                valor={total ? `${Math.round((e.correct / total) * 100)}%` : "—"}
-                nota={total ? `${e.correct} de ${total} respuestas` : ""}
-              />
-            </div>
-            <section className="tl-box" style={{ marginBottom: 16 }}>
-              <h2>
-                Mis logros ({e.badges.filter((b) => b.unlocked).length}/{e.badges.length})
-              </h2>
-              <div className="pf-badges">
-                {e.badges.map((b) => (
-                  <div key={b.id} className={"pf-badge " + (b.unlocked ? "on" : "off")}>
-                    <i>{b.icon}</i>
-                    <span>
-                      <b>{b.name}</b>
-                      <small>{b.desc}</small>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-            <div className="pf-links" style={{ marginBottom: 16 }}>
-              <button className="tl-btn ghost" onClick={onOpenStats}>
-                Ver mi historial de partidas
-              </button>
-            </div>
-            <div style={{ marginBottom: 16 }}>
-              <Ranking />
-            </div>
-          </>
+          <div className="pfl-rank">
+            <span>MI POSICIÓN</span>
+            <strong>{e.rank ? `#${e.rank}` : "—"}</strong>
+            <small>{e.rank ? `de ${e.totalRanked} estudiantes` : "juega para entrar"}</small>
+          </div>
         )}
+      </div>
 
-        <div className="tl-grid">
-          <EditarDatos user={user} onUserUpdate={onUserUpdate} />
-          <VerificarCorreo user={user} />
-          <CambiarClave user={user} onUserUpdate={onUserUpdate} />
-          <TwoFactorSettings user={user} onUserUpdate={onUserUpdate} />
-          <Sesiones />
-        </div>
-      </main>
-    </div>
+      {!data && !error && <Loading />}
+
+      {d && (
+        <>
+          <StatGrid>
+            <StatCard label="Partidas de Ludo" value={d.ludoGames} />
+            <StatCard label="Crucigramas" value={d.crosswordGames} />
+            <StatCard label="Mis preguntas" value={d.questions} />
+            <StatCard label="Estudiantes con cuenta" value={d.students} note="que jugaron en tus partidas" />
+          </StatGrid>
+          <Acciones>
+            <Button variant="ghost" onClick={onOpenStats}>
+              Ver mis estadísticas
+            </Button>
+            <Button variant="ghost" onClick={onOpenQuestions}>
+              Mis preguntas
+            </Button>
+          </Acciones>
+        </>
+      )}
+
+      {e && (
+        <>
+          <StatGrid>
+            <StatCard label="Puntos" value={e.points} note="10 por victoria + 2 por partida" />
+            <StatCard label="Victorias" value={e.won} />
+            <StatCard label="Partidas terminadas" value={e.played} />
+            <StatCard
+              label="Precisión (Ludo)"
+              value={total ? `${Math.round((e.correct / total) * 100)}%` : "—"}
+              note={total ? `${e.correct} de ${total} respuestas` : ""}
+            />
+          </StatGrid>
+          <Card title={`Mis logros (${e.badges.filter((b) => b.unlocked).length}/${e.badges.length})`}>
+            <div className="pfl-badges">
+              {e.badges.map((b) => (
+                <div key={b.id} className={"pfl-badge " + (b.unlocked ? "on" : "off")}>
+                  <i>{b.icon}</i>
+                  <span>
+                    <b>{b.name}</b>
+                    <small>{b.desc}</small>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+          <Acciones>
+            <Button variant="ghost" onClick={onOpenStats}>
+              Ver mi historial de partidas
+            </Button>
+          </Acciones>
+          <Ranking />
+        </>
+      )}
+
+      <Grid className="pfl-forms">
+        <EditarDatos user={user} onUserUpdate={onUserUpdate} />
+        <VerificarCorreo user={user} />
+        <CambiarClave user={user} onUserUpdate={onUserUpdate} />
+        <TwoFactorSettings user={user} onUserUpdate={onUserUpdate} />
+        <Sesiones />
+      </Grid>
+    </>
   );
 }

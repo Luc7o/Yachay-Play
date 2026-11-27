@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { IconoEnLinea } from "./campusUi";
 import {
   BASE_COUNT,
   checkWord,
@@ -12,7 +13,7 @@ import { OnlineRoom, OnlineSetup } from "./palabra/PalabraOnline";
 import "./palabraRelampago.css";
 
 const COLORS = ["#17c7b5", "#4388ff", "#b18aff", "#ffc15d", "#f383a6", "#6ac9de", "#a4d75c", "#e1a7ff"];
-const DEFAULT_TEAMS = "Equipo Menta, Equipo Azul, Equipo Violeta";
+const DEFAULT_TEAMS = "Equipo 1, Equipo 2, Equipo 3";
 const parseNames = (value) =>
   [
     ...new Set(
@@ -272,7 +273,8 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
                 setMessage("");
               }}
             >
-              👤 Individual
+              <IconoEnLinea nombre="persona" />
+              Individual
             </button>
             <button
               type="button"
@@ -282,7 +284,8 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
                 setMessage("");
               }}
             >
-              👥 Equipos (una pantalla)
+              <IconoEnLinea nombre="grupo" />
+              Equipos (una pantalla)
             </button>
             <button
               type="button"
@@ -424,7 +427,7 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
           )}
           {mode === "individual" && (
             <button className="pr-primary" onClick={startSolo}>
-              Empezar contrarreloj ⚡
+              Empezar contrarreloj
             </button>
           )}
           {mode === "team" && (
@@ -563,7 +566,10 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
             </button>
           </section>
           <aside className="pr-panel pr-scores">
-            <h2>🏆 Clasificación</h2>
+            <h2>
+              <IconoEnLinea nombre="trofeo" />
+              Clasificación
+            </h2>
             {sorted.map((p, i) => (
               <div className={"pr-player " + (p.id === active?.id ? "pr-current" : "")} key={p.id}>
                 <span className="pr-score-dot" style={{ background: p.color }} />
@@ -590,7 +596,9 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
       )}
       {phase === "finished" && (
         <section className="pr-panel pr-finish">
-          <div className="pr-burst">🏆</div>
+          <div className="pr-burst">
+            <IconoEnLinea nombre="trofeo" />
+          </div>
           <h2>¡Partida terminada!</h2>
           <p>
             {sorted.filter((p) => p.score === winner?.score).length > 1 ? "Empate en el primer lugar" : "Ganador"}:{" "}

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { IconoEnLinea } from "./campusUi";
 import { Brand } from "./Brand";
 import { prepararAudio, nota } from "./herramientasAudio";
 import "./herramientas.css";
@@ -423,7 +424,7 @@ export function Ruleta({ goHome }) {
     const items = [...pool];
     setOcupada(true);
     setResaltado(-1);
-    setResultado({ etiqueta: "Girando…", texto: "🎡", clave: Date.now(), gano: false });
+    setResultado({ etiqueta: "Girando…", texto: "…", clave: Date.now(), gano: false });
 
     const seg = TAU / n;
     const elegido = azarEntero(n);
@@ -631,7 +632,8 @@ export function Ruleta({ goHome }) {
               className={"hr-tab" + (pestana === "ruleta" ? " on" : "")}
               onClick={() => setPestana("ruleta")}
             >
-              🎡 Ruleta
+              <IconoEnLinea nombre="ruleta" />
+              Ruleta
             </button>
             <button
               role="tab"
@@ -639,7 +641,8 @@ export function Ruleta({ goHome }) {
               className={"hr-tab" + (pestana === "repartir" ? " on" : "")}
               onClick={() => setPestana("repartir")}
             >
-              🎲 Repartir listas
+              <IconoEnLinea nombre="dados" />
+              Repartir listas
             </button>
             <button
               role="tab"
@@ -647,7 +650,8 @@ export function Ruleta({ goHome }) {
               className={"hr-tab" + (pestana === "grupos" ? " on" : "")}
               onClick={() => setPestana("grupos")}
             >
-              👥 Formar grupos
+              <IconoEnLinea nombre="grupo" />
+              Formar grupos
             </button>
           </div>
           <span className="hr-tools">
@@ -710,7 +714,8 @@ export function Ruleta({ goHome }) {
                     ➕ Nueva
                   </button>
                   <button className="hr-btn hr-sm" disabled={ocupada} onClick={borrarLista}>
-                    🗑️ Borrar
+                    <IconoEnLinea nombre="basura" />
+                    Borrar
                   </button>
                 </div>
 
@@ -782,7 +787,7 @@ export function Ruleta({ goHome }) {
                 </div>
               </div>
               <button className="hr-btn hr-primary hr-grande" disabled={ocupada || sinElementos} onClick={girar}>
-                🎯 Girar
+                Girar
               </button>
             </section>
 
@@ -891,7 +896,8 @@ export function Ruleta({ goHome }) {
                 </div>
                 <div className="hr-row">
                   <button className="hr-btn hr-sm" onClick={copiarTabla}>
-                    📋 Copiar tabla
+                    <IconoEnLinea nombre="lista" />
+                    Copiar tabla
                   </button>
                 </div>
               </>
@@ -974,7 +980,7 @@ export function Ruleta({ goHome }) {
                   {grupos.map((g) => (
                     <article key={g.n} className="hr-grupo">
                       <h3>Grupo {g.n}</h3>
-                      {g.tema && <p className="hr-grupo-tema">📌 {g.tema}</p>}
+                      {g.tema && <p className="hr-grupo-tema">Tema: {g.tema}</p>}
                       <ul>
                         {g.miembros.map((m, i) => (
                           <li key={i}>
@@ -988,7 +994,8 @@ export function Ruleta({ goHome }) {
                 </div>
                 <div className="hr-row">
                   <button className="hr-btn hr-sm" onClick={copiarGrupos}>
-                    📋 Copiar grupos
+                    <IconoEnLinea nombre="lista" />
+                    Copiar grupos
                   </button>
                   <button className="hr-btn hr-sm" onClick={formarGrupos}>
                     🔁 Volver a sortear

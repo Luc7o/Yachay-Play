@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { IconoEnLinea } from "../campusUi";
 import { api } from "../api";
 import { socket } from "../socket";
 import { conClaseDestino, limpiarClaseDestino, useClaseDestino } from "../claseDestino";
@@ -149,14 +150,16 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
                 className={crear.mode === "individual" ? "chosen" : ""}
                 onClick={() => set("mode", "individual")}
               >
-                👤 Cada quien por su cuenta
+                <IconoEnLinea nombre="persona" />
+                Cada quien por su cuenta
               </button>
               <button
                 type="button"
                 className={crear.mode === "equipos" ? "chosen" : ""}
                 onClick={() => set("mode", "equipos")}
               >
-                👥 Por equipos
+                <IconoEnLinea nombre="grupo" />
+                Por equipos
               </button>
             </div>
             <div className="pr-config">
@@ -453,7 +456,7 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
         <div className="pf-center">
           <section className="pf-card">
             <div style={{ fontSize: 54 }} aria-hidden="true">
-              🏆
+              <IconoEnLinea nombre="trofeo" />
             </div>
             <h2>¡Partida terminada!</h2>
             {lider && (
@@ -566,7 +569,10 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
       }
       side={
         <>
-          <h2>🏆 Clasificación</h2>
+          <h2>
+            <IconoEnLinea nombre="trofeo" />
+            Clasificación
+          </h2>
           {[...state.entities]
             .sort((a, b) => b.score - a.score || b.lives - a.lives)
             .map((e) => (

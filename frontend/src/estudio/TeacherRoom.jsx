@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { IconoEnLinea } from "../campusUi";
 import { socket } from "../socket";
 import { emitConTiempoLimite } from "../cw/helpers";
 import { Brand } from "../Brand";
@@ -187,7 +188,8 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
         <div className="es-top-r">
           <ThemeToggle />
           <button className="es-btn ghost" onClick={onSalas}>
-            📋 Mis salas
+            <IconoEnLinea nombre="lista" />
+            Mis salas
           </button>
           <button className="es-btn ghost" onClick={onExit}>
             ← Volver al inicio
@@ -238,13 +240,30 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
                     ↺ Reabrir para continuar
                   </button>
                   <button className="es-btn danger" onClick={eliminar} disabled={eliminando}>
-                    {eliminando ? "Eliminando…" : "🗑 Eliminar sala"}
+                    {eliminando ? (
+                      "Eliminando…"
+                    ) : (
+                      <>
+                        <IconoEnLinea nombre="basura" />
+                        Eliminar sala
+                      </>
+                    )}
                   </button>
                 </>
               ) : (
                 <>
                   <button className="es-btn" onClick={() => accion("ss:lock", { locked: !room.locked })}>
-                    {room.locked ? "🔓 Permitir editar" : "🔒 Bloquear edición"}
+                    {room.locked ? (
+                      <>
+                        <IconoEnLinea nombre="abierto" />
+                        Permitir editar
+                      </>
+                    ) : (
+                      <>
+                        <IconoEnLinea nombre="candado" />
+                        Bloquear edición
+                      </>
+                    )}
                   </button>
                   <button className="es-btn danger" onClick={cerrar}>
                     ⏹ Cerrar sala

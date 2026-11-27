@@ -158,7 +158,7 @@ export function CrosswordGame({
       const labelYo = { freeze: "Congelaste a", fog: "Le pusiste niebla a", steal: "Le robaste puntos a" }[r.type];
       const nombre = (id) => liveRef.current?.leaderboard?.find((p) => p.id === id)?.name || "alguien";
       let texto = null;
-      if (soyYo) texto = `⚠️ ${nombre(r.sourceId)} ${label}`;
+      if (soyYo) texto = `${nombre(r.sourceId)} ${label}`;
       else if (fuiYo) texto = `${labelYo} ${nombre(r.targetId)}` + (r.stolen ? ` (+${r.stolen} pts)` : "");
       if (texto) {
         const id = Math.random();

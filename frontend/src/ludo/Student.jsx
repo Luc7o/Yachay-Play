@@ -4,7 +4,6 @@ import { Dice } from "./Dice";
 import { describeMove } from "./GameTab";
 import { LudoBoard } from "./LudoBoard";
 
-
 // ============================================================================
 // LUDO · PANTALLAS DEL ESTUDIANTE (celular) — diseño "Campus" (campusJuegos.css, "stu")
 //   StudentJoin     escribir el código, el nombre y elegir equipo (sigue el tema de la app)

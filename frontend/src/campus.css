@@ -2076,3 +2076,39 @@
 .cp-cta .cp-btn:hover {
   background: #f7b898;
 }
+
+/* Ícono de trazo dentro de un texto o botón (reemplaza a los emojis) */
+.ui-ico-inline {
+  display: inline-flex;
+  vertical-align: -0.15em;
+  margin-right: 0.35em;
+}
+.ui-ico-inline svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+/* Portada: las 5 actividades. 5 columnas en escritorio, 3 + 2 en tablet, 1 en celular */
+.cp-grid.cp-grid-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+@media (max-width: 1100px) {
+  .cp-grid.cp-grid-5 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .cp-grid.cp-grid-5 > * {
+    grid-column: span 2;
+  }
+  .cp-grid.cp-grid-5 > :nth-child(4) {
+    grid-column: 2 / span 2;
+  }
+}
+@media (max-width: 640px) {
+  .cp-grid.cp-grid-5 {
+    grid-template-columns: 1fr;
+  }
+  .cp-grid.cp-grid-5 > *,
+  .cp-grid.cp-grid-5 > :nth-child(4) {
+    grid-column: auto;
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { IconoEnLinea } from "./campusUi";
 import { Brand } from "./Brand";
 import { prepararAudio, nota } from "./herramientasAudio";
 import { cronometro, useCronometro } from "./cronometroStore";
@@ -393,7 +394,17 @@ export function Cronometro({ goHome }) {
           <div className="hr-activity-wrap">
             {!limpio && (
               <span className="hr-activity-label" aria-hidden="true">
-                {esExpo ? "🎤 Turno actual" : "✏️ Actividad para los alumnos"}
+                {esExpo ? (
+                  <>
+                    <IconoEnLinea nombre="microfono" />
+                    Turno actual
+                  </>
+                ) : (
+                  <>
+                    <IconoEnLinea nombre="lapiz" />
+                    Actividad para los alumnos
+                  </>
+                )}
               </span>
             )}
             <textarea
@@ -452,7 +463,8 @@ export function Cronometro({ goHome }) {
               disabled={bloqueado}
               onClick={() => setModo("simple")}
             >
-              ⏱ Simple
+              <IconoEnLinea nombre="cronometro" />
+              Simple
             </button>
             <button
               className={"hr-chip" + (esExpo ? " on" : "")}
@@ -460,7 +472,8 @@ export function Cronometro({ goHome }) {
               disabled={bloqueado}
               onClick={() => setModo("expo")}
             >
-              🎤 Exposiciones
+              <IconoEnLinea nombre="microfono" />
+              Exposiciones
             </button>
           </div>
 
@@ -582,7 +595,7 @@ export function Cronometro({ goHome }) {
                 disabled={!turnos.length || estado === "idle"}
                 title="Tecla N"
               >
-                {hayMas ? "⏭ Siguiente" : "🏁 Terminar"}
+                {hayMas ? "⏭ Siguiente" : "Terminar"}
               </button>
             )}
             <button className="hr-btn" onClick={reiniciar}>
@@ -657,7 +670,7 @@ export function Cronometro({ goHome }) {
               title={hayMas ? "Siguiente (N)" : "Terminar (N)"}
               onClick={siguiente}
             >
-              {hayMas ? "⏭" : "🏁"}
+              {hayMas ? "⏭" : "■"}
             </button>
           )}
           {estado !== "idle" && (

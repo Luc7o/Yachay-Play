@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { IconoEnLinea } from "../campusUi";
 import { conClaseDestino, limpiarClaseDestino } from "../claseDestino";
 import { API_URL, getToken } from "../api";
 import { socket } from "../socket";
@@ -484,7 +485,8 @@ function VistaDocente({ sala, onNueva }) {
     <section className="qz-vivo">
       <div className="qz-barra-sup">
         <span>
-          <b>{st.name}</b> · código <b className="qz-codigo-mini">{code}</b> · 👥 {st.players}
+          <b>{st.name}</b> · código <b className="qz-codigo-mini">{code}</b> · <IconoEnLinea nombre="grupo" />
+          {st.players}
         </span>
         {st.status !== "ended" && (
           <button
@@ -564,7 +566,7 @@ function VistaDocente({ sala, onNueva }) {
               </button>
             )}
             <button className="hr-btn hr-primary" onClick={() => accion("qz:next")}>
-              {ultima ? "🏁 Ver resultados" : "⏭ Siguiente pregunta"}
+              {ultima ? "Ver resultados" : "Siguiente pregunta"}
             </button>
           </div>
         </div>
@@ -745,7 +747,8 @@ function VistaAlumno({ alumno, onSalir }) {
     <section className="qz-alumno">
       <div className="qz-barra-sup">
         <span>
-          👤 <b>{name}</b>
+          <IconoEnLinea nombre="persona" />
+          <b>{name}</b>
           {st.me && st.status !== "lobby" ? ` · ${st.me.score} pts` : ""}
         </span>
         <button className="hr-link" onClick={onSalir}>
@@ -757,7 +760,10 @@ function VistaAlumno({ alumno, onSalir }) {
         <div className="hr-card qz-espera">
           <h2>¡Listo, {name}!</h2>
           <p className="hr-muted">Espera a que tu docente inicie la evaluación…</p>
-          <p className="qz-cuenta-j">👥 {st.players} conectados</p>
+          <p className="qz-cuenta-j">
+            <IconoEnLinea nombre="grupo" />
+            {st.players} conectados
+          </p>
         </div>
       )}
 
@@ -804,9 +810,7 @@ function VistaAlumno({ alumno, onSalir }) {
           {st.status === "question" && elegida != null && (
             <p className="qz-estado">✅ Respuesta enviada. Espera a tus compañeros…</p>
           )}
-          {st.status === "question" && elegida == null && seg === 0 && (
-            <p className="qz-estado">⏰ Se acabó el tiempo</p>
-          )}
+          {st.status === "question" && elegida == null && seg === 0 && <p className="qz-estado">Se acabó el tiempo</p>}
           {st.status === "reveal" && (
             <p className={"qz-estado grande " + (elegida === st.question.correct ? "bien" : "mal")}>
               {elegida == null
@@ -822,7 +826,7 @@ function VistaAlumno({ alumno, onSalir }) {
 
       {st.status === "ended" && (
         <div className="hr-card qz-espera">
-          <h2>🏁 ¡Evaluación terminada!</h2>
+          <h2>¡Evaluación terminada!</h2>
           <p className="qz-final">{st.me?.rank ? `Puesto ${st.me.rank} de ${st.players}` : ""}</p>
           <p className="qz-final-pts">{st.me?.score ?? 0} puntos</p>
           {st.top?.length > 0 && (

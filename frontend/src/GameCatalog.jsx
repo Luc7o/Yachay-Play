@@ -56,7 +56,6 @@ export const JUEGOS = [
     estudiante: "Unirme con código",
   },
 ];
-const PROXIMAMENTE = ["Quiz", "Sí o No", "Sopa de letras", "Memoria", "Ordenar frases"];
 
 const HERRAMIENTAS = [
   {
@@ -409,9 +408,6 @@ function HomeLogged({
         </div>
         <div className="cp-tiles">
           {tilesJuegos}
-          {PROXIMAMENTE.map((n) => (
-            <Tile key={n} title={n} desc="Próximamente." disabled extra={<span className="cp-chip">Pronto</span>} />
-          ))}
         </div>
       </div>
     ),
@@ -681,10 +677,10 @@ function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegist
           <div className="cp-wrap">
             <div className="cp-section-head">
               <h2 id="cp-juegos-t">Actividades para la clase</h2>
-              <p>Más actividades en camino: {PROXIMAMENTE.slice(0, 3).join(", ").toLowerCase()} y otras.</p>
+              <p>Juegos en vivo y herramientas para dinamizar la clase, desde el proyector y el celular.</p>
             </div>
-            <div className="cp-grid cp-grid-4">
-              {JUEGOS.slice(0, 4).map((g) => (
+            <div className="cp-grid cp-grid-5">
+              {JUEGOS.map((g) => (
                 <div className={`cp-card cp-game tono-${g.id}`} key={g.id}>
                   <span className="cp-ico">
                     <g.icono />

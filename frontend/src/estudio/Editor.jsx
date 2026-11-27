@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { IconoEnLinea } from "../campusUi";
 import {
   W,
   H,
@@ -652,7 +653,8 @@ export function Editor({
           ◯ Círculo
         </button>
         <button className="es-t" disabled={bloqueado} onClick={() => fileRef.current?.click()}>
-          🖼 Imagen
+          <IconoEnLinea nombre="imagen" />
+          Imagen
         </button>
         <input
           ref={fileRef}
@@ -767,7 +769,8 @@ export function Editor({
               ⧉ Duplicar
             </button>
             <button className="es-t es-del" onClick={borrar}>
-              🗑 Borrar
+              <IconoEnLinea nombre="basura" />
+              Borrar
             </button>
           </>
         )}
@@ -816,7 +819,7 @@ export function Editor({
                     disabled={deck.slides.length <= 1}
                     aria-label="Borrar diapositiva"
                   >
-                    🗑
+                    <IconoEnLinea nombre="basura" />
                   </button>
                 </div>
               )}

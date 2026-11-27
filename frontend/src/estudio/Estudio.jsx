@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { IconoEnLinea } from "../campusUi";
 import { conClaseDestino, limpiarClaseDestino } from "../claseDestino";
 import { API_URL, getToken } from "../api";
 import { socket } from "../socket";
@@ -315,7 +316,8 @@ function Crear({ goHome, onCrear, cargando, onSalas }) {
       extra={
         onSalas && (
           <button className="es-btn ghost" onClick={onSalas}>
-            📋 Mis salas
+            <IconoEnLinea nombre="lista" />
+            Mis salas
           </button>
         )
       }
@@ -471,7 +473,8 @@ function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
                   </button>
                   {cerrada && (
                     <button className="es-btn danger" disabled={!!ocupada} onClick={() => eliminar(s)}>
-                      🗑 Eliminar
+                      <IconoEnLinea nombre="basura" />
+                      Eliminar
                     </button>
                   )}
                 </div>
@@ -806,7 +809,7 @@ function SalaAlumno({ session, initial, onSalir }) {
     : cerrada
       ? "El docente cerró la sala. Puedes ver y presentar tu trabajo."
       : room.locked
-        ? "🔒 El docente bloqueó la edición por ahora. Puedes mirar."
+        ? "El docente bloqueó la edición por ahora. Puedes mirar."
         : error;
 
   return (

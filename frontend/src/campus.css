@@ -207,8 +207,7 @@
 }
 .cp h1,
 .cp h2,
-.cp h3,
-.cp-display {
+.cp h3 {
   font-family: var(--cp-display);
   letter-spacing: -0.03em;
   font-weight: 600;
@@ -1053,7 +1052,6 @@
     width: auto;
     white-space: nowrap;
   }
-  .cp-side-group,
   .cp-side-label {
     display: none;
   }
@@ -1285,7 +1283,7 @@
   color: #f2a07b;
 }
 .cp-auth-side-copy li svg {
-  color: #f2a07b !important;
+  color: #f2a07b;
 }
 .cp-auth-side-copy {
   margin: auto 0;
@@ -2152,19 +2150,6 @@
   }
 }
 /* Actividades: 4 tarjetas -> 4 columnas en escritorio y 2x2 en tablet (sin tarjeta huérfana) */
-.cp-grid.cp-grid-4 {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-@media (max-width: 1100px) {
-  .cp-grid.cp-grid-4 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 560px) {
-  .cp-grid.cp-grid-4 {
-    grid-template-columns: 1fr;
-  }
-}
 /* Cabecera pública en celular: si los botones bajan a otra fila, ocupan el ancho completo */
 @media (max-width: 640px) {
   .cp-pubauth {

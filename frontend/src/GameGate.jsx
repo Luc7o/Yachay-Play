@@ -25,7 +25,6 @@ export function GameGate({
   description,
   tags = [],
   stats = [], // [{ value, label }]
-  mascot, // (ya no se muestra: diseño "Campus" sin mascota)
   preview, // vista previa del juego (LudoPreview / CrosswordPreview)
   loginPoints = [],
   registerPoints = [],

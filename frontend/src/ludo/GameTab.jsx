@@ -5,7 +5,7 @@ import { LudoBoard } from "./LudoBoard";
 import { Button } from "../ui";
 
 // Texto que explica en qué momento del turno estamos (lo ven docente y alumnos)
-export function phaseMessage({ turnPhase, currentTeam, phaseSeconds, dice, rolledBy, lastResult }) {
+export function phaseMessage({ turnPhase, currentTeam, phaseSeconds, lastResult }) {
   const equipo = COLORS[currentTeam].name;
   switch (turnPhase) {
     case "roll":
@@ -26,7 +26,6 @@ export function phaseMessage({ turnPhase, currentTeam, phaseSeconds, dice, rolle
 }
 
 export function GameTab({
-  gameName,
   currentTeam,
   dice,
   turnPhase,

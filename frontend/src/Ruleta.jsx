@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { IconoEnLinea } from "./campusUi";
 import { Brand } from "./Brand";
 import { prepararAudio, nota } from "./herramientasAudio";
@@ -294,7 +294,8 @@ export function Ruleta({ goHome }) {
   const [resaltado, setResaltado] = useState(-1);
 
   const activa = listas.find((l) => l.id === activaId) || listas[0];
-  const pool = pools[activa.id] || [];
+  // useMemo: sin él, una lista vacía sería un [] nuevo en cada render y la ruleta se redibujaría sin parar
+  const pool = useMemo(() => pools[activa.id] || [], [pools, activa.id]);
   const historial = historiales[activa.id] || [];
 
   const poolsRef = useRef(pools); // copia siempre actual (para leerla dentro de temporizadores)

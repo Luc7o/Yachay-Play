@@ -9,7 +9,7 @@ export default [
     files: ["**/*.js"],
     languageOptions: { ecmaVersion: "latest", sourceType: "module", globals: { ...globals.node } },
     rules: {
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_", caughtErrors: "none" }],
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_", caughtErrors: "none", ignoreRestSiblings: true }],
       "no-empty": ["warn", { allowEmptyCatch: true }],
     },
   },

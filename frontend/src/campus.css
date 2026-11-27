@@ -2121,3 +2121,15 @@
 .ui-ico-inline:only-child {
   margin-right: 0;
 }
+
+/* Login / registro en pantallas de 901 a ~1000 px: el panel lateral se encoge en vez de empujar
+   el formulario debajo (antes quedaba una columna vacía y había que bajar para ver el formulario). */
+@media (min-width: 901px) {
+  .cp-auth {
+    flex-wrap: nowrap;
+  }
+  .cp-auth-side {
+    flex: 0 1 420px;
+    min-width: 300px;
+  }
+}

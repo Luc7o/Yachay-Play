@@ -29,6 +29,7 @@ import { rooms as crosswordRooms } from "./crossword/engine.js";
 import { rooms as slidesRooms } from "./slides/engine.js";
 import { classesRouter, claseDelDocente } from "./classes/routes.js";
 import { registrarFuente } from "./classes/live.js";
+import { crearReloj } from "./live/reloj.js";
 import { palabraRouter } from "./palabra/routes.js";
 import { attachPalabraSocket, palabraTick } from "./palabra/sockets.js";
 import { purgeOldRooms as purgeOldPalabra, rooms as palabraRooms } from "./palabra/engine.js";
@@ -938,8 +939,13 @@ setInterval(() => {
 
 // El reloj del crucigrama es independiente del de Ludo (partidas distintas, ambas en memoria).
 setInterval(() => crosswordTick(io), 1000);
-setInterval(() => quizTick(io), 1000); // reloj de la Evaluación rápida
+
 setInterval(() => palabraTick(io), 500); // reloj de Palabra relámpago (medio segundo: turnos más precisos)
+
+// Un solo reloj para los juegos en vivo: cada uno registra su tick con su periodo (ver live/reloj.js).
+const reloj = crearReloj();
+reloj.registrar("evaluación rápida", 1000, () => quizTick(io));
+reloj.iniciar();
 
 // Limpieza cada 10 min: las partidas de más de 12 h salen de la memoria (el Map crecía sin límite).
 setInterval(

@@ -37,3 +37,32 @@ export function crearGuardDueno(mensajes, opciones = {}) {
     return motivo ? textos[motivo] : null;
   };
 }
+
+// Atajo para los eventos de socket que solo puede disparar el anfitrión (iniciar,
+// pasar, terminar...). Hace siempre lo mismo: busca la sala, revisa que quien
+// llama sea el dueño, ejecuta la acción, responde por `ack` y avisa a la sala.
+//
+//   const anfitrion = crearAccionesDeAnfitrion(socket, {
+//     buscar: ({ code }) => getRoom(code),         // payload -> sala | null
+//     noExiste: "No existe esa evaluación.",
+//     problema: (room) => problemaDeDueno(socket.data.user, room),
+//     despues: (room) => broadcast(io, room.code), // solo si la acción salió bien
+//   });
+//   anfitrion("qz:start", start);
+//
+// La acción recibe (sala, payload) y devuelve { error } o algo más (o nada); el
+// `ack` recibe { error } o { ok: true, ...lo que devolvió }.
+export function crearAccionesDeAnfitrion(socket, { buscar, noExiste, problema, despues }) {
+  return (evento, accion) =>
+    socket.on(evento, (payload, ack) => {
+      const datos = payload && typeof payload === "object" ? payload : {};
+      const sala = buscar(datos);
+      if (!sala) return ack?.({ error: noExiste });
+      const p = problema(sala);
+      if (p) return ack?.({ error: p });
+      const r = accion(sala, datos);
+      if (r?.error) return ack?.({ error: r.error });
+      ack?.({ ok: true, ...(r || {}) });
+      despues?.(sala, r, datos);
+    });
+}

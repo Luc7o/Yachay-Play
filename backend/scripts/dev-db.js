@@ -35,6 +35,24 @@ await new Promise((resolve, reject) => {
   p.on("exit", (code) => (code === 0 ? resolve() : reject(new Error(`migrate terminó con código ${code}`))));
 });
 
+// Con DEV_DB_BACKEND=1 también arranca el backend contra esta base (lo usan las pruebas E2E).
+// Toma PORT y CORS_ORIGIN del entorno.
+if (process.env.DEV_DB_BACKEND === "1") {
+  const backend = spawn(process.execPath, ["server.js"], {
+    cwd: BACKEND,
+    env: {
+      NODE_ENV: "development",
+      SEED_DEMO_USERS: "true",
+      AUTH_SECRET: "dev-local-solo-pruebas-e2e",
+      TRUST_PROXY: "0",
+      ...process.env,
+      DATABASE_URL: URL,
+    },
+    stdio: "inherit",
+  });
+  backend.on("exit", (code) => process.exit(code ?? 0));
+}
+
 console.log("\nArranca el backend en otra terminal con:");
 console.log(
   `  DATABASE_URL=${URL} SEED_DEMO_USERS=true AUTH_SECRET=dev-local-solo-pruebas NODE_ENV=development npm run dev`,

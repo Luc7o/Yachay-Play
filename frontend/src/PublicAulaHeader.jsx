@@ -19,10 +19,18 @@ export function PublicAulaHeader({ activePage = null, onNavigate, onLogin, onReg
         <a className="cp-brand" href="#/inicio" onClick={() => onNavigate?.("inicio")} aria-label="YachayPlay, inicio">
           <svg viewBox="0 0 32 32" aria-hidden="true">
             <rect x="1" y="1" width="30" height="30" rx="8" fill="var(--cp-logo-bg)" />
-            <path d="M8 9h4v4h4v4h4v-4h4V9" fill="none" stroke="var(--cp-logo-fg)" strokeWidth="2.6" strokeLinejoin="round" />
+            <path
+              d="M8 9h4v4h4v4h4v-4h4V9"
+              fill="none"
+              stroke="var(--cp-logo-fg)"
+              strokeWidth="2.6"
+              strokeLinejoin="round"
+            />
             <path d="M16 17v7" stroke="var(--cp-logo-fg)" strokeWidth="2.6" strokeLinecap="round" />
           </svg>
-          <span>yachay<b>play</b></span>
+          <span>
+            yachay<b>play</b>
+          </span>
         </a>
         <nav className="cp-pubnav" aria-label="Navegación principal">
           {PUBLIC_NAV.map((item) => (
@@ -39,8 +47,12 @@ export function PublicAulaHeader({ activePage = null, onNavigate, onLogin, onReg
         </nav>
         <div className="cp-pubauth">
           <BotonTema />
-          <button type="button" className="cp-btn quiet" onClick={onLogin}>Iniciar sesión</button>
-          <button type="button" className="cp-btn dark" onClick={onRegister}>Crear cuenta</button>
+          <button type="button" className="cp-btn quiet" onClick={onLogin}>
+            Iniciar sesión
+          </button>
+          <button type="button" className="cp-btn dark" onClick={onRegister}>
+            Crear cuenta
+          </button>
         </div>
       </div>
     </header>

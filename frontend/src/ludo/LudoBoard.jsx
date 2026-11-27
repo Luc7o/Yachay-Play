@@ -65,7 +65,7 @@ export function LudoBoard({ players, positions = {}, activeTeams = TURN_ORDER, s
           >
             <Tokens list={piecesAt([r, c])} />
           </div>
-        ))
+        )),
       )}
 
       {/* --- El centro: la META --- */}

@@ -20,7 +20,9 @@ const B32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 // ------------------------------ base32 ------------------------------
 function base32Encode(buf) {
-  let bits = 0, valor = 0, out = "";
+  let bits = 0,
+    valor = 0,
+    out = "";
   for (const byte of buf) {
     valor = (valor << 8) | byte;
     bits += 8;
@@ -34,7 +36,8 @@ function base32Encode(buf) {
 }
 
 function base32Decode(str) {
-  let bits = 0, valor = 0;
+  let bits = 0,
+    valor = 0;
   const out = [];
   for (const c of String(str).toUpperCase().replace(/=+$/, "")) {
     const i = B32.indexOf(c);
@@ -113,7 +116,15 @@ export function descifrar(almacenado) {
 }
 
 // ------------------------- códigos de recuperación -------------------------
-const hashCodigo = (c) => crypto.createHash("sha256").update(String(c).toUpperCase().replace(/[^A-Z0-9]/g, "")).digest("hex");
+const hashCodigo = (c) =>
+  crypto
+    .createHash("sha256")
+    .update(
+      String(c)
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, ""),
+    )
+    .digest("hex");
 
 function codigoRecuperacion() {
   const raw = crypto.randomBytes(5).toString("hex").toUpperCase(); // 10 caracteres hex

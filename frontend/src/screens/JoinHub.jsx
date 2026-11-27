@@ -13,18 +13,45 @@ import "./joinHub.css";
 // unirseA() de App.jsx.
 // ============================================================================
 const OPCIONES = [
-  { id: "ludo", icono: Icono.ludo, nombre: "Ludo por equipos", desc: "Avanza por el tablero con tu equipo respondiendo preguntas." },
-  { id: "crucigrama", icono: Icono.crucigrama, nombre: "Crucigrama relámpago", desc: "Compite contra el reloj y contra tus compañeros." },
-  { id: "palabra", icono: Icono.palabra, nombre: "Palabra relámpago", desc: "Juega con tus compañeros: cada quien desde su dispositivo, con turnos y vidas." },
-  { id: "estudio", icono: Icono.estudio, nombre: "Presentación en vivo", desc: "Entra a la sala donde creas tu presentación, solo o en equipo." },
-  { id: "evaluacion", icono: Icono.evaluacion, nombre: "Evaluación rápida", desc: "Responde preguntas con tiempo y ranking en vivo." },
+  {
+    id: "ludo",
+    icono: Icono.ludo,
+    nombre: "Ludo por equipos",
+    desc: "Avanza por el tablero con tu equipo respondiendo preguntas.",
+  },
+  {
+    id: "crucigrama",
+    icono: Icono.crucigrama,
+    nombre: "Crucigrama relámpago",
+    desc: "Compite contra el reloj y contra tus compañeros.",
+  },
+  {
+    id: "palabra",
+    icono: Icono.palabra,
+    nombre: "Palabra relámpago",
+    desc: "Juega con tus compañeros: cada quien desde su dispositivo, con turnos y vidas.",
+  },
+  {
+    id: "estudio",
+    icono: Icono.estudio,
+    nombre: "Presentación en vivo",
+    desc: "Entra a la sala donde creas tu presentación, solo o en equipo.",
+  },
+  {
+    id: "evaluacion",
+    icono: Icono.evaluacion,
+    nombre: "Evaluación rápida",
+    desc: "Responde preguntas con tiempo y ranking en vivo.",
+  },
 ];
 
 export function JoinHub({ user, initialCode = "", initialName = "", onPick, onBack }) {
   const [name, setName] = useState(initialName || user?.name || "");
   const [error, setError] = useState("");
   const nameRef = useRef(null);
-  const code = String(initialCode || "").replace(/\D/g, "").slice(0, 6);
+  const code = String(initialCode || "")
+    .replace(/\D/g, "")
+    .slice(0, 6);
   const sinNombre = name.trim().length === 0;
 
   function elegir(id) {
@@ -42,8 +69,14 @@ export function JoinHub({ user, initialCode = "", initialName = "", onPick, onBa
       <div>
         <span className="cp-eyebrow">Unirme con código</span>
         <h1 id="jh-t">¿A qué te quieres unir?</h1>
-        <p className="jh-lead">Cada actividad tiene su propio código. Escribe tu nombre y elige la que te pidió tu docente.</p>
-        {code && <p className="jh-code">Código: <strong>{code}</strong></p>}
+        <p className="jh-lead">
+          Cada actividad tiene su propio código. Escribe tu nombre y elige la que te pidió tu docente.
+        </p>
+        {code && (
+          <p className="jh-code">
+            Código: <strong>{code}</strong>
+          </p>
+        )}
       </div>
 
       <div className="cp-field">
@@ -56,25 +89,38 @@ export function JoinHub({ user, initialCode = "", initialName = "", onPick, onBa
           maxLength={30}
           autoComplete="name"
           placeholder="Ej. Andrea"
-          onChange={(e) => { setName(e.target.value); setError(""); }}
+          onChange={(e) => {
+            setName(e.target.value);
+            setError("");
+          }}
         />
-        {error && <p className="cp-msg error" role="alert">{error}</p>}
+        {error && (
+          <p className="cp-msg error" role="alert">
+            {error}
+          </p>
+        )}
       </div>
 
       <div>
-        <span className="jh-label" id="jh-lista">Elige a qué te unes</span>
+        <span className="jh-label" id="jh-lista">
+          Elige a qué te unes
+        </span>
         <ul className="jh-list" aria-labelledby="jh-lista">
           {OPCIONES.map((o) => {
             const Ico = o.icono;
             return (
               <li key={o.id}>
                 <button type="button" className="jh-opt" aria-disabled={sinNombre} onClick={() => elegir(o.id)}>
-                  <span className="jh-ico"><Ico /></span>
+                  <span className="jh-ico">
+                    <Ico />
+                  </span>
                   <span className="jh-txt">
                     <strong>{o.nombre}</strong>
                     <small>{o.desc}</small>
                   </span>
-                  <span className="jh-arrow" aria-hidden="true">→</span>
+                  <span className="jh-arrow" aria-hidden="true">
+                    →
+                  </span>
                 </button>
               </li>
             );
@@ -94,7 +140,9 @@ export function JoinHub({ user, initialCode = "", initialName = "", onPick, onBa
         <Marca onClick={onBack} label="Volver al inicio de YachayPlay" />
         <div className="stu-top-right">
           <BotonTema />
-          <button type="button" className="cp-btn quiet" onClick={onBack}>← Volver</button>
+          <button type="button" className="cp-btn quiet" onClick={onBack}>
+            ← Volver
+          </button>
         </div>
       </header>
       <main className="stu-main">{contenido}</main>

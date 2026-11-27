@@ -12,7 +12,9 @@ export function AvisoDestino() {
       <span>
         Esta actividad quedará en la clase <b>{destino.name}</b>
       </span>
-      <button type="button" onClick={limpiarClaseDestino}>Quitar</button>
+      <button type="button" onClick={limpiarClaseDestino}>
+        Quitar
+      </button>
     </div>
   );
 }

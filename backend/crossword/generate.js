@@ -111,11 +111,16 @@ export function generateCrossword(bank) {
   });
 
   // Recorta la rejilla al espacio realmente usado (+ 0 de margen; el margen visual lo pone el frontend)
-  let minR = Infinity, minC = Infinity, maxR = -Infinity, maxC = -Infinity;
+  let minR = Infinity,
+    minC = Infinity,
+    maxR = -Infinity,
+    maxC = -Infinity;
   for (const k of cellOccupied) {
     const [r, c] = k.split(",").map(Number);
-    minR = Math.min(minR, r); maxR = Math.max(maxR, r);
-    minC = Math.min(minC, c); maxC = Math.max(maxC, c);
+    minR = Math.min(minR, r);
+    maxR = Math.max(maxR, r);
+    minC = Math.min(minC, c);
+    maxC = Math.max(maxC, c);
   }
   for (const p of placements) {
     p.row -= minR;

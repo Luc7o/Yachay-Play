@@ -40,7 +40,20 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
   const [theme, toggleTheme] = useStageTheme();
   const extraSet = useMemo(() => new Set(extraWords), [extraWords]);
   const inputRef = useRef(null);
-  const initial = () => ({ lives: LIVES, score: 0, words: [], streak: 0, best: 0, fragment: "", total: START_SECONDS, remain: START_SECONDS, answer: "", message: null, over: false, boom: false });
+  const initial = () => ({
+    lives: LIVES,
+    score: 0,
+    words: [],
+    streak: 0,
+    best: 0,
+    fragment: "",
+    total: START_SECONDS,
+    remain: START_SECONDS,
+    answer: "",
+    message: null,
+    over: false,
+    boom: false,
+  });
   const [g, setG] = useState(initial);
   const gr = useRef(g);
   const deadline = useRef(0);
@@ -79,7 +92,12 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
       commit({ lives: 0, over: true, streak: 0, message: { text, tone: "bad" } });
       return;
     }
-    nextWord({ lives, streak: 0, message: { text: `${text} · te quedan ${lives} ${lives === 1 ? "vida" : "vidas"}`, tone: "bad" }, boom: true });
+    nextWord({
+      lives,
+      streak: 0,
+      message: { text: `${text} · te quedan ${lives} ${lives === 1 ? "vida" : "vidas"}`, tone: "bad" },
+      boom: true,
+    });
     window.setTimeout(() => !gr.current.over && commit({ boom: false }), 500);
   };
 
@@ -116,9 +134,14 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
         words,
         streak,
         best: Math.max(s.best, streak),
-        message: { text: subio ? `¡Correcto! +${points} · ⚡ Nivel ${levelOf(words.length)}: ahora ${timeFor(words.length)} s por palabra` : `¡Correcto! +${points} puntos · ${word}`, tone: "good" },
+        message: {
+          text: subio
+            ? `¡Correcto! +${points} · ⚡ Nivel ${levelOf(words.length)}: ahora ${timeFor(words.length)} s por palabra`
+            : `¡Correcto! +${points} puntos · ${word}`,
+          tone: "good",
+        },
       },
-      words.length
+      words.length,
     );
   };
 
@@ -138,22 +161,48 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
 
   if (g.over) {
     return (
-      <StageFrame theme={theme} onToggleTheme={toggleTheme} onExit={onExit} exitLabel="Volver" title="Palabra Relámpago" kicker="INDIVIDUAL">
+      <StageFrame
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        onExit={onExit}
+        exitLabel="Volver"
+        title="Palabra Relámpago"
+        kicker="INDIVIDUAL"
+      >
         <div className="pf-center">
           <section className="pf-card" aria-live="polite">
-            <div style={{ fontSize: 54 }} aria-hidden="true">⚡</div>
+            <div style={{ fontSize: 54 }} aria-hidden="true">
+              ⚡
+            </div>
             <h2>¡Te quedaste sin vidas!</h2>
-            <p><strong>{name}</strong> sumó <strong>{g.score} puntos</strong> con {g.words.length} {g.words.length === 1 ? "palabra" : "palabras"}.</p>
-            <p>Nivel alcanzado: {levelOf(g.words.length)} · Mejor racha: {g.best}</p>
-            <p>{record.isNew ? "🎉 ¡Nuevo récord personal en este navegador!" : `Tu récord en este navegador: ${record.best} puntos`}</p>
+            <p>
+              <strong>{name}</strong> sumó <strong>{g.score} puntos</strong> con {g.words.length}{" "}
+              {g.words.length === 1 ? "palabra" : "palabras"}.
+            </p>
+            <p>
+              Nivel alcanzado: {levelOf(g.words.length)} · Mejor racha: {g.best}
+            </p>
+            <p>
+              {record.isNew
+                ? "🎉 ¡Nuevo récord personal en este navegador!"
+                : `Tu récord en este navegador: ${record.best} puntos`}
+            </p>
             {g.words.length > 0 && (
               <div className="pf-people" aria-label="Palabras que lograste">
-                {g.words.map((w, i) => <span className="pf-word" key={i}>{w}</span>)}
+                {g.words.map((w, i) => (
+                  <span className="pf-word" key={i}>
+                    {w}
+                  </span>
+                ))}
               </div>
             )}
             <div className="pf-actions">
-              <button type="button" className="pf-btn primary" onClick={restart}>Jugar otra vez</button>
-              <button type="button" className="pf-btn" onClick={onExit}>Volver a juegos</button>
+              <button type="button" className="pf-btn primary" onClick={restart}>
+                Jugar otra vez
+              </button>
+              <button type="button" className="pf-btn" onClick={onExit}>
+                Volver a juegos
+              </button>
             </div>
           </section>
         </div>
@@ -174,17 +223,36 @@ export function PalabraSolo({ name, extraWords = [], onExit }) {
       clock={{ remain: g.remain, total: g.total, low: g.remain <= Math.min(5, Math.ceil(g.total / 3)), boom: g.boom }}
       entry={{ editable: true, value: g.answer, onChange: (v) => commit({ answer: v }), onSubmit: submit, inputRef }}
       message={g.message}
-      actions={<button type="button" className="pf-btn" onClick={skip}>Cambiar letras (−1 vida)</button>}
+      actions={
+        <button type="button" className="pf-btn" onClick={skip}>
+          Cambiar letras (−1 vida)
+        </button>
+      }
       side={
         <>
           <h2>⚡ Tu partida</h2>
           <div className="pf-stats">
-            <div><strong>{g.score}</strong><span>puntos</span></div>
-            <div><strong>{g.words.length}</strong><span>palabras</span></div>
-            <div><strong>{g.streak}</strong><span>racha</span></div>
-            <div><strong>{g.best}</strong><span>mejor</span></div>
+            <div>
+              <strong>{g.score}</strong>
+              <span>puntos</span>
+            </div>
+            <div>
+              <strong>{g.words.length}</strong>
+              <span>palabras</span>
+            </div>
+            <div>
+              <strong>{g.streak}</strong>
+              <span>racha</span>
+            </div>
+            <div>
+              <strong>{g.best}</strong>
+              <span>mejor</span>
+            </div>
           </div>
-          <p className="pf-level"><span>Vidas</span><Hearts lives={g.lives} max={LIVES} /></p>
+          <p className="pf-level">
+            <span>Vidas</span>
+            <Hearts lives={g.lives} max={LIVES} />
+          </p>
         </>
       }
       used={usedItems}

@@ -37,9 +37,28 @@ export const ES_FORMA = new Set(["line", "arrow", "rect", "ellipse", "tri", "dia
 export const CON_RELLENO = new Set(["rect", "ellipse", "tri", "diamond"]);
 
 // ---------------- Textos de ayuda y medidas en vivo ----------------
-export const NOMBRES_HERR = { mover: "Seleccionar", lapiz: "Lápiz", marcador: "Marcador", borrador: "Borrador", texto: "Texto", forma: "Forma", laser: "Puntero láser" };
+export const NOMBRES_HERR = {
+  mover: "Seleccionar",
+  lapiz: "Lápiz",
+  marcador: "Marcador",
+  borrador: "Borrador",
+  texto: "Texto",
+  forma: "Forma",
+  laser: "Puntero láser",
+};
 
-export const NOMBRES_OBJ = { pen: "Trazo", hl: "Resaltado", line: "Línea", arrow: "Flecha", rect: "Rectángulo", ellipse: "Óvalo", tri: "Triángulo", diamond: "Rombo", img: "Imagen", text: "Texto" };
+export const NOMBRES_OBJ = {
+  pen: "Trazo",
+  hl: "Resaltado",
+  line: "Línea",
+  arrow: "Flecha",
+  rect: "Rectángulo",
+  ellipse: "Óvalo",
+  tri: "Triángulo",
+  diamond: "Rombo",
+  img: "Imagen",
+  text: "Texto",
+};
 
 export const AYUDA = {
   mover: "Toca un dibujo para seleccionarlo y arrástralo",

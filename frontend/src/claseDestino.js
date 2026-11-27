@@ -46,6 +46,6 @@ export function useClaseDestino() {
       oyentes.add(fn);
       return () => oyentes.delete(fn);
     },
-    () => destino
+    () => destino,
   );
 }

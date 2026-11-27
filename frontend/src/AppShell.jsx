@@ -74,7 +74,9 @@ export function AppShell({ user, active, onNavigate, onLogout, buildVersion, she
           {items.map((it) => (
             <Item key={it.id} it={it} active={active} onNavigate={onNavigate} />
           ))}
-          <span className="cp-side-label" style={{ marginTop: 18 }}>Información</span>
+          <span className="cp-side-label" style={{ marginTop: 18 }}>
+            Información
+          </span>
           {NAV_INFO.map((it) => (
             <Item key={it.id} it={it} active={active} onNavigate={onNavigate} />
           ))}
@@ -88,7 +90,9 @@ export function AppShell({ user, active, onNavigate, onLogout, buildVersion, she
             aria-label="Mi perfil"
             aria-current={active === "profile" ? "page" : undefined}
           >
-            <span className="cp-avatar" aria-hidden="true">{iniciales || "?"}</span>
+            <span className="cp-avatar" aria-hidden="true">
+              {iniciales || "?"}
+            </span>
             <span style={{ minWidth: 0 }}>
               <strong>{user.name}</strong>
               <small>{esDocente ? "Docente" : "Estudiante"} · Mi perfil</small>
@@ -107,13 +111,26 @@ export function AppShell({ user, active, onNavigate, onLogout, buildVersion, she
       <div className="cp-main">
         <main className="sh-content">
           {/* Las pantallas que se cargan bajo demanda esperan aquí dentro: el menú lateral no desaparece. */}
-          <Suspense fallback={<p className="cp-muted" role="status" aria-live="polite">Cargando…</p>}>
+          <Suspense
+            fallback={
+              <p className="cp-muted" role="status" aria-live="polite">
+                Cargando…
+              </p>
+            }
+          >
             {sheet ? <div className="sh-sheet">{children}</div> : children}
           </Suspense>
         </main>
         {buildVersion && (
           <footer className="build-mark">
-            YachayPlay · Build {buildVersion} · <a href="/politica-de-privacidad.html" target="_blank" rel="noopener noreferrer">Privacidad</a> · <a href="/terminos-y-condiciones.html" target="_blank" rel="noopener noreferrer">Términos</a>
+            YachayPlay · Build {buildVersion} ·{" "}
+            <a href="/politica-de-privacidad.html" target="_blank" rel="noopener noreferrer">
+              Privacidad
+            </a>{" "}
+            ·{" "}
+            <a href="/terminos-y-condiciones.html" target="_blank" rel="noopener noreferrer">
+              Términos
+            </a>
           </footer>
         )}
       </div>

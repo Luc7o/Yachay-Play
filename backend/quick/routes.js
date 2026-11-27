@@ -29,5 +29,11 @@ quickRouter.post("/", requireTeacher, async (req, res) => {
 quickRouter.get("/:code", (req, res) => {
   const room = getRoom(req.params.code);
   if (!room) return res.status(404).json({ error: "No existe una evaluación con ese código." });
-  res.json({ code: room.code, name: room.name, status: room.status, total: room.questions.length, players: room.players.size });
+  res.json({
+    code: room.code,
+    name: room.name,
+    status: room.status,
+    total: room.questions.length,
+    players: room.players.size,
+  });
 });

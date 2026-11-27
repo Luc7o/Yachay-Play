@@ -7,7 +7,23 @@
 //   ss:<código>                -> todos (avisos generales: bloqueo, cierre)
 // Los eventos empiezan con "ss:" para no chocar con los de Ludo ni Crucigrama.
 // ============================================================================
-import { addComment, closeRoom, getRoom, joinStudent, marcarUso, miembrosDe, reopenRoom, rooms, setLocked, setPresence, studentOp, vistaDocente, vistaEstudiante, purgeOld, codigoDeEquipo } from "./engine.js";
+import {
+  addComment,
+  closeRoom,
+  getRoom,
+  joinStudent,
+  marcarUso,
+  miembrosDe,
+  reopenRoom,
+  rooms,
+  setLocked,
+  setPresence,
+  studentOp,
+  vistaDocente,
+  vistaEstudiante,
+  purgeOld,
+  codigoDeEquipo,
+} from "./engine.js";
 import { obtenerSala } from "./persist.js";
 
 const salaDocente = (code) => `ss:${code}:teacher`;
@@ -20,7 +36,8 @@ function requireOwner(socket, room) {
   const u = socket.data.user;
   if (!u || u.role !== "docente") return "Inicia sesión como docente para controlar esta sala.";
   // Sin dueño (el docente borró su cuenta): nadie la controla; antes podía cualquier docente.
-  if (room.ownerId !== u.id) return room.ownerId ? "Esta sala pertenece a otro docente." : "Ya no hay un docente a cargo.";
+  if (room.ownerId !== u.id)
+    return room.ownerId ? "Esta sala pertenece a otro docente." : "Ya no hay un docente a cargo.";
   return null;
 }
 const texto = (v) => String(v ?? "").trim();
@@ -31,7 +48,10 @@ export function attachSlidesSocket(io, socket) {
   let cuenta = 0;
   const demasiados = () => {
     const ahora = Math.floor(Date.now() / 1000);
-    if (ahora !== ventana) { ventana = ahora; cuenta = 0; }
+    if (ahora !== ventana) {
+      ventana = ahora;
+      cuenta = 0;
+    }
     return ++cuenta > 80;
   };
 
@@ -52,8 +72,15 @@ export function attachSlidesSocket(io, socket) {
     const room = await obtenerSala(code);
     if (!room) return ack?.({ error: "No existe una sala con ese código." });
     // Freno para no adivinar códigos de equipo a fuerza de intentos.
-    if ((socket.data.ssCodigosMalos || 0) >= 10) return ack?.({ error: "Demasiados códigos de equipo incorrectos. Recarga la página e inténtalo de nuevo." });
-    const { student, entry, error, codigoInvalido } = joinStudent(room, { id: texto(studentId) || null, name, team, teamCode, userId: socket.data.user?.id });
+    if ((socket.data.ssCodigosMalos || 0) >= 10)
+      return ack?.({ error: "Demasiados códigos de equipo incorrectos. Recarga la página e inténtalo de nuevo." });
+    const { student, entry, error, codigoInvalido } = joinStudent(room, {
+      id: texto(studentId) || null,
+      name,
+      team,
+      teamCode,
+      userId: socket.data.user?.id,
+    });
     if (codigoInvalido) socket.data.ssCodigosMalos = (socket.data.ssCodigosMalos || 0) + 1;
     if (error) return ack?.({ error });
 
@@ -68,7 +95,14 @@ export function attachSlidesSocket(io, socket) {
     // Al docente le llega el alumno; si su presentación es nueva, también la presentación completa.
     io.to(salaDocente(room.code)).emit("ss:student", {
       student: { id: student.id, name: student.name, deckKey: student.deckKey, online: true, slideId: student.slideId },
-      deck: { key: entry.key, name: entry.name, teamCode: codigoDeEquipo(entry.key), deck: entry.deck, comments: entry.comments, updatedAt: entry.updatedAt },
+      deck: {
+        key: entry.key,
+        name: entry.name,
+        teamCode: codigoDeEquipo(entry.key),
+        deck: entry.deck,
+        comments: entry.comments,
+        updatedAt: entry.updatedAt,
+      },
     });
     socket.to(salaDeck(room.code, student.deckKey)).emit("ss:members", { members: miembrosDe(room, student.deckKey) });
   });
@@ -90,7 +124,13 @@ export function attachSlidesSocket(io, socket) {
     const room = getRoom(socket.data.ssCode);
     if (!room) return;
     const st = setPresence(room, socket.data.ssStudent, { slideId: texto(slideId).slice(0, 16) || null });
-    if (st) io.to(salaDocente(room.code)).emit("ss:presence", { id: st.id, deckKey: st.deckKey, online: st.online, slideId: st.slideId });
+    if (st)
+      io.to(salaDocente(room.code)).emit("ss:presence", {
+        id: st.id,
+        deckKey: st.deckKey,
+        online: st.online,
+        slideId: st.slideId,
+      });
   });
 
   // --- El docente comenta una diapositiva ---

@@ -17,7 +17,7 @@ import pg from "pg";
 if (!process.env.DATABASE_URL) {
   console.error(
     "\n[ERROR] Falta DATABASE_URL en backend/.env\n" +
-      "Cópiala desde Supabase: botón 'Connect' -> 'Session pooler'. Mira .env.example\n"
+      "Cópiala desde Supabase: botón 'Connect' -> 'Session pooler'. Mira .env.example\n",
   );
   process.exit(1);
 }

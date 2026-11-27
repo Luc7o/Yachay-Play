@@ -74,7 +74,8 @@ export function trazar(ctx, o, oscuro) {
     }
     case "img": {
       const im = imagenDe(o.src);
-      if (im.complete && im.naturalWidth) ctx.drawImage(im, Math.min(o.x1, o.x2), Math.min(o.y1, o.y2), Math.abs(o.x2 - o.x1), Math.abs(o.y2 - o.y1));
+      if (im.complete && im.naturalWidth)
+        ctx.drawImage(im, Math.min(o.x1, o.x2), Math.min(o.y1, o.y2), Math.abs(o.x2 - o.x1), Math.abs(o.y2 - o.y1));
       break;
     }
     case "rect":
@@ -83,7 +84,15 @@ export function trazar(ctx, o, oscuro) {
     case "ellipse": {
       ctx.beginPath();
       if (o.type === "ellipse") {
-        ctx.ellipse((o.x1 + o.x2) / 2, (o.y1 + o.y2) / 2, Math.max(1, Math.abs(o.x2 - o.x1) / 2), Math.max(1, Math.abs(o.y2 - o.y1) / 2), 0, 0, TAU);
+        ctx.ellipse(
+          (o.x1 + o.x2) / 2,
+          (o.y1 + o.y2) / 2,
+          Math.max(1, Math.abs(o.x2 - o.x1) / 2),
+          Math.max(1, Math.abs(o.y2 - o.y1) / 2),
+          0,
+          0,
+          TAU,
+        );
       } else {
         const v = vertices(o);
         ctx.moveTo(v[0][0], v[0][1]);

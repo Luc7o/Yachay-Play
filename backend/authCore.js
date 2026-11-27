@@ -20,7 +20,9 @@ async function getSecret() {
   const row = await db.prepare("SELECT value FROM settings WHERE key = 'auth_secret'").get();
   if (row) return row.value;
   const nuevo = crypto.randomBytes(32).toString("hex");
-  await db.prepare("INSERT INTO settings (key, value) VALUES ('auth_secret', ?) ON CONFLICT (key) DO NOTHING").run(nuevo);
+  await db
+    .prepare("INSERT INTO settings (key, value) VALUES ('auth_secret', ?) ON CONFLICT (key) DO NOTHING")
+    .run(nuevo);
   // Si dos servidores arrancaron a la vez, nos quedamos con el valor que haya quedado guardado.
   return (await db.prepare("SELECT value FROM settings WHERE key = 'auth_secret'").get()).value;
 }
@@ -38,7 +40,9 @@ const LEGACY = { N: 16384, r: 8, p: 1 };
 const KEYLEN = 64;
 const scryptAsync = (password, salt, len, o) =>
   new Promise((resolve, reject) =>
-    crypto.scrypt(password, salt, len, { N: o.N, r: o.r, p: o.p, maxmem: 256 * o.N * o.r }, (e, k) => (e ? reject(e) : resolve(k)))
+    crypto.scrypt(password, salt, len, { N: o.N, r: o.r, p: o.p, maxmem: 256 * o.N * o.r }, (e, k) =>
+      e ? reject(e) : resolve(k),
+    ),
   );
 
 export async function hashPassword(password) {
@@ -79,7 +83,9 @@ export function needsRehash(stored) {
 export async function upgradeHashIfNeeded(user, password) {
   if (!needsRehash(user.password_hash)) return;
   try {
-    await db.prepare("UPDATE users SET password_hash = ? WHERE id = ? AND password_hash = ?").run(await hashPassword(password), user.id, user.password_hash);
+    await db
+      .prepare("UPDATE users SET password_hash = ? WHERE id = ? AND password_hash = ?")
+      .run(await hashPassword(password), user.id, user.password_hash);
   } catch (e) {
     console.error("No se pudo actualizar el hash:", e.message);
   }
@@ -92,7 +98,7 @@ function firmar(payload) {
 
 export function signToken(user) {
   const payload = Buffer.from(
-    JSON.stringify({ sub: user.id, v: user.token_version || 0, exp: Date.now() + TOKEN_DAYS * 24 * 60 * 60 * 1000 })
+    JSON.stringify({ sub: user.id, v: user.token_version || 0, exp: Date.now() + TOKEN_DAYS * 24 * 60 * 60 * 1000 }),
   ).toString("base64url");
   return `${payload}.${firmar(payload)}`;
 }
@@ -139,7 +145,15 @@ export async function userFromToken(token) {
 }
 
 // ------------------------------ usuarios ------------------------------
-export const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, twoFactorEnabled: !!u.totp_enabled, hasPassword: u.password_hash !== "google", emailVerified: !!u.email_verified_at });
+export const publicUser = (u) => ({
+  id: u.id,
+  name: u.name,
+  email: u.email,
+  role: u.role,
+  twoFactorEnabled: !!u.totp_enabled,
+  hasPassword: u.password_hash !== "google",
+  emailVerified: !!u.email_verified_at,
+});
 export const findUserById = async (id) => (await db.prepare("SELECT * FROM users WHERE id = ?").get(id)) || null;
 export const findUserByEmail = async (email) =>
   (await db.prepare("SELECT * FROM users WHERE email = ?").get(String(email).trim().toLowerCase())) || null;
@@ -148,19 +162,23 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Regla de contraseña (registro, recuperar y cambiar): 8+ caracteres, con al menos una letra y un número.
 const COMUNES = new Set(
-  ("12345678 123456789 1234567890 password password1 password123 contrasena contrasena1 contrasena123 qwerty123 qwertyui " +
+  (
+    "12345678 123456789 1234567890 password password1 password123 contrasena contrasena1 contrasena123 qwerty123 qwertyui " +
     "abc12345 abcd1234 iloveyou1 admin123 admin1234 welcome1 welcome123 letmein123 11111111 00000000 12341234 87654321 " +
     "yachayplay yachayplay1 yachayplay123 docente123 estudiante123 colegio123 profesor123 peru1234 lima1234 123456abc " +
-    "a1234567 asdf1234 zxcvbnm123 qazwsx123 1q2w3e4r 1qaz2wsx q1w2e3r4 passw0rd p4ssw0rd").split(" ")
+    "a1234567 asdf1234 zxcvbnm123 qazwsx123 1q2w3e4r 1qaz2wsx q1w2e3r4 passw0rd p4ssw0rd"
+  ).split(" "),
 );
 
 export function validatePassword(p, email) {
   const v = String(p || "");
   if (v.length < 8) return "La contraseña debe tener al menos 8 caracteres.";
   if (v.length > 100) return "La contraseña es demasiado larga.";
-  if (!/[A-Za-z\u00C0-\u017F]/.test(v) || !/\d/.test(v)) return "La contraseña debe incluir al menos una letra y un número.";
+  if (!/[A-Za-z\u00C0-\u017F]/.test(v) || !/\d/.test(v))
+    return "La contraseña debe incluir al menos una letra y un número.";
   if (COMUNES.has(v.toLowerCase())) return "Esa contraseña es demasiado común. Elige otra más difícil de adivinar.";
-  if (email && v.toLowerCase() === String(email).trim().toLowerCase()) return "La contraseña no puede ser igual a tu correo.";
+  if (email && v.toLowerCase() === String(email).trim().toLowerCase())
+    return "La contraseña no puede ser igual a tu correo.";
   return null;
 }
 
@@ -171,8 +189,12 @@ export function validatePassword(p, email) {
 export const MSG_EDAD = "Confirma que tienes 14 años o más, o que cuentas con la autorización de tus padres o tutores.";
 
 export function validateRegistration({ name, email, password, role, acceptTerms, confirmAge }) {
-  const n = String(name || "").trim().replace(/\s+/g, " ");
-  const e = String(email || "").trim().toLowerCase();
+  const n = String(name || "")
+    .trim()
+    .replace(/\s+/g, " ");
+  const e = String(email || "")
+    .trim()
+    .toLowerCase();
   const p = String(password || "");
   if (n.length < 2 || n.length > 40) return { error: "Escribe tu nombre (entre 2 y 40 letras)." };
   if (!EMAIL_RE.test(e) || e.length > 120) return { error: "Escribe un correo válido." };
@@ -186,15 +208,11 @@ export function validateRegistration({ name, email, password, role, acceptTerms,
 
 export async function createUser({ name, email, password, role, termsAccepted = false, emailVerified = false }) {
   const id = crypto.randomUUID();
-  await db.prepare("INSERT INTO users (id, name, email, password_hash, role, terms_accepted_at, email_verified_at) VALUES (?,?,?,?,?, CASE WHEN ? THEN now() END, CASE WHEN ? THEN now() END)").run(
-    id,
-    name,
-    email,
-    await hashPassword(password),
-    role,
-    termsAccepted,
-    emailVerified
-  );
+  await db
+    .prepare(
+      "INSERT INTO users (id, name, email, password_hash, role, terms_accepted_at, email_verified_at) VALUES (?,?,?,?,?, CASE WHEN ? THEN now() END, CASE WHEN ? THEN now() END)",
+    )
+    .run(id, name, email, await hashPassword(password), role, termsAccepted, emailVerified);
   return await findUserById(id);
 }
 
@@ -204,7 +222,8 @@ export async function createUser({ name, email, password, role, termsAccepted = 
 export async function verifyGoogleToken(credential) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   if (!clientId) return { error: "El inicio de sesión con Google no está configurado en el servidor." };
-  if (!credential || typeof credential !== "string" || credential.length > 4096) return { error: "Credencial de Google no válida." };
+  if (!credential || typeof credential !== "string" || credential.length > 4096)
+    return { error: "Credencial de Google no válida." };
   let info;
   try {
     const r = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
@@ -219,7 +238,10 @@ export async function verifyGoogleToken(credential) {
     return { error: "No se pudo verificar tu cuenta de Google." };
   }
   const email = String(info.email).trim().toLowerCase();
-  const name = String(info.name || email.split("@")[0]).trim().replace(/\s+/g, " ").slice(0, 40);
+  const name = String(info.name || email.split("@")[0])
+    .trim()
+    .replace(/\s+/g, " ")
+    .slice(0, 40);
   return { email, name: name.length >= 2 ? name : email.split("@")[0].slice(0, 40) };
 }
 
@@ -228,6 +250,10 @@ export async function verifyGoogleToken(credential) {
 export async function createGoogleUser({ name, email, role, termsAccepted = false }) {
   const id = crypto.randomUUID();
   // Google ya comprobó el correo, así que la cuenta nace verificada.
-  await db.prepare("INSERT INTO users (id, name, email, password_hash, role, terms_accepted_at, email_verified_at) VALUES (?,?,?,?,?, CASE WHEN ? THEN now() END, now())").run(id, name, email, "google", role, termsAccepted);
+  await db
+    .prepare(
+      "INSERT INTO users (id, name, email, password_hash, role, terms_accepted_at, email_verified_at) VALUES (?,?,?,?,?, CASE WHEN ? THEN now() END, now())",
+    )
+    .run(id, name, email, "google", role, termsAccepted);
   return await findUserById(id);
 }

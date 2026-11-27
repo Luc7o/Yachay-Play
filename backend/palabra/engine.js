@@ -19,7 +19,17 @@ import { checkWord, candidateFragments, normalizeWord, safeWord } from "./diccio
 
 export const rooms = new Map(); // code -> room
 
-export const LIMITS = { maxPlayers: 40, minTeams: 2, maxTeams: 4, minSeconds: 10, maxSeconds: 60, minRounds: 6, maxRounds: 120, maxExtraWords: 3000, maxOpenPerOwner: 5 };
+export const LIMITS = {
+  maxPlayers: 40,
+  minTeams: 2,
+  maxTeams: 4,
+  minSeconds: 10,
+  maxSeconds: 60,
+  minRounds: 6,
+  maxRounds: 120,
+  maxExtraWords: 3000,
+  maxOpenPerOwner: 5,
+};
 export const LIVES = 3;
 const RESULT_MS = 1800; // pausa para mostrar qué pasó antes del siguiente turno
 const GRACE_MS = 400; // tolerancia por la demora de la red
@@ -27,7 +37,11 @@ const COLORS = ["#17c7b5", "#4388ff", "#b18aff", "#ffc15d", "#f383a6", "#6ac9de"
 const TEAM_NAMES = ["Equipo Menta", "Equipo Azul", "Equipo Violeta", "Equipo Ámbar"];
 
 const code6 = () => String(crypto.randomInt(100000, 1000000));
-const clean = (s, n) => String(s ?? "").replace(/\s+/g, " ").trim().slice(0, n);
+const clean = (s, n) =>
+  String(s ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, n);
 const clamp = (v, lo, hi, def) => {
   const n = Math.round(Number(v));
   return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : def;
@@ -37,7 +51,18 @@ export function openRoomsOf(ownerId) {
   return [...rooms.values()].filter((r) => r.ownerId === ownerId && r.status !== "ended").length;
 }
 
-export function createRoom({ name, ownerId, ownerName, classId = null, hostPlays, mode, seconds, maxRounds, teams, extraWords }) {
+export function createRoom({
+  name,
+  ownerId,
+  ownerName,
+  classId = null,
+  hostPlays,
+  mode,
+  seconds,
+  maxRounds,
+  teams,
+  extraWords,
+}) {
   let code;
   do code = code6();
   while (rooms.has(code));
@@ -54,7 +79,9 @@ export function createRoom({ name, ownerId, ownerName, classId = null, hostPlays
     seconds: clamp(seconds, LIMITS.minSeconds, LIMITS.maxSeconds, 20),
     maxRounds: clamp(maxRounds, LIMITS.minRounds, LIMITS.maxRounds, 30),
     // Palabras extra: solo las pone el docente al crear la sala (ver routes.js).
-    extra: new Set((Array.isArray(extraWords) ? extraWords : []).map(normalizeWord).filter(safeWord).slice(0, LIMITS.maxExtraWords)),
+    extra: new Set(
+      (Array.isArray(extraWords) ? extraWords : []).map(normalizeWord).filter(safeWord).slice(0, LIMITS.maxExtraWords),
+    ),
     status: "lobby", // lobby | turn | result | ended
     players: new Map(), // id -> { id, name, userId, team }
     entities: [], // participantes que juegan: personas (individual) o equipos
@@ -74,7 +101,16 @@ export function createRoom({ name, ownerId, ownerName, classId = null, hostPlays
   rooms.set(code, room);
   return room;
 }
-const newEntity = (id, name, i) => ({ id, name, color: COLORS[i % COLORS.length], lives: LIVES, score: 0, words: 0, memberIds: [], cursor: 0 });
+const newEntity = (id, name, i) => ({
+  id,
+  name,
+  color: COLORS[i % COLORS.length],
+  lives: LIVES,
+  score: 0,
+  words: 0,
+  memberIds: [],
+  cursor: 0,
+});
 export const getRoom = (code) => rooms.get(String(code || "").trim()) || null;
 
 // ------------------------------ jugadores ------------------------------
@@ -86,7 +122,8 @@ export function addPlayer(room, { id, name, userId = null }) {
   const nombre = clean(name, 30);
   if (!nombre) return { error: "Escribe tu nombre para entrar." };
   const lower = nombre.toLowerCase();
-  if ([...room.players.values()].some((p) => p.name.toLowerCase() === lower)) return { error: "Ya hay alguien con ese nombre. Agrega tu apellido o inicial." };
+  if ([...room.players.values()].some((p) => p.name.toLowerCase() === lower))
+    return { error: "Ya hay alguien con ese nombre. Agrega tu apellido o inicial." };
   const player = { id: crypto.randomUUID(), name: nombre, userId, team: null };
   room.players.set(player.id, player);
   return { player };
@@ -131,7 +168,12 @@ export function start(room) {
     room.entities = room.entities.filter((e) => e.memberIds.length > 0);
   }
   if (room.entities.length < 2) {
-    return { error: room.mode === "equipos" ? "Se necesitan al menos 2 equipos con jugadores." : "Se necesitan al menos 2 jugadores." };
+    return {
+      error:
+        room.mode === "equipos"
+          ? "Se necesitan al menos 2 equipos con jugadores."
+          : "Se necesitan al menos 2 jugadores.",
+    };
   }
   room.round = 1;
   beginTurn(room, 0);
@@ -176,7 +218,16 @@ function finishTurn(room, { ok, word = "", points = 0, reason = "" }) {
   e.cursor += 1; // el siguiente turno de este equipo lo responde otro integrante
   room.status = "result";
   room.typing = "";
-  room.lastResult = { entityId: e.id, entityName: e.name, playerName: p?.name || "", ok, word: ok ? word : "", points, reason, eliminated: !ok && e.lives === 0 };
+  room.lastResult = {
+    entityId: e.id,
+    entityName: e.name,
+    playerName: p?.name || "",
+    ok,
+    word: ok ? word : "",
+    points,
+    reason,
+    eliminated: !ok && e.lives === 0,
+  };
   room.resultUntil = Date.now() + RESULT_MS;
 }
 
@@ -239,7 +290,15 @@ const ranking = (room) =>
 
 // Lo que ve cada quien. No hay nada secreto (el diccionario nunca se manda).
 export function publicState(room, playerId = null, isHost = false) {
-  const entities = room.entities.map((e) => ({ id: e.id, name: e.name, color: e.color, lives: e.lives, score: e.score, words: e.words, members: e.memberIds.map((id) => room.players.get(id)?.name).filter(Boolean) }));
+  const entities = room.entities.map((e) => ({
+    id: e.id,
+    name: e.name,
+    color: e.color,
+    lives: e.lives,
+    score: e.score,
+    words: e.words,
+    members: e.memberIds.map((id) => room.players.get(id)?.name).filter(Boolean),
+  }));
   const base = {
     code: room.code,
     name: room.name,
@@ -256,7 +315,10 @@ export function publicState(room, playerId = null, isHost = false) {
     extraCount: room.extra.size,
     entities,
     players: [...room.players.values()].map((p) => ({ id: p.id, name: p.name, team: p.team })),
-    teams: room.mode === "equipos" && room.status === "lobby" ? room.entities.map((e) => ({ id: e.id, name: e.name, color: e.color })) : undefined,
+    teams:
+      room.mode === "equipos" && room.status === "lobby"
+        ? room.entities.map((e) => ({ id: e.id, name: e.name, color: e.color }))
+        : undefined,
     used: room.usedList.slice(-200).reverse(), // las más recientes primero
     usedCount: room.usedList.length,
     lastResult: room.lastResult,
@@ -273,7 +335,16 @@ export function publicState(room, playerId = null, isHost = false) {
       typing: room.typing,
     };
   }
-  if (room.status === "ended") base.ranking = ranking(room).map(({ id, name, color, score, lives, words, rank }) => ({ id, name, color, score, lives, words, rank }));
+  if (room.status === "ended")
+    base.ranking = ranking(room).map(({ id, name, color, score, lives, words, rank }) => ({
+      id,
+      name,
+      color,
+      score,
+      lives,
+      words,
+      rank,
+    }));
   if (playerId) {
     const p = room.players.get(playerId);
     if (p) base.me = { id: p.id, name: p.name, team: p.team };

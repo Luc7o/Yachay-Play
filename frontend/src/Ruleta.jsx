@@ -81,9 +81,14 @@ function cargar() {
   if (d && Array.isArray(d.listas)) {
     listas = d.listas
       .filter((l) => l && typeof l.id === "string" && Array.isArray(l.items))
-      .map((l) => ({ id: l.id, nombre: String(l.nombre || "Lista").slice(0, 40), items: l.items.map(String).slice(0, CONFIG.maxElementos) }));
+      .map((l) => ({
+        id: l.id,
+        nombre: String(l.nombre || "Lista").slice(0, 40),
+        items: l.items.map(String).slice(0, CONFIG.maxElementos),
+      }));
   }
-  if (!listas.length) listas = CONFIG.listasDeEjemplo.map((s) => ({ id: uid(), nombre: s.nombre, items: [...s.items] }));
+  if (!listas.length)
+    listas = CONFIG.listasDeEjemplo.map((s) => ({ id: uid(), nombre: s.nombre, items: [...s.items] }));
   const activa = listas.some((l) => l.id === d?.activa) ? d.activa : listas[0].id;
   return { listas, activa, quitar: d?.quitar !== false, sonido: d?.sonido !== false, mascota: d?.mascota === true }; // diseño "Campus": apagada salvo que el docente la encienda
 }
@@ -101,7 +106,8 @@ function contraste(a, b) {
   const l2 = luminancia(b);
   return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 }
-const colorDeTexto = (fondo) => (contraste(fondo, "#FFFFFF") >= contraste(fondo, CONFIG.textoOscuro) ? "#FFFFFF" : CONFIG.textoOscuro);
+const colorDeTexto = (fondo) =>
+  contraste(fondo, "#FFFFFF") >= contraste(fondo, CONFIG.textoOscuro) ? "#FFFFFF" : CONFIG.textoOscuro;
 export function colorDeSegmento(i, n) {
   const p = CONFIG.paleta;
   let c = p[i % p.length];
@@ -278,7 +284,9 @@ export function Ruleta({ goHome }) {
   // Lo que hay AHORA en la ruleta (copia de trabajo de cada lista) y lo que va saliendo
   const [pools, setPools] = useState(() => Object.fromEntries(inicial.current.listas.map((l) => [l.id, [...l.items]])));
   const [historiales, setHistoriales] = useState({});
-  const [borrador, setBorrador] = useState(() => inicial.current.listas.find((l) => l.id === inicial.current.activa).items.join("\n"));
+  const [borrador, setBorrador] = useState(() =>
+    inicial.current.listas.find((l) => l.id === inicial.current.activa).items.join("\n"),
+  );
   const [resultado, setResultado] = useState({ etiqueta: "Resultado", texto: "Pulsa «Girar»", clave: 0, gano: false });
   const [ocupada, setOcupada] = useState(false); // true mientras gira
   const [resaltado, setResaltado] = useState(-1);
@@ -297,7 +305,10 @@ export function Ruleta({ goHome }) {
   const temporizadores = useRef([]);
   const sonidoRef = useRef(sonido);
   sonidoRef.current = sonido;
-  const reducirMovimiento = typeof window !== "undefined" && !!window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reducirMovimiento =
+    typeof window !== "undefined" &&
+    !!window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const tic = () => sonidoRef.current && nota(1400, 0, 0.03, 0.1, "square");
   const campanilla = () => {
@@ -339,7 +350,7 @@ export function Ruleta({ goHome }) {
       cancelAnimationFrame(animRef.current);
       temporizadores.current.forEach(clearTimeout);
     },
-    []
+    [],
   );
 
   // ---------------- Listas ----------------
@@ -461,7 +472,8 @@ export function Ruleta({ goHome }) {
         if (actual[idx] === ganador) actual.splice(idx, 1);
         setPools((p) => ({ ...p, [id]: actual }));
         if (id === activaRef.current) setBorrador(actual.join("\n"));
-        if (items.length === 1) setResultado({ etiqueta: "¡Ya salieron todos!", texto: ganador, clave: Date.now(), gano: true });
+        if (items.length === 1)
+          setResultado({ etiqueta: "¡Ya salieron todos!", texto: ganador, clave: Date.now(), gano: true });
       }
       setResaltado(-1);
       setOcupada(false);
@@ -484,7 +496,8 @@ export function Ruleta({ goHome }) {
     const que = listas.find((l) => l.id === queId);
     const entre = listas.find((l) => l.id === entreId);
     setReparto(null);
-    if (que.id === entre.id) return setAvisoReparto("Elige dos listas distintas: una para repartir y otra con quienes la reciben.");
+    if (que.id === entre.id)
+      return setAvisoReparto("Elige dos listas distintas: una para repartir y otra con quienes la reciben.");
     const A = que.items;
     const B = entre.items;
     if (!A.length || !B.length) return setAvisoReparto("Las dos listas necesitan al menos un elemento.");
@@ -494,9 +507,13 @@ export function Ruleta({ goHome }) {
     asignados = asignados.slice(0, B.length);
 
     if (A.length > B.length) {
-      setAvisoReparto(`Sobraron ${plural(A.length - B.length, "elemento", "elementos")} de «${que.nombre}» (había ${A.length} para ${B.length} en «${entre.nombre}»).`);
+      setAvisoReparto(
+        `Sobraron ${plural(A.length - B.length, "elemento", "elementos")} de «${que.nombre}» (había ${A.length} para ${B.length} en «${entre.nombre}»).`,
+      );
     } else if (A.length < B.length) {
-      setAvisoReparto(`Hay más en «${entre.nombre}» (${B.length}) que elementos en «${que.nombre}» (${A.length}): algunos se repiten (${plural(B.length - A.length, "repetición", "repeticiones")}).`);
+      setAvisoReparto(
+        `Hay más en «${entre.nombre}» (${B.length}) que elementos en «${que.nombre}» (${A.length}): algunos se repiten (${plural(B.length - A.length, "repetición", "repeticiones")}).`,
+      );
     } else {
       setAvisoReparto(`Reparto exacto: cada elemento de «${que.nombre}» le tocó a uno distinto.`);
     }
@@ -542,11 +559,15 @@ export function Ruleta({ goHome }) {
     setGrupos(null);
     if (total < 2) return setAvisoGrupos("La lista necesita al menos 2 integrantes.");
     const num = Math.max(1, Math.floor(Number(grupoNum) || 0));
-    const cuantos = grupoModo === "cantidad" ? Math.min(num, total) : Math.max(1, Math.ceil(total / Math.min(num, total)));
+    const cuantos =
+      grupoModo === "cantidad" ? Math.min(num, total) : Math.max(1, Math.ceil(total / Math.min(num, total)));
     const base = mezclar(lista.items);
     const resultado = Array.from({ length: cuantos }, (_, i) => ({ n: i + 1, miembros: [], lider: "", tema: "" }));
     base.forEach((nombre, i) => resultado[i % cuantos].miembros.push(nombre)); // reparto en ronda: quedan equilibrados
-    if (grupoLider) resultado.forEach((g) => { g.lider = g.miembros[azarEntero(g.miembros.length)]; });
+    if (grupoLider)
+      resultado.forEach((g) => {
+        g.lider = g.miembros[azarEntero(g.miembros.length)];
+      });
     const temas = grupoTemaId ? listas.find((l) => l.id === grupoTemaId).items : [];
     if (temas.length) {
       let cola = [];
@@ -556,8 +577,14 @@ export function Ruleta({ goHome }) {
       });
     }
     const tamanos = [...new Set(resultado.map((g) => g.miembros.length))].sort((a, b) => a - b);
-    const detalle = tamanos.length === 1 ? `de ${plural(tamanos[0], "integrante", "integrantes")}` : `de ${tamanos[0]} a ${tamanos[tamanos.length - 1]} integrantes`;
-    const avisoTema = temas.length && temas.length < cuantos ? ` Hay menos temas (${temas.length}) que grupos: algunos se repiten.` : "";
+    const detalle =
+      tamanos.length === 1
+        ? `de ${plural(tamanos[0], "integrante", "integrantes")}`
+        : `de ${tamanos[0]} a ${tamanos[tamanos.length - 1]} integrantes`;
+    const avisoTema =
+      temas.length && temas.length < cuantos
+        ? ` Hay menos temas (${temas.length}) que grupos: algunos se repiten.`
+        : "";
     setAvisoGrupos(`${plural(cuantos, "grupo", "grupos")} ${detalle}.${avisoTema}`);
     setGrupos(resultado);
     prepararAudio();
@@ -566,8 +593,14 @@ export function Ruleta({ goHome }) {
   async function copiarGrupos() {
     if (!grupos) return;
     const hayTema = grupos.some((g) => g.tema);
-    const encabezado = ["Grupo", "Integrantes", grupoLider ? "Líder" : null, hayTema ? "Tema" : null].filter(Boolean).join("\t");
-    const filas = grupos.map((g) => [g.n, g.miembros.join(", "), grupoLider ? g.lider : null, hayTema ? g.tema : null].filter((v) => v !== null).join("\t"));
+    const encabezado = ["Grupo", "Integrantes", grupoLider ? "Líder" : null, hayTema ? "Tema" : null]
+      .filter(Boolean)
+      .join("\t");
+    const filas = grupos.map((g) =>
+      [g.n, g.miembros.join(", "), grupoLider ? g.lider : null, hayTema ? g.tema : null]
+        .filter((v) => v !== null)
+        .join("\t"),
+    );
     try {
       await navigator.clipboard.writeText([encabezado, ...filas].join("\n"));
       setAvisoGrupos("Grupos copiados. Puedes pegarlos en Excel o en un documento.");
@@ -577,28 +610,79 @@ export function Ruleta({ goHome }) {
   }
 
   const sinElementos = pool.length === 0;
-  const hayCambios = pool.length !== activa.items.length || pool.some((v, i) => v !== activa.items[i]) || historial.length > 0;
+  const hayCambios =
+    pool.length !== activa.items.length || pool.some((v, i) => v !== activa.items[i]) || historial.length > 0;
 
   return (
     <div className={"app hr-page" + (pestana === "ruleta" ? " hr-fullh" : "")}>
       <header className="ref-topbar">
         <Brand subtitle="Ruleta de sorteos" onClick={goHome} />
-        <button className="hr-back" onClick={goHome}>← Volver al inicio</button>
+        <button className="hr-back" onClick={goHome}>
+          ← Volver al inicio
+        </button>
       </header>
 
       <main className={"hr-main" + (pestana === "ruleta" ? " hr-main-full" : "")}>
         <div className="hr-bar">
           <div className="hr-tabs" role="tablist" aria-label="Secciones de la ruleta">
-            <button role="tab" aria-selected={pestana === "ruleta"} className={"hr-tab" + (pestana === "ruleta" ? " on" : "")} onClick={() => setPestana("ruleta")}>🎡 Ruleta</button>
-            <button role="tab" aria-selected={pestana === "repartir"} className={"hr-tab" + (pestana === "repartir" ? " on" : "")} onClick={() => setPestana("repartir")}>🎲 Repartir listas</button>
-            <button role="tab" aria-selected={pestana === "grupos"} className={"hr-tab" + (pestana === "grupos" ? " on" : "")} onClick={() => setPestana("grupos")}>👥 Formar grupos</button>
+            <button
+              role="tab"
+              aria-selected={pestana === "ruleta"}
+              className={"hr-tab" + (pestana === "ruleta" ? " on" : "")}
+              onClick={() => setPestana("ruleta")}
+            >
+              🎡 Ruleta
+            </button>
+            <button
+              role="tab"
+              aria-selected={pestana === "repartir"}
+              className={"hr-tab" + (pestana === "repartir" ? " on" : "")}
+              onClick={() => setPestana("repartir")}
+            >
+              🎲 Repartir listas
+            </button>
+            <button
+              role="tab"
+              aria-selected={pestana === "grupos"}
+              className={"hr-tab" + (pestana === "grupos" ? " on" : "")}
+              onClick={() => setPestana("grupos")}
+            >
+              👥 Formar grupos
+            </button>
           </div>
           <span className="hr-tools">
             {pestana === "ruleta" && (
-              <button className="hr-icon" aria-pressed={soloRuleta} aria-label="Ocultar listas" title={soloRuleta ? "Mostrar listas" : "Ocultar listas (ruleta más grande)"} onClick={() => setSoloRuleta(!soloRuleta)}>◧</button>
+              <button
+                className="hr-icon"
+                aria-pressed={soloRuleta}
+                aria-label="Ocultar listas"
+                title={soloRuleta ? "Mostrar listas" : "Ocultar listas (ruleta más grande)"}
+                onClick={() => setSoloRuleta(!soloRuleta)}
+              >
+                ◧
+              </button>
             )}
-            <button className="hr-icon" aria-pressed={mascota} aria-label="Mostrar mascota" title="Mostrar u ocultar la mascota" onClick={() => setMascota(!mascota)}><img className="hr-icon-condor" src="/condor-256.png" alt="" width="22" height="22" /></button>
-            <button className="hr-icon" aria-pressed={sonido} aria-label="Sonido" title={sonido ? "Sonido activado" : "Sonido apagado"} onClick={() => { prepararAudio(); setSonido(!sonido); }}>{sonido ? "🔊" : "🔇"}</button>
+            <button
+              className="hr-icon"
+              aria-pressed={mascota}
+              aria-label="Mostrar mascota"
+              title="Mostrar u ocultar la mascota"
+              onClick={() => setMascota(!mascota)}
+            >
+              <img className="hr-icon-condor" src="/condor-256.png" alt="" width="22" height="22" />
+            </button>
+            <button
+              className="hr-icon"
+              aria-pressed={sonido}
+              aria-label="Sonido"
+              title={sonido ? "Sonido activado" : "Sonido apagado"}
+              onClick={() => {
+                prepararAudio();
+                setSonido(!sonido);
+              }}
+            >
+              {sonido ? "🔊" : "🔇"}
+            </button>
           </span>
         </div>
 
@@ -606,28 +690,73 @@ export function Ruleta({ goHome }) {
           <div className={"hr-ruleta" + (soloRuleta ? " solo" : "")}>
             {!soloRuleta && (
               <aside className="hr-card hr-listas" aria-label="Listas de sorteo">
-                <label className="hr-label" htmlFor="hr-lista">Lista</label>
-                <select id="hr-lista" value={activa.id} disabled={ocupada} onChange={(e) => cambiarLista(e.target.value)}>
-                  {listas.map((l) => <option key={l.id} value={l.id}>{l.nombre || "Sin nombre"}</option>)}
+                <label className="hr-label" htmlFor="hr-lista">
+                  Lista
+                </label>
+                <select
+                  id="hr-lista"
+                  value={activa.id}
+                  disabled={ocupada}
+                  onChange={(e) => cambiarLista(e.target.value)}
+                >
+                  {listas.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.nombre || "Sin nombre"}
+                    </option>
+                  ))}
                 </select>
                 <div className="hr-row">
-                  <button className="hr-btn hr-sm" disabled={ocupada} onClick={nuevaLista}>➕ Nueva</button>
-                  <button className="hr-btn hr-sm" disabled={ocupada} onClick={borrarLista}>🗑️ Borrar</button>
+                  <button className="hr-btn hr-sm" disabled={ocupada} onClick={nuevaLista}>
+                    ➕ Nueva
+                  </button>
+                  <button className="hr-btn hr-sm" disabled={ocupada} onClick={borrarLista}>
+                    🗑️ Borrar
+                  </button>
                 </div>
 
-                <label className="hr-label" htmlFor="hr-nombre">Nombre de la lista</label>
-                <input id="hr-nombre" type="text" maxLength={40} autoComplete="off" value={activa.nombre} disabled={ocupada} onChange={(e) => renombrar(e.target.value)} />
+                <label className="hr-label" htmlFor="hr-nombre">
+                  Nombre de la lista
+                </label>
+                <input
+                  id="hr-nombre"
+                  type="text"
+                  maxLength={40}
+                  autoComplete="off"
+                  value={activa.nombre}
+                  disabled={ocupada}
+                  onChange={(e) => renombrar(e.target.value)}
+                />
 
-                <label className="hr-label" htmlFor="hr-items">Elementos (uno por línea)</label>
-                <textarea id="hr-items" spellCheck={false} value={borrador} disabled={ocupada} onChange={(e) => editarElementos(e.target.value)} placeholder="Escribe o pega un elemento por línea…" />
-                <p className="hr-muted" role="status">En la ruleta: {pool.length} de {activa.items.length} guardados.</p>
+                <label className="hr-label" htmlFor="hr-items">
+                  Elementos (uno por línea)
+                </label>
+                <textarea
+                  id="hr-items"
+                  spellCheck={false}
+                  value={borrador}
+                  disabled={ocupada}
+                  onChange={(e) => editarElementos(e.target.value)}
+                  placeholder="Escribe o pega un elemento por línea…"
+                />
+                <p className="hr-muted" role="status">
+                  En la ruleta: {pool.length} de {activa.items.length} guardados.
+                </p>
 
                 <div className="hr-row">
-                  <button className="hr-btn hr-sm" disabled={ocupada || pool.length < 2} onClick={mezclarLista}>🔀 Mezclar</button>
-                  <button className="hr-btn hr-sm" disabled={ocupada || !hayCambios} onClick={restaurarLista}>↩️ Restaurar lista</button>
+                  <button className="hr-btn hr-sm" disabled={ocupada || pool.length < 2} onClick={mezclarLista}>
+                    🔀 Mezclar
+                  </button>
+                  <button className="hr-btn hr-sm" disabled={ocupada || !hayCambios} onClick={restaurarLista}>
+                    ↩️ Restaurar lista
+                  </button>
                 </div>
                 <label className="hr-check">
-                  <input type="checkbox" checked={quitar} disabled={ocupada} onChange={(e) => setQuitar(e.target.checked)} />
+                  <input
+                    type="checkbox"
+                    checked={quitar}
+                    disabled={ocupada}
+                    onChange={(e) => setQuitar(e.target.checked)}
+                  />
                   Quitar de la ruleta lo que salga
                 </label>
               </aside>
@@ -637,19 +766,36 @@ export function Ruleta({ goHome }) {
             <section className="hr-centro">
               <div className={"hr-resultado" + (resultado.gano ? " gano" : "")} aria-live="polite" aria-atomic="true">
                 <span className="hr-etiqueta">{resultado.etiqueta}</span>
-                <strong key={resultado.clave} className={"hr-ganador" + (resultado.gano ? " pop" : "")}>{resultado.texto}</strong>
+                <strong key={resultado.clave} className={"hr-ganador" + (resultado.gano ? " pop" : "")}>
+                  {resultado.texto}
+                </strong>
               </div>
               <div className="hr-wheel-box">
                 <div className="hr-wheel">
-                  <canvas ref={canvasRef} role="img" aria-label={sinElementos ? "Ruleta vacía" : `Ruleta con ${plural(pool.length, "elemento", "elementos")}`} />
+                  <canvas
+                    ref={canvasRef}
+                    role="img"
+                    aria-label={
+                      sinElementos ? "Ruleta vacía" : `Ruleta con ${plural(pool.length, "elemento", "elementos")}`
+                    }
+                  />
                 </div>
               </div>
-              <button className="hr-btn hr-primary hr-grande" disabled={ocupada || sinElementos} onClick={girar}>🎯 Girar</button>
+              <button className="hr-btn hr-primary hr-grande" disabled={ocupada || sinElementos} onClick={girar}>
+                🎯 Girar
+              </button>
             </section>
 
             {/* DERECHA: mascota e historial de los que ya salieron */}
             <aside className="hr-card hr-lateral" aria-label="Historial de sorteos">
-              {mascota && <img className="hr-lateral-mascota" src={resultado.gano ? CONFIG.mascota.ganador : CONFIG.mascota.espera} alt="" aria-hidden="true" />}
+              {mascota && (
+                <img
+                  className="hr-lateral-mascota"
+                  src={resultado.gano ? CONFIG.mascota.ganador : CONFIG.mascota.espera}
+                  alt=""
+                  aria-hidden="true"
+                />
+              )}
               <div className="hr-lateral-titulo">
                 <b>Salieron</b>
                 {historial.length > 0 && <span className="hr-contador">{historial.length}</span>}
@@ -658,13 +804,21 @@ export function Ruleta({ goHome }) {
                 <p className="hr-muted">Aún no ha salido nadie.</p>
               ) : (
                 <ol className="hr-lista-salidos">
-                  {historial.map((h, i) => ({ h, n: i + 1 })).reverse().map(({ h, n }) => (
-                    <li key={n}><span className="n">{n}</span><span className="t">{h}</span></li>
-                  ))}
+                  {historial
+                    .map((h, i) => ({ h, n: i + 1 }))
+                    .reverse()
+                    .map(({ h, n }) => (
+                      <li key={n}>
+                        <span className="n">{n}</span>
+                        <span className="t">{h}</span>
+                      </li>
+                    ))}
                 </ol>
               )}
               {historial.length > 0 && (
-                <button className="hr-link" onClick={() => setHistoriales({ ...historiales, [activa.id]: [] })}>Borrar historial</button>
+                <button className="hr-link" onClick={() => setHistoriales({ ...historiales, [activa.id]: [] })}>
+                  Borrar historial
+                </button>
               )}
             </aside>
           </div>
@@ -673,40 +827,73 @@ export function Ruleta({ goHome }) {
         {pestana === "repartir" && (
           <section className="hr-card hr-repartir" aria-label="Repartir una lista entre otra">
             <h2>Repartir una lista entre otra</h2>
-            <p className="hr-muted">Ejemplo: reparte la lista «Temas» entre la lista «Alumnos» y a cada alumno le tocará un tema al azar.</p>
+            <p className="hr-muted">
+              Ejemplo: reparte la lista «Temas» entre la lista «Alumnos» y a cada alumno le tocará un tema al azar.
+            </p>
             <div className="hr-reparto-controles">
               <div>
-                <label className="hr-label" htmlFor="hr-que">Lista a repartir</label>
+                <label className="hr-label" htmlFor="hr-que">
+                  Lista a repartir
+                </label>
                 <select id="hr-que" value={queId} onChange={(e) => setRepartirQue(e.target.value)}>
-                  {listas.map((l) => <option key={l.id} value={l.id}>{l.nombre || "Sin nombre"}</option>)}
+                  {listas.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.nombre || "Sin nombre"}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
-                <label className="hr-label" htmlFor="hr-entre">Entre los de la lista</label>
+                <label className="hr-label" htmlFor="hr-entre">
+                  Entre los de la lista
+                </label>
                 <select id="hr-entre" value={entreId} onChange={(e) => setRepartirEntre(e.target.value)}>
-                  {listas.map((l) => <option key={l.id} value={l.id}>{l.nombre || "Sin nombre"}</option>)}
+                  {listas.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.nombre || "Sin nombre"}
+                    </option>
+                  ))}
                 </select>
               </div>
-              <button className="hr-btn hr-primary" onClick={repartir}>Repartir al azar</button>
+              <button className="hr-btn hr-primary" onClick={repartir}>
+                Repartir al azar
+              </button>
             </div>
-            {avisoReparto && <p className="hr-aviso" role="status">{avisoReparto}</p>}
+            {avisoReparto && (
+              <p className="hr-aviso" role="status">
+                {avisoReparto}
+              </p>
+            )}
             {reparto && (
               <>
                 <div className="hr-tabla">
                   <table>
-                    <thead><tr><th className="n">#</th><th>{reparto.entre || "Lista"}</th><th>{reparto.que || "Le tocó"}</th></tr></thead>
+                    <thead>
+                      <tr>
+                        <th className="n">#</th>
+                        <th>{reparto.entre || "Lista"}</th>
+                        <th>{reparto.que || "Le tocó"}</th>
+                      </tr>
+                    </thead>
                     <tbody>
                       {reparto.filas.map((f, i) => (
                         <tr key={i}>
                           <td className="n">{i + 1}</td>
                           <td>{f[0]}</td>
-                          <td>{f[1]}{f[2] && <span className="hr-rep">repetido</span>}</td>
+                          <td>
+                            {f[1]}
+                            {f[2] && <span className="hr-rep">repetido</span>}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-                <div className="hr-row"><button className="hr-btn hr-sm" onClick={copiarTabla}>📋 Copiar tabla</button></div>
+                <div className="hr-row">
+                  <button className="hr-btn hr-sm" onClick={copiarTabla}>
+                    📋 Copiar tabla
+                  </button>
+                </div>
               </>
             )}
           </section>
@@ -715,39 +902,72 @@ export function Ruleta({ goHome }) {
         {pestana === "grupos" && (
           <section className="hr-card hr-repartir" aria-label="Formar grupos de trabajo">
             <h2>Formar grupos de trabajo</h2>
-            <p className="hr-muted">Divide una lista en grupos equilibrados. Opcionalmente asigna un líder y un tema a cada grupo.</p>
+            <p className="hr-muted">
+              Divide una lista en grupos equilibrados. Opcionalmente asigna un líder y un tema a cada grupo.
+            </p>
             <div className="hr-reparto-controles">
               <div>
-                <label className="hr-label" htmlFor="hr-g-lista">Lista de estudiantes</label>
+                <label className="hr-label" htmlFor="hr-g-lista">
+                  Lista de estudiantes
+                </label>
                 <select id="hr-g-lista" value={grupoListaId} onChange={(e) => setGrupoLista(e.target.value)}>
-                  {listas.map((l) => <option key={l.id} value={l.id}>{l.nombre || "Sin nombre"} ({l.items.length})</option>)}
+                  {listas.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.nombre || "Sin nombre"} ({l.items.length})
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
-                <label className="hr-label" htmlFor="hr-g-modo">Dividir por</label>
+                <label className="hr-label" htmlFor="hr-g-modo">
+                  Dividir por
+                </label>
                 <select id="hr-g-modo" value={grupoModo} onChange={(e) => setGrupoModo(e.target.value)}>
                   <option value="cantidad">Cantidad de grupos</option>
                   <option value="tamano">Integrantes por grupo</option>
                 </select>
               </div>
               <div>
-                <label className="hr-label" htmlFor="hr-g-num">{grupoModo === "cantidad" ? "¿Cuántos grupos?" : "¿Cuántos por grupo?"}</label>
-                <input id="hr-g-num" type="number" min="1" max="100" value={grupoNum} onChange={(e) => setGrupoNum(e.target.value)} />
+                <label className="hr-label" htmlFor="hr-g-num">
+                  {grupoModo === "cantidad" ? "¿Cuántos grupos?" : "¿Cuántos por grupo?"}
+                </label>
+                <input
+                  id="hr-g-num"
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={grupoNum}
+                  onChange={(e) => setGrupoNum(e.target.value)}
+                />
               </div>
               <div>
-                <label className="hr-label" htmlFor="hr-g-tema">Tema por grupo (opcional)</label>
+                <label className="hr-label" htmlFor="hr-g-tema">
+                  Tema por grupo (opcional)
+                </label>
                 <select id="hr-g-tema" value={grupoTemaId} onChange={(e) => setGrupoTema(e.target.value)}>
                   <option value="">Sin tema</option>
-                  {listas.filter((l) => l.id !== grupoListaId).map((l) => <option key={l.id} value={l.id}>{l.nombre || "Sin nombre"}</option>)}
+                  {listas
+                    .filter((l) => l.id !== grupoListaId)
+                    .map((l) => (
+                      <option key={l.id} value={l.id}>
+                        {l.nombre || "Sin nombre"}
+                      </option>
+                    ))}
                 </select>
               </div>
-              <button className="hr-btn hr-primary" onClick={formarGrupos}>Formar grupos</button>
+              <button className="hr-btn hr-primary" onClick={formarGrupos}>
+                Formar grupos
+              </button>
             </div>
             <label className="hr-check">
               <input type="checkbox" checked={grupoLider} onChange={(e) => setGrupoLider(e.target.checked)} />
               Elegir un líder al azar en cada grupo
             </label>
-            {avisoGrupos && <p className="hr-aviso" role="status">{avisoGrupos}</p>}
+            {avisoGrupos && (
+              <p className="hr-aviso" role="status">
+                {avisoGrupos}
+              </p>
+            )}
             {grupos && (
               <>
                 <div className="hr-grupos">
@@ -757,15 +977,22 @@ export function Ruleta({ goHome }) {
                       {g.tema && <p className="hr-grupo-tema">📌 {g.tema}</p>}
                       <ul>
                         {g.miembros.map((m, i) => (
-                          <li key={i}>{m}{grupoLider && m === g.lider && <span className="hr-lider">líder</span>}</li>
+                          <li key={i}>
+                            {m}
+                            {grupoLider && m === g.lider && <span className="hr-lider">líder</span>}
+                          </li>
                         ))}
                       </ul>
                     </article>
                   ))}
                 </div>
                 <div className="hr-row">
-                  <button className="hr-btn hr-sm" onClick={copiarGrupos}>📋 Copiar grupos</button>
-                  <button className="hr-btn hr-sm" onClick={formarGrupos}>🔁 Volver a sortear</button>
+                  <button className="hr-btn hr-sm" onClick={copiarGrupos}>
+                    📋 Copiar grupos
+                  </button>
+                  <button className="hr-btn hr-sm" onClick={formarGrupos}>
+                    🔁 Volver a sortear
+                  </button>
                 </div>
               </>
             )}

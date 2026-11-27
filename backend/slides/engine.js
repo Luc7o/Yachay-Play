@@ -26,7 +26,11 @@ const avisar = (room) => {
 };
 
 const MAX_ALUMNOS = 80;
-const nombreLimpio = (s, max = LIMITES.nombre) => String(s || "").replace(/\s+/g, " ").trim().slice(0, max);
+const nombreLimpio = (s, max = LIMITES.nombre) =>
+  String(s || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, max);
 
 export function createRoom({ name, task, ownerId, classId = null }) {
   let code;
@@ -37,7 +41,9 @@ export function createRoom({ name, task, ownerId, classId = null }) {
     id: crypto.randomUUID(),
     code,
     name: nombreLimpio(name, 60) || "Presentaciones de la clase",
-    task: String(task || "").trim().slice(0, 500),
+    task: String(task || "")
+      .trim()
+      .slice(0, 500),
     ownerId: ownerId || null,
     classId: classId || null, // clase a la que pertenece (o null)
     createdAt: Date.now(),
@@ -61,9 +67,14 @@ export const getRoom = (code) => rooms.get(String(code || "").trim()) || null;
 // un código de 4 caracteres que comparte con sus compañeros, y para unirse hay que escribirlo.
 const ALFABETO_EQUIPO = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sin 0/O ni 1/I/L, que se confunden
 const RE_CODIGO_EQUIPO = /^[A-HJ-NP-Z2-9]{4}$/;
-export const limpiarCodigoEquipo = (c) => String(c || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4);
+export const limpiarCodigoEquipo = (c) =>
+  String(c || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "")
+    .slice(0, 4);
 // El código vive dentro de la clave del deck ("t:ABCD"), así sobrevive a la restauración sin cambiar el guardado.
-export const codigoDeEquipo = (key) => (typeof key === "string" && key.startsWith("t:") && RE_CODIGO_EQUIPO.test(key.slice(2)) ? key.slice(2) : null);
+export const codigoDeEquipo = (key) =>
+  typeof key === "string" && key.startsWith("t:") && RE_CODIGO_EQUIPO.test(key.slice(2)) ? key.slice(2) : null;
 function nuevoCodigoEquipo(room) {
   for (;;) {
     let c = "";
@@ -91,7 +102,11 @@ export function joinStudent(room, { id, name, team, teamCode, userId }) {
   if (codigo) {
     // Unirse a un equipo que ya existe: el código tiene que coincidir.
     entry = RE_CODIGO_EQUIPO.test(codigo) ? room.decks.get(`t:${codigo}`) : null;
-    if (!entry) return { error: "No existe un equipo con ese código en esta sala. Pídeselo a quien creó el equipo.", codigoInvalido: true };
+    if (!entry)
+      return {
+        error: "No existe un equipo con ese código en esta sala. Pídeselo a quien creó el equipo.",
+        codigoInvalido: true,
+      };
   } else {
     const equipo = nombreLimpio(team, 30);
     const key = equipo ? `t:${nuevoCodigoEquipo(room)}` : `s:${sid}`;
@@ -99,7 +114,15 @@ export function joinStudent(room, { id, name, team, teamCode, userId }) {
     room.decks.set(key, entry);
   }
   const key = entry.key;
-  const student = { id: sid, name: nombre, userId: userId || null, deckKey: key, online: false, slideId: null, lastSeen: Date.now() };
+  const student = {
+    id: sid,
+    name: nombre,
+    userId: userId || null,
+    deckKey: key,
+    online: false,
+    slideId: null,
+    lastSeen: Date.now(),
+  };
   room.students.set(sid, student);
   avisar(room);
   return { student, entry };
@@ -110,7 +133,8 @@ const MAX_IMAGENES_SALA = 40 * 1024 * 1024; // entre todas las presentaciones de
 
 function pesoImagenes(deck) {
   let total = 0;
-  for (const sl of deck?.slides || []) for (const el of sl.elements || []) if (el.type === "image" && typeof el.src === "string") total += el.src.length;
+  for (const sl of deck?.slides || [])
+    for (const el of sl.elements || []) if (el.type === "image" && typeof el.src === "string") total += el.src.length;
   return total;
 }
 // Solo hace falta medir cuando el cambio puede agregar imágenes (nuevo elemento,
@@ -133,10 +157,12 @@ export function studentOp(room, studentId, rawOp) {
   // total un estudiante podría subir cientos de MB (40 diapositivas × 60 imágenes).
   if (nuevo !== entry.deck && opPuedeCrecer(op)) {
     const delDeck = pesoImagenes(nuevo);
-    if (delDeck > MAX_IMAGENES_DECK) return { error: "La presentación ya tiene demasiadas imágenes. Quita alguna o usa imágenes más livianas." };
+    if (delDeck > MAX_IMAGENES_DECK)
+      return { error: "La presentación ya tiene demasiadas imágenes. Quita alguna o usa imágenes más livianas." };
     let deLaSala = delDeck;
     for (const e of room.decks.values()) if (e !== entry) deLaSala += pesoImagenes(e.deck);
-    if (deLaSala > MAX_IMAGENES_SALA) return { error: "La sala llegó a su límite de imágenes. Pide al docente que revise." };
+    if (deLaSala > MAX_IMAGENES_SALA)
+      return { error: "La sala llegó a su límite de imágenes. Pide al docente que revise." };
   }
   entry.deck = nuevo;
   entry.updatedAt = st.lastSeen = Date.now();
@@ -146,7 +172,9 @@ export function studentOp(room, studentId, rawOp) {
 
 export function addComment(room, deckKey, slideId, text) {
   const entry = room.decks.get(deckKey);
-  const t = String(text || "").trim().slice(0, LIMITES.comentario);
+  const t = String(text || "")
+    .trim()
+    .slice(0, LIMITES.comentario);
   if (!entry || !t) return null;
   const sid = String(slideId || "").slice(0, 16);
   const lista = (entry.comments[sid] ||= []);
@@ -179,15 +207,24 @@ export function deleteRoom(room) {
   room.deleted = true;
   if (rooms.get(room.code) === room) rooms.delete(room.code);
 }
-export const marcarUso = (room) => { room.lastUsed = Date.now(); };
+export const marcarUso = (room) => {
+  room.lastUsed = Date.now();
+};
 
 // Resumen corto para la lista "Mis salas" del docente.
 export function resumenLista(room) {
   let slides = 0;
   for (const e of room.decks.values()) slides += e.deck?.slides?.length || 0;
   return {
-    id: room.id, code: room.code, name: room.name, task: room.task, status: room.status,
-    createdAt: room.createdAt, students: room.students.size, decks: room.decks.size, slides,
+    id: room.id,
+    code: room.code,
+    name: room.name,
+    task: room.task,
+    status: room.status,
+    createdAt: room.createdAt,
+    students: room.students.size,
+    decks: room.decks.size,
+    slides,
   };
 }
 
@@ -200,7 +237,9 @@ export function setPresence(room, studentId, patch) {
 
 // ---- lo que ve cada quien ----
 const miembros = (room, key) =>
-  [...room.students.values()].filter((s) => s.deckKey === key).map((s) => ({ id: s.id, name: s.name, online: s.online, slideId: s.slideId }));
+  [...room.students.values()]
+    .filter((s) => s.deckKey === key)
+    .map((s) => ({ id: s.id, name: s.name, online: s.online, slideId: s.slideId }));
 
 export function resumenSala(room) {
   return { code: room.code, name: room.name, task: room.task, status: room.status, locked: room.locked };
@@ -212,7 +251,13 @@ export function vistaDocente(room) {
     ...resumenSala(room),
     id: room.id,
     decks: [...room.decks.values()].map((e) => ({
-      key: e.key, name: e.name, teamCode: codigoDeEquipo(e.key), deck: e.deck, comments: e.comments, updatedAt: e.updatedAt, members: miembros(room, e.key),
+      key: e.key,
+      name: e.name,
+      teamCode: codigoDeEquipo(e.key),
+      deck: e.deck,
+      comments: e.comments,
+      updatedAt: e.updatedAt,
+      members: miembros(room, e.key),
     })),
   };
 }
@@ -220,7 +265,16 @@ export function vistaDocente(room) {
 // El estudiante recibe SOLO la suya.
 export function vistaEstudiante(room, student) {
   const e = room.decks.get(student.deckKey);
-  return { ...resumenSala(room), me: { id: student.id, name: student.name }, deckKey: e.key, deckName: e.name, teamCode: codigoDeEquipo(e.key), deck: e.deck, comments: e.comments, members: miembros(room, e.key) };
+  return {
+    ...resumenSala(room),
+    me: { id: student.id, name: student.name },
+    deckKey: e.key,
+    deckName: e.name,
+    teamCode: codigoDeEquipo(e.key),
+    deck: e.deck,
+    comments: e.comments,
+    members: miembros(room, e.key),
+  };
 }
 
 export const miembrosDe = miembros;
@@ -228,7 +282,14 @@ export const miembrosDe = miembros;
 // ---- guardado / restauración ----
 export function serializar(room) {
   return {
-    id: room.id, code: room.code, name: room.name, task: room.task, ownerId: room.ownerId, classId: room.classId || null, status: room.status, locked: room.locked,
+    id: room.id,
+    code: room.code,
+    name: room.name,
+    task: room.task,
+    ownerId: room.ownerId,
+    classId: room.classId || null,
+    status: room.status,
+    locked: room.locked,
     createdAt: room.createdAt,
     decks: [...room.decks.values()],
     students: [...room.students.values()].map(({ id, name, userId, deckKey }) => ({ id, name, userId, deckKey })),
@@ -237,11 +298,31 @@ export function serializar(room) {
 export function restaurar(d) {
   if (!d?.code || rooms.has(d.code)) return null;
   const room = {
-    id: d.id, code: d.code, name: d.name, task: d.task || "", ownerId: d.ownerId || null, classId: d.classId || null, status: d.status === "closed" ? "closed" : "open",
-    locked: !!d.locked, createdAt: d.createdAt || Date.now(), lastUsed: Date.now(), decks: new Map(), students: new Map(), dirty: false,
+    id: d.id,
+    code: d.code,
+    name: d.name,
+    task: d.task || "",
+    ownerId: d.ownerId || null,
+    classId: d.classId || null,
+    status: d.status === "closed" ? "closed" : "open",
+    locked: !!d.locked,
+    createdAt: d.createdAt || Date.now(),
+    lastUsed: Date.now(),
+    decks: new Map(),
+    students: new Map(),
+    dirty: false,
   };
-  for (const e of d.decks || []) room.decks.set(e.key, { key: e.key, name: e.name, deck: limpiarDeck(e.deck), comments: e.comments || {}, updatedAt: e.updatedAt || Date.now() });
-  for (const s of d.students || []) if (room.decks.has(s.deckKey)) room.students.set(s.id, { ...s, online: false, slideId: null, lastSeen: Date.now() });
+  for (const e of d.decks || [])
+    room.decks.set(e.key, {
+      key: e.key,
+      name: e.name,
+      deck: limpiarDeck(e.deck),
+      comments: e.comments || {},
+      updatedAt: e.updatedAt || Date.now(),
+    });
+  for (const s of d.students || [])
+    if (room.decks.has(s.deckKey))
+      room.students.set(s.id, { ...s, online: false, slideId: null, lastSeen: Date.now() });
   rooms.set(room.code, room);
   return room;
 }

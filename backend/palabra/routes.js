@@ -49,5 +49,12 @@ palabraRouter.post("/", async (req, res) => {
 palabraRouter.get("/:code", (req, res) => {
   const room = getRoom(req.params.code);
   if (!room) return res.status(404).json({ error: "No existe una partida con ese código." });
-  res.json({ code: room.code, name: room.name, status: room.status, mode: room.mode, players: room.players.size, host: room.ownerName });
+  res.json({
+    code: room.code,
+    name: room.name,
+    status: room.status,
+    mode: room.mode,
+    players: room.players.size,
+    host: room.ownerName,
+  });
 });

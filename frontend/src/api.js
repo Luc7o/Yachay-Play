@@ -48,8 +48,8 @@ async function request(path, options = {}) {
       res.status === 404
         ? "El servidor no reconoce esta acción: parece una versión anterior. Detén el backend (Ctrl+C) y vuelve a iniciarlo con npm start."
         : res.status >= 500
-        ? "El servidor tuvo un problema interno. Revisa la consola del backend."
-        : "No se pudo completar la acción. Inténtalo de nuevo.";
+          ? "El servidor tuvo un problema interno. Revisa la consola del backend."
+          : "No se pudo completar la acción. Inténtalo de nuevo.";
     const err = new Error(data.error || porCodigo);
     err.status = res.status;
     throw err;
@@ -60,26 +60,39 @@ async function request(path, options = {}) {
 export const api = {
   // Cuentas
   register: ({ name, email, password, role, acceptTerms, confirmAge }) =>
-    request("/api/auth/register", { method: "POST", body: JSON.stringify({ name, email, password, role, acceptTerms, confirmAge }) }),
+    request("/api/auth/register", {
+      method: "POST",
+      body: JSON.stringify({ name, email, password, role, acceptTerms, confirmAge }),
+    }),
   login: (email, password) => request("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
-  login2fa: (challenge, code) => request("/api/auth/login/2fa", { method: "POST", body: JSON.stringify({ challenge, code }) }),
+  login2fa: (challenge, code) =>
+    request("/api/auth/login/2fa", { method: "POST", body: JSON.stringify({ challenge, code }) }),
   google: (credential, role, acceptTerms, confirmAge) =>
-    request("/api/auth/google", { method: "POST", body: JSON.stringify({ credential, role, acceptTerms, confirmAge }) }),
+    request("/api/auth/google", {
+      method: "POST",
+      body: JSON.stringify({ credential, role, acceptTerms, confirmAge }),
+    }),
   forgotPassword: (email) => request("/api/auth/forgot", { method: "POST", body: JSON.stringify({ email }) }),
-  resetPassword: (token, password) => request("/api/auth/reset", { method: "POST", body: JSON.stringify({ token, password }) }),
+  resetPassword: (token, password) =>
+    request("/api/auth/reset", { method: "POST", body: JSON.stringify({ token, password }) }),
   verifyEmail: (token) => request("/api/auth/verify-email", { method: "POST", body: JSON.stringify({ token }) }),
   resendVerification: () => request("/api/auth/resend-verification", { method: "POST", body: "{}" }),
   logoutAll: () => request("/api/auth/logout-all", { method: "POST", body: "{}" }),
   twoFactorSetup: (password) => request("/api/auth/2fa/setup", { method: "POST", body: JSON.stringify({ password }) }),
   twoFactorEnable: (code) => request("/api/auth/2fa/enable", { method: "POST", body: JSON.stringify({ code }) }),
-  twoFactorDisable: (code, password) => request("/api/auth/2fa/disable", { method: "POST", body: JSON.stringify({ code, password }) }),
-  twoFactorNewCodes: (code) => request("/api/auth/2fa/recovery-codes", { method: "POST", body: JSON.stringify({ code }) }),
+  twoFactorDisable: (code, password) =>
+    request("/api/auth/2fa/disable", { method: "POST", body: JSON.stringify({ code, password }) }),
+  twoFactorNewCodes: (code) =>
+    request("/api/auth/2fa/recovery-codes", { method: "POST", body: JSON.stringify({ code }) }),
   me: () => request("/api/auth/me"),
   demoAccounts: () => request("/api/auth/demo"),
   assistantChat: (messages) => request("/api/assistant/chat", { method: "POST", body: JSON.stringify({ messages }) }),
   // Partidas
   createGame: (name, counts, config) =>
-    request("/api/games", { method: "POST", body: JSON.stringify({ name, counts, ...config, ...conClaseDestino() }) }).then(olvidarDestino),
+    request("/api/games", {
+      method: "POST",
+      body: JSON.stringify({ name, counts, ...config, ...conClaseDestino() }),
+    }).then(olvidarDestino),
   getGame: (code) => request(`/api/games/${code}`),
   joinGame: (code, name, team) =>
     request(`/api/games/${code}/join`, { method: "POST", body: JSON.stringify({ name, team }) }),
@@ -97,21 +110,27 @@ export const api = {
   questionBank: () => request("/api/my-questions"),
   questionCreate: (q) => request("/api/my-questions", { method: "POST", body: JSON.stringify(q) }),
   questionUpdate: (id, q) => request(`/api/my-questions/${id}`, { method: "PUT", body: JSON.stringify(q) }),
-  questionActive: (id, active) => request(`/api/my-questions/${id}/active`, { method: "PATCH", body: JSON.stringify({ active }) }),
+  questionActive: (id, active) =>
+    request(`/api/my-questions/${id}/active`, { method: "PATCH", body: JSON.stringify({ active }) }),
   questionDelete: (id) => request(`/api/my-questions/${id}`, { method: "DELETE" }),
   // Crucigrama Relámpago
   crosswordCreate: (name, minutes, wordCount) =>
-    request("/api/crossword-games", { method: "POST", body: JSON.stringify({ name, minutes, wordCount, ...conClaseDestino() }) }).then(olvidarDestino),
+    request("/api/crossword-games", {
+      method: "POST",
+      body: JSON.stringify({ name, minutes, wordCount, ...conClaseDestino() }),
+    }).then(olvidarDestino),
   crosswordGet: (code) => request(`/api/crossword-games/${code}`),
   // Clases (curso + sección)
   // Palabra relámpago en línea (cualquier persona con sesión crea; las palabras extra y la clase solo las toma el servidor si es docente)
-  palabraCreate: (data) => request("/api/palabra-games", { method: "POST", body: JSON.stringify(data) }).then(olvidarDestino),
+  palabraCreate: (data) =>
+    request("/api/palabra-games", { method: "POST", body: JSON.stringify(data) }).then(olvidarDestino),
   palabraGet: (code) => request(`/api/palabra-games/${encodeURIComponent(code)}`),
   classes: () => request("/api/classes"),
   classCreate: (name, section) => request("/api/classes", { method: "POST", body: JSON.stringify({ name, section }) }),
   classJoin: (code) => request("/api/classes/join", { method: "POST", body: JSON.stringify({ code }) }),
   classGet: (id) => request(`/api/classes/${encodeURIComponent(id)}`),
-  classUpdate: (id, data) => request(`/api/classes/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(data) }),
+  classUpdate: (id, data) =>
+    request(`/api/classes/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(data) }),
   classNewCode: (id) => request(`/api/classes/${encodeURIComponent(id)}/code`, { method: "POST", body: "{}" }),
   classArchive: (id) => request(`/api/classes/${encodeURIComponent(id)}`, { method: "DELETE" }),
   classRemoveMember: (id, userId) =>

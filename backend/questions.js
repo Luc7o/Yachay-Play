@@ -9,15 +9,24 @@ export const RAW_QUESTIONS = [
     level: "Comprensión",
     question: "¿Qué logró principalmente la invención de la rueda y el eje en la ingeniería de transporte?",
     correct: "Reducir la fricción y facilitar el transporte de cargas pesadas",
-    distractors: ["Generar electricidad para las fábricas", "Permitir la navegación transoceánica", "Sustituir el uso de los metales"],
+    distractors: [
+      "Generar electricidad para las fábricas",
+      "Permitir la navegación transoceánica",
+      "Sustituir el uso de los metales",
+    ],
   },
   {
     id: 2,
     topic: "Edad Media y Difusión",
     level: "Análisis",
-    question: "¿Por qué la imprenta de tipos móviles de Gutenberg se considera la primera tecnología de producción en masa?",
+    question:
+      "¿Por qué la imprenta de tipos móviles de Gutenberg se considera la primera tecnología de producción en masa?",
     correct: "Porque estandarizó y permitió replicar textos de forma modular",
-    distractors: ["Porque eliminó el uso del papel", "Porque digitalizó la información", "Porque creó las primeras redes de comunicación"],
+    distractors: [
+      "Porque eliminó el uso del papel",
+      "Porque digitalizó la información",
+      "Porque creó las primeras redes de comunicación",
+    ],
   },
   {
     id: 3,
@@ -25,7 +34,11 @@ export const RAW_QUESTIONS = [
     level: "Aplicación",
     question: "¿Qué logró la Máquina de Vapor de James Watt en la producción industrial?",
     correct: "Independizar la producción de la fuerza hidráulica de los ríos",
-    distractors: ["Eliminar la necesidad de combustibles", "Crear la primera red eléctrica", "Sustituir el hierro por plástico"],
+    distractors: [
+      "Eliminar la necesidad de combustibles",
+      "Crear la primera red eléctrica",
+      "Sustituir el hierro por plástico",
+    ],
   },
   {
     id: 4,
@@ -41,7 +54,11 @@ export const RAW_QUESTIONS = [
     level: "Pensamiento Crítico",
     question: "¿Qué ventaja tuvo la corriente alterna sobre la corriente continua para la industria?",
     correct: "Permitió transportar energía a largas distancias con menores pérdidas",
-    distractors: ["Era más barata de generar en pequeña escala", "No requería cables conductores", "Funcionaba solo con baterías"],
+    distractors: [
+      "Era más barata de generar en pequeña escala",
+      "No requería cables conductores",
+      "Funcionaba solo con baterías",
+    ],
   },
   {
     id: 6,
@@ -49,7 +66,11 @@ export const RAW_QUESTIONS = [
     level: "Aplicación",
     question: "¿Cómo impactó el Motor de Combustión Interna en la logística y cadena de suministro mundial?",
     correct: "Brindó alta densidad de potencia y autonomía para el transporte de carga",
-    distractors: ["Eliminó la necesidad de vehículos", "Redujo la producción de petróleo", "Sustituyó completamente las vías férreas"],
+    distractors: [
+      "Eliminó la necesidad de vehículos",
+      "Redujo la producción de petróleo",
+      "Sustituyó completamente las vías férreas",
+    ],
   },
   {
     id: 7,
@@ -65,7 +86,11 @@ export const RAW_QUESTIONS = [
     level: "Comprensión",
     question: "¿Qué principio de ingeniería civil e hidráulica usaron los romanos en sus acueductos?",
     correct: "La pendiente por gravedad y el arco de medio punto para estabilidad",
-    distractors: ["Bombas eléctricas de alta presión", "Tuberías de plástico reforzado", "Motores hidráulicos automatizados"],
+    distractors: [
+      "Bombas eléctricas de alta presión",
+      "Tuberías de plástico reforzado",
+      "Motores hidráulicos automatizados",
+    ],
   },
   {
     id: 9,
@@ -73,7 +98,11 @@ export const RAW_QUESTIONS = [
     level: "Aplicación",
     question: "¿Cómo influyó la Brújula Magnética en la ingeniería de navegación y el comercio mundial?",
     correct: "Permitió orientarse en mar abierto y abrir rutas comerciales estables",
-    distractors: ["Eliminó la necesidad de barcos", "Creó los primeros mapas satelitales", "Sustituyó a los puertos marítimos"],
+    distractors: [
+      "Eliminó la necesidad de barcos",
+      "Creó los primeros mapas satelitales",
+      "Sustituyó a los puertos marítimos",
+    ],
   },
   {
     id: 10,
@@ -81,7 +110,11 @@ export const RAW_QUESTIONS = [
     level: "Pensamiento Crítico",
     question: "¿Qué exigió la producción masiva de Penicilina a la ingeniería de bioprocesos?",
     correct: "Diseñar biorreactores de fermentación y esterilización industrial a escala",
-    distractors: ["Crear redes de distribución eléctrica", "Automatizar líneas de ensamblaje de autos", "Desarrollar telégrafos de largo alcance"],
+    distractors: [
+      "Crear redes de distribución eléctrica",
+      "Automatizar líneas de ensamblaje de autos",
+      "Desarrollar telégrafos de largo alcance",
+    ],
   },
   {
     id: 11,
@@ -89,7 +122,11 @@ export const RAW_QUESTIONS = [
     level: "Análisis",
     question: "¿Qué cambió Henry Ford con la Línea de Ensamblaje Móvil en 1913?",
     correct: "Llevó el trabajo al operario, reduciendo tiempos de ciclo y estandarizando tareas",
-    distractors: ["Eliminó la necesidad de trabajadores", "Creó el primer motor eléctrico", "Sustituyó el acero por aluminio"],
+    distractors: [
+      "Eliminó la necesidad de trabajadores",
+      "Creó el primer motor eléctrico",
+      "Sustituyó el acero por aluminio",
+    ],
   },
   {
     id: 12,
@@ -105,7 +142,11 @@ export const RAW_QUESTIONS = [
     level: "Aplicación",
     question: "¿Qué impacto tuvo el Microprocesador (Intel 4004) en la automatización empresarial?",
     correct: "Integró toda la CPU en un solo circuito, habilitando cómputo en cualquier máquina",
-    distractors: ["Eliminó la necesidad de electricidad", "Creó las primeras redes telefónicas", "Sustituyó los materiales de construcción"],
+    distractors: [
+      "Eliminó la necesidad de electricidad",
+      "Creó las primeras redes telefónicas",
+      "Sustituyó los materiales de construcción",
+    ],
   },
   {
     id: 14,
@@ -129,7 +170,11 @@ export const RAW_QUESTIONS = [
     level: "Comprensión",
     question: "¿Por qué el Hormigón Armado transformó la arquitectura y la ingeniería civil moderna?",
     correct: "Combinó la resistencia a compresión del concreto con la resistencia a tracción del acero",
-    distractors: ["Eliminó el uso de cimientos", "Redujo el peso de los edificios a cero", "Sustituyó la necesidad de arquitectos"],
+    distractors: [
+      "Eliminó el uso de cimientos",
+      "Redujo el peso de los edificios a cero",
+      "Sustituyó la necesidad de arquitectos",
+    ],
   },
   {
     id: 17,
@@ -137,7 +182,11 @@ export const RAW_QUESTIONS = [
     level: "Análisis",
     question: "¿Cómo funciona el principio del Radar y qué aplicación tiene?",
     correct: "Emite ondas electromagnéticas que rebotan en objetos para calcular distancia y velocidad",
-    distractors: ["Usa luz visible para medir temperatura", "Analiza muestras químicas del aire", "Transmite señales de audio de baja frecuencia"],
+    distractors: [
+      "Usa luz visible para medir temperatura",
+      "Analiza muestras químicas del aire",
+      "Transmite señales de audio de baja frecuencia",
+    ],
   },
   {
     id: 18,
@@ -145,7 +194,11 @@ export const RAW_QUESTIONS = [
     level: "Pensamiento Crítico",
     question: "¿Cómo contribuye la Célula Fotovoltaica al cambio de matriz energética en las empresas?",
     correct: "Transforma la radiación solar en electricidad sin emisiones contaminantes en sitio",
-    distractors: ["Genera energía a partir de combustibles fósiles", "Almacena agua para consumo industrial", "Elimina la necesidad de baterías"],
+    distractors: [
+      "Genera energía a partir de combustibles fósiles",
+      "Almacena agua para consumo industrial",
+      "Elimina la necesidad de baterías",
+    ],
   },
   {
     id: 19,
@@ -161,7 +214,11 @@ export const RAW_QUESTIONS = [
     level: "Pensamiento Crítico",
     question: "¿Qué muestra la evolución histórica de la ingeniería sobre el rol del Ingeniero Empresarial?",
     correct: "Que integra tecnología, procesos y personas para crear valor en las organizaciones",
-    distractors: ["Que solo diseña artefactos mecánicos", "Que reemplaza completamente el trabajo humano", "Que se limita a la programación de software"],
+    distractors: [
+      "Que solo diseña artefactos mecánicos",
+      "Que reemplaza completamente el trabajo humano",
+      "Que se limita a la programación de software",
+    ],
   },
 ];
 

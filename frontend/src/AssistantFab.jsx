@@ -13,7 +13,15 @@ import { api, getToken } from "./api";
 // Diseño "Campus": sin mascota; un ícono de trazo en el botón y en los mensajes.
 // (La mascota actual es el cóndor, /condor-*.png; aquí no se usa.)
 const IconoIA = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.7"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
     <path d="M4 5h16v11H9l-5 4z" />
     <path d="M12 7.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z" fill="currentColor" stroke="none" />
   </svg>
@@ -103,27 +111,40 @@ export function AssistantFab() {
         <div className="ai-panel">
           <div className="ai-panel-head">
             <div className="ai-head-bar">
-              <span className="ai-head-title"><span className="ai-head-ico"><IconoIA /></span>Asistente IA <small>· solo docentes</small></span>
-              <button onClick={() => setOpen(false)} aria-label="Cerrar el asistente">✕</button>
+              <span className="ai-head-title">
+                <span className="ai-head-ico">
+                  <IconoIA />
+                </span>
+                Asistente IA <small>· solo docentes</small>
+              </span>
+              <button onClick={() => setOpen(false)} aria-label="Cerrar el asistente">
+                ✕
+              </button>
             </div>
           </div>
 
           <div className="ai-panel-body">
             {messages.length === 0 && (
               <p className="ai-empty">
-                Pregúntame por ideas de preguntas, pistas para el crucigrama, cómo explicar un tema, o cualquier
-                duda rápida sobre tu clase.
+                Pregúntame por ideas de preguntas, pistas para el crucigrama, cómo explicar un tema, o cualquier duda
+                rápida sobre tu clase.
               </p>
             )}
             {messages.map((m, i) => (
               <div key={i} className={"ai-row " + m.role}>
-                {m.role === "assistant" && <span className="ai-avatar"><IconoIA /></span>}
+                {m.role === "assistant" && (
+                  <span className="ai-avatar">
+                    <IconoIA />
+                  </span>
+                )}
                 <div className={"ai-msg " + m.role}>{m.content}</div>
               </div>
             ))}
             {loading && (
               <div className="ai-row assistant">
-                <span className="ai-avatar"><IconoIA /></span>
+                <span className="ai-avatar">
+                  <IconoIA />
+                </span>
                 <div className="ai-msg assistant ai-typing">Escribiendo…</div>
               </div>
             )}
@@ -140,7 +161,9 @@ export function AssistantFab() {
               maxLength={2000}
               disabled={loading}
             />
-            <button type="submit" disabled={loading || !input.trim()} aria-label="Enviar">➤</button>
+            <button type="submit" disabled={loading || !input.trim()} aria-label="Enviar">
+              ➤
+            </button>
           </form>
         </div>
       )}
@@ -152,7 +175,13 @@ export function AssistantFab() {
         aria-label={open ? "Cerrar el asistente IA" : "Abrir el asistente IA"}
         aria-expanded={open}
       >
-        {open ? <span className="ai-fab-x" aria-hidden="true">✕</span> : <IconoIA />}
+        {open ? (
+          <span className="ai-fab-x" aria-hidden="true">
+            ✕
+          </span>
+        ) : (
+          <IconoIA />
+        )}
       </button>
     </div>
   );

@@ -25,7 +25,11 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
     return (
       <div className="cp cp-proj">
         <Barra code={code} goHome={goHome} />
-        <main className="proj-main"><p className="cp-muted" role="status">Cargando…</p></main>
+        <main className="proj-main">
+          <p className="cp-muted" role="status">
+            Cargando…
+          </p>
+        </main>
       </div>
     );
   }
@@ -38,17 +42,26 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
     return (
       <div className="cp cp-proj">
         <Barra live={live} code={code} goHome={goHome}>
-          <button type="button" className="cp-btn ghost" onClick={goHome}>Salir al inicio</button>
+          <button type="button" className="cp-btn ghost" onClick={goHome}>
+            Salir al inicio
+          </button>
         </Barra>
         <main className="proj-main">
           <section className="proj-stage" aria-labelledby="cwr-t">
             <div className="cp-card proj-hero">
               <div className="proj-hero-copy">
                 <span className="cp-live">Sala abierta</span>
-                <h1 id="cwr-t">Entren en <b>{window.location.host}</b> con este código</h1>
-                <p>{live.clues.length} palabras · {live.minutes} min · con sabotajes entre rivales.</p>
+                <h1 id="cwr-t">
+                  Entren en <b>{window.location.host}</b> con este código
+                </h1>
+                <p>
+                  {live.clues.length} palabras · {live.minutes} min · con sabotajes entre rivales.
+                </p>
                 {esLocal ? (
-                  <p className="proj-warn">Estás en «localhost»: los celulares no podrán abrirlo. Abre esta página con la IP de tu computadora (por ejemplo, http://192.168.1.10:5173).</p>
+                  <p className="proj-warn">
+                    Estás en «localhost»: los celulares no podrán abrirlo. Abre esta página con la IP de tu computadora
+                    (por ejemplo, http://192.168.1.10:5173).
+                  </p>
                 ) : (
                   <p>Que entren y elijan «Unirme con código» o «Entrar como invitado».</p>
                 )}
@@ -60,7 +73,9 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
                       navigator.clipboard?.writeText(codigo);
                       const btn = e.currentTarget;
                       btn.textContent = "Código copiado";
-                      setTimeout(() => { btn.textContent = "Copiar código"; }, 1500);
+                      setTimeout(() => {
+                        btn.textContent = "Copiar código";
+                      }, 1500);
                     }}
                   >
                     Copiar código
@@ -76,7 +91,9 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
             <div className="cp-card cp-panel">
               <div className="proj-progress-top">
                 <h2>En la sala</h2>
-                <span>{board.length} {board.length === 1 ? "estudiante" : "estudiantes"}</span>
+                <span>
+                  {board.length} {board.length === 1 ? "estudiante" : "estudiantes"}
+                </span>
               </div>
               {board.length === 0 ? (
                 <div className="cwr-empty">
@@ -85,24 +102,40 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
                 </div>
               ) : (
                 <div className="proj-members">
-                  {board.map((p) => <span className="proj-member" key={p.id}>{p.name}</span>)}
+                  {board.map((p) => (
+                    <span className="proj-member" key={p.id}>
+                      {p.name}
+                    </span>
+                  ))}
                 </div>
               )}
             </div>
 
-            {error && <p className="cp-msg error" role="alert">{error}</p>}
+            {error && (
+              <p className="cp-msg error" role="alert">
+                {error}
+              </p>
+            )}
             <div className="proj-actions">
               <button type="button" className="cp-btn primary lg" disabled={board.length === 0} onClick={onStart}>
-                {board.length === 0 ? "Esperando estudiantes…" : `Iniciar con ${board.length} estudiante${board.length === 1 ? "" : "s"}`}
+                {board.length === 0
+                  ? "Esperando estudiantes…"
+                  : `Iniciar con ${board.length} estudiante${board.length === 1 ? "" : "s"}`}
               </button>
             </div>
-            <p className="cp-help">Puedes iniciar cuando quieras: quien entre después se suma con la partida en curso.</p>
+            <p className="cp-help">
+              Puedes iniciar cuando quieras: quien entre después se suma con la partida en curso.
+            </p>
           </section>
 
           <aside className="proj-side" aria-label="Cómo se juega">
             <div className="cp-card cp-panel">
               <h2>Cómo se juega</h2>
-              <Step n="1" t="Todos resuelven el mismo crucigrama" d="Cada estudiante tiene su propio tablero en el celular." />
+              <Step
+                n="1"
+                t="Todos resuelven el mismo crucigrama"
+                d="Cada estudiante tiene su propio tablero en el celular."
+              />
               <Step n="2" t="Las rachas dan energía" d="Cada acierto seguido carga la barra de sabotajes." />
               <Step n="3" t="Sabotea a un rival" d="Congela, pon niebla o roba puntos." />
               <Step n="4" t="Gana quien más puntos junte" d="Verás el marcador en vivo desde tu pantalla." />
@@ -125,15 +158,25 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
         <Barra live={live} code={code} goHome={goHome}>
           <div className={"eg-time" + (restante < 60000 ? " poco" : "")}>
             <span>Tiempo</span>
-            <b role="timer" aria-live="off" aria-label="Tiempo restante">{mmss(restante)}</b>
+            <b role="timer" aria-live="off" aria-label="Tiempo restante">
+              {mmss(restante)}
+            </b>
           </div>
           <div className="eg-actions">
-            <button type="button" className="cp-btn ghost sm" onClick={onReset}>Reiniciar</button>
-            <button type="button" className="cp-btn ghost sm danger" onClick={onEnd}>Finalizar partida</button>
+            <button type="button" className="cp-btn ghost sm" onClick={onReset}>
+              Reiniciar
+            </button>
+            <button type="button" className="cp-btn ghost sm danger" onClick={onEnd}>
+              Finalizar partida
+            </button>
           </div>
         </Barra>
         <main className="proj-main cwr-main">
-          {error && <p className="cp-msg error" role="alert">{error}</p>}
+          {error && (
+            <p className="cp-msg error" role="alert">
+              {error}
+            </p>
+          )}
           <CwTeacherLive live={live} />
         </main>
       </div>
@@ -142,18 +185,34 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
 
   // ---------------- RESULTADOS ----------------
   const ganador = board.find((p) => p.id === live.winnerId);
-  const motivo = live.endReason === "completed" ? "Crucigrama completado" : live.endReason === "teacher" ? "Finalizada por el docente" : "Se acabó el tiempo";
+  const motivo =
+    live.endReason === "completed"
+      ? "Crucigrama completado"
+      : live.endReason === "teacher"
+        ? "Finalizada por el docente"
+        : "Se acabó el tiempo";
   return (
     <div className="cp cp-proj">
       <Barra live={live} code={code} goHome={goHome}>
         <div className="eg-actions">
-          <button type="button" className="cp-btn ghost" onClick={onReset}>Repetir con el mismo código</button>
-          <button type="button" className="cp-btn primary" onClick={onNewGame}>Crear otra partida</button>
+          <button type="button" className="cp-btn ghost" onClick={onReset}>
+            Repetir con el mismo código
+          </button>
+          <button type="button" className="cp-btn primary" onClick={onNewGame}>
+            Crear otra partida
+          </button>
         </div>
       </Barra>
       <main className="proj-main cwr-main">
         <section className="cp-card fin-hero con-condor" style={{ "--tc": "#8FA0F0" }}>
-          <img className="cp-condor fin-condor" src="/condor-512.png" alt="" aria-hidden="true" width="512" height="512" />
+          <img
+            className="cp-condor fin-condor"
+            src="/condor-512.png"
+            alt=""
+            aria-hidden="true"
+            width="512"
+            height="512"
+          />
           <span className="cp-eyebrow">Resultados · {motivo}</span>
           <h1>{ganador ? <>Ganó {ganador.name}</> : "Terminó sin ganador"}</h1>
           <p>
@@ -162,7 +221,11 @@ export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset
               : "Nadie sumó puntos."}
           </p>
         </section>
-        {error && <p className="cp-msg error" role="alert">{error}</p>}
+        {error && (
+          <p className="cp-msg error" role="alert">
+            {error}
+          </p>
+        )}
         <div className="cp-card cp-panel">
           <h2>Marcador final</h2>
           <CwLeaderboard board={board} showMedals />

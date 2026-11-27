@@ -49,7 +49,7 @@ function persistFinish(game, reason) {
   bg(
     db
       .prepare("UPDATE games SET phase = 'finished', winner_team = ?, end_reason = ?, finished_at = now() WHERE id = ?")
-      .run(winner, reason, game.id)
+      .run(winner, reason, game.id),
   );
 }
 
@@ -61,13 +61,24 @@ const app = express();
 // (y saltarse los límites por IP) o todos los usuarios comparten la IP del proxy.
 const PROXIES = Number.parseInt(process.env.TRUST_PROXY ?? "1", 10);
 app.set("trust proxy", Number.isInteger(PROXIES) && PROXIES >= 0 ? PROXIES : 1);
-const ORIGENES = (process.env.CORS_ORIGIN || "").split(",").map((o) => o.trim()).filter(Boolean);
+const ORIGENES = (process.env.CORS_ORIGIN || "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
 // Avisos de configuración insegura o incompleta (solo en producción).
 if (process.env.NODE_ENV === "production") {
-  if (!process.env.AUTH_SECRET) console.warn("[SEGURIDAD] Falta AUTH_SECRET: la clave de sesiones y del 2FA se guarda en la misma base de datos. Define AUTH_SECRET en el hosting.");
-  if (!ORIGENES.length) console.warn("[SEGURIDAD] Falta CORS_ORIGIN: cualquier sitio web podría llamar a la API. Pon la URL de tu frontend.");
-  if (!process.env.RESEND_API_KEY) console.warn("[CORREO] Falta RESEND_API_KEY: no se enviarán los correos de recuperación ni de verificación.");
-  if (!process.env.GOOGLE_CLIENT_ID) console.warn("[GOOGLE] Falta GOOGLE_CLIENT_ID: el botón «Continuar con Google» no funcionará.");
+  if (!process.env.AUTH_SECRET)
+    console.warn(
+      "[SEGURIDAD] Falta AUTH_SECRET: la clave de sesiones y del 2FA se guarda en la misma base de datos. Define AUTH_SECRET en el hosting.",
+    );
+  if (!ORIGENES.length)
+    console.warn(
+      "[SEGURIDAD] Falta CORS_ORIGIN: cualquier sitio web podría llamar a la API. Pon la URL de tu frontend.",
+    );
+  if (!process.env.RESEND_API_KEY)
+    console.warn("[CORREO] Falta RESEND_API_KEY: no se enviarán los correos de recuperación ni de verificación.");
+  if (!process.env.GOOGLE_CLIENT_ID)
+    console.warn("[GOOGLE] Falta GOOGLE_CLIENT_ID: el botón «Continuar con Google» no funcionará.");
 }
 app.use(cors(ORIGENES.length ? { origin: ORIGENES } : undefined));
 // Cabeceras de seguridad básicas (la API solo devuelve JSON).
@@ -145,7 +156,9 @@ const games = new Map();
 async function restoreGamesFromDb() {
   // Las partidas abandonadas hace más de 12 h se cierran (si no, se acumulaban para siempre).
   await db
-    .prepare("UPDATE games SET phase = 'finished', end_reason = 'expired', finished_at = now() WHERE phase <> 'finished' AND created_at < now() - interval '12 hours'")
+    .prepare(
+      "UPDATE games SET phase = 'finished', end_reason = 'expired', finished_at = now() WHERE phase <> 'finished' AND created_at < now() - interval '12 hours'",
+    )
     .run();
   const filas = await db.prepare("SELECT * FROM games WHERE phase <> 'finished'").all();
   for (const g of filas) {
@@ -247,27 +260,62 @@ function publicState(game) {
 registrarFuente(() =>
   [...games.values()]
     .filter((g) => g.classId && g.phase !== "finished")
-    .map((g) => ({ classId: g.classId, kind: "ludo", code: g.code, name: g.name, status: g.phase, players: g.players.length }))
+    .map((g) => ({
+      classId: g.classId,
+      kind: "ludo",
+      code: g.code,
+      name: g.name,
+      status: g.phase,
+      players: g.players.length,
+    })),
 );
 registrarFuente(() =>
   [...crosswordRooms.values()]
     .filter((r) => r.classId && r.status !== "ended")
-    .map((r) => ({ classId: r.classId, kind: "crucigrama", code: r.code, name: r.name, status: r.status, players: r.players.size }))
+    .map((r) => ({
+      classId: r.classId,
+      kind: "crucigrama",
+      code: r.code,
+      name: r.name,
+      status: r.status,
+      players: r.players.size,
+    })),
 );
 registrarFuente(() =>
   [...quizRooms.values()]
     .filter((r) => r.classId && r.status !== "ended")
-    .map((r) => ({ classId: r.classId, kind: "evaluacion", code: r.code, name: r.name, status: r.status, players: r.players.size }))
+    .map((r) => ({
+      classId: r.classId,
+      kind: "evaluacion",
+      code: r.code,
+      name: r.name,
+      status: r.status,
+      players: r.players.size,
+    })),
 );
 registrarFuente(() =>
   [...palabraRooms.values()]
     .filter((r) => r.classId && r.status !== "ended")
-    .map((r) => ({ classId: r.classId, kind: "palabra", code: r.code, name: r.name, status: r.status === "lobby" ? "lobby" : "playing", players: r.players.size }))
+    .map((r) => ({
+      classId: r.classId,
+      kind: "palabra",
+      code: r.code,
+      name: r.name,
+      status: r.status === "lobby" ? "lobby" : "playing",
+      players: r.players.size,
+    })),
 );
 registrarFuente(() =>
   [...slidesRooms.values()]
     .filter((r) => r.classId && r.status !== "closed" && !r.deleted)
-    .map((r) => ({ classId: r.classId, kind: "estudio", code: r.code, name: r.name, status: r.status, players: r.students.size }))
+    .map((r) => ({
+      classId: r.classId,
+      kind: "estudio",
+      code: r.code,
+      name: r.name,
+      status: r.status,
+      players: r.students.size,
+    })),
 );
 
 function broadcast(code) {
@@ -280,79 +328,89 @@ function broadcast(code) {
 // Solo un docente con sesión iniciada puede crear partidas.
 app.post("/api/games", requireTeacher, async (req, res) => {
   try {
-  const { name, counts, minutes, answerSeconds, rollSeconds, classId } = req.body;
-  if (!name || !counts) return res.status(400).json({ error: "name y counts son requeridos" });
-  // classId opcional: la partida queda en el historial de esa clase (solo si es del docente).
-  const clase = classId ? await claseDelDocente(classId, req.user.id) : null;
-  if (classId && !clase) return res.status(404).json({ error: "No encontramos esa clase." });
+    const { name, counts, minutes, answerSeconds, rollSeconds, classId } = req.body;
+    if (!name || !counts) return res.status(400).json({ error: "name y counts son requeridos" });
+    // classId opcional: la partida queda en el historial de esa clase (solo si es del docente).
+    const clase = classId ? await claseDelDocente(classId, req.user.id) : null;
+    if (classId && !clase) return res.status(404).json({ error: "No encontramos esa clase." });
 
-  // Un color con 0 cupos simplemente NO JUEGA. Hacen falta al menos 2 colores.
-  const activeTeams = TEAM_COLORS.filter((c) => Number(counts[c]) > 0);
-  if (activeTeams.length < 2) return res.status(400).json({ error: "Deben jugar al menos 2 colores" });
+    // Un color con 0 cupos simplemente NO JUEGA. Hacen falta al menos 2 colores.
+    const activeTeams = TEAM_COLORS.filter((c) => Number(counts[c]) > 0);
+    if (activeTeams.length < 2) return res.status(400).json({ error: "Deben jugar al menos 2 colores" });
 
-  const durationMinutes = Math.min(180, Math.max(1, Number(minutes) || DEFAULT_MINUTES));
-  const answerLimit = Math.min(120, Math.max(5, Number(answerSeconds) || DEFAULT_ANSWER_SECONDS));
-  const rollLimit = Math.min(60, Math.max(3, Number(rollSeconds) || DEFAULT_ROLL_SECONDS));
+    const durationMinutes = Math.min(180, Math.max(1, Number(minutes) || DEFAULT_MINUTES));
+    const answerLimit = Math.min(120, Math.max(5, Number(answerSeconds) || DEFAULT_ANSWER_SECONDS));
+    const rollLimit = Math.min(60, Math.max(3, Number(rollSeconds) || DEFAULT_ROLL_SECONDS));
 
-  const id = nanoid();
-  let code;
-  for (let intento = 0; ; intento++) {
-    code = codeGen();
-    if (games.has(code)) continue;
-    try {
-      await db
-        .prepare(
-          "INSERT INTO games (id, code, name, minutes, answer_seconds, roll_seconds, active_teams, owner_id, class_id) VALUES (?,?,?,?,?,?,?,?,?)"
-        )
-        .run(id, code, String(name).slice(0, 80), durationMinutes, answerLimit, rollLimit, activeTeams.join(","), req.user.id, clase?.id || null);
-      break;
-    } catch (e) {
-      // 23505 = código repetido (choca con una partida vieja): probamos otro
-      if (e.code !== "23505" || intento >= 8) throw e;
+    const id = nanoid();
+    let code;
+    for (let intento = 0; ; intento++) {
+      code = codeGen();
+      if (games.has(code)) continue;
+      try {
+        await db
+          .prepare(
+            "INSERT INTO games (id, code, name, minutes, answer_seconds, roll_seconds, active_teams, owner_id, class_id) VALUES (?,?,?,?,?,?,?,?,?)",
+          )
+          .run(
+            id,
+            code,
+            String(name).slice(0, 80),
+            durationMinutes,
+            answerLimit,
+            rollLimit,
+            activeTeams.join(","),
+            req.user.id,
+            clase?.id || null,
+          );
+        break;
+      } catch (e) {
+        // 23505 = código repetido (choca con una partida vieja): probamos otro
+        if (e.code !== "23505" || intento >= 8) throw e;
+      }
     }
-  }
 
-  const teams = {};
-  for (const color of TEAM_COLORS) {
-    const slots = Math.min(4, Math.max(0, Number(counts[color]) || 0));
-    const teamId = nanoid();
-    await db.prepare("INSERT INTO teams (id, game_id, color, slots) VALUES (?,?,?,?)").run(teamId, id, color, slots);
-    teams[color] = { id: teamId, slots, score: 0, correct: 0, incorrect: 0 };
-  }
+    const teams = {};
+    for (const color of TEAM_COLORS) {
+      const slots = Math.min(4, Math.max(0, Number(counts[color]) || 0));
+      const teamId = nanoid();
+      await db.prepare("INSERT INTO teams (id, game_id, color, slots) VALUES (?,?,?,?)").run(teamId, id, color, slots);
+      teams[color] = { id: teamId, slots, score: 0, correct: 0, incorrect: 0 };
+    }
 
-  games.set(code, {
-    id,
-    code,
-    ownerId: req.user.id, // docente dueño de la partida
-    classId: clase?.id || null, // clase a la que pertenece (o null)
-    createdAt: Date.now(),
-    name: String(name).slice(0, 80),
-    phase: "lobby", // lobby | playing | finished
-    turnPhase: "roll", // roll | rolling | question | result
-    phaseSecondsLeft: rollLimit,
-    activeTeams, // colores que SÍ juegan esta partida
-    currentTeamIndex: TEAM_COLORS.indexOf(activeTeams[0]),
-    turnCounter: 1,
-    durationMinutes,
-    timerSeconds: durationMinutes * 60,
-    timerRunning: false,
-    rollSeconds: rollLimit,
-    teams,
-    players: [],
-    positions: {}, // playerId -> paso del recorrido (-1 = en casa, 56 = meta)
-    history: [],
-    currentQuestion: null,
-    awaitingAnswer: false,
-    lastDice: null,
-    diceRollId: 0, // cambia en cada lanzamiento: dispara la animación en el cliente
-    rolledBy: null, // nombre del alumno que lanzó (o null si lo lanzó el servidor)
-    answerTimeLimit: answerLimit,
-    lastResult: null,
-    winner: null,
-    round: 1,
-  });
+    games.set(code, {
+      id,
+      code,
+      ownerId: req.user.id, // docente dueño de la partida
+      classId: clase?.id || null, // clase a la que pertenece (o null)
+      createdAt: Date.now(),
+      name: String(name).slice(0, 80),
+      phase: "lobby", // lobby | playing | finished
+      turnPhase: "roll", // roll | rolling | question | result
+      phaseSecondsLeft: rollLimit,
+      activeTeams, // colores que SÍ juegan esta partida
+      currentTeamIndex: TEAM_COLORS.indexOf(activeTeams[0]),
+      turnCounter: 1,
+      durationMinutes,
+      timerSeconds: durationMinutes * 60,
+      timerRunning: false,
+      rollSeconds: rollLimit,
+      teams,
+      players: [],
+      positions: {}, // playerId -> paso del recorrido (-1 = en casa, 56 = meta)
+      history: [],
+      currentQuestion: null,
+      awaitingAnswer: false,
+      lastDice: null,
+      diceRollId: 0, // cambia en cada lanzamiento: dispara la animación en el cliente
+      rolledBy: null, // nombre del alumno que lanzó (o null si lo lanzó el servidor)
+      answerTimeLimit: answerLimit,
+      lastResult: null,
+      winner: null,
+      round: 1,
+    });
 
-  res.json({ code, gameId: id });
+    res.json({ code, gameId: id });
   } catch (e) {
     console.error("Error creando la partida:", e.message);
     res.status(500).json({ error: "No se pudo crear la partida. Intenta otra vez." });
@@ -370,7 +428,10 @@ app.post("/api/games/:code/join", async (req, res) => {
   if (!game) return res.status(404).json({ error: "Partida no encontrada" });
 
   const team = req.body?.team;
-  const name = String(req.body?.name ?? "").trim().replace(/\s+/g, " ").slice(0, 30);
+  const name = String(req.body?.name ?? "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .slice(0, 30);
   if (!name || !TEAM_COLORS.includes(team)) return res.status(400).json({ error: "Datos inválidos" });
   if (!game.activeTeams.includes(team)) return res.status(400).json({ error: "Ese color no juega en esta partida" });
   if (game.phase !== "lobby") return res.status(400).json({ error: "La partida ya inició" });
@@ -383,14 +444,24 @@ app.post("/api/games/:code/join", async (req, res) => {
   // Una cuenta = un lugar por partida: si ya se unió (p. ej. desde otro celular),
   // recupera su mismo jugador en vez de crear otro (evita inflar el ranking).
   if (req.user?.id) {
-    const previo = await db.prepare("SELECT id FROM players WHERE game_id = ? AND user_id = ? LIMIT 1").get(game.id, req.user.id);
+    const previo = await db
+      .prepare("SELECT id FROM players WHERE game_id = ? AND user_id = ? LIMIT 1")
+      .get(game.id, req.user.id);
     const enMemoria = previo && game.players.find((p) => p.id === previo.id);
-    if (enMemoria) return res.json({ playerId: enMemoria.id, playerKey: llaveJugador(enMemoria.id), code: game.code, team: enMemoria.team });
+    if (enMemoria)
+      return res.json({
+        playerId: enMemoria.id,
+        playerKey: llaveJugador(enMemoria.id),
+        code: game.code,
+        team: enMemoria.team,
+      });
   }
 
   const playerId = nanoid();
   try {
-    await db.prepare("INSERT INTO players (id, game_id, team, name, user_id) VALUES (?,?,?,?,?)").run(playerId, game.id, team, name, req.user?.id || null);
+    await db
+      .prepare("INSERT INTO players (id, game_id, team, name, user_id) VALUES (?,?,?,?,?)")
+      .run(playerId, game.id, team, name, req.user?.id || null);
   } catch (e) {
     console.error("Error al registrar al jugador:", e.message);
     return res.status(500).json({ error: "No se pudo unir a la partida. Intenta otra vez." });
@@ -522,7 +593,10 @@ function teacherGame(socket, code) {
   }
   // Sin dueño (p. ej. el docente borró su cuenta): nadie la controla; antes podía cualquier docente.
   if (game.ownerId !== u.id) {
-    socket.emit("error-message", game.ownerId ? "Esta partida pertenece a otro docente." : "Esta partida ya no tiene docente a cargo.");
+    socket.emit(
+      "error-message",
+      game.ownerId ? "Esta partida pertenece a otro docente." : "Esta partida ya no tiene docente a cargo.",
+    );
     return null;
   }
   return game;
@@ -590,7 +664,8 @@ io.on("connection", (socket) => {
   socket.on("engineer:reset-timer", ({ code, minutes }) => {
     const game = teacherGame(socket, code);
     if (!game) return;
-    if (Number.isFinite(Number(minutes)) && Number(minutes) > 0) game.durationMinutes = Math.min(180, Math.max(1, Number(minutes)));
+    if (Number.isFinite(Number(minutes)) && Number(minutes) > 0)
+      game.durationMinutes = Math.min(180, Math.max(1, Number(minutes)));
     game.timerSeconds = game.durationMinutes * 60;
     game.timerRunning = false;
     broadcast(code);
@@ -601,8 +676,10 @@ io.on("connection", (socket) => {
     const game = teacherGame(socket, code);
     if (!game) return;
     // Number.isFinite: con "abc" quedaba NaN y las fases avanzaban cada segundo.
-    if (Number.isFinite(Number(answerSeconds)) && Number(answerSeconds) > 0) game.answerTimeLimit = Math.min(120, Math.max(5, Number(answerSeconds)));
-    if (Number.isFinite(Number(rollSeconds)) && Number(rollSeconds) > 0) game.rollSeconds = Math.min(60, Math.max(3, Number(rollSeconds)));
+    if (Number.isFinite(Number(answerSeconds)) && Number(answerSeconds) > 0)
+      game.answerTimeLimit = Math.min(120, Math.max(5, Number(answerSeconds)));
+    if (Number.isFinite(Number(rollSeconds)) && Number(rollSeconds) > 0)
+      game.rollSeconds = Math.min(60, Math.max(3, Number(rollSeconds)));
     broadcast(code);
   });
 
@@ -612,7 +689,8 @@ io.on("connection", (socket) => {
   socket.on("player:roll-dice", ({ code, playerId, playerKey }) => {
     const game = games.get(code);
     if (!game || game.phase !== "playing" || game.turnPhase !== "roll") return;
-    if (!llaveValida(playerId, playerKey)) return socket.emit("error-message", "Vuelve a unirte a la partida para poder jugar.");
+    if (!llaveValida(playerId, playerKey))
+      return socket.emit("error-message", "Vuelve a unirte a la partida para poder jugar.");
 
     const player = game.players.find((p) => p.id === playerId);
     if (!player || player.team !== TEAM_COLORS[game.currentTeamIndex]) return;
@@ -624,7 +702,8 @@ io.on("connection", (socket) => {
   socket.on("team:answer", ({ code, playerId, playerKey, optionIndex }) => {
     const game = games.get(code);
     if (!game || game.phase !== "playing" || game.turnPhase !== "question" || !game.currentQuestion) return;
-    if (!llaveValida(playerId, playerKey)) return socket.emit("error-message", "Vuelve a unirte a la partida para poder jugar.");
+    if (!llaveValida(playerId, playerKey))
+      return socket.emit("error-message", "Vuelve a unirte a la partida para poder jugar.");
     if (!Number.isInteger(optionIndex)) return;
 
     const currentTeam = TEAM_COLORS[game.currentTeamIndex];
@@ -685,7 +764,11 @@ io.on("connection", (socket) => {
       bg(db.prepare("UPDATE teams SET score=0, correct=0, incorrect=0 WHERE id=?").run(team.id));
     });
 
-    bg(db.prepare("UPDATE games SET phase = ?, winner_team = NULL, end_reason = NULL, finished_at = NULL WHERE id = ?").run("lobby", game.id));
+    bg(
+      db
+        .prepare("UPDATE games SET phase = ?, winner_team = NULL, end_reason = NULL, finished_at = NULL WHERE id = ?")
+        .run("lobby", game.id),
+    );
     bg(db.prepare("DELETE FROM turn_history WHERE game_id = ?").run(game.id));
 
     broadcast(code);
@@ -774,13 +857,23 @@ function resolveAnswer(game, code, currentTeam, playerId, optionIndex) {
 
   bg(
     db
-      .prepare("INSERT INTO turn_history (game_id, turn, team, dice, question_id, correct, points) VALUES (?,?,?,?,?,?,?)")
-      .run(game.id, game.turnCounter, currentTeam, game.lastDice, game.currentQuestion.id, isCorrect ? 1 : 0, pointsEarned)
+      .prepare(
+        "INSERT INTO turn_history (game_id, turn, team, dice, question_id, correct, points) VALUES (?,?,?,?,?,?,?)",
+      )
+      .run(
+        game.id,
+        game.turnCounter,
+        currentTeam,
+        game.lastDice,
+        game.currentQuestion.id,
+        isCorrect ? 1 : 0,
+        pointsEarned,
+      ),
   );
   bg(
     db
       .prepare("UPDATE teams SET score=?, correct=?, incorrect=? WHERE id=?")
-      .run(team.score, team.correct, team.incorrect, game.teams[currentTeam].id)
+      .run(team.score, team.correct, team.incorrect, game.teams[currentTeam].id),
   );
 
   // ¿Ganó la partida al llegar a la meta?
@@ -849,18 +942,27 @@ setInterval(() => quizTick(io), 1000); // reloj de la Evaluación rápida
 setInterval(() => palabraTick(io), 500); // reloj de Palabra relámpago (medio segundo: turnos más precisos)
 
 // Limpieza cada 10 min: las partidas de más de 12 h salen de la memoria (el Map crecía sin límite).
-setInterval(() => {
-  const limite = Date.now() - 12 * 60 * 60 * 1000;
-  for (const [code, g] of games) {
-    if (g.createdAt && g.createdAt < limite) {
-      games.delete(code);
-      bg(db.prepare("UPDATE games SET phase = 'finished', end_reason = 'expired', finished_at = now() WHERE id = ? AND phase <> 'finished'").run(g.id));
+setInterval(
+  () => {
+    const limite = Date.now() - 12 * 60 * 60 * 1000;
+    for (const [code, g] of games) {
+      if (g.createdAt && g.createdAt < limite) {
+        games.delete(code);
+        bg(
+          db
+            .prepare(
+              "UPDATE games SET phase = 'finished', end_reason = 'expired', finished_at = now() WHERE id = ? AND phase <> 'finished'",
+            )
+            .run(g.id),
+        );
+      }
     }
-  }
-  purgeOldRooms(limite);
-  purgeOldQuizzes(limite);
-  purgeOldPalabra(limite);
-}, 10 * 60 * 1000);
+    purgeOldRooms(limite);
+    purgeOldQuizzes(limite);
+    purgeOldPalabra(limite);
+  },
+  10 * 60 * 1000,
+);
 
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => console.log(`Servidor YachayPlay escuchando en puerto ${PORT}`));

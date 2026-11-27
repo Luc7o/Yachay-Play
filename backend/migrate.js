@@ -31,7 +31,10 @@ const checksum = (txt) => crypto.createHash("sha256").update(txt.replace(/\r\n/g
 
 function leerArchivos() {
   if (!fs.existsSync(DIR)) return [];
-  const archivos = fs.readdirSync(DIR).filter((f) => f.endsWith(".sql")).sort();
+  const archivos = fs
+    .readdirSync(DIR)
+    .filter((f) => f.endsWith(".sql"))
+    .sort();
   const vistas = new Set();
   return archivos.map((file) => {
     const m = file.match(FILE_RE);
@@ -40,7 +43,14 @@ function leerArchivos() {
     if (vistas.has(version)) throw new Error(`Versión duplicada ${m[1]}: hay dos migraciones con el mismo número.`);
     vistas.add(version);
     const sql = fs.readFileSync(path.join(DIR, file), "utf8");
-    return { version, name: m[2], file, sql, checksum: checksum(sql), transaccion: !/^\s*--\s*no-transaction/i.test(sql) };
+    return {
+      version,
+      name: m[2],
+      file,
+      sql,
+      checksum: checksum(sql),
+      transaccion: !/^\s*--\s*no-transaction/i.test(sql),
+    };
   });
 }
 
@@ -57,7 +67,9 @@ async function asegurarTabla(c) {
 
 async function estado(c) {
   const archivos = leerArchivos();
-  const aplicadas = new Map((await c.query("SELECT * FROM schema_migrations ORDER BY version")).rows.map((r) => [r.version, r]));
+  const aplicadas = new Map(
+    (await c.query("SELECT * FROM schema_migrations ORDER BY version")).rows.map((r) => [r.version, r]),
+  );
   const filas = archivos.map((a) => {
     const r = aplicadas.get(a.version);
     const st = !r ? "pendiente" : r.checksum !== a.checksum ? "MODIFICADA" : "aplicada";
@@ -71,10 +83,15 @@ async function status(c) {
   const { filas, faltantes } = await estado(c);
   if (!filas.length && !faltantes.length) return console.log("No hay migraciones.");
   for (const f of filas) {
-    const cuando = f.registro ? `  (${new Date(f.registro.applied_at).toISOString().replace("T", " ").slice(0, 19)} UTC, ${f.registro.execution_ms} ms)` : "";
+    const cuando = f.registro
+      ? `  (${new Date(f.registro.applied_at).toISOString().replace("T", " ").slice(0, 19)} UTC, ${f.registro.execution_ms} ms)`
+      : "";
     console.log(`${String(f.version).padStart(4, "0")}  ${f.estado.padEnd(10)}  ${f.name}${cuando}`);
   }
-  for (const r of faltantes) console.log(`${String(r.version).padStart(4, "0")}  SIN ARCHIVO  ${r.name}  (está registrada en la BD pero falta el archivo)`);
+  for (const r of faltantes)
+    console.log(
+      `${String(r.version).padStart(4, "0")}  SIN ARCHIVO  ${r.name}  (está registrada en la BD pero falta el archivo)`,
+    );
   const pend = filas.filter((f) => f.estado === "pendiente").length;
   console.log(`\n${filas.length - pend} aplicadas, ${pend} pendientes.`);
 }
@@ -84,17 +101,24 @@ async function up(c) {
   const modificadas = filas.filter((f) => f.estado === "MODIFICADA");
   if (modificadas.length) {
     throw new Error(
-      "Estas migraciones ya aplicadas fueron modificadas: " + modificadas.map((f) => f.file).join(", ") +
-        "\nNo edites migraciones aplicadas: revierte el archivo (git) y crea una nueva con `npm run migrate:new`."
+      "Estas migraciones ya aplicadas fueron modificadas: " +
+        modificadas.map((f) => f.file).join(", ") +
+        "\nNo edites migraciones aplicadas: revierte el archivo (git) y crea una nueva con `npm run migrate:new`.",
     );
   }
-  if (faltantes.length) console.warn("Aviso: en la BD hay migraciones sin archivo: " + faltantes.map((r) => r.version).join(", "));
+  if (faltantes.length)
+    console.warn("Aviso: en la BD hay migraciones sin archivo: " + faltantes.map((r) => r.version).join(", "));
 
   const pendientes = filas.filter((f) => f.estado === "pendiente");
   // Evita huecos: no aplicar una versión menor que la última ya aplicada (llegó tarde de otra rama).
   const ultima = Math.max(0, ...filas.filter((f) => f.registro).map((f) => f.version));
   const tarde = pendientes.filter((f) => f.version < ultima);
-  if (tarde.length) throw new Error("Migraciones pendientes con número menor a la última aplicada: " + tarde.map((f) => f.file).join(", ") + "\nRenómbralas con un número mayor.");
+  if (tarde.length)
+    throw new Error(
+      "Migraciones pendientes con número menor a la última aplicada: " +
+        tarde.map((f) => f.file).join(", ") +
+        "\nRenómbralas con un número mayor.",
+    );
 
   if (!pendientes.length) return console.log("Base de datos al día. No hay migraciones pendientes.");
   for (const m of pendientes) {
@@ -104,20 +128,30 @@ async function up(c) {
       if (m.transaccion) await c.query("BEGIN");
       await c.query(m.sql);
       const ms = Date.now() - t0;
-      await c.query("INSERT INTO schema_migrations (version, name, checksum, execution_ms) VALUES ($1,$2,$3,$4)", [m.version, m.name, m.checksum, ms]);
+      await c.query("INSERT INTO schema_migrations (version, name, checksum, execution_ms) VALUES ($1,$2,$3,$4)", [
+        m.version,
+        m.name,
+        m.checksum,
+        ms,
+      ]);
       if (m.transaccion) await c.query("COMMIT");
       console.log(`ok (${ms} ms)`);
     } catch (e) {
       if (m.transaccion) await c.query("ROLLBACK").catch(() => {});
       console.log("ERROR");
-      throw new Error(`Falló ${m.file}: ${e.message}${m.transaccion ? "\nSe hizo rollback; nada de esta migración quedó aplicado." : ""}`);
+      throw new Error(
+        `Falló ${m.file}: ${e.message}${m.transaccion ? "\nSe hizo rollback; nada de esta migración quedó aplicado." : ""}`,
+      );
     }
   }
   console.log(`\nListo: ${pendientes.length} migración(es) aplicada(s).`);
 }
 
 function nueva(nombre) {
-  const slug = (nombre || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+  const slug = (nombre || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "");
   if (!slug) throw new Error("Falta el nombre. Ej: npm run migrate:new -- agregar_avatar_a_users");
   fs.mkdirSync(DIR, { recursive: true });
   const max = Math.max(0, ...leerArchivos().map((f) => f.version));

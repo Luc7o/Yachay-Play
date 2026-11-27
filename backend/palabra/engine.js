@@ -16,8 +16,11 @@
 // ============================================================================
 import crypto from "node:crypto";
 import { checkWord, candidateFragments, normalizeWord, safeWord } from "./diccionario.js";
+import { crearRegistro } from "../live/salas.js";
+import { limpiarTexto as clean, admitirNombre, reanudar, MENSAJES } from "../live/jugadores.js";
 
-export const rooms = new Map(); // code -> room
+const registro = crearRegistro();
+export const rooms = registro.salas; // code -> room
 
 export const LIMITS = {
   maxPlayers: 40,
@@ -36,12 +39,6 @@ const GRACE_MS = 400; // tolerancia por la demora de la red
 const COLORS = ["#17c7b5", "#4388ff", "#b18aff", "#ffc15d", "#f383a6", "#6ac9de", "#a4d75c", "#e1a7ff"];
 const TEAM_NAMES = ["Equipo Menta", "Equipo Azul", "Equipo Violeta", "Equipo Ámbar"];
 
-const code6 = () => String(crypto.randomInt(100000, 1000000));
-const clean = (s, n) =>
-  String(s ?? "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, n);
 const clamp = (v, lo, hi, def) => {
   const n = Math.round(Number(v));
   return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : def;
@@ -63,13 +60,10 @@ export function createRoom({
   teams,
   extraWords,
 }) {
-  let code;
-  do code = code6();
-  while (rooms.has(code));
   const equipos = mode === "equipos";
   const room = {
     id: crypto.randomUUID(),
-    code,
+    code: registro.nuevoCodigo(), // 6 dígitos, único en memoria
     name: clean(name, 60) || "Palabra relámpago",
     ownerId,
     ownerName: clean(ownerName, 40),
@@ -98,8 +92,7 @@ export function createRoom({
     const n = clamp(teams, LIMITS.minTeams, LIMITS.maxTeams, 2);
     room.entities = Array.from({ length: n }, (_, i) => newEntity(`t${i}`, TEAM_NAMES[i], i));
   }
-  rooms.set(code, room);
-  return room;
+  return registro.guardar(room);
 }
 const newEntity = (id, name, i) => ({
   id,
@@ -111,20 +104,17 @@ const newEntity = (id, name, i) => ({
   memberIds: [],
   cursor: 0,
 });
-export const getRoom = (code) => rooms.get(String(code || "").trim()) || null;
+export const getRoom = registro.obtener;
 
 // ------------------------------ jugadores ------------------------------
 export function addPlayer(room, { id, name, userId = null }) {
-  const existing = id && room.players.get(id);
-  if (existing) return { player: existing };
+  const { jugador } = reanudar(room.players, { id }); // recargó la página: sigue siendo él
+  if (jugador) return { player: jugador };
   if (room.status !== "lobby") return { error: "La partida ya empezó. Pide a quien la creó que abra otra." };
-  if (room.players.size >= LIMITS.maxPlayers) return { error: "La sala está llena." };
-  const nombre = clean(name, 30);
-  if (!nombre) return { error: "Escribe tu nombre para entrar." };
-  const lower = nombre.toLowerCase();
-  if ([...room.players.values()].some((p) => p.name.toLowerCase() === lower))
-    return { error: "Ya hay alguien con ese nombre. Agrega tu apellido o inicial." };
-  const player = { id: crypto.randomUUID(), name: nombre, userId, team: null };
+  if (room.players.size >= LIMITS.maxPlayers) return { error: MENSAJES.llena };
+  const r = admitirNombre(room.players, name);
+  if (r.error) return r;
+  const player = { id: crypto.randomUUID(), name: r.nombre, userId, team: null };
   room.players.set(player.id, player);
   return { player };
 }
@@ -352,6 +342,4 @@ export function publicState(room, playerId = null, isHost = false) {
   return base;
 }
 
-export function purgeOldRooms(limit) {
-  for (const [code, r] of rooms) if (r.createdAt < limit) rooms.delete(code);
-}
+export const purgeOldRooms = (limit) => registro.purgarViejas(limit);

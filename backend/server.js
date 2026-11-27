@@ -940,11 +940,10 @@ setInterval(() => {
 // El reloj del crucigrama es independiente del de Ludo (partidas distintas, ambas en memoria).
 setInterval(() => crosswordTick(io), 1000);
 
-setInterval(() => palabraTick(io), 500); // reloj de Palabra relámpago (medio segundo: turnos más precisos)
-
 // Un solo reloj para los juegos en vivo: cada uno registra su tick con su periodo (ver live/reloj.js).
 const reloj = crearReloj();
 reloj.registrar("evaluación rápida", 1000, () => quizTick(io));
+reloj.registrar("palabra relámpago", 500, () => palabraTick(io)); // medio segundo: turnos más precisos
 reloj.iniciar();
 
 // Limpieza cada 10 min: las partidas de más de 12 h salen de la memoria (el Map crecía sin límite).

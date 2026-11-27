@@ -1,5 +1,6 @@
 import React from "react";
 import { Marca, BotonTema } from "./campusUi";
+import { Button } from "./ui";
 // (campus.css se carga en main.jsx, al final, para que gane sobre los estilos antiguos.)
 
 // Cabecera única para la portada y el ingreso de estudiantes (diseño "Campus").
@@ -47,12 +48,12 @@ export function PublicAulaHeader({ activePage = null, onNavigate, onLogin, onReg
         </nav>
         <div className="cp-pubauth">
           <BotonTema />
-          <button type="button" className="cp-btn quiet" onClick={onLogin}>
+          <Button variant="quiet" onClick={onLogin}>
             Iniciar sesión
-          </button>
-          <button type="button" className="cp-btn dark" onClick={onRegister}>
+          </Button>
+          <Button variant="dark" onClick={onRegister}>
             Crear cuenta
-          </button>
+          </Button>
         </div>
       </div>
     </header>

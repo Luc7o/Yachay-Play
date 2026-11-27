@@ -29,7 +29,6 @@
   letter-spacing: 0.12em;
   color: #20306e;
 }
-.pr-back,
 .pr-skip {
   background: transparent;
   border: 1px solid var(--pr-edge);
@@ -101,15 +100,6 @@
 }
 .pr-small {
   font-size: 13px;
-}
-.pr-primary {
-  border: 0;
-  background: #1b295e;
-  color: white;
-  border-radius: 99px;
-  padding: 15px 25px;
-  font-weight: 800;
-  cursor: pointer;
 }
 .pr-alert {
   min-height: 36px;
@@ -195,7 +185,7 @@
 .pr-finish {
   text-align: center;
 }
-.pr-finish .pr-primary {
+.pr-finish .cp-btn {
   margin-top: 22px;
 }
 .pr-finish .pr-burst {
@@ -553,13 +543,11 @@
 .pr-night .pr-kicker {
   color: #6b85ed;
 }
-.pr-night .pr-back,
 .pr-night .pr-skip {
   background: #1c1c1e;
   color: #e9edfc;
   border-color: #47517b;
 }
-.pr-night .pr-back:hover,
 .pr-night .pr-skip:hover {
   background: #27282c;
 }
@@ -657,14 +645,6 @@
   font-size: 30px;
   text-shadow: 0 0 12px #ff6b32;
 }
-.pr-night .pr-primary {
-  background: #5b73d0;
-  color: #141416;
-}
-.pr-night .pr-primary:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
 .pr-night .pr-alert {
   color: #a5b5f4;
 }
@@ -701,13 +681,6 @@
   background: #1d1e20;
   border-color: #393b40;
   color: #eff2fd;
-}
-.pr-night .pr-vocabulary textarea,
-.pr-night .pr-panel textarea,
-.pr-night .pr-panel select {
-  background: #141416;
-  color: #f7f8fe;
-  border-color: #3f4045;
 }
 .pr-night .pr-import {
   background: #3a3b40;
@@ -2152,37 +2125,13 @@
   outline: 3px solid #5371e8 !important;
   outline-offset: 2px !important;
 }
-.pr-panel .pr-name-input {
-  border: 1px solid #adb6db;
-  background: #fafbfe;
-  color: #151f48;
-  border-radius: 13px;
-  padding: 15px;
-  font: inherit;
-  width: 100%;
-  box-sizing: border-box;
-}
-.pr-night .pr-panel .pr-name-input {
-  background: #0f1011;
-  color: #f6f7ff;
-  border-color: #3e3f45;
-}
 
 /* ---- Individual y En línea: formularios de la tarjeta de configuración ---- */
 .pr-panel .pr-name-input {
-  border: 1px solid #adb6db;
-  background: #fafbfe;
-  color: #151f48;
-  border-radius: 13px;
   padding: 15px;
   font: inherit;
   width: 100%;
   box-sizing: border-box;
-}
-.pr-night .pr-panel .pr-name-input {
-  background: #141416;
-  color: #f7f8fe;
-  border-color: #3f4045;
 }
 .pr-online {
   display: grid;
@@ -2202,7 +2151,7 @@
 .pr-online-box h3 {
   margin: 0 0 6px;
 }
-.pr-online-box .pr-primary {
+.pr-online-box .cp-btn {
   margin-top: 6px;
 }
 .pr-online-err {
@@ -2246,12 +2195,9 @@
 .pr-page .pr-top p {
   color: var(--cp-ink2);
 }
-.pr-page .pr-primary,
-.pr-page .pr-back,
 .pr-page .pr-skip,
 .pr-page .pr-theme-switch,
-.pf-stage .pf-chip-btn,
-.pf-stage .pf-btn {
+.pf-stage .pf-chip-btn {
   border-radius: 10px;
 }
 .pr-page .pr-panel {

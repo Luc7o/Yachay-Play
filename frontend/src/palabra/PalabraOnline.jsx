@@ -4,6 +4,7 @@ import { api } from "../api";
 import { socket } from "../socket";
 import { conClaseDestino, limpiarClaseDestino, useClaseDestino } from "../claseDestino";
 import { Hearts, PalabraStage, StageFrame, useStageTheme } from "./PalabraStage";
+import { Button } from "../ui";
 
 // ============================================================================
 // PALABRA RELÁMPAGO · EN LÍNEA
@@ -116,9 +117,9 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
             onChange={(e) => setNombre(e.target.value)}
           />
         </label>
-        <button type="submit" className="pr-primary">
+        <Button size="lg" type="submit">
           Unirme →
-        </button>
+        </Button>
       </form>
 
       <form onSubmit={crearPartida} className="pr-online-box">
@@ -216,9 +217,9 @@ export function OnlineSetup({ user, extraWords = [], initialCode = "", initialNa
             <p className="pr-small">
               3 vidas por participante · +10 puntos y el tiempo restante por acierto · Sin palabras repetidas.
             </p>
-            <button type="submit" className="pr-primary" disabled={ocupado}>
+            <Button size="lg" type="submit" disabled={ocupado}>
               {ocupado ? "Creando…" : "Crear partida →"}
-            </button>
+            </Button>
           </>
         )}
       </form>
@@ -320,9 +321,7 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
             <p className="pf-err" role="alert">
               {error}
             </p>
-            <button type="button" className="pf-btn primary" onClick={onExit}>
-              Volver
-            </button>
+            <Button onClick={onExit}>Volver</Button>
           </section>
         </div>
       </StageFrame>
@@ -392,13 +391,12 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
                       ))}
                     </ul>
                     {me && (
-                      <button
-                        type="button"
-                        className={"pf-btn" + (me.team === t.id ? " primary" : "")}
+                      <Button
+                        variant={me.team === t.id ? "primary" : "ghost"}
                         onClick={() => accion("pr:team", { team: t.id })}
                       >
                         {me.team === t.id ? "Estás aquí" : "Unirme"}
-                      </button>
+                      </Button>
                     )}
                   </div>
                 ))}
@@ -427,14 +425,9 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
             )}
             <div className="pf-actions">
               {state.isHost ? (
-                <button
-                  type="button"
-                  className="pf-btn primary"
-                  onClick={() => accion("pr:start")}
-                  disabled={state.players.length < 2}
-                >
+                <Button onClick={() => accion("pr:start")} disabled={state.players.length < 2}>
                   {state.players.length < 2 ? "Esperando jugadores (mínimo 2)" : "Empezar partida"}
-                </button>
+                </Button>
               ) : (
                 <p>
                   Esperando a que <strong>{state.hostName || "quien creó la partida"}</strong> empiece…
@@ -485,9 +478,7 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
               ))}
             </div>
             <div className="pf-actions">
-              <button type="button" className="pf-btn primary" onClick={onExit}>
-                Volver a juegos
-              </button>
+              <Button onClick={onExit}>Volver a juegos</Button>
             </div>
           </section>
         </div>
@@ -554,17 +545,13 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
       message={mensaje}
       actions={
         tengoTurno ? (
-          <button type="button" className="pf-btn" onClick={() => accion("pr:skip")}>
+          <Button variant="ghost" onClick={() => accion("pr:skip")}>
             Pasar turno (−1 vida)
-          </button>
+          </Button>
         ) : state.isHost && onlyWatches ? (
-          <button
-            type="button"
-            className="pf-btn"
-            onClick={() => window.confirm("¿Terminar la partida ahora?") && accion("pr:end")}
-          >
+          <Button variant="ghost" onClick={() => window.confirm("¿Terminar la partida ahora?") && accion("pr:end")}>
             Terminar partida
-          </button>
+          </Button>
         ) : null
       }
       side={

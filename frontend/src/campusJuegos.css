@@ -2014,72 +2014,48 @@ body {
 }
 
 /* ---------------- 17. Palabra relámpago (fondo, paneles y acento; la arena y la bomba no se tocan) ---------------- */
+/* pr-day / pr-night siguen a data-theme, así que basta con los tokens de ui/tokens.css. */
 .pr-page {
-  --pr-accent: #1e2a5a;
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--cp-text);
 }
 .pr-page h1,
 .pr-page h2,
 .pr-page h3 {
-  font-family: "Space Grotesk", Inter, sans-serif;
+  font-family: var(--cp-display);
   letter-spacing: -0.02em;
 }
-.pr-page.pr-day {
-  background: #f7f5f0 !important;
-  --pr-ink: #161a2e;
-  --pr-edge: #e4e2dc;
-  color: #161a2e;
+.pr-page:is(.pr-day, .pr-night) {
+  --pr-ink: var(--cp-ink);
+  --pr-accent: var(--cp-accent);
+  --pr-edge: var(--cp-line);
+  background: var(--cp-bg);
+  color: var(--cp-ink);
 }
-.pr-page.pr-night {
-  background: #111214 !important;
-  --pr-ink: #f2f2f4;
-  --pr-accent: #8fa0f0;
-  --pr-edge: #2a2c31;
-  color: #f2f2f4;
-}
-.pr-day .pr-panel {
-  background: #ffffff !important;
-  border: 1px solid #e4e2dc !important;
-  box-shadow: none !important;
-  border-radius: 16px !important;
-}
-.pr-night .pr-panel {
-  background: #1a1b1f !important;
-  border: 1px solid #2a2c31 !important;
-  box-shadow: none !important;
-  border-radius: 16px !important;
-}
-.pr-fullscreen.pr-night {
-  background: #111214 !important;
-}
-.pr-fullscreen.pr-day {
-  background: #f7f5f0 !important;
+:is(.pr-day, .pr-night) .pr-panel {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  box-shadow: none;
+  border-radius: 16px;
 }
 /* Dentro del menú de la app no se estira a todo el ancho de la ventana (taparía el menú lateral) */
 .cp-main .pr-page.pr-fullscreen {
-  width: auto !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  max-width: none !important;
-  min-height: 0 !important;
-  border-radius: 16px !important;
+  width: auto;
+  margin-left: 0;
+  margin-right: 0;
+  max-width: none;
+  min-height: 0;
+  border-radius: 16px;
 }
-.pr-day :is(input, select, textarea) {
-  background: #ffffff !important;
-  border: 1px solid #cfccc3 !important;
-  border-radius: 10px !important;
-  color: #161a2e !important;
-}
-.pr-night :is(input, select, textarea) {
-  background: #1a1b1f !important;
-  border: 1px solid #383a41 !important;
-  border-radius: 10px !important;
-  color: #f2f2f4 !important;
+:is(.pr-day, .pr-night) :is(input, select, textarea) {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line2);
+  border-radius: 10px;
+  color: var(--cp-ink);
 }
 .pr-page :is(input, select, textarea):focus {
   outline: none;
-  border-color: var(--pr-accent) !important;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pr-accent) 20%, transparent) !important;
+  border-color: var(--pr-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pr-accent) 20%, transparent);
 }
 
 /* ---------------- 18. Pantalla previa de cada juego (GameGate) ---------------- */

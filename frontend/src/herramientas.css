@@ -55,49 +55,11 @@
 }
 
 /* ---------- Botones y campos ---------- */
-.hr-btn {
-  font: inherit;
-  font-weight: 800;
-  font-size: 1rem;
-  min-height: 50px;
-  padding: 8px 20px;
-  cursor: pointer;
-  color: var(--hr-fg);
-  background: var(--hr-card);
-  border: 1px solid var(--hr-line);
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-.hr-btn:hover:not(:disabled) {
-  border-color: var(--orange);
-}
-.hr-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-.hr-btn.hr-primary {
-  background: var(--orange);
-  border-color: var(--orange);
-  color: #fff;
-}
-.hr-btn.hr-primary:hover:not(:disabled) {
-  background: var(--orange-dark);
-  border-color: var(--orange-dark);
-}
-.hr-btn.hr-sm {
-  min-height: 40px;
-  font-size: 0.9rem;
-  padding: 6px 12px;
-}
-.hr-btn.hr-grande {
+/* Botón grande (Girar, Crear sala…): Button size="lg" + className="hr-grande" */
+.cp-btn.hr-grande {
   font-size: 1.5rem;
   min-height: 68px;
-  padding: 10px 48px;
-  border-radius: 16px;
+  padding: 0 48px;
 }
 .hr-icon {
   width: 46px;
@@ -129,6 +91,11 @@
   text-decoration: underline;
   cursor: pointer;
   padding: 4px;
+}
+.hr-page input,
+.hr-page select,
+.hr-page textarea {
+  border-radius: 10px;
 }
 .hr-page select,
 .hr-page input[type="text"],
@@ -702,7 +669,7 @@
 .hr-centro .hr-grande {
   flex: none;
 }
-.hr-btn.hr-grande {
+.cp-btn.hr-grande {
   min-height: clamp(52px, 8vh, 68px);
   min-height: clamp(52px, 8dvh, 68px);
   font-size: clamp(1.2rem, 2.6vh, 1.5rem);
@@ -907,14 +874,14 @@
     flex-direction: column;
     align-items: stretch;
   }
-  .hr-actions .hr-primary {
+  .hr-actions .cp-btn.primary {
     flex: 1 1 100%;
     order: -1;
   }
   .hr-reparto-controles {
     grid-template-columns: 1fr;
   }
-  .hr-btn.hr-grande {
+  .cp-btn.hr-grande {
     width: 100%;
     font-size: 1.3rem;
   }

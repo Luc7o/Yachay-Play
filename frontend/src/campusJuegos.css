@@ -2013,20 +2013,6 @@ body {
   border-bottom: 1px solid var(--cp-line) !important;
 }
 
-/* ---------------- 15. Herramientas y Evaluación ---------------- */
-/* Los tokens --hr-* apuntan a ui/tokens.css desde herramientas.css. */
-.hr-btn {
-  border-radius: 10px !important;
-  font-family: Inter, sans-serif !important;
-  font-weight: 600 !important;
-  box-shadow: none !important;
-}
-.hr-btn.hr-primary {
-  background: var(--cp-accent) !important;
-  border-color: var(--cp-accent) !important;
-  color: var(--cp-on-accent) !important;
-}
-
 /* ---------------- 16. Presentaciones en vivo (tokens --es-*) ---------------- */
 :root .es,
 :root[data-theme="dark"] .es {

@@ -3,6 +3,7 @@ import { PublicAulaHeader } from "./PublicAulaHeader";
 import { AppShell } from "./AppShell";
 import { Icono, Marca } from "./campusUi";
 import { api } from "./api";
+import { Tile } from "./ui";
 import "./publicAula.css"; // estilos antiguos que aún usan otras pantallas (p. ej. el ingreso a Ludo)
 
 // ============================================================================
@@ -124,21 +125,6 @@ function CampoCodigo({ id, onEntrar, etiqueta = "Código de la partida", boton =
         </button>
       </div>
     </form>
-  );
-}
-
-// `tono` = id de la actividad: le da su color propio (ver "Color por actividad" en campus.css).
-function Tile({ icono: Ico, titulo, desc, cta, onClick, disabled, extra, tono }) {
-  return (
-    <button type="button" className={`cp-tile${tono ? ` tono-${tono}` : ""}`} onClick={onClick} disabled={disabled}>
-      <span className="cp-tile-top">
-        <span className="cp-ico">{Ico ? <Ico /> : null}</span>
-        {extra}
-      </span>
-      <strong>{titulo}</strong>
-      {desc && <p>{desc}</p>}
-      {cta && <span className="cp-tile-cta">{cta}</span>}
-    </button>
   );
 }
 
@@ -280,8 +266,8 @@ function HomeLogged({
     <Tile
       key={g.id}
       tono={g.id}
-      icono={g.icono}
-      titulo={g.nombre}
+      icon={g.icono}
+      title={g.nombre}
       desc={g.desc}
       cta={esDocente ? g.docente : g.estudiante || "Ver cómo se juega"}
       onClick={() => onSelectGame(g.id)}
@@ -326,8 +312,8 @@ function HomeLogged({
               <Tile
                 key={t.id}
                 tono={t.id}
-                icono={t.icono}
-                titulo={t.nombre}
+                icon={t.icono}
+                title={t.nombre}
                 desc={t.desc}
                 cta="Abrir"
                 onClick={() => onSelectGame(t.id)}
@@ -425,7 +411,7 @@ function HomeLogged({
         <div className="cp-tiles">
           {tilesJuegos}
           {PROXIMAMENTE.map((n) => (
-            <Tile key={n} titulo={n} desc="Próximamente." disabled extra={<span className="cp-chip">Pronto</span>} />
+            <Tile key={n} title={n} desc="Próximamente." disabled extra={<span className="cp-chip">Pronto</span>} />
           ))}
         </div>
       </div>
@@ -445,8 +431,8 @@ function HomeLogged({
             <Tile
               key={t.id}
               tono={t.id}
-              icono={t.icono}
-              titulo={t.nombre}
+              icon={t.icono}
+              title={t.nombre}
               desc={t.desc}
               cta="Abrir"
               onClick={() => onSelectGame(t.id)}
@@ -456,8 +442,8 @@ function HomeLogged({
             <Tile
               key={g.id}
               tono={g.id}
-              icono={g.icono}
-              titulo={g.nombre}
+              icon={g.icono}
+              title={g.nombre}
               desc={g.desc}
               cta={g.docente}
               onClick={() => onSelectGame(g.id)}

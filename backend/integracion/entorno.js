@@ -16,13 +16,14 @@ import { PGLiteSocketServer } from "@electric-sql/pglite-socket";
 
 const BACKEND = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
+/** @returns {Promise<number>} */
 function puertoLibre() {
   return new Promise((ok, mal) => {
     const s = net.createServer();
     s.unref();
     s.on("error", mal);
     s.listen(0, "127.0.0.1", () => {
-      const { port } = s.address();
+      const { port } = /** @type {import("node:net").AddressInfo} */ (s.address());
       s.close(() => ok(port));
     });
   });
@@ -74,8 +75,13 @@ export async function levantar() {
   });
 
   const base = `http://127.0.0.1:${puertoApi}`;
-  /** Llama a la API: pedir("POST", "/api/auth/login", { body, token }) -> { status, body } */
   let ip = 0;
+  /**
+   * Llama a la API: pedir("POST", "/api/auth/login", { body, token }) -> { status, body }
+   * @param {string} metodo
+   * @param {string} ruta
+   * @param {{ body?: unknown, token?: string }} [opciones]
+   */
   async function pedir(metodo, ruta, { body, token } = {}) {
     ip++;
     const r = await fetch(base + ruta, {

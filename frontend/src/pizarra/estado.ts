@@ -1,25 +1,28 @@
+import type { ObjPizarra, Pagina, EstadoGuardado } from "./tipos";
 import { CONFIG } from "./config";
 import { uid, fondoDe, colorReal } from "./utils";
 
 // ---------------- Guardado ----------------
-export function paginaNueva(fondo = "blanco") {
+export function paginaNueva(fondo = "blanco"): Pagina {
   return { id: uid(), fondo, objs: [] };
 }
 
-export function cargar() {
-  const base = { paginas: [paginaNueva()], actual: 0, color: "auto", grosor: 1, nombre: "" };
+export function cargar(): EstadoGuardado {
+  const base: EstadoGuardado = { paginas: [paginaNueva()], actual: 0, color: "auto", grosor: 1, nombre: "" };
   try {
     const d = JSON.parse(localStorage.getItem(CONFIG.clave) || "null");
     if (!d || !Array.isArray(d.paginas) || !d.paginas.length) return base;
     const paginas = d.paginas
-      .filter((p) => p && Array.isArray(p.objs))
-      .map((p) => {
+      .filter((p: Partial<Pagina> | null) => p && Array.isArray(p.objs))
+      .map((p: Pagina) => {
         const f = fondoDe(p.fondo);
         // los trazos "auto" de versiones anteriores se fijan al color que se veía en esa página
         return {
           id: p.id || uid(),
           fondo: f.id,
-          objs: p.objs.map((o) => (o && o.color === "auto" ? { ...o, color: colorReal("auto", f.oscuro) } : o)),
+          objs: p.objs.map((o: ObjPizarra) =>
+            o && o.color === "auto" ? { ...o, color: colorReal("auto", f.oscuro) } : o,
+          ),
         };
       });
     if (!paginas.length) return base;

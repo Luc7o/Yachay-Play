@@ -1,17 +1,19 @@
+import type { ObjPizarra } from "./tipos";
 import { fuenteTexto } from "./utils";
 
 // ---------------- Geometría de los objetos ----------------
-export let medidor = null;
+export let medidor: CanvasRenderingContext2D | null = null;
 
-export function medirTexto(o) {
-  if (!medidor) medidor = document.createElement("canvas").getContext("2d");
-  medidor.font = fuenteTexto(o.size);
+export function medirTexto(o: Pick<ObjPizarra, "size" | "text">) {
+  if (!medidor) medidor = document.createElement("canvas").getContext("2d")!;
+  const m = medidor;
+  m.font = fuenteTexto(o.size);
   const lineas = o.text.split("\n");
-  const w = Math.max(10, ...lineas.map((l) => medidor.measureText(l).width));
+  const w = Math.max(10, ...lineas.map((l) => m.measureText(l).width));
   return { w, h: lineas.length * o.size * 1.25, lineas };
 }
 
-export function cajaDe(o) {
+export function cajaDe(o: ObjPizarra): { x: number; y: number; w: number; h: number } {
   if (o.type === "text") {
     const m = medirTexto(o);
     return { x: o.x, y: o.y, w: m.w, h: m.h };
@@ -35,7 +37,7 @@ export function cajaDe(o) {
   return { x: x1 - grosor / 2, y: y1 - grosor / 2, w: x2 - x1 + grosor, h: y2 - y1 + grosor };
 }
 
-export function distSegmento(px, py, x1, y1, x2, y2) {
+export function distSegmento(px: number, py: number, x1: number, y1: number, x2: number, y2: number) {
   const dx = x2 - x1;
   const dy = y2 - y1;
   const l2 = dx * dx + dy * dy;
@@ -44,7 +46,7 @@ export function distSegmento(px, py, x1, y1, x2, y2) {
   return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
 }
 
-export function vertices(o) {
+export function vertices(o: Pick<ObjPizarra, "type" | "x1" | "y1" | "x2" | "y2">): number[][] {
   const x1 = Math.min(o.x1, o.x2);
   const x2 = Math.max(o.x1, o.x2);
   const y1 = Math.min(o.y1, o.y2);
@@ -71,14 +73,15 @@ export function vertices(o) {
 }
 
 // ¿El punto (x, y) está tocando este objeto? tol = margen en píxeles
-export function toca(o, x, y, tol) {
+export function toca(o: ObjPizarra, x: number, y: number, tol: number): boolean {
   switch (o.type) {
     case "pen":
     case "hl": {
       const r = tol + (o.type === "hl" ? o.w * 1.75 : o.w / 2);
-      if (o.pts.length === 1) return Math.hypot(x - o.pts[0][0], y - o.pts[0][1]) <= r;
-      for (let i = 1; i < o.pts.length; i++) {
-        if (distSegmento(x, y, o.pts[i - 1][0], o.pts[i - 1][1], o.pts[i][0], o.pts[i][1]) <= r) return true;
+      const pts = o.pts || [];
+      if (pts.length === 1) return Math.hypot(x - pts[0][0], y - pts[0][1]) <= r;
+      for (let i = 1; i < pts.length; i++) {
+        if (distSegmento(x, y, pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]) <= r) return true;
       }
       return false;
     }
@@ -117,14 +120,14 @@ export function toca(o, x, y, tol) {
   }
 }
 
-export function mover(o, dx, dy) {
+export function mover(o: ObjPizarra, dx: number, dy: number): ObjPizarra {
   if (o.pts) return { ...o, pts: o.pts.map((p) => [p[0] + dx, p[1] + dy]) };
   if (o.type === "text") return { ...o, x: o.x + dx, y: o.y + dy };
   return { ...o, x1: o.x1 + dx, y1: o.y1 + dy, x2: o.x2 + dx, y2: o.y2 + dy };
 }
 
 // Con Shift: línea en ángulos de 45°, y cuadrado / círculo perfecto
-export function restringir(tipo, x1, y1, x, y) {
+export function restringir(tipo: string, x1: number, y1: number, x: number, y: number): [number, number] {
   const dx = x - x1;
   const dy = y - y1;
   if (tipo === "line" || tipo === "arrow") {

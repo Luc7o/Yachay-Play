@@ -2,7 +2,7 @@ export const LS_STUDENT = "yachay_cw_student"; // { code, playerId } — para re
 
 export const LS_TEACHER = "yachay_cw_teacher_code"; // código de la última sala creada por este docente
 
-export function loadJSON(key) {
+export function loadJSON<T = unknown>(key: string): T | null {
   try {
     return JSON.parse(localStorage.getItem(key) || "null");
   } catch {
@@ -10,7 +10,7 @@ export function loadJSON(key) {
   }
 }
 
-export function saveJSON(key, value) {
+export function saveJSON(key: string, value: unknown) {
   try {
     if (value == null) localStorage.removeItem(key);
     else localStorage.setItem(key, JSON.stringify(value));
@@ -26,7 +26,7 @@ export function saveJSON(key, value) {
 // segundos, se avisa con un error en vez de quedarse "Creando…" sin fin.
 export { emitirConTiempo as emitConTiempoLimite } from "../salaEnVivo";
 
-export function mmss(ms) {
+export function mmss(ms: number) {
   const s = Math.max(0, Math.round(ms / 1000));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
@@ -47,7 +47,7 @@ export function mmss(ms) {
 //   nadie          -> blanco (el CSS por defecto de .cw-cell)
 //   algunos no todos -> gris (en progreso, sin revelar nada)
 //   TODOS          -> verde (ahí sí se revela la letra, ver revealedWord)
-export function heatColor(pct) {
+export function heatColor(pct: number | null | undefined) {
   if (!pct) return undefined;
   if (pct >= 1) return "rgba(16,185,129,0.82)"; // verde: ya la resolvieron todos
   return "rgba(100,116,139,0.55)"; // gris: en progreso (todavía no se revela nada)

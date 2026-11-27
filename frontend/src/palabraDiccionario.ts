@@ -53,7 +53,7 @@ web yate yates yema yemas yeso yoga yogur yogures yoyo
 `
     .trim()
     .split(/\s+/u);
-export const normalizeWord = (input) =>
+export const normalizeWord = (input: unknown): string =>
   String(input || "")
     .toLocaleLowerCase("es")
     .replace(/ñ/g, "__enie__")
@@ -61,7 +61,7 @@ export const normalizeWord = (input) =>
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/__enie__/g, "ñ")
     .trim();
-const safeWord = (value) => /^[a-zñü]{4,35}$/u.test(normalizeWord(value));
+const safeWord = (value: unknown) => /^[a-zñü]{4,35}$/u.test(normalizeWord(value));
 const baseWords = new Set(BASE.filter(safeWord).map(normalizeWord));
 export const BASE_COUNT = baseWords.size;
 export const EXTRA_KEY = "yachay-palabra-relampago-vocabulary-v1";
@@ -73,13 +73,13 @@ export function loadExtraWords() {
     return [];
   }
 }
-export function saveExtraWords(words) {
+export function saveExtraWords(words: string[]) {
   localStorage.setItem(
     EXTRA_KEY,
     JSON.stringify([...new Set(words.filter(safeWord).map(normalizeWord))].slice(0, 50000)),
   );
 }
-export function checkWord(value, fragment, used, extraWords) {
+export function checkWord(value: string, fragment: string, used: string[], extraWords: Set<string>) {
   const w = normalizeWord(value);
   if (!safeWord(w)) return "Escribe una palabra de 4 a 35 letras.";
   if (!w.includes(normalizeWord(fragment)))
@@ -127,7 +127,7 @@ export const FRAGMENTS = [
   "or",
   "er",
 ];
-export function candidateFragments(used, extraWords) {
+export function candidateFragments(used: string[], extraWords: Iterable<string>) {
   const all = new Set([...baseWords, ...extraWords]);
   return FRAGMENTS.filter((fragment) => {
     let count = 0;

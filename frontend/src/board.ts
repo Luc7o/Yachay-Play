@@ -1,3 +1,4 @@
+import type { Equipo } from "./constants";
 // ============================================================================
 // MAPA DEL TABLERO DE LUDO REAL (15 x 15 casillas)
 // ============================================================================
@@ -70,10 +71,10 @@ export const RING = [
 
 // --- Dónde entra al anillo cada equipo -------------------------------------
 // Están separadas 13 casillas entre sí (52 / 4 equipos = 13).
-export const START_INDEX = { rojo: 0, verde: 13, amarillo: 26, azul: 39 };
+export const START_INDEX: Record<Equipo, number> = { rojo: 0, verde: 13, amarillo: 26, azul: 39 };
 
 // --- Rectas finales (5 casillas de color que llevan al centro) --------------
-export const HOME_COLUMNS = {
+export const HOME_COLUMNS: Record<Equipo, number[][]> = {
   rojo: [
     [7, 1],
     [7, 2],
@@ -123,7 +124,7 @@ export const RING_STEPS = 51;
 export const GOAL_STEP = 56;
 
 /** Devuelve la casilla [fila, columna] donde se dibuja una ficha, o null si está en casa. */
-export function cellForStep(team, step) {
+export function cellForStep(team: Equipo, step: number | null | undefined): number[] | null {
   if (step === null || step === undefined || step < 0) return null;
   if (step < RING_STEPS) return RING[(START_INDEX[team] + step) % RING.length];
   if (step < GOAL_STEP) return HOME_COLUMNS[team][step - RING_STEPS];
@@ -135,9 +136,9 @@ export function cellForStep(team, step) {
  * Devuelve null si la ficha está en casa o ya entró a su recta final,
  * porque ahí no puede coincidir con nadie y no se la puede comer.
  */
-export function ringIndexForStep(team, step) {
+export function ringIndexForStep(team: Equipo, step: number | null | undefined): number | null {
   if (step === null || step === undefined || step < 0 || step >= RING_STEPS) return null;
   return (START_INDEX[team] + step) % RING.length;
 }
 
-export const cellKey = (cell) => `${cell[0]},${cell[1]}`;
+export const cellKey = (cell: number[]) => `${cell[0]},${cell[1]}`;

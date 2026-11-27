@@ -1,3 +1,4 @@
+import type { ObjPizarra, Pagina } from "./tipos";
 import { CONFIG, TAU } from "./config";
 import { fondoDe, colorReal, fuenteTexto } from "./utils";
 import { vertices } from "./geometria";
@@ -5,16 +6,16 @@ import { vertices } from "./geometria";
 // ---------------- Imágenes pegadas ----------------
 // Se guardan como texto (data URL) dentro del objeto; aquí se convierten una sola vez
 // en un elemento <img> para poder pintarlas rápido en cada cuadro.
-const imagenes = new Map(); // src -> HTMLImageElement
-let alCargarImagen = null;
-export function ponerAlCargarImagen(f) {
+const imagenes = new Map<string, HTMLImageElement>();
+let alCargarImagen: (() => void) | null = null;
+export function ponerAlCargarImagen(f: (() => void) | null) {
   alCargarImagen = f;
 }
-function imagenDe(src) {
+function imagenDe(src: string): HTMLImageElement {
   let im = imagenes.get(src);
   if (!im) {
     im = new Image();
-    im.onload = () => alCargarImagen && alCargarImagen();
+    im.onload = () => alCargarImagen?.();
     im.src = src;
     imagenes.set(src, im);
   }
@@ -22,7 +23,7 @@ function imagenDe(src) {
 }
 
 // ---------------- Dibujo ----------------
-export function trazar(ctx, o, oscuro) {
+export function trazar(ctx: CanvasRenderingContext2D, o: ObjPizarra, oscuro: boolean) {
   const col = colorReal(o.color, oscuro);
   ctx.save();
   ctx.strokeStyle = col;
@@ -39,7 +40,7 @@ export function trazar(ctx, o, oscuro) {
         ctx.globalAlpha = 0.35;
         ctx.lineWidth = o.w * 3.5;
       }
-      const p = o.pts;
+      const p = o.pts || [];
       if (p.length === 1) {
         ctx.beginPath();
         ctx.arc(p[0][0], p[0][1], ctx.lineWidth / 2, 0, TAU);
@@ -73,7 +74,7 @@ export function trazar(ctx, o, oscuro) {
       break;
     }
     case "img": {
-      const im = imagenDe(o.src);
+      const im = imagenDe(o.src || "");
       if (im.complete && im.naturalWidth)
         ctx.drawImage(im, Math.min(o.x1, o.x2), Math.min(o.y1, o.y2), Math.abs(o.x2 - o.x1), Math.abs(o.y2 - o.y1));
       break;
@@ -120,13 +121,13 @@ export function trazar(ctx, o, oscuro) {
   ctx.restore();
 }
 
-export function pintarFondo(ctx, W, H, idFondo) {
+export function pintarFondo(ctx: CanvasRenderingContext2D, W: number, H: number, idFondo: string) {
   const f = fondoDe(idFondo);
   ctx.save();
   ctx.fillStyle = f.color;
   ctx.fillRect(0, 0, W, H);
   const g = 40;
-  const linea = (x1, y1, x2, y2) => {
+  const linea = (x1: number, y1: number, x2: number, y2: number) => {
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
   };
@@ -203,9 +204,16 @@ export function pintarFondo(ctx, W, H, idFondo) {
   ctx.restore();
 }
 
-export let capa = null; // lienzo auxiliar: aquí se dibujan los trazos para poder borrarlos sin tocar el fondo
+export let capa: HTMLCanvasElement | null = null; // lienzo auxiliar: aquí se dibujan los trazos para poder borrarlos sin tocar el fondo
 
-export function dibujarEscena(ctx, W, H, pagina, ocultos, extra) {
+export function dibujarEscena(
+  ctx: CanvasRenderingContext2D,
+  W: number,
+  H: number,
+  pagina: Pagina,
+  ocultos: Set<string> | null,
+  extra: ObjPizarra | null,
+) {
   const oscuro = fondoDe(pagina.fondo).oscuro;
   pintarFondo(ctx, W, H, pagina.fondo);
   const hayBorrado = pagina.objs.some((o) => o.type === "erase") || (extra && extra.type === "erase");
@@ -217,13 +225,14 @@ export function dibujarEscena(ctx, W, H, pagina, ocultos, extra) {
     return;
   }
   if (!capa) capa = document.createElement("canvas");
+  const lienzo = capa;
   const cw = ctx.canvas.width;
   const ch = ctx.canvas.height;
-  if (capa.width !== cw || capa.height !== ch) {
-    capa.width = cw;
-    capa.height = ch;
+  if (lienzo.width !== cw || lienzo.height !== ch) {
+    lienzo.width = cw;
+    lienzo.height = ch;
   }
-  const lc = capa.getContext("2d");
+  const lc = lienzo.getContext("2d")!;
   lc.setTransform(1, 0, 0, 1, 0, 0);
   lc.clearRect(0, 0, cw, ch);
   lc.setTransform(ctx.getTransform());
@@ -233,6 +242,6 @@ export function dibujarEscena(ctx, W, H, pagina, ocultos, extra) {
   if (extra) trazar(lc, extra, oscuro);
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.drawImage(capa, 0, 0);
+  ctx.drawImage(lienzo, 0, 0);
   ctx.restore();
 }

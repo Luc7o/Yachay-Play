@@ -45,6 +45,10 @@ export function quizTick(io) {
   for (const code of rooms.keys()) broadcastQuiz(io, code).catch(() => {});
 }
 
+/**
+ * @param {import("../tipos").ServidorApp} io
+ * @param {import("../tipos").SocketApp} socket
+ */
 export function attachQuizSocket(io, socket) {
   // Atajo para los eventos del docente: valida sala y dueño, ejecuta y avisa a todos.
   const docente = crearAccionesDeAnfitrion(socket, {

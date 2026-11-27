@@ -381,7 +381,7 @@ export function publicRoomState(room, forPlayerId, now = Date.now()) {
   // llegó antes a ese puntaje. Se ordena ANTES de transformar, porque
   // `lastPointAt` es interno y no se manda al frontend.
   const leaderboard = [...room.players.values()]
-    .sort((a, b) => (b.id === room.winnerId) - (a.id === room.winnerId) || byScore(a, b))
+    .sort((a, b) => Number(b.id === room.winnerId) - Number(a.id === room.winnerId) || byScore(a, b))
     .map((p) => ({
       id: p.id,
       name: p.name,

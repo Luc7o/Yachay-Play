@@ -11,6 +11,7 @@ import {
 import { PalabraSolo } from "./palabra/PalabraSolo";
 import { OnlineRoom, OnlineSetup } from "./palabra/PalabraOnline";
 import "./palabraRelampago.css";
+import { Button } from "./ui";
 
 const COLORS = ["#17c7b5", "#4388ff", "#b18aff", "#ffc15d", "#f383a6", "#6ac9de", "#a4d75c", "#e1a7ff"];
 const DEFAULT_TEAMS = "Equipo 1, Equipo 2, Equipo 3";
@@ -249,9 +250,9 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
               {uiTheme === "dark" ? "☀ Modo claro" : "☾ Modo oscuro"}
             </button>
           )}
-          <button type="button" className="pr-back" onClick={goHome}>
+          <Button variant="ghost" onClick={goHome}>
             ← Volver a juegos
-          </button>
+          </Button>
         </div>
       </header>
       {phase === "setup" && (
@@ -426,14 +427,14 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
             </div>
           )}
           {mode === "individual" && (
-            <button className="pr-primary" onClick={startSolo}>
+            <Button size="lg" onClick={startSolo}>
               Empezar contrarreloj
-            </button>
+            </Button>
           )}
           {mode === "team" && (
-            <button className="pr-primary" onClick={start}>
+            <Button size="lg" onClick={start}>
               Entrar a la arena →
-            </button>
+            </Button>
           )}
         </section>
       )}
@@ -618,15 +619,15 @@ export function PalabraRelampago({ goHome, frame, user = null, initialCode = "",
               <strong>{p.score} puntos</strong>
             </div>
           ))}
-          <button
-            className="pr-primary"
+          <Button
+            size="lg"
             onClick={() => {
               setPhase("setup");
               setMessage("");
             }}
           >
             Jugar otra vez
-          </button>
+          </Button>
         </section>
       )}
     </div>

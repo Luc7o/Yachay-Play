@@ -1,166 +1,31 @@
-/* YachayPlay · Aula Fresca — tema oscuro compartido para Ludo, Crucigrama
-   y sus pantallas de preparación, sala, alumnos y resultados.
-   Se activa con el selector existente html[data-theme="dark"].
-   No se modifican casillas, fichas, respuestas ni colores semánticos del tablero. */
+/* Tema oscuro compartido (html[data-theme="dark"]).
+   Las tarjetas, casillas y tableros del Crucigrama y Ludo en oscuro están en
+   campusJuegos.css (secciones 8-14), con los colores de ui/tokens.css. */
 :root[data-theme="dark"] body {
   background: #0e1013;
   color: #f2f4f6;
   color-scheme: dark;
 }
-.cw-play-page,
-.gate-page) {
-  background-color: #0f1114;
-  color: #f5f6f7;
-}
-:root[data-theme="dark"] :is(.gate-page {
-  background-image: radial-gradient(#292f37 1px, transparent 1px);
-  background-size: 22px 22px;
-}
-/* Paneles y superficies */
-.cw-panel-card,
-.cw-board-panel,
-.gate-card,
-.cw-stat-card,
-.cw-board-col,
-.cw-rival,
-.cw-activity-list,
-.question-table {
-  background-color: #191c21;
-  color: #f6f7f9;
-  border-color: #303740;
-  box-shadow: 0 8px 30px #00131b38;
-}
-.cw-lb-row,
-.cw-clue-list li,
-.cw-activity-scroll,
-.cw-rivals,
-.cw-clue-progress-row,
-.cw-mystats {
-  background-color: #1e2228;
-  color: #f6f7f8;
-  border-color: #333a44;
-}
-/* Texto auxiliar en las tarjetas (sin afectar letras sobre fichas de colores) */
-.cw-play-page,
-.cw-teacher-live,
-.gate-page
-  )
-  :is(h1,
-h2,
-h3,
-h4,
-strong) {
-  color: #f7f8f9;
-}
-.status,
-.muted,
-.eyebrow,
-.q-row > span small,
-.cw-board-sub,
-.cw-clue-count,
-.gate-sub,
-.cw-activity-time,
-.cw-side-title
-  ) {
-  color: #c6c9cf;
-}
-.q-row,
-.history-row,
-.cw-clue-list li,
-.cw-lb-row) {
-  border-color: #2e353d;
-}
-/* Formularios, botones secundarios e inputs */
-.cw-play-page,
-.gate-page)
-  :is(input,
-textarea,
-select) {
-  background: #13161a;
-  color: #f5fffe;
-  border-color: #467784;
-  color-scheme: dark;
-}
-.cw-play-page,
-.gate-page)
-  :is(input,
-textarea)::placeholder {
-  color: #a2a7af;
-}
-:root[data-theme="dark"] :is(button,
-input,
-textarea,
-select):focus-visible {
+:root[data-theme="dark"] :is(button, input, textarea, select):focus-visible {
   outline: 2px solid #8fa0f0;
   outline-offset: 3px;
 }
-/* Crucigrama: bordes y casillas rellenadas en oscuro, las pistas siguen legibles */
-:root[data-theme="dark"] :is(.cw-play-page,
-.cw-teacher-live,
-.cw-board-live) {
-  color: #f2f3f5;
+/* Crucigrama: texto claro en las pantallas del juego */
+:root[data-theme="dark"] :is(.cw-play-page, .cw-teacher-live, .cw-board-live) {
+  color: var(--cp-ink);
 }
-:root[data-theme="dark"]
-  :is(
-    .cw-grid-wrap,
-.cw-answer-bar,
-.cw-leaderboard,
-.cw-panel-scroll,
-.cw-clue-list,
-.cw-clue-list-readonly
-  ) {
-  background: #181b20;
-  color: #f4f5f7;
-  border-color: #343b45;
-}
+/* Casillas del crucigrama en oscuro (arte del tablero). Las del alumno (.cwp)
+   las pinta campusJuegos.css sección 14; aquí solo el borde. */
 :root[data-theme="dark"] .cw-cell:not(.blank) {
-  background: #def6ed;
-  color: #131619;
   border-color: #487e83;
 }
-:root[data-theme="dark"] .cw-cell.blank {
+:root[data-theme="dark"] .cw-teacher-live .cw-cell:not(.blank) {
+  background: #def6ed;
+  color: #131619;
+}
+:root[data-theme="dark"] .cw-teacher-live .cw-cell.blank {
   background: #0c0e10;
 }
-:root[data-theme="dark"] .cw-cell :is(.cw-cell-letter,
-.cw-cell-num) {
+:root[data-theme="dark"] .cw-teacher-live .cw-cell :is(.cw-cell-letter, .cw-cell-num) {
   color: #171a1f;
-}
-:root[data-theme="dark"] :is(.cw-lb-name,
-.cw-lb-rank,
-.cw-lb-score {
-  color: #f0ffff;
-}
-/* Mantener textos claros cuando se colocan sobre tableros/placas claras */
-:root[data-theme="dark"]
-  :is(.home-ref,
-.home-slot-ref,
-.home-label,
-.ludo-board {
-  color: #1a1d22;
-}
-:root[data-theme="dark"]
-  :is(.home-ref,
-.home-slot-ref,
-.ludo-board,
-b,
-strong) {
-  color: inherit;
-}
-/* Puerta de entrada */
-:root[data-theme="dark"] .gate-hero {
-  background:
-    radial-gradient(650px 400px at 88% 4%, #0f696544, transparent 70%), linear-gradient(135deg, #0e1013, #181b20);
-}
-:root[data-theme="dark"] .gate-h2 {
-  color: #f3fffe;
-}
-:root[data-theme="dark"] .gate-sub {
-  color: #bcc0c6;
-}
-:root[data-theme="dark"] .gate-card {
-  background: #191d22;
-  border-color: #313741;
-}
-:root[data-theme="dark"] .gate-card p {
-  color: #cbced3;
 }

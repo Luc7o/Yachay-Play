@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Marca, BotonTema, Icono } from "../campusUi";
 import "./joinHub.css";
+import { Button } from "../ui";
 
 // ============================================================================
 // ¿A QUÉ TE QUIERES UNIR? — para invitados y estudiantes
@@ -140,9 +141,9 @@ export function JoinHub({ user, initialCode = "", initialName = "", onPick, onBa
         <Marca onClick={onBack} label="Volver al inicio de YachayPlay" />
         <div className="stu-top-right">
           <BotonTema />
-          <button type="button" className="cp-btn quiet" onClick={onBack}>
+          <Button variant="quiet" onClick={onBack}>
             ← Volver
-          </button>
+          </Button>
         </div>
       </header>
       <main className="stu-main">{contenido}</main>

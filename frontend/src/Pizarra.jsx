@@ -227,6 +227,10 @@ export function Pizarra({ goHome }) {
   }
   const grosorRef = useRef(grosor);
   grosorRef.current = grosor;
+  // Los oyentes de tamaño e imágenes se registran una vez: llaman a la versión más reciente
+  // de pedir() (y con ella de dibujar()) a través de esta referencia.
+  const pedirRef = useRef(null);
+  pedirRef.current = pedir;
   function pedir() {
     if (rafRef.current) return;
     rafRef.current = requestAnimationFrame(() => {
@@ -236,19 +240,20 @@ export function Pizarra({ goHome }) {
   }
   useEffect(pedir); // se vuelve a pintar después de cada cambio
   useEffect(() => {
-    ponerAlCargarImagen(() => pedir()); // una imagen recién cargada se pinta apenas está lista
+    ponerAlCargarImagen(() => pedirRef.current()); // una imagen recién cargada se pinta apenas está lista
     return () => ponerAlCargarImagen(null);
   }, []);
 
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return undefined;
-    const obs = window.ResizeObserver ? new ResizeObserver(pedir) : null;
+    const repintar = () => pedirRef.current();
+    const obs = window.ResizeObserver ? new ResizeObserver(repintar) : null;
     if (obs) obs.observe(el);
-    window.addEventListener("resize", pedir);
+    window.addEventListener("resize", repintar);
     return () => {
       if (obs) obs.disconnect();
-      window.removeEventListener("resize", pedir);
+      window.removeEventListener("resize", repintar);
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0; // sin esto, React.StrictMode deja el repintado "bloqueado" y el lienzo nunca se actualiza
     };
@@ -300,8 +305,11 @@ export function Pizarra({ goHome }) {
       aplicar([...objs, { id: uid(), type: "text", x: t.x, y: t.y, text: v, color: t.color, size: t.size }]);
     }
   }
+  // Al abrir un cuadro de texto nuevo (o moverlo), el cursor va al final de lo escrito.
+  const hayTexto = !!texto;
+  const textoClave = texto ? `${texto.x},${texto.y},${texto.id}` : "";
   useEffect(() => {
-    if (texto && taRef.current && document.activeElement !== taRef.current) {
+    if (hayTexto && taRef.current && document.activeElement !== taRef.current) {
       const t = setTimeout(() => {
         if (taRef.current) {
           taRef.current.focus();
@@ -312,7 +320,7 @@ export function Pizarra({ goHome }) {
       return () => clearTimeout(t);
     }
     return undefined;
-  }, [texto && texto.x, texto && texto.y, texto && texto.id]);
+  }, [hayTexto, textoClave]);
 
   // ---------------- Punteros ----------------
   function posicion(e) {

@@ -30,7 +30,6 @@ export function EngineerGame({
   newGame,
   positions,
   bank,
-  changeDevice,
 }) {
   const currentTeam = serverState.currentTeam;
   const min = Math.floor((timerSeconds ?? 0) / 60)

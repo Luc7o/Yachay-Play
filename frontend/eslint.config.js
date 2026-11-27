@@ -27,7 +27,10 @@ export default [
       "react-hooks/exhaustive-deps": "warn",
       "react/prop-types": "off",
       "react/no-unescaped-entities": "off",
-      "no-unused-vars": ["warn", { varsIgnorePattern: "^[A-Z_]", argsIgnorePattern: "^_", caughtErrors: "none" }],
+      "no-unused-vars": [
+        "warn",
+        { varsIgnorePattern: "^[A-Z_]", argsIgnorePattern: "^_", caughtErrors: "none", ignoreRestSiblings: true },
+      ],
       "no-empty": ["warn", { allowEmptyCatch: true }],
     },
   },

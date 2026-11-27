@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { IconoEnLinea } from "../campusUi";
 import { api } from "../api";
 import { socket } from "../socket";
-import { useSalaEnVivo } from "../salaEnVivo";
+import { emitirConTiempo, useSalaEnVivo } from "../salaEnVivo";
 import { conClaseDestino, limpiarClaseDestino, useClaseDestino } from "../claseDestino";
 import { Hearts, PalabraStage, StageFrame, useStageTheme } from "./PalabraStage";
 import { Button } from "../ui";
@@ -250,9 +250,16 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
 
   const onlyWatches = host && !hostPlays;
 
+  // Una sola petición de entrar a la vez: si se mandaran dos antes de que llegue la respuesta
+  // (doble efecto en desarrollo, reconexión rápida), la segunda no lleva el playerId todavía y
+  // el servidor la rechaza por "nombre repetido".
+  const entrandoRef = useRef(false);
   const entrar = useCallback(() => {
+    if (entrandoRef.current) return;
+    entrandoRef.current = true;
     const evento = onlyWatches ? "pr:watch" : "pr:join";
-    socket.emit(evento, { code, name, playerId: readSaved(code) }, (r) => {
+    emitirConTiempo(evento, { code, name, playerId: readSaved(code) }, (r) => {
+      entrandoRef.current = false;
       if (r?.error) return setError(r.error);
       if (r.playerId) writeSaved(code, r.playerId);
       setError("");

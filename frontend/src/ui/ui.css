@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Estilos de los componentes compartidos (ui/index.jsx).
+   Estilos de los componentes compartidos (ui/index.tsx).
    Solo usan variables de ui/tokens.css: nada de colores sueltos salvo los
    semánticos de acierto / aviso / error, definidos aquí una sola vez.
    ========================================================================== */

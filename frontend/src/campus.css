@@ -14,6 +14,192 @@
 
 /* Los tokens (paleta, tonos y alias antiguos) viven en ui/tokens.css. */
 
+/* ---------------- herencia: tema oscuro base y ajustes de juego ----------------
+   (antes gamesDark.css y aulaFinal.css; van primero para conservar el orden de la cascada) */
+/* Tema oscuro compartido. Las tarjetas, casillas y tableros del Crucigrama y Ludo en
+   oscuro están en campusJuegos.css (secciones 8-14), con los colores de ui/tokens.css. */
+:root[data-theme="dark"] body {
+  background: #0e1013;
+  color: #f2f4f6;
+  color-scheme: dark;
+}
+:root[data-theme="dark"] :is(button, input, textarea, select):focus-visible {
+  outline: 2px solid #8fa0f0;
+  outline-offset: 3px;
+}
+/* Crucigrama: texto claro en las pantallas del juego */
+:root[data-theme="dark"] :is(.cw-play-page, .cw-teacher-live, .cw-board-live) {
+  color: var(--cp-ink);
+}
+/* Casillas del crucigrama en oscuro (arte del tablero). Las del alumno (.cwp)
+   las pinta campusJuegos.css sección 14; aquí solo el borde. */
+:root[data-theme="dark"] .cw-cell:not(.blank) {
+  border-color: #487e83;
+}
+:root[data-theme="dark"] .cw-teacher-live .cw-cell:not(.blank) {
+  background: #def6ed;
+  color: #131619;
+}
+:root[data-theme="dark"] .cw-teacher-live .cw-cell.blank {
+  background: #0c0e10;
+}
+:root[data-theme="dark"] .cw-teacher-live .cw-cell :is(.cw-cell-letter, .cw-cell-num) {
+  color: #171a1f;
+}
+
+/* Pantallas de juego y herramientas: barra superior, fichas, contraste y oscuro.
+   Los colores salen de las variables de shell.css (--ink, --muted, --line, --surface…). */
+/* ---- Barra superior (Ludo, Crucigrama, herramientas): sigue el tema ---- */
+.ref-topbar {
+  background: var(--nav) !important;
+  border-bottom: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+.ref-topbar .ref-brand p,
+.ref-topbar .brand-subtitle {
+  color: var(--muted) !important;
+}
+
+/* ---- Colores de equipo: se conservan, pero el texto encima ahora se lee ---- */
+.board-piece[style*="234, 179, 8"],
+.board-piece[style*="16, 185, 129"] {
+  color: #0b2a31 !important;
+  text-shadow: none;
+}
+
+/* ---- Modo oscuro: lo que quedaba con colores de modo claro ---- */
+:root[data-theme="dark"] .pz-g-ok {
+  color: #86efac;
+}
+:root[data-theme="dark"] .pz-g-error {
+  color: #fca5a5;
+}
+:root[data-theme="dark"] .build-mark {
+  color: #9ea3a9;
+}
+
+/* ---- Fichas y nombres de equipo (los colores de equipo se conservan) ---- */
+.board-piece[style*="239, 68, 68"] {
+  background: #dc2626 !important;
+  color: #fff !important;
+}
+.board-piece[style*="59, 130, 246"] {
+  background: #2563eb !important;
+  color: #fff !important;
+}
+
+/* ---- Más pantallas en modo oscuro: tablero, selector de modo y Crucigrama ---- */
+:root[data-theme="dark"] .legend span {
+  color: #bcbfc4;
+}
+:root[data-theme="dark"]
+  :is(
+    .cw-stat-card,
+    .cw-clue-list li,
+    .cw-activity-scroll,
+    .cw-rivals,
+    .cw-rival,
+    .cw-lb-row,
+    .cw-players-grid li,
+    .cw-player-card,
+    .cw-clue-progress,
+    .cw-leaderboard
+  )
+  b {
+  color: #f5f6f7;
+}
+:root[data-theme="dark"]
+  :is(
+    .cw-stat-card,
+    .cw-clue-list li,
+    .cw-activity-scroll,
+    .cw-rivals,
+    .cw-rival,
+    .cw-lb-row,
+    .cw-players-grid li,
+    .cw-player-card,
+    .cw-clue-progress,
+    .cw-leaderboard
+  )
+  small {
+  color: #bcbfc4;
+}
+:root[data-theme="dark"] .cw-sabotage {
+  background: var(--surface);
+  border-color: var(--line);
+}
+:root[data-theme="dark"] .cw-side-title {
+  color: var(--muted);
+}
+:root[data-theme="dark"] .cw-clue-list li.done b {
+  color: #6ee7b7;
+}
+
+/* ---- Texto con el color de un equipo: versión que se lee sobre claro y sobre oscuro ----
+   (el texto lleva el color del equipo en su atributo style; las fichas y fondos no se tocan) */
+[style^="color: rgb(239, 68, 68)"] {
+  color: #b91c1c !important;
+}
+[style^="color: rgb(16, 185, 129)"] {
+  color: #047857 !important;
+}
+[style^="color: rgb(234, 179, 8)"] {
+  color: #8a6100 !important;
+}
+[style^="color: rgb(59, 130, 246)"] {
+  color: #1d4ed8 !important;
+}
+:root[data-theme="dark"] [style^="color: rgb(239, 68, 68)"] {
+  color: #ff9a9a !important;
+}
+:root[data-theme="dark"] [style^="color: rgb(16, 185, 129)"] {
+  color: #4ade9f !important;
+}
+:root[data-theme="dark"] [style^="color: rgb(234, 179, 8)"] {
+  color: #fbd34d !important;
+}
+:root[data-theme="dark"] [style^="color: rgb(59, 130, 246)"] {
+  color: #8ab8ff !important;
+}
+
+/* ---- Últimos detalles de contraste (claro y oscuro) ---- */
+.cell .star {
+  color: #566474;
+}
+:root[data-theme="dark"] .cw-heat-legend,
+:root[data-theme="dark"] .cw-activity-time,
+:root[data-theme="dark"] .cw-stat-card span {
+  color: #bcbfc4 !important;
+}
+:root[data-theme="dark"] .cw-activity-scroll li {
+  background: var(--surface2) !important;
+  border-color: var(--line) !important;
+}
+
+/* Números y letras de las celdas del Crucigrama: oscuros sobre celdas claras, claros sobre las grises */
+.cw-cell-num {
+  color: #0b3642;
+}
+.cw-cell[style*="rgba(100, 116, 139"] .cw-cell-num {
+  color: #f1fbfa;
+}
+.cw-cell[style*="rgba(16, 185, 129"] .cw-cell-num,
+.cw-cell[style*="rgba(16, 185, 129"] .cw-cell-letter {
+  color: #06251f;
+}
+:root[data-theme="dark"] .cw-activity-scroll span {
+  color: #e5f6f5;
+}
+
+/* El cartel de turno conserva su fondo claro también en modo oscuro: su texto usa el color más fuerte del equipo */
+:root[data-theme="dark"] .cw-cell[style*="rgba(100, 116, 139"] .cw-cell-num {
+  color: #f1fbfa;
+}
+:root[data-theme="dark"] .cw-cell[style*="rgba(16, 185, 129"] :is(.cw-cell-num, .cw-cell-letter) {
+  color: #06251f;
+}
+
+
 /* ---------------------------- primitivas ---------------------------- */
 .cp {
   font-family: var(--cp-text);
@@ -284,7 +470,7 @@
 }
 
 /* Pantallas antiguas (p. ej. el ingreso a Ludo, .join-page) pintan TODOS sus botones con
-   reglas muy específicas en gamesDark.css; estas igualan su peso y ganan por ir después. */
+   reglas muy específicas (sección "herencia", arriba); estas igualan su peso y ganan por ir después. */
 :root[data-theme] .cp-pubhead button.cp-btn.dark {
   color: var(--cp-bg);
   border-color: transparent;

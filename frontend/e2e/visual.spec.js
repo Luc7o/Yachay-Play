@@ -80,7 +80,7 @@ async function capturar(page, nombre) {
     animations: "disabled",
     caret: "hide",
     mask: TAPAR.map((s) => page.locator(s)),
-    maxDiffPixelRatio: 0.001,
+    maxDiffPixels: 0,
   });
 }
 

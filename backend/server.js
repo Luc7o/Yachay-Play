@@ -10,7 +10,14 @@ import db from "./db.js";
 import { ensureQuestions, reloadQuestions, poolFor, questionsRouter } from "./questionBank.js";
 import { statsRouter } from "./stats.js";
 import { profileRouter } from "./profile.js";
-import { GOAL_STEP, SAFE_INDEXES, ringIndexForStep } from "./board.js";
+import {
+  TEAM_COLORS,
+  setPhase,
+  eligibleTeams,
+  siguienteEquipo,
+  aplicarRespuesta,
+  pasoDelReloj,
+} from "./ludo/reglas.js";
 import { authRouter, authOptional, requireTeacher } from "./auth.js";
 import { userFromToken, getAuthSecret } from "./authCore.js";
 import { seedDemoUsers } from "./seed.js";
@@ -114,8 +121,6 @@ app.use("/api/my-questions", questionsRouter); // banco de preguntas propias del
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: ORIGENES.length ? ORIGENES : "*" } });
-
-const TEAM_COLORS = ["rojo", "verde", "amarillo", "azul"];
 
 // ============================================================================
 // EL TURNO ES UNA MÁQUINA DE ESTADOS AUTOMÁTICA
@@ -480,23 +485,8 @@ app.get("/api/questions", (req, res) => {
 
 // ============================================================================
 // TRANSICIONES DE FASE (las llama el reloj o una acción del alumno)
+// Las reglas puras (fases, equipos, ficha, respuesta, reloj) están en ludo/reglas.js.
 // ============================================================================
-
-function setPhase(game, turnPhase, seconds) {
-  game.turnPhase = turnPhase;
-  game.phaseSecondsLeft = seconds;
-  game.awaitingAnswer = turnPhase === "question";
-}
-
-/**
- * Equipos que pueden jugar el turno: los que el docente activó Y que además
- * tienen al menos un alumno conectado. Si ninguno tiene alumnos todavía,
- * devolvemos todos los activos para que la rueda no se detenga.
- */
-function eligibleTeams(game) {
-  const conAlumnos = game.activeTeams.filter((c) => game.players.some((p) => p.team === c));
-  return conAlumnos.length ? conAlumnos : game.activeTeams;
-}
 
 /** Lanza el dado. lanzadoPor = nombre del alumno, o null si lo lanzó el servidor. */
 function rollDice(game, code, lanzadoPor) {
@@ -544,16 +534,7 @@ function startQuestion(game, code) {
 
 /** Pasa al siguiente equipo QUE TENGA ALUMNOS y reabre la fase de lanzamiento. */
 function nextTurn(game, code) {
-  const elegibles = eligibleTeams(game);
-  // Avanzamos de color en color hasta encontrar uno que pueda jugar.
-  for (let i = 1; i <= TEAM_COLORS.length; i++) {
-    const idx = (game.currentTeamIndex + i) % TEAM_COLORS.length;
-    if (elegibles.includes(TEAM_COLORS[idx])) {
-      game.currentTeamIndex = idx;
-      break;
-    }
-  }
-
+  game.currentTeamIndex = siguienteEquipo(game); // de color en color hasta uno que pueda jugar
   game.turnCounter++;
   game.currentQuestion = null;
   game.lastDice = null;
@@ -768,85 +749,10 @@ io.on("connection", (socket) => {
   });
 });
 
-// ============================================================================
-// MOVIMIENTO DE LA FICHA
-// ============================================================================
-// Si el equipo ACIERTA, su ficha avanza tantas casillas como marcó el dado.
-//   - Desde casa (-1) sale a su casilla de salida y cuenta desde ahí.
-//   - Para entrar a la meta hace falta el número exacto.
-//   - Si cae sobre una ficha rival (y no es casilla segura), se la come.
-// ============================================================================
-function movePiece(game, playerId, team, dice) {
-  const from = game.positions[playerId] ?? -1;
-  const target = from < 0 ? dice - 1 : from + dice;
-
-  if (target > GOAL_STEP) {
-    return { moved: false, from, to: from, captured: [], reachedGoal: false };
-  }
-
-  game.positions[playerId] = target;
-
-  const captured = [];
-  const myRing = ringIndexForStep(team, target);
-  if (myRing !== null && !SAFE_INDEXES.includes(myRing)) {
-    game.players.forEach((rival) => {
-      if (rival.id === playerId || rival.team === team) return;
-      const rivalRing = ringIndexForStep(rival.team, game.positions[rival.id] ?? -1);
-      if (rivalRing !== null && rivalRing === myRing) {
-        game.positions[rival.id] = -1;
-        captured.push(rival.name);
-      }
-    });
-  }
-
-  return { moved: true, from, to: target, captured, reachedGoal: target === GOAL_STEP };
-}
-
-// Resuelve la pregunta activa (alguien respondió, o se acabó el tiempo).
+// Resuelve la pregunta activa (alguien respondió, o se acabó el tiempo): aplica la
+// regla (ludo/reglas.js), guarda en la BD y avisa.
 function resolveAnswer(game, code, currentTeam, playerId, optionIndex) {
-  const timedOut = optionIndex === null || optionIndex === undefined;
-  const isCorrect = !timedOut && optionIndex === game.currentQuestion.answerIndex;
-  const team = game.teams[currentTeam];
-  let pointsEarned = 0;
-  let move = null;
-
-  if (isCorrect) {
-    pointsEarned = Number((20 / 12).toFixed(2));
-    team.score = Math.min(20, Number((team.score + pointsEarned).toFixed(2)));
-    team.correct++;
-
-    // Acierta -> avanza el número del dado.
-    move = movePiece(game, playerId, currentTeam, game.lastDice);
-  } else {
-    team.incorrect++;
-  }
-
-  const mover = game.players.find((p) => p.id === playerId);
-  const correctAnswerText = game.currentQuestion.options[game.currentQuestion.answerIndex];
-  game.lastResult = {
-    team: currentTeam,
-    isCorrect,
-    timedOut,
-    selectedIndex: timedOut ? null : optionIndex,
-    correctIndex: game.currentQuestion.answerIndex,
-    correctText: correctAnswerText,
-    points: pointsEarned,
-    playerName: mover?.name ?? null,
-    move,
-  };
-
-  game.history.unshift({
-    turn: game.turnCounter,
-    team: currentTeam,
-    dice: game.lastDice,
-    topic: game.currentQuestion.topic,
-    correct: isCorrect,
-    timedOut,
-    points: pointsEarned,
-    correctAnswer: correctAnswerText,
-    from: move?.from ?? null,
-    to: move?.to ?? null,
-  });
+  const { isCorrect, pointsEarned, move, team } = aplicarRespuesta(game, currentTeam, playerId, optionIndex);
 
   bg(
     db
@@ -890,29 +796,18 @@ function resolveAnswer(game, code, currentTeam, playerId, optionIndex) {
 // ============================================================================
 function ludoTick() {
   games.forEach((game, code) => {
+    const paso = pasoDelReloj(game);
     // Cronómetro general de la clase (lo activa el docente)
-    if (game.timerRunning && game.timerSeconds > 0) {
-      game.timerSeconds--;
-      io.to(code).emit("timer", game.timerSeconds);
-      if (game.timerSeconds === 0) {
-        game.timerRunning = false;
-        game.phase = "finished";
-        game.currentQuestion = null;
-        persistFinish(game, "time");
-        broadcast(code);
-        return;
-      }
+    if (paso.timer !== undefined) io.to(code).emit("timer", paso.timer);
+    if (paso.terminoPorTiempo) {
+      persistFinish(game, "time");
+      broadcast(code);
+      return;
     }
-
-    if (game.phase !== "playing") return;
-
-    game.phaseSecondsLeft--;
-    io.to(code).emit("phase-timer", { turnPhase: game.turnPhase, seconds: game.phaseSecondsLeft });
-
-    if (game.phaseSecondsLeft > 0) return;
+    if (paso.fase) io.to(code).emit("phase-timer", paso.fase);
 
     // Se acabó el tiempo de la fase: avanzamos sola a la siguiente.
-    switch (game.turnPhase) {
+    switch (paso.vencio) {
       case "roll":
         rollDice(game, code, null); // nadie lanzó: lanza el servidor
         break;

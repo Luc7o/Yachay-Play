@@ -1,8 +1,8 @@
 // ============================================================================
-// BASE DE DATOS: PostgreSQL en Supabase (antes: SQLite local con node:sqlite)
+// BASE DE DATOS: PostgreSQL (en producción, Neon; antes: SQLite local con node:sqlite)
 // ============================================================================
-// Las tablas YA están creadas en Supabase (games, teams, players, questions,
-// users, settings, turn_history). Aquí solo nos conectamos.
+// Las tablas las crean las migraciones (backend/migrations, `npm run migrate`).
+// Aquí solo nos conectamos.
 //
 // Necesita la variable DATABASE_URL en backend/.env  (ver .env.example).
 //
@@ -16,8 +16,7 @@ import pg from "pg";
 
 if (!process.env.DATABASE_URL) {
   console.error(
-    "\n[ERROR] Falta DATABASE_URL en backend/.env\n" +
-      "Cópiala desde Supabase: botón 'Connect' -> 'Session pooler'. Mira .env.example\n",
+    "\n[ERROR] Falta DATABASE_URL en backend/.env\n" + "Cópiala desde Neon (botón 'Connect'). Mira .env.example\n",
   );
   process.exit(1);
 }
@@ -28,7 +27,7 @@ pg.types.setTypeParser(20, (v) => Number(v));
 // TLS hacia la base de datos. Por defecto SE VERIFICA el certificado (Neon usa
 // certificados públicos, así que funciona sin configurar nada). Sin verificar,
 // alguien en medio de la red podría hacerse pasar por la base de datos.
-//  - DB_SSL_CA: certificado raíz en PEM (p. ej. el de Supabase) para verificar contra él.
+//  - DB_SSL_CA: certificado raíz en PEM (si el proveedor lo pide) para verificar contra él.
 //  - DB_SSL_INSECURE=true: último recurso, cifra pero NO verifica (como antes).
 function sslConfig() {
   if (/localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL)) return false;
@@ -67,9 +66,9 @@ const db = {
 // Comprobación al arrancar: si la URL o la contraseña están mal, avisamos claro.
 try {
   await pool.query("SELECT 1");
-  console.log("Conectado a Supabase (PostgreSQL).");
+  console.log("Conectado a la base de datos (PostgreSQL).");
 } catch (e) {
-  console.error("\n[ERROR] No se pudo conectar a Supabase:", e.message);
+  console.error("\n[ERROR] No se pudo conectar a la base de datos:", e.message);
   console.error("Revisa DATABASE_URL en backend/.env (contraseña y que sea la cadena 'Session pooler').\n");
   process.exit(1);
 }

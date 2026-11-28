@@ -18,7 +18,7 @@ const fecha = (v) => {
   }
 };
 
-const plural = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
+const plural = (n: number, uno: string, varios: string) => `${n} ${n === 1 ? uno : varios}`;
 
 const MOTIVOS = {
   goal: "llegó a la meta",
@@ -28,7 +28,15 @@ const MOTIVOS = {
 };
 
 // Estado de una partida en la lista: en curso, con ganador o sin ganador.
-const Estado = ({ enCurso, textoEnCurso = "en curso", ganador }) =>
+const Estado = ({
+  enCurso,
+  textoEnCurso = "en curso",
+  ganador,
+}: {
+  enCurso: boolean;
+  textoEnCurso?: string;
+  ganador: SinTipo;
+}) =>
   enCurso ? (
     <Chip tone="warn">{textoEnCurso}</Chip>
   ) : ganador ? (
@@ -44,7 +52,7 @@ const detallePartida = (g) => (
   </>
 );
 
-const Equipo = ({ color }) => (
+const Equipo = ({ color }: { color: SinTipo }) => (
   <>
     <Dot color={COLORES[color]?.hex} />
     {COLORES[color]?.nombre}
@@ -52,7 +60,7 @@ const Equipo = ({ color }) => (
 );
 
 // ------------------------------- DOCENTE -------------------------------
-function VistaDocente({ d }) {
+function VistaDocente({ d }: { d: SinTipo }) {
   const { ludo, crossword } = d;
   const maxVictorias = Math.max(1, ...Object.values<number>(ludo.winsByColor));
   return (
@@ -147,7 +155,7 @@ function VistaDocente({ d }) {
           {crossword.top.length > 0 && (
             <>
               <h3>Mejores puntajes</h3>
-              {crossword.top.map((p, i) => (
+              {crossword.top.map((p, i: number) => (
                 <Row
                   key={p.name}
                   title={`${i + 1}. ${p.name}`}
@@ -164,10 +172,10 @@ function VistaDocente({ d }) {
 }
 
 // ------------------------------ ESTUDIANTE ------------------------------
-const Final = ({ enCurso, gano }) =>
+const Final = ({ enCurso, gano }: { enCurso: boolean; gano: SinTipo }) =>
   enCurso ? <Chip tone="warn">en curso</Chip> : gano ? <Chip tone="win">Ganó</Chip> : <Chip>Terminó</Chip>;
 
-function VistaEstudiante({ d }) {
+function VistaEstudiante({ d }: { d: SinTipo }) {
   const { summary, ludo, crossword } = d;
   const total = summary.correct + summary.incorrect;
   const pct = total ? Math.round((summary.correct / total) * 100) : 0;
@@ -221,7 +229,7 @@ function VistaEstudiante({ d }) {
   );
 }
 
-export function StatsPage({ user }) {
+export function StatsPage({ user }: { user?: SinTipo }) {
   const [data, setData] = useState<SinTipo>(null);
   const [error, setError] = useState("");
 

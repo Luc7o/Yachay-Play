@@ -4,6 +4,7 @@ import { COLORS, TURN_ORDER } from "../constants";
 import { Step } from "./SetupScreen";
 import { Button } from "../ui";
 import type { Equipo } from "../constants";
+import type { SinTipo } from "../tipos";
 
 // ============================================================================
 // LUDO · SALA DE ESPERA (docente, para proyectar) — diseño "Campus", modo proyección
@@ -19,6 +20,16 @@ export function LobbyScreen({
   startGame,
   newGame,
   changeDevice,
+}: {
+  gameName: SinTipo;
+  gameCode: SinTipo;
+  teams: SinTipo;
+  activeTeams?: SinTipo;
+  connectedByTeam: SinTipo;
+  players?: SinTipo;
+  startGame: SinTipo;
+  newGame: SinTipo;
+  changeDevice: SinTipo;
 }) {
   if (!activeTeams.length) activeTeams = TURN_ORDER;
   const [copied, setCopied] = useState(false);

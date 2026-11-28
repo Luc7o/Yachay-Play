@@ -1,10 +1,21 @@
 import { GameGate, CrosswordPreview, CrosswordSabotagesExtra } from "../GameGate";
+import type { SinTipo } from "../tipos";
 
 // ============================================================================
 // PUERTA DE ENTRADA (sin cuenta): igual de espíritu que la de Ludo, pero
 // pensada para cualquier juego nuevo, no solo para Ludo.
 // ============================================================================
-export function CwGate({ onLogin, onRegister, onGuest, onBack }) {
+export function CwGate({
+  onLogin,
+  onRegister,
+  onGuest,
+  onBack,
+}: {
+  onLogin: SinTipo;
+  onRegister: SinTipo;
+  onGuest: SinTipo;
+  onBack: SinTipo;
+}) {
   return (
     <GameGate
       theme="crossword"

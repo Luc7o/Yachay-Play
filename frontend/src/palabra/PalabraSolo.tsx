@@ -18,18 +18,18 @@ const LIVES = 3;
 const START_SECONDS = 20;
 const MIN_SECONDS = 6;
 const WORDS_PER_LEVEL = 2;
-const timeFor = (words) => Math.max(MIN_SECONDS, START_SECONDS - Math.floor(words / WORDS_PER_LEVEL));
-const levelOf = (words) => Math.floor(words / WORDS_PER_LEVEL) + 1;
+const timeFor = (words: number) => Math.max(MIN_SECONDS, START_SECONDS - Math.floor(words / WORDS_PER_LEVEL));
+const levelOf = (words: number) => Math.floor(words / WORDS_PER_LEVEL) + 1;
 
 const RECORD_KEY = "yachay-palabra-relampago-solo-best-v2";
-const readBest = (name) => {
+const readBest = (name: string) => {
   try {
     return Number(JSON.parse(localStorage.getItem(RECORD_KEY) || "{}")[name.toLowerCase()]) || 0;
   } catch {
     return 0;
   }
 };
-const writeBest = (name, score) => {
+const writeBest = (name: string, score: number) => {
   try {
     const all = JSON.parse(localStorage.getItem(RECORD_KEY) || "{}");
     all[name.toLowerCase()] = score;
@@ -78,7 +78,7 @@ export function PalabraSolo({
   const focus = () => window.setTimeout(() => inputRef.current?.focus(), 0);
 
   // Letras nuevas + reloj de la palabra siguiente (empieza de inmediato).
-  const nextWord = (patch = {}, wordsCount = gr.current.words.length) => {
+  const nextWord = (patch = {}, wordsCount: number = gr.current.words.length) => {
     const choices = candidateFragments(usedRef.current, extraSet).filter((f) => f !== gr.current.fragment);
     const fragment = choices[Math.floor(Math.random() * choices.length)] || "sa";
     const total = timeFor(wordsCount);
@@ -92,7 +92,7 @@ export function PalabraSolo({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loseLife = (text) => {
+  const loseLife = (text: string) => {
     const s = gr.current;
     const lives = s.lives - 1;
     if (lives <= 0) {

@@ -4,6 +4,8 @@ import { AuthSide } from "./AuthScreen";
 import { Marca, BotonTema } from "./campusUi";
 import { Button } from "./ui";
 import type { ErrorApi } from "./api";
+import type { ReactNode } from "react";
+import type { SinTipo } from "./tipos";
 
 // ============================================================================
 // PANTALLAS EXTRA DE SEGURIDAD — diseño "Campus", igual que el login (clases cp-auth-*)
@@ -13,7 +15,15 @@ import type { ErrorApi } from "./api";
 //   <VerifyEmailScreen/>    se abre desde el enlace del correo de bienvenida: confirma el correo
 // ============================================================================
 
-function Marco({ children, onBack, backText = "Volver" }) {
+function Marco({
+  children,
+  onBack,
+  backText = "Volver",
+}: {
+  children: ReactNode;
+  onBack: SinTipo;
+  backText?: SinTipo;
+}) {
   return (
     <div className="cp cp-auth">
       <AuthSide
@@ -37,13 +47,21 @@ function Marco({ children, onBack, backText = "Volver" }) {
 }
 
 // ------------------------- 2.º paso del login -------------------------
-export function TwoFactorStep({ challenge, onSuccess, onCancel }) {
+export function TwoFactorStep({
+  challenge,
+  onSuccess,
+  onCancel,
+}: {
+  challenge: SinTipo;
+  onSuccess: SinTipo;
+  onCancel: () => void;
+}) {
   const [codigo, setCodigo] = useState("");
   const [usarRecuperacion, setUsarRecuperacion] = useState(false);
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  async function enviar(e) {
+  async function enviar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!codigo.trim() || cargando) return;
     setCargando(true);
@@ -110,13 +128,13 @@ export function TwoFactorStep({ challenge, onSuccess, onCancel }) {
 }
 
 // ------------------------- olvidé mi contraseña -------------------------
-export function ForgotPasswordScreen({ onBack }) {
+export function ForgotPasswordScreen({ onBack }: { onBack: () => void }) {
   const [email, setEmail] = useState("");
   const [enviado, setEnviado] = useState("");
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  async function enviar(e) {
+  async function enviar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!email.trim() || cargando) return;
     setCargando(true);
@@ -181,7 +199,7 @@ export function ForgotPasswordScreen({ onBack }) {
 }
 
 // ------------------------- nueva contraseña (desde el correo) -------------------------
-export function ResetPasswordScreen({ token, onDone }) {
+export function ResetPasswordScreen({ token, onDone }: { token: SinTipo; onDone: () => void }) {
   const [clave, setClave] = useState("");
   const [repetir, setRepetir] = useState("");
   const [ver, setVer] = useState(false);
@@ -189,7 +207,7 @@ export function ResetPasswordScreen({ token, onDone }) {
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  async function enviar(e) {
+  async function enviar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (cargando) return;
     if (clave !== repetir) return setError("Las contraseñas no coinciden.");
@@ -263,7 +281,7 @@ export function ResetPasswordScreen({ token, onDone }) {
 }
 
 // ------------------------- confirmar correo (desde el correo de bienvenida) -------------------------
-export function VerifyEmailScreen({ token, onDone }) {
+export function VerifyEmailScreen({ token, onDone }: { token: SinTipo; onDone: () => void }) {
   const [estado, setEstado] = useState("cargando"); // cargando | ok | error
   const [mensaje, setMensaje] = useState("");
 

@@ -2,12 +2,14 @@ import { Marca } from "../campusUi";
 import { CwLeaderboard } from "./CwTeacherLive";
 import { CwBoardPlay } from "./CwBoardPlay";
 import { Button } from "../ui";
+import type { ReactNode } from "react";
+import type { SinTipo } from "../tipos";
 
 // ============================================================================
 // CRUCIGRAMA · SALA DEL ESTUDIANTE (espera → jugando → resultados)
 // Diseño "Campus", modo proyección (como Ludo en el celular). Props sin cambios.
 // ============================================================================
-function Marco({ live, goHome, children }) {
+function Marco({ live, goHome, children }: { live: SinTipo; goHome: SinTipo; children: ReactNode }) {
   return (
     <div className="cp cp-proj stu-page">
       <header className="stu-top">
@@ -24,7 +26,27 @@ function Marco({ live, goHome, children }) {
   );
 }
 
-export function CwStudentRoom({ live, now, myId, code, solvedMap, toasts, goHome, onSubmit, onSabotage }) {
+export function CwStudentRoom({
+  live,
+  now,
+  myId,
+  code,
+  solvedMap,
+  toasts,
+  goHome,
+  onSubmit,
+  onSabotage,
+}: {
+  live: SinTipo;
+  now: number;
+  myId: SinTipo;
+  code: string;
+  solvedMap: SinTipo;
+  toasts: SinTipo;
+  goHome: () => void;
+  onSubmit: SinTipo;
+  onSabotage: SinTipo;
+}) {
   if (!live) return null;
 
   if (live.status === "lobby") {

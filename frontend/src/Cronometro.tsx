@@ -6,6 +6,7 @@ import { prepararAudio, nota } from "./herramientasAudio";
 import { cronometro, useCronometro } from "./cronometroStore";
 import "./herramientas.css";
 import type { SinTipo } from "./tipos";
+import type { Dispatch, SetStateAction } from "react";
 
 // ============================================================================
 // CRONÓMETRO DE ACTIVIDAD
@@ -43,8 +44,8 @@ const CONFIG = {
   clave: "yachayplay.cronometro.v1", // dónde se guarda lo último que usaste en este navegador
 };
 
-const pad = (n) => (n < 10 ? "0" : "") + n;
-function formato(ms) {
+const pad = (n: number) => (n < 10 ? "0" : "") + n;
+function formato(ms: number) {
   const s = Math.ceil(ms / 1000); // hacia arriba: se ve 05:00 al empezar y 00:00 solo al terminar
   return `${pad(Math.floor(s / 60))}:${pad(s % 60)}`;
 }
@@ -52,13 +53,13 @@ function formato(ms) {
 // Texto corto (hasta ~40 letras) = tamaño completo; con 500 letras baja hasta ESCALA_MIN.
 // Cada salto de línea cuenta como ~30 letras (ocupa una línea entera).
 const ESCALA_MIN = 0.6;
-function escalaPorTexto(texto) {
+function escalaPorTexto(texto: string) {
   const t = texto.trim();
   if (!t) return 1;
   const largo = t.length + (t.split("\n").length - 1) * 30;
   return Math.max(ESCALA_MIN, Math.min(1, 1 - (largo - 40) * 0.00087));
 }
-const aNumero = (v, min, max) => {
+const aNumero = (v: string, min: number, max: number) => {
   const n = parseInt(v, 10);
   return Math.min(max, Math.max(min, Number.isNaN(n) ? 0 : n));
 };
@@ -81,7 +82,7 @@ function leerListasRuleta() {
   }
 }
 
-export function Cronometro({ goHome }) {
+export function Cronometro({ goHome }: { goHome?: SinTipo }) {
   const guardado = useRef(leerGuardado()).current;
   const [minutos, setMinutos] = useState(String(guardado.min ?? 5));
   const [segundos, setSegundos] = useState(String(guardado.sec ?? 0));
@@ -109,14 +110,14 @@ export function Cronometro({ goHome }) {
   const esExpo = modo === "expo";
   const turnos = turnosTxt
     .split(/\r?\n/)
-    .map((t) => t.trim())
+    .map((t: string) => t.trim())
     .filter(Boolean)
     .slice(0, 100);
   const idx = Math.min(turnoIdx, Math.max(0, turnos.length - 1));
   const msExpo = aNumero(minExpo, 0, 99) * 60000;
   const msPreg = aNumero(minPreg, 0, 99) * 60000;
-  const msFase = (f) => (f === "preg" ? msPreg : msExpo);
-  const etiquetaTurno = (i, f) =>
+  const msFase = (f: string) => (f === "preg" ? msPreg : msExpo);
+  const etiquetaTurno = (i: number, f: string) =>
     turnos.length
       ? `${f === "preg" ? "Preguntas · " : ""}${turnos[i]} (${i + 1}/${turnos.length})`
       : "Agrega los turnos";
@@ -179,7 +180,7 @@ export function Cronometro({ goHome }) {
     entrarPantallaCompleta();
   }
   // Modo exposiciones: arranca de una vez el turno i en la fase f
-  function arrancarTurno(i, f) {
+  function arrancarTurno(i: number, f: string) {
     setTurnoIdx(i);
     setFase(f);
     const ms = msFase(f);
@@ -203,7 +204,7 @@ export function Cronometro({ goHome }) {
     if (idx + 1 < turnos.length) return arrancarTurno(idx + 1, "expo");
     reiniciarTurnos();
   }
-  function cargarDeRuleta(id) {
+  function cargarDeRuleta(id: string) {
     const l = listasRuleta.find((x) => x.id === id);
     if (!l) return;
     setTurnosTxt(l.items.join("\n"));
@@ -355,11 +356,11 @@ export function Cronometro({ goHome }) {
 
   // ---------------- Casillas de tiempo ----------------
   const bloqueado = estado === "running" || estado === "paused";
-  function cambiarTiempo(setter, valor) {
+  function cambiarTiempo(setter: Dispatch<SetStateAction<string>>, valor: string) {
     setter(valor);
     if (estado === "done") cronometro.reiniciar();
   }
-  function elegirRapido(m) {
+  function elegirRapido(m: number) {
     setMinutos(String(m));
     setSegundos("0");
     cronometro.reiniciar();

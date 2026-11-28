@@ -70,9 +70,10 @@ export function QuestionBankPage() {
     cargar();
   }, []);
 
-  const set = (campo, valor) => setForm((f) => ({ ...f, [campo]: valor }));
-  const setOpcion = (i, v) => setForm((f) => ({ ...f, options: f.options.map((o, j) => (j === i ? v : o)) }));
-  const quitarOpcion = (i) =>
+  const set = (campo: string, valor: string | number) => setForm((f) => ({ ...f, [campo]: valor }));
+  const setOpcion = (i: number, v: string) =>
+    setForm((f) => ({ ...f, options: f.options.map((o, j) => (j === i ? v : o)) }));
+  const quitarOpcion = (i: number) =>
     setForm((f) => {
       const options = f.options.filter((_, j) => j !== i);
       let answerIndex = f.answerIndex;

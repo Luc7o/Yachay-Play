@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { SinTipo } from "../tipos";
 
 // ==================== EL DADO (con animación) ====================
 // Cada cara se dibuja con puntos en una cuadrícula de 3x3.
@@ -12,7 +13,7 @@ export const PIPS = {
   6: [0, 2, 3, 5, 6, 8],
 };
 
-export function Dice({ value, rolling, size = "big" }) {
+export function Dice({ value, rolling, size = "big" }: { value: SinTipo; rolling: boolean; size?: string }) {
   const [face, setFace] = useState(value || 1);
 
   // Mientras "rolling" es true cambiamos de cara cada 90ms: eso es la animación.

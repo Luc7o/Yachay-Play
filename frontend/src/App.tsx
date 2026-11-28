@@ -49,7 +49,7 @@ function App() {
 
   // La ventanita del cronómetro (fuera de App) pide abrir su pantalla con este evento.
   const abrirHerramientaRef = useRef<SinTipo>(null);
-  abrirHerramientaRef.current = (id) => selectGame(id);
+  abrirHerramientaRef.current = (id: string) => selectGame(id);
   useEffect(() => {
     const abrir = (e) => e.detail && abrirHerramientaRef.current(e.detail);
     window.addEventListener(EVENTO_ABRIR, abrir);
@@ -94,7 +94,7 @@ function App() {
     navigate(`${base(user)}/unirse`);
   }
   // Ya eligió: se abre la pantalla de unirse de ese juego, con el nombre (y el código) puestos.
-  function unirseA(juego, { code, name }) {
+  function unirseA(juego: string, { code, name }) {
     setNombreInvitado(name);
     setCodigoInicial(code);
     if (juego !== "ludo") return selectGame(juego);
@@ -118,14 +118,14 @@ function App() {
     navigate(user ? `/app/${ultimaSeccionRef.current}` : "/");
   }
   // Elegir un juego en el catálogo. Con cuenta, el rol ya se conoce: se entra directo.
-  function selectGame(id) {
+  function selectGame(id: string) {
     // Una partida de Ludo a medias de antes se suelta ANTES de entrar a otro juego.
     if (id !== "ludo" && mode) clearGameSession();
     if (user && id === "ludo") chooseMode(user.role === "docente" ? "engineer" : "student");
     navigate(id === "ludo" ? `${base(user)}/ludo` : `${base(user)}/juego/${id}`);
   }
   // Pedir cuenta desde un juego: después de entrar se vuelve a ese juego.
-  function pedirCuenta(tipo) {
+  function pedirCuenta(tipo: string) {
     juegoAntesDeEntrarRef.current = catalogGame;
     navigate(tipo === "login" ? "/entrar" : "/registro");
   }
@@ -146,7 +146,7 @@ function App() {
     navigate("/inicio", { replace: true }); // salir siempre regresa a la portada pública
   }
   // Menú lateral (y botones del inicio)
-  function navegar(id) {
+  function navegar(id: string) {
     clearGameSession();
     limpiarClaseDestino(); // salir del flujo "lanzar desde una clase"
     setCodigoInicial("");
@@ -156,7 +156,7 @@ function App() {
   }
   // Clases: el docente lanza una actividad en una clase; el estudiante entra a una en vivo.
   const clases = {
-    lanzar: (clase, juego) => {
+    lanzar: (clase, juego: string) => {
       clearGameSession();
       setCodigoInicial("");
       setClaseDestino(clase);
@@ -180,7 +180,7 @@ function App() {
 
   // Salir de una partida de Ludo en curso con las flechas del navegador: se pide confirmación.
   const bloqueo = useBlocker(
-    ({ currentLocation, nextLocation }) =>
+    ({ currentLocation, nextLocation }: { currentLocation?: SinTipo; nextLocation?: SinTipo }) =>
       !salidaElegidaRef.current &&
       !!mode &&
       !!(engineerGameCode || studentGameCode) &&
@@ -228,7 +228,7 @@ function App() {
         user={user}
         changeDevice={changeDevice}
         enMenu={enMenu}
-        setAuthScreen={(t) => navigate(t === "login" ? "/entrar" : "/registro")}
+        setAuthScreen={(t: string) => navigate(t === "login" ? "/entrar" : "/registro")}
       />
     );
 

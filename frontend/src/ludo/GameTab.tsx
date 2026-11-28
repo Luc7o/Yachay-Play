@@ -3,9 +3,20 @@ import { COLORS } from "../constants";
 import { Dice } from "./Dice";
 import { LudoBoard } from "./LudoBoard";
 import { Button } from "../ui";
+import type { SinTipo } from "../tipos";
 
 // Texto que explica en qué momento del turno estamos (lo ven docente y alumnos)
-export function phaseMessage({ turnPhase, currentTeam, phaseSeconds, lastResult }) {
+export function phaseMessage({
+  turnPhase,
+  currentTeam,
+  phaseSeconds,
+  lastResult,
+}: {
+  turnPhase: SinTipo;
+  currentTeam: SinTipo;
+  phaseSeconds: SinTipo;
+  lastResult: SinTipo;
+}) {
   const equipo = COLORS[currentTeam].name;
   switch (turnPhase) {
     case "roll":
@@ -39,6 +50,20 @@ export function GameTab({
   activeTeams,
   skipTurn,
   phaseTotal = 20,
+}: {
+  currentTeam: SinTipo;
+  dice: SinTipo;
+  turnPhase: SinTipo;
+  phaseSeconds: SinTipo;
+  rolledBy: SinTipo;
+  question: SinTipo;
+  lastResult: SinTipo;
+  positions: SinTipo;
+  players: SinTipo;
+  teams: SinTipo;
+  activeTeams: SinTipo;
+  skipTurn: SinTipo;
+  phaseTotal?: number;
 }) {
   const showQuestion = turnPhase === "question" || turnPhase === "result";
   const turno = COLORS[currentTeam];
@@ -93,7 +118,7 @@ export function GameTab({
             <>
               <h3>{question.question}</h3>
               <div className="eg-opts">
-                {question.options.map((o, i) => {
+                {question.options.map((o, i: number) => {
                   let cls = "";
                   if (lastResult) {
                     if (i === lastResult.correctIndex) cls = " correcta";
@@ -159,7 +184,7 @@ export function GameTab({
 }
 
 // Traduce un número de paso (0 a 56) a algo legible para el docente
-export function describeStep(step) {
+export function describeStep(step: number) {
   if (step < 0) return "en casa";
   if (step >= GOAL_STEP) return "en la meta";
   if (step >= 51) return `recta final (${step - 50} de 6)`;

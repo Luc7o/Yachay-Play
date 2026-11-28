@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 // Piezas compartidas del Crucigrama — diseño "Campus" (mismas que la configuración de Ludo).
-export const Step = ({ n, t, d }) => (
+export const Step = ({ n, t, d }: { n: string; t: string; d: string }) => (
   <div className="cfg2-howstep">
     <b>{n}</b>
     <div>

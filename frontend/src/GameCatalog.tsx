@@ -97,7 +97,19 @@ export function LudoIcon() {
 }
 
 // Campo "¿Tienes un código?": solo dígitos, máximo 6.
-function CampoCodigo({ id, onEntrar, etiqueta = "Código de la partida", boton = "Entrar", className = "" }) {
+function CampoCodigo({
+  id,
+  onEntrar,
+  etiqueta = "Código de la partida",
+  boton = "Entrar",
+  className = "",
+}: {
+  id: string;
+  onEntrar: SinTipo;
+  etiqueta?: string;
+  boton?: string;
+  className?: string;
+}) {
   const [codigo, setCodigo] = React.useState("");
   return (
     <form
@@ -137,7 +149,17 @@ const NOMBRE_TIPO = {
 
 // Resumen de "Mis clases" en el inicio: lo que está en vivo y las clases más recientes.
 // Si falla la petición (p. ej. backend sin la migración de clases), simplemente no se muestra.
-function ResumenClases({ esDocente, onNavigate, onOpenClass, onEnterActivity }) {
+function ResumenClases({
+  esDocente,
+  onNavigate,
+  onOpenClass,
+  onEnterActivity,
+}: {
+  esDocente: boolean;
+  onNavigate: SinTipo;
+  onOpenClass: SinTipo;
+  onEnterActivity: SinTipo;
+}) {
   const [clases, setClases] = React.useState<SinTipo>(null);
   React.useEffect(() => {
     let vivo = true;
@@ -243,6 +265,16 @@ function HomeLogged({
   onOpenClass,
   onEnterActivity,
   section = "inicio",
+}: {
+  onSelectGame?: SinTipo;
+  onJoinWithCode?: SinTipo;
+  buildVersion?: SinTipo;
+  user?: SinTipo;
+  onLogout?: SinTipo;
+  onNavigate?: SinTipo;
+  onOpenClass?: SinTipo;
+  onEnterActivity?: SinTipo;
+  section?: SinTipo;
 }) {
   const resumen = (
     <ResumenClases
@@ -454,7 +486,19 @@ function HomeLogged({
 // ============================================================================
 const SECCIONES = ["inicio", "como-funciona", "docentes", "estudiantes", "juegos"];
 
-function Landing({ onSelectGame, onJoinWithCode, buildVersion, onLogin, onRegister }) {
+function Landing({
+  onSelectGame,
+  onJoinWithCode,
+  buildVersion,
+  onLogin,
+  onRegister,
+}: {
+  onSelectGame?: SinTipo;
+  onJoinWithCode?: SinTipo;
+  buildVersion?: SinTipo;
+  onLogin?: SinTipo;
+  onRegister?: SinTipo;
+}) {
   const leerHash = () => {
     const raw = window.location.hash.replace(/^#\/?/, "").split("?")[0];
     return SECCIONES.includes(raw) ? raw : "inicio";

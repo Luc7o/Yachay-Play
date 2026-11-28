@@ -7,7 +7,25 @@ import "../cw.css";
 import { Button } from "../ui";
 import type { SinTipo } from "../tipos";
 
-export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubmit, onSabotage }) {
+export function CwBoardPlay({
+  live,
+  now,
+  myId,
+  solvedMap,
+  toasts,
+  goHome,
+  onSubmit,
+  onSabotage,
+}: {
+  live: SinTipo;
+  now: SinTipo;
+  myId: SinTipo;
+  solvedMap: SinTipo;
+  toasts: SinTipo;
+  goHome: SinTipo;
+  onSubmit: SinTipo;
+  onSabotage: SinTipo;
+}) {
   const [activeId, setActiveId] = useState<SinTipo>(null);
   const [guess, setGuess] = useState("");
   const [feedback, setFeedback] = useState<SinTipo>(null); // { ok, msg } del último intento
@@ -85,7 +103,7 @@ export function CwBoardPlay({ live, now, myId, solvedMap, toasts, goHome, onSubm
     { type: "steal", icon: <IconoRobar />, label: "Robar", cost: 50 },
   ];
 
-  function lanzarSabotaje(type, cost) {
+  function lanzarSabotaje(type: string, cost: number) {
     if (!target) return setFeedback({ ok: false, msg: "Elige a quién sabotear primero." });
     if ((me?.energy || 0) < cost) return setFeedback({ ok: false, msg: "No tienes suficiente energía todavía." });
     onSabotage(target, type, (ack) => {

@@ -5,7 +5,17 @@ import { Button } from "../ui";
 // ============================================================================
 // LUDO · ¿CÓMO QUIERES ENTRAR? (sin sesión) — diseño "Campus". Props sin cambios.
 // ============================================================================
-export function ChooserScreen({ onLogin, onRegister, onGuest, onBack }) {
+export function ChooserScreen({
+  onLogin,
+  onRegister,
+  onGuest,
+  onBack,
+}: {
+  onLogin: () => void;
+  onRegister: () => void;
+  onGuest: () => void;
+  onBack: () => void;
+}) {
   const pasos = [
     { n: 1, t: "El docente crea la partida", d: "Elige cuántos equipos juegan y los tiempos, y proyecta el código." },
     { n: 2, t: "Los estudiantes se unen", d: "Cada uno entra desde su celular con el código y elige su equipo." },

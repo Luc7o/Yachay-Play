@@ -3,6 +3,7 @@ import { phaseTotal } from "../constants";
 import { GameTab } from "./GameTab";
 import { QuestionsTab, ScoresTab, RulesTab } from "./InfoTabs";
 import { Button } from "../ui";
+import type { SinTipo } from "../tipos";
 
 // ============================================================================
 // LUDO · PARTIDA EN CURSO (docente, para proyectar) — diseño "Campus", modo proyección.
@@ -30,6 +31,21 @@ export function EngineerGame({
   newGame,
   positions,
   bank,
+}: {
+  tab: SinTipo;
+  setTab: SinTipo;
+  serverState: SinTipo;
+  timerSeconds: SinTipo;
+  phaseSeconds: SinTipo;
+  toggleTimer: SinTipo;
+  addTime: SinTipo;
+  resetTimer: SinTipo;
+  skipTurn: SinTipo;
+  endGame: SinTipo;
+  resetGame: SinTipo;
+  newGame: SinTipo;
+  positions: SinTipo;
+  bank: SinTipo;
 }) {
   const currentTeam = serverState.currentTeam;
   const min = Math.floor((timerSeconds ?? 0) / 60)

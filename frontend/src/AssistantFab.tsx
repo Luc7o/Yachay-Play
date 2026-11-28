@@ -44,7 +44,7 @@ export function AssistantFab() {
       if (!getToken()) return setRole(null);
       api
         .me()
-        .then(({ user }) => setRole(user?.role || null))
+        .then(({ user }: { user?: SinTipo }) => setRole(user?.role || null))
         .catch(() => setRole(null));
     }
     // "storage" salta con CUALQUIER clave (la Ruleta, el tema, el cronómetro...):
@@ -81,7 +81,7 @@ export function AssistantFab() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  async function enviar(e) {
+  async function enviar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const texto = input.trim();
     if (!texto || loading) return;

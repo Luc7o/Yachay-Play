@@ -4,6 +4,8 @@ import { Dice } from "./Dice";
 import { describeMove } from "./GameTab";
 import { LudoBoard } from "./LudoBoard";
 import { Button } from "../ui";
+import type { ReactNode } from "react";
+import type { SinTipo } from "../tipos";
 
 // ============================================================================
 // LUDO · PANTALLAS DEL ESTUDIANTE (celular) — diseño "Campus" (campusJuegos.css, "stu")
@@ -13,7 +15,7 @@ import { Button } from "../ui";
 // Props sin cambios, salvo `isLogged` (opcional): oculta "Iniciar sesión / Crear cuenta".
 // ============================================================================
 
-function Barra({ onHome, derecha }) {
+function Barra({ onHome, derecha }: { onHome: SinTipo; derecha: ReactNode }) {
   return (
     <header className="stu-top">
       <Marca onClick={onHome} label="Volver al inicio de YachayPlay" />
@@ -36,6 +38,20 @@ export function StudentJoin({
   onLogin,
   onRegister,
   isLogged = false,
+}: {
+  joinCode: SinTipo;
+  setJoinCode: SinTipo;
+  studentName: SinTipo;
+  setStudentName: SinTipo;
+  studentTeam: SinTipo;
+  setStudentTeam: SinTipo;
+  submitJoin: SinTipo;
+  joinError: SinTipo;
+  gameInfo: SinTipo;
+  goHome: SinTipo;
+  onLogin: () => void;
+  onRegister: () => void;
+  isLogged?: boolean;
 }) {
   // Colores que juegan en ESA partida, con su cupo disponible
   const opciones = (gameInfo?.activeTeams || TURN_ORDER).map((t) => {
@@ -180,7 +196,17 @@ export function StudentJoin({
   );
 }
 
-export function StudentWaiting({ gameCode, studentName, studentTeam, changeDevice }) {
+export function StudentWaiting({
+  gameCode,
+  studentName,
+  studentTeam,
+  changeDevice,
+}: {
+  gameCode: SinTipo;
+  studentName: SinTipo;
+  studentTeam: SinTipo;
+  changeDevice: SinTipo;
+}) {
   const color = COLORS[studentTeam] || COLORS.rojo;
   return (
     <div className="cp cp-proj stu-page">
@@ -225,6 +251,15 @@ export function StudentGame({
   submitAnswer,
   rollDice,
   changeDevice,
+}: {
+  serverState: SinTipo;
+  playerId: SinTipo;
+  selected: SinTipo;
+  phaseSeconds: SinTipo;
+  positions: SinTipo;
+  submitAnswer: SinTipo;
+  rollDice: SinTipo;
+  changeDevice: SinTipo;
 }) {
   const me = serverState.players.find((p) => p.id === playerId);
   const myTeam = me?.team;
@@ -330,7 +365,7 @@ export function StudentGame({
             </section>
 
             <div className="stu-options" role="group" aria-label="Opciones de respuesta">
-              {question.options.map((o, i) => {
+              {question.options.map((o, i: number) => {
                 let estado = "";
                 if (revealed) {
                   if (i === lastResult.correctIndex) estado = "correcta";

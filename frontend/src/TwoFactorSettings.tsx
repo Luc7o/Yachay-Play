@@ -10,7 +10,7 @@ import type { ErrorApi } from "./api";
 //   <TwoFactorSettings user={user} onUserUpdate={setUser} />
 // ============================================================================
 
-function CodigosRecuperacion({ codigos, onListo }) {
+function CodigosRecuperacion({ codigos, onListo }: { codigos: SinTipo; onListo: () => void }) {
   const [copiado, setCopiado] = useState(false);
   const texto = `Códigos de recuperación de YachayPlay\n(cada código sirve una sola vez)\n\n${codigos.join("\n")}\n`;
   async function copiar() {
@@ -52,7 +52,7 @@ function CodigosRecuperacion({ codigos, onListo }) {
   );
 }
 
-export function TwoFactorSettings({ user, onUserUpdate }) {
+export function TwoFactorSettings({ user, onUserUpdate }: { user: SinTipo; onUserUpdate: SinTipo }) {
   const [fase, setFase] = useState("inicio"); // inicio | configurar | codigos | desactivar | nuevos
   const [setup, setSetup] = useState<SinTipo>(null); // { secret, qr }
   const [codigo, setCodigo] = useState("");
@@ -62,7 +62,7 @@ export function TwoFactorSettings({ user, onUserUpdate }) {
   const [cargando, setCargando] = useState(false);
 
   const activo = !!user.twoFactorEnabled;
-  const error = (texto) => setMsg({ tipo: "error", texto });
+  const error = (texto: string) => setMsg({ tipo: "error", texto });
   const reiniciar = () => {
     setFase("inicio");
     setCodigo("");
@@ -70,7 +70,7 @@ export function TwoFactorSettings({ user, onUserUpdate }) {
     setSetup(null);
   };
 
-  async function ejecutar(fn) {
+  async function ejecutar(fn: () => Promise<void>) {
     setCargando(true);
     setMsg({ tipo: "", texto: "" });
     try {
@@ -115,11 +115,11 @@ export function TwoFactorSettings({ user, onUserUpdate }) {
       setFase("codigos");
     });
 
-  const limpiar = (siguiente) => () => {
+  const limpiar = (siguiente: string) => () => {
     setMsg({ tipo: "", texto: "" });
     setFase(siguiente);
   };
-  const CampoCodigo = ({ maxLength }) => (
+  const CampoCodigo = ({ maxLength }: { maxLength: number }) => (
     <Input
       type="text"
       inputMode="numeric"

@@ -38,7 +38,7 @@ const fecha = (v) => {
 const codigoBonito = (c) => (c && c.length === 6 ? `${c.slice(0, 3)} ${c.slice(3)}` : c);
 
 // Vuelve a pedir los datos cada cierto tiempo, solo con la pestaña visible.
-function useRefresco(cargar, deps) {
+function useRefresco(cargar: (silencioso?: boolean | undefined) => Promise<false | void>, deps) {
   useEffect(() => {
     cargar();
     const t = setInterval(() => {
@@ -49,7 +49,7 @@ function useRefresco(cargar, deps) {
   }, deps);
 }
 
-function Aviso({ msg }) {
+function Aviso({ msg }: { msg: SinTipo }) {
   if (!msg?.texto) return null;
   return (
     <p className={msg.tipo === "ok" ? "cp-msg ok" : "cp-msg error"} role={msg.tipo === "ok" ? "status" : "alert"}>
@@ -58,7 +58,7 @@ function Aviso({ msg }) {
   );
 }
 
-function EnVivo({ actividades, esDocente, onEntrar }) {
+function EnVivo({ actividades, esDocente, onEntrar }: { actividades: SinTipo; esDocente: boolean; onEntrar: SinTipo }) {
   if (!actividades?.length) return null;
   return (
     <div className="cp-livelist">
@@ -88,7 +88,7 @@ function EnVivo({ actividades, esDocente, onEntrar }) {
 // ============================================================================
 // LISTA
 // ============================================================================
-function Lista({ user, onAbrir, onEntrar }) {
+function Lista({ user, onAbrir, onEntrar }: { user: SinTipo; onAbrir: SinTipo; onEntrar: SinTipo }) {
   const esDocente = user.role === "docente";
   const [clases, setClases] = useState<SinTipo>(null);
   const [msg, setMsg] = useState<SinTipo>({});
@@ -108,7 +108,7 @@ function Lista({ user, onAbrir, onEntrar }) {
   );
   useRefresco(cargar, []);
 
-  async function crear(e) {
+  async function crear(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setOcupado(true);
     setMsg({});
@@ -126,7 +126,7 @@ function Lista({ user, onAbrir, onEntrar }) {
     }
   }
 
-  async function unirse(e) {
+  async function unirse(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setOcupado(true);
     setMsg({});
@@ -323,7 +323,19 @@ function Lista({ user, onAbrir, onEntrar }) {
 // ============================================================================
 // DETALLE
 // ============================================================================
-function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
+function Detalle({
+  user,
+  id,
+  onVolver,
+  onLanzar,
+  onEntrar,
+}: {
+  user: SinTipo;
+  id: SinTipo;
+  onVolver: SinTipo;
+  onLanzar: SinTipo;
+  onEntrar: SinTipo;
+}) {
   const esDocente = user.role === "docente";
   const [clase, setClase] = useState<SinTipo>(null);
   const [msg, setMsg] = useState<SinTipo>({});
@@ -342,7 +354,7 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
   useRefresco(cargar, [id]);
 
   // Devuelve true si salió bien (así "Archivar" o "Salir" solo vuelven a la lista si funcionó).
-  const accion = async (fn, ok, { recargar = true } = {}) => {
+  const accion = async (fn, ok: string | null, { recargar = true } = {}) => {
     setMsg({});
     try {
       await fn();
@@ -617,7 +629,19 @@ function Detalle({ user, id, onVolver, onLanzar, onEntrar }) {
 }
 
 // Con onCambiar, la clase abierta la controla App (así queda en el historial del navegador).
-export function ClasesPage({ user, onLanzar, onEntrar, initialId = null, onCambiar }) {
+export function ClasesPage({
+  user,
+  onLanzar,
+  onEntrar,
+  initialId = null,
+  onCambiar,
+}: {
+  user?: SinTipo;
+  onLanzar?: SinTipo;
+  onEntrar?: SinTipo;
+  initialId?: SinTipo;
+  onCambiar?: SinTipo;
+}) {
   const [local, setLocal] = useState(initialId);
   useEffect(() => setLocal(initialId), [initialId]);
   const controlado = typeof onCambiar === "function";

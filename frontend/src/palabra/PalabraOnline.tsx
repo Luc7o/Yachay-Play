@@ -8,6 +8,7 @@ import { Hearts, PalabraStage, StageFrame, useStageTheme } from "./PalabraStage"
 import { Button, Field, Input, Select } from "../ui";
 import type { SinTipo } from "../tipos";
 import type { ErrorApi } from "../api";
+import type { EventosAlServidor } from "../../../shared/types/sockets";
 
 // ============================================================================
 // PALABRA RELÁMPAGO · EN LÍNEA
@@ -27,7 +28,7 @@ const readSaved = (code) => {
     return undefined;
   }
 };
-const writeSaved = (code, id) => {
+const writeSaved = (code, id: string) => {
   try {
     sessionStorage.setItem(saveKey(code), id);
   } catch {
@@ -70,9 +71,9 @@ export function OnlineSetup({
     useExtra: true,
   });
   const [ocupado, setOcupado] = useState(false);
-  const set = (k, v) => setCrear((c) => ({ ...c, [k]: v }));
+  const set = (k: string, v: string | number | boolean) => setCrear((c) => ({ ...c, [k]: v }));
 
-  function unirse(e) {
+  function unirse(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (codigo.length !== 6) return setErr("El código tiene 6 números.");
     if (!nombre.trim()) return setErr("Escribe tu nombre.");
@@ -80,7 +81,7 @@ export function OnlineSetup({
     onEnter({ code: codigo, name: nombre.trim(), host: false, hostPlays: true });
   }
 
-  async function crearPartida(e) {
+  async function crearPartida(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setOcupado(true);
     setErr("");
@@ -256,7 +257,19 @@ export function OnlineSetup({
 // ---------------------------------------------------------------------------
 // Sala en vivo
 // ---------------------------------------------------------------------------
-export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
+export function OnlineRoom({
+  code,
+  name,
+  host,
+  hostPlays,
+  onExit,
+}: {
+  code: SinTipo;
+  name: SinTipo;
+  host: SinTipo;
+  hostPlays: SinTipo;
+  onExit: () => void;
+}) {
   const [theme, toggleTheme] = useStageTheme();
   const [state, setState] = useState<SinTipo>(null);
   const [error, setError] = useState("");
@@ -328,7 +341,7 @@ export function OnlineRoom({ code, name, host, hostPlays, onExit }) {
     if (state?.status === "lobby" && !onlyWatches) socket.emit("pr:leave", {}, () => {});
     onExit();
   };
-  const accion = (evento, extra = {}) =>
+  const accion = (evento: keyof EventosAlServidor, extra = {}) =>
     socket.emit(evento, extra, (r) => r?.error && setLocalMsg({ text: r.error, tone: "bad" }));
 
   if (error) {

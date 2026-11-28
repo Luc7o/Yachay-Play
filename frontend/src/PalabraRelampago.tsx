@@ -18,16 +18,16 @@ import type { ReactNode } from "react";
 
 const COLORS = ["#17c7b5", "#4388ff", "#b18aff", "#ffc15d", "#f383a6", "#6ac9de", "#a4d75c", "#e1a7ff"];
 const DEFAULT_TEAMS = "Equipo 1, Equipo 2, Equipo 3";
-const parseNames = (value) =>
+const parseNames = (value: string) =>
   [
     ...new Set(
       value
         .split(/[,\n]/)
-        .map((x) => x.trim())
+        .map((x: string) => x.trim())
         .filter(Boolean),
     ),
   ].slice(0, 8);
-const POSITIONS = (i, length) => {
+const POSITIONS = (i: number, length: number) => {
   const angle = -Math.PI / 2 + (i * 2 * Math.PI) / length;
   return { left: `${50 + 43 * Math.cos(angle)}%`, top: `${50 + 43 * Math.sin(angle)}%` };
 };
@@ -131,7 +131,7 @@ export function PalabraRelampago({
     },
     [],
   );
-  const resetTimer = (nextFragment) => {
+  const resetTimer = (nextFragment: string) => {
     fragmentRef.current = nextFragment;
     timeRef.current = seconds;
     setFragment(nextFragment);
@@ -140,7 +140,7 @@ export function PalabraRelampago({
     setMessage("");
     window.setTimeout(() => inputRef.current?.focus(), 0);
   };
-  const chooseFragment = (avoid) => {
+  const chooseFragment = (avoid: string) => {
     const choices = candidateFragments(usedRef.current, extraSet).filter((x) => x !== avoid);
     return choices[Math.floor(Math.random() * choices.length)] || "sa";
   };
@@ -164,7 +164,7 @@ export function PalabraRelampago({
     setPhase("playing");
     resetTimer("sa");
   };
-  const finishTurn = (points, word = "", note = "") => {
+  const finishTurn = (points: number, word: string = "", note: string = "") => {
     if (lockRef.current) return;
     lockRef.current = true;
     setPending(true);
@@ -212,7 +212,7 @@ export function PalabraRelampago({
     // Timer restarts only at the beginning of the next round.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, round, pending]);
-  const submit = (e) => {
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (phase !== "playing" || lockRef.current) return;
     const reason = checkWord(answer, fragmentRef.current, usedRef.current, extraSet);
@@ -222,7 +222,7 @@ export function PalabraRelampago({
     }
     finishTurn(10 + timeRef.current, answer.trim());
   };
-  const importWords = async (file) => {
+  const importWords = async (file: File | undefined) => {
     if (!file) return;
     if (file.size > 1024 * 1024) {
       setVocabularyStatus("El archivo es demasiado grande (máximo 1 MB).");
@@ -231,11 +231,11 @@ export function PalabraRelampago({
     const text = await file.text();
     addWords(text);
   };
-  const addWords = (text) => {
+  const addWords = (text: string) => {
     const incoming = text
       .split(/[\s,;]+/u)
       .map(normalizeWord)
-      .filter((x) => /^[a-zñü]{4,35}$/u.test(x));
+      .filter((x: string) => /^[a-zñü]{4,35}$/u.test(x));
     const merged = [...new Set([...extraWords, ...incoming])].slice(0, 50000);
     try {
       saveExtraWords(merged);

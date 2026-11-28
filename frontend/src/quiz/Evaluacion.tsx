@@ -10,6 +10,7 @@ import "./quiz.css";
 import { Button, Field, Input } from "../ui";
 import type { SinTipo } from "../tipos";
 import type { ErrorApi } from "../api";
+import type { EstadoEvaluacion } from "../../../shared/types/sockets";
 
 // ============================================================================
 // EVALUACIÓN RÁPIDA
@@ -26,9 +27,12 @@ const COLORES = ["#E21B3C", "#1368CE", "#C68A00", "#26890C"];
 const FORMAS = ["▲", "◆", "●", "■"];
 const LETRAS = ["A", "B", "C", "D"];
 
-const preguntaNueva = () => ({ text: "", options: ["", ""], correct: -1, seconds: 30 });
+/** Una pregunta del editor: texto, 2 a 4 opciones, índice de la correcta (-1 = sin marcar) y segundos. */
+type Pregunta = { text: string; options: string[]; correct: number; seconds: number };
 
-async function pedir(path, options = {}) {
+const preguntaNueva = (): Pregunta => ({ text: "", options: ["", ""], correct: -1, seconds: 30 });
+
+async function pedir(path: string, options = {}) {
   const token = getToken();
   let res;
   try {
@@ -51,25 +55,25 @@ async function pedir(path, options = {}) {
 }
 
 // Mismas reglas que el servidor, para avisar antes de enviar.
-function validar(preguntas) {
+function validar(preguntas: Pregunta[]) {
   if (!preguntas.length) return "Agrega al menos una pregunta.";
   for (let i = 0; i < preguntas.length; i++) {
     const q = preguntas[i];
-    const ops = q.options.map((o) => o.trim()).filter(Boolean);
+    const ops = q.options.map((o: string) => o.trim()).filter(Boolean);
     if (!q.text.trim()) return `La pregunta ${i + 1} no tiene texto.`;
     if (ops.length < 2) return `La pregunta ${i + 1} necesita al menos 2 opciones con texto.`;
-    if (new Set(ops.map((o) => o.toLowerCase())).size !== ops.length)
+    if (new Set(ops.map((o: string) => o.toLowerCase())).size !== ops.length)
       return `La pregunta ${i + 1} tiene opciones repetidas.`;
     if (q.correct < 0 || !q.options[q.correct]?.trim()) return `Marca la respuesta correcta de la pregunta ${i + 1}.`;
   }
   return "";
 }
 // Quita las opciones vacías sin perder cuál era la correcta.
-function limpiar(preguntas) {
+function limpiar(preguntas: Pregunta[]): Pregunta[] {
   return preguntas.map((q) => {
     const options: string[] = [];
     let correct = -1;
-    q.options.forEach((o, i) => {
+    q.options.forEach((o: string, i) => {
       if (!o.trim()) return;
       if (i === q.correct) correct = options.length;
       options.push(o.trim());
@@ -79,13 +83,13 @@ function limpiar(preguntas) {
 }
 // Pegar preguntas desde un documento: bloques separados por línea en blanco;
 // 1.ª línea = pregunta, siguientes = opciones; la correcta lleva * al inicio o al final.
-function parsear(texto) {
+function parsear(texto: string): Pregunta[] {
   return texto
     .split(/\n\s*\n/)
-    .map((b) =>
+    .map((b: string) =>
       b
         .split("\n")
-        .map((l) => l.trim())
+        .map((l: string) => l.trim())
         .filter(Boolean),
     )
     .filter((b) => b.length >= 3)
@@ -101,8 +105,8 @@ function parsear(texto) {
       return { text: text.replace(/^\d+[).]\s*/, "").trim(), options, correct, seconds: 30 };
     });
 }
-function descargarCSV(filas, nombre) {
-  const celda = (v) => `"${String(v).replace(/"/g, '""')}"`;
+function descargarCSV(filas: unknown[][], nombre: string) {
+  const celda = (v: unknown) => `"${String(v).replace(/"/g, '""')}"`;
   const csv = "\ufeff" + filas.map((f) => f.map(celda).join(",")).join("\r\n");
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
   const a = document.createElement("a");
@@ -115,7 +119,7 @@ function descargarCSV(filas, nombre) {
 }
 
 // Segundos que faltan, usando la hora del servidor (no la del celular).
-function useCuenta(deadline, offset) {
+function useCuenta(deadline: number | undefined, offset: number) {
   const [seg, setSeg] = useState(0);
   useEffect(() => {
     if (!deadline) {
@@ -130,11 +134,13 @@ function useCuenta(deadline, offset) {
   return seg;
 }
 // Mantiene el estado de la sala al día con lo que manda el servidor.
-function useSala(code, estadoInicial, reunir: () => [string, SinTipo]) {
-  const [estado, setEstado] = useState(() => ({ ...estadoInicial, offset: estadoInicial.now - Date.now() }));
+type Sala = EstadoEvaluacion & { offset: number };
+
+function useSala(code: string, estadoInicial: EstadoEvaluacion, reunir: () => [string, SinTipo]) {
+  const [estado, setEstado] = useState<Sala>(() => ({ ...estadoInicial, offset: estadoInicial.now - Date.now() }));
   const reunirRef = useRef(reunir);
   reunirRef.current = reunir;
-  const alEstado = (st) => st?.code === code && setEstado({ ...st, offset: st.now - Date.now() });
+  const alEstado = (st: EstadoEvaluacion) => st?.code === code && setEstado({ ...st, offset: st.now - Date.now() });
   useSalaEnVivo({
     clave: code,
     eventos: { "qz:state": alEstado },
@@ -145,7 +151,21 @@ function useSala(code, estadoInicial, reunir: () => [string, SinTipo]) {
 }
 
 // ============================================================================
-export function Evaluacion({ user, goHome, onLogin, onRegister, initialCode = "", initialName = "" }) {
+export function Evaluacion({
+  user,
+  goHome,
+  onLogin,
+  onRegister,
+  initialCode = "",
+  initialName = "",
+}: {
+  user?: SinTipo;
+  goHome?: SinTipo;
+  onLogin?: SinTipo;
+  onRegister?: SinTipo;
+  initialCode?: SinTipo;
+  initialName?: SinTipo;
+}) {
   const esDocente = user?.role === "docente";
   const [sala, setSala] = useState<SinTipo>(null); // docente: { code, state }
   const [alumno, setAlumno] = useState<SinTipo>(null); // estudiante: { code, playerId, name, state }
@@ -238,10 +258,12 @@ export function Evaluacion({ user, goHome, onLogin, onRegister, initialCode = ""
 // ============================================================================
 // DOCENTE · EDITOR DE PREGUNTAS
 // ============================================================================
-function Editor({ onCreada }) {
+function Editor({ onCreada }: { onCreada: (code: string, state: EstadoEvaluacion) => void }) {
   const guardado = useRef(loadJSON(LS_BORRADOR)).current;
   const [nombre, setNombre] = useState(guardado?.nombre ?? "");
-  const [preguntas, setPreguntas] = useState(guardado?.preguntas?.length ? guardado.preguntas : [preguntaNueva()]);
+  const [preguntas, setPreguntas] = useState<Pregunta[]>(
+    guardado?.preguntas?.length ? guardado.preguntas : [preguntaNueva()],
+  );
   const [pegar, setPegar] = useState(false);
   const [texto, setTexto] = useState("");
   const [aviso, setAviso] = useState("");
@@ -251,18 +273,21 @@ function Editor({ onCreada }) {
     saveJSON(LS_BORRADOR, { nombre, preguntas });
   }, [nombre, preguntas]);
 
-  const cambiar = (i, parche) => setPreguntas((ps) => ps.map((q, k) => (k === i ? { ...q, ...parche } : q)));
-  const cambiarOpcion = (i, j, v) => cambiar(i, { options: preguntas[i].options.map((o, k) => (k === j ? v : o)) });
-  const quitarOpcion = (i, j) => {
+  const cambiar = (i: number, parche: Partial<Pregunta>) =>
+    setPreguntas((ps) => ps.map((q, k) => (k === i ? { ...q, ...parche } : q)));
+  const cambiarOpcion = (i: number, j: number, v: string) =>
+    cambiar(i, { options: preguntas[i].options.map((o, k) => (k === j ? v : o)) });
+  const quitarOpcion = (i: number, j: number) => {
     const q = preguntas[i];
     cambiar(i, {
-      options: q.options.filter((_, k) => k !== j),
+      options: q.options.filter((_, k: number) => k !== j),
       correct: q.correct === j ? -1 : q.correct > j ? q.correct - 1 : q.correct,
     });
   };
-  const duplicar = (i) =>
+  const duplicar = (i: number) =>
     setPreguntas((ps) => [...ps.slice(0, i + 1), JSON.parse(JSON.stringify(ps[i])), ...ps.slice(i + 1)]);
-  const quitar = (i) => setPreguntas((ps) => (ps.length === 1 ? [preguntaNueva()] : ps.filter((_, k) => k !== i)));
+  const quitar = (i: number) =>
+    setPreguntas((ps) => (ps.length === 1 ? [preguntaNueva()] : ps.filter((_, k) => k !== i)));
 
   function importar() {
     const nuevas = parsear(texto);
@@ -448,7 +473,15 @@ function Editor({ onCreada }) {
 // ============================================================================
 // DOCENTE · SALA EN VIVO
 // ============================================================================
-function Barras({ question, counts, correcto }) {
+function Barras({
+  question,
+  counts,
+  correcto,
+}: {
+  question: NonNullable<EstadoEvaluacion["question"]>;
+  counts?: number[];
+  correcto: boolean;
+}) {
   const total = counts ? counts.reduce((a, b) => a + b, 0) : 0;
   return (
     <div className="qz-barras">
@@ -475,13 +508,13 @@ function Barras({ question, counts, correcto }) {
   );
 }
 
-function VistaDocente({ sala, onNueva }) {
+function VistaDocente({ sala, onNueva }: { sala: SinTipo; onNueva: () => void }) {
   const { code } = sala;
   const st = useSala(code, sala.state, () => ["qz:watch", { code }]);
   const seg = useCuenta(st.deadline, st.offset);
   const [error, setError] = useState("");
   const accion = useCallback(
-    (evento) => emitConTiempoLimite(evento, { code }, (ack) => setError(ack?.error || "")),
+    (evento: string) => emitConTiempoLimite(evento, { code }, (ack) => setError(ack?.error || "")),
     [code],
   );
   const exportar = () =>
@@ -524,7 +557,7 @@ function VistaDocente({ sala, onNueva }) {
               : `${st.players} ${st.players === 1 ? "estudiante conectado" : "estudiantes conectados"}`}
           </p>
           <div className="qz-chips">
-            {st.names.map((n) => (
+            {(st.names ?? []).map((n) => (
               <span key={n} className="qz-chip">
                 {n}
               </span>
@@ -555,9 +588,9 @@ function VistaDocente({ sala, onNueva }) {
           <p className="qz-respondieron">
             <IconoEnLinea nombre="lapiz" /> Respondieron {st.answered} de {st.players}
           </p>
-          {st.status === "reveal" && st.top?.length > 0 && (
+          {st.status === "reveal" && (st.top?.length ?? 0) > 0 && (
             <ol className="qz-top">
-              {st.top.map((t) => (
+              {(st.top ?? []).map((t) => (
                 <li key={t.rank}>
                   <b>{t.rank}.</b> {t.name} <span>{t.score} pts</span>
                 </li>
@@ -582,7 +615,7 @@ function VistaDocente({ sala, onNueva }) {
         <>
           <div className="cp-card ui-card">
             <h2>Resultados</h2>
-            {st.ranking.length === 0 ? (
+            {(st.ranking ?? []).length === 0 ? (
               <p className="ui-text">Nadie participó.</p>
             ) : (
               <div className="ui-table">
@@ -596,7 +629,7 @@ function VistaDocente({ sala, onNueva }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {st.ranking.map((r) => (
+                    {(st.ranking ?? []).map((r) => (
                       <tr key={r.name}>
                         <td className="n">{r.rank}</td>
                         <td>{r.name}</td>
@@ -614,7 +647,7 @@ function VistaDocente({ sala, onNueva }) {
           <div className="cp-card ui-card">
             <h2>¿Qué quedó claro?</h2>
             <p className="ui-text">Porcentaje de aciertos por pregunta: las más bajas son los temas para reforzar.</p>
-            {st.review.map((q, i) => {
+            {(st.review ?? []).map((q, i) => {
               const pct = q.respondieron ? Math.round((q.aciertos / q.respondieron) * 100) : 0;
               return (
                 <div key={i} className="qz-rev">
@@ -654,7 +687,21 @@ function VistaDocente({ sala, onNueva }) {
 // ============================================================================
 // ESTUDIANTE
 // ============================================================================
-function Unirse({ user, onLogin, onRegister, onEntrar, initialCode = "", initialName = "" }) {
+function Unirse({
+  user,
+  onLogin,
+  onRegister,
+  onEntrar,
+  initialCode = "",
+  initialName = "",
+}: {
+  user: SinTipo;
+  onLogin: () => void;
+  onRegister: () => void;
+  onEntrar: (g: { code: string; playerId: string; name: string }, state: EstadoEvaluacion) => void;
+  initialCode?: string;
+  initialName?: string;
+}) {
   const [code, setCode] = useState(
     String(initialCode || "")
       .replace(/\D/g, "")
@@ -727,7 +774,7 @@ function Unirse({ user, onLogin, onRegister, onEntrar, initialCode = "", initial
   );
 }
 
-function VistaAlumno({ alumno, onSalir }) {
+function VistaAlumno({ alumno, onSalir }: { alumno: SinTipo; onSalir: () => void }) {
   const { code, playerId, name } = alumno;
   const st = useSala(code, alumno.state, () => ["qz:join", { code, playerId, name }]);
   const seg = useCuenta(st.deadline, st.offset);
@@ -738,7 +785,7 @@ function VistaAlumno({ alumno, onSalir }) {
     setEnviando(false);
   }, [st.qIndex]);
 
-  function responder(j) {
+  function responder(j: number) {
     if (enviando || st.me?.choice != null || st.status !== "question") return;
     setEnviando(true);
     emitConTiempoLimite("qz:answer", { choice: j }, (ack) => {
@@ -789,7 +836,7 @@ function VistaAlumno({ alumno, onSalir }) {
             {st.question.options.map((o, j) => {
               const reveal = st.status === "reveal";
               let clase = "qz-boton";
-              if (reveal) clase += st.question.correct === j ? " ok" : elegida === j ? " mal" : " apagado";
+              if (reveal) clase += st.question?.correct === j ? " ok" : elegida === j ? " mal" : " apagado";
               else if (elegida != null) clase += elegida === j ? " elegida" : " apagado";
               return (
                 <button
@@ -823,7 +870,7 @@ function VistaAlumno({ alumno, onSalir }) {
               {elegida == null
                 ? "No respondiste a tiempo"
                 : elegida === st.question.correct
-                  ? `¡Correcto! +${st.me.points} pts`
+                  ? `¡Correcto! +${st.me?.points} pts`
                   : "Incorrecto"}
               {st.me?.rank ? ` · vas en el puesto ${st.me.rank}` : ""}
             </p>
@@ -836,9 +883,9 @@ function VistaAlumno({ alumno, onSalir }) {
           <h2>¡Evaluación terminada!</h2>
           <p className="qz-final">{st.me?.rank ? `Puesto ${st.me.rank} de ${st.players}` : ""}</p>
           <p className="qz-final-pts">{st.me?.score ?? 0} puntos</p>
-          {st.top?.length > 0 && (
+          {(st.top?.length ?? 0) > 0 && (
             <ol className="qz-top">
-              {st.top.map((t) => (
+              {(st.top ?? []).map((t) => (
                 <li key={t.rank}>
                   <b>{t.rank}.</b> {t.name} <span>{t.score} pts</span>
                 </li>

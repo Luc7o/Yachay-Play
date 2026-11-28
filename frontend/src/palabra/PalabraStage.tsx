@@ -89,7 +89,17 @@ export function StageFrame({
 }
 
 // Reloj: anillo que se vacía + segundos en el centro.
-export function Clock({ remain, total, low, boom }) {
+export function Clock({
+  remain,
+  total,
+  low,
+  boom,
+}: {
+  remain?: SinTipo;
+  total?: SinTipo;
+  low?: SinTipo;
+  boom?: SinTipo;
+}) {
   const C = 2 * Math.PI * 44;
   const p = Math.max(0, Math.min(1, total ? remain / total : 0));
   return (
@@ -121,7 +131,10 @@ export function Clock({ remain, total, low, boom }) {
 }
 
 // Palabras usadas: las más recientes primero, así lo último que se usó se ve sin desplazarse.
-export function UsedList({ items, title = "Palabras usadas" }) {
+/** Palabra usada: solo el texto (modo solo) o con quién la usó y su color (en línea). */
+export type PalabraUsada = string | { word: string; by?: string; color?: string };
+
+export function UsedList({ items = [], title = "Palabras usadas" }: { items?: PalabraUsada[]; title?: string }) {
   return (
     <section className="pf-used" aria-label={title}>
       <h3>
@@ -131,16 +144,19 @@ export function UsedList({ items, title = "Palabras usadas" }) {
         {items.length === 0 ? (
           <p className="pf-empty">Todavía ninguna</p>
         ) : (
-          items.map((it, i) => (
-            <span
-              key={(it.word || it) + i}
-              className="pf-word"
-              style={it.color ? { "--w": it.color } : undefined}
-              title={it.by ? `${it.by}` : undefined}
-            >
-              {it.word || it}
-            </span>
-          ))
+          items.map((it, i) => {
+            const p = typeof it === "string" ? { word: it } : it;
+            return (
+              <span
+                key={p.word + i}
+                className="pf-word"
+                style={p.color ? { "--w": p.color } : undefined}
+                title={p.by ? `${p.by}` : undefined}
+              >
+                {p.word}
+              </span>
+            );
+          })
         )}
       </div>
     </section>
@@ -175,7 +191,7 @@ export function PalabraStage({
   message?: SinTipo;
   actions?: ReactNode;
   side?: ReactNode;
-  used?: string[];
+  used?: PalabraUsada[];
   usedTitle?: string;
 }) {
   return (

@@ -1,12 +1,25 @@
 import { useState } from "react";
 import { Marca, BotonTema } from "../campusUi";
 import { Button } from "../ui";
+import type { SinTipo } from "../tipos";
 
 // ============================================================================
 // CRUCIGRAMA · UNIRSE (estudiante) — diseño "Campus", como el ingreso de Ludo.
 // Props sin cambios.
 // ============================================================================
-export function CwStudentJoin({ goHome, prefillName, onJoin, error, initialCode = "" }) {
+export function CwStudentJoin({
+  goHome,
+  prefillName,
+  onJoin,
+  error,
+  initialCode = "",
+}: {
+  goHome: SinTipo;
+  prefillName: SinTipo;
+  onJoin: SinTipo;
+  error: string;
+  initialCode?: string;
+}) {
   const [codeInput, setCodeInput] = useState(initialCode);
   const [name, setName] = useState(prefillName);
   const listo = codeInput.trim().length === 6 && name.trim().length > 0;

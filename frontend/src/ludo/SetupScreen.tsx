@@ -1,6 +1,7 @@
 import { COLORS, TURN_ORDER } from "../constants";
 import { Button } from "../ui";
 import type { ReactNode } from "react";
+import type { SinTipo } from "../tipos";
 
 // ============================================================================
 // LUDO · CREAR PARTIDA (docente) — diseño "Campus" (ver campusJuegos.css, "cfg2")
@@ -58,6 +59,21 @@ export function SetupScreen({
   setupError,
   creating,
   goHome,
+}: {
+  gameName: SinTipo;
+  setGameName: SinTipo;
+  counts: SinTipo;
+  setCounts: SinTipo;
+  minutes: SinTipo;
+  setMinutes: SinTipo;
+  answerSeconds: SinTipo;
+  setAnswerSeconds: SinTipo;
+  rollSeconds: SinTipo;
+  setRollSeconds: SinTipo;
+  createGame: SinTipo;
+  setupError: SinTipo;
+  creating: SinTipo;
+  goHome: SinTipo;
 }) {
   // Un color con 0 alumnos simplemente NO JUEGA
   const activos = TURN_ORDER.filter((t) => counts[t] > 0);
@@ -249,7 +265,7 @@ export function SetupScreen({
   );
 }
 
-export const Step = ({ n, t, d }) => (
+export const Step = ({ n, t, d }: { n: string; t: string; d: string }) => (
   <div className="cfg2-howstep">
     <b>{n}</b>
     <div>

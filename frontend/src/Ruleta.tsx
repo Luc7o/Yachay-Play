@@ -42,8 +42,8 @@ const CONFIG = {
 };
 
 const TAU = Math.PI * 2;
-const mod = (a, n) => ((a % n) + n) % n;
-const plural = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
+const mod = (a: number, n: number) => ((a % n) + n) % n;
+const plural = (n: number, uno: string, varios: string) => `${n} ${n === 1 ? uno : varios}`;
 const uid = () => "l" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
 // Número al azar entre 0 y 1 (criptográfico si el navegador lo tiene)
@@ -56,8 +56,8 @@ function azar() {
     return Math.random();
   }
 }
-const azarEntero = (n) => Math.floor(azar() * n);
-function mezclar(arr) {
+const azarEntero = (n: number) => Math.floor(azar() * n);
+function mezclar<T>(arr: readonly T[]): T[] {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
     const j = azarEntero(i + 1);
@@ -65,7 +65,7 @@ function mezclar(arr) {
   }
   return a;
 }
-const leerLineas = (texto) =>
+const leerLineas = (texto: string) =>
   String(texto)
     .split(/\r?\n/)
     .map((s) => s.trim())
@@ -73,18 +73,22 @@ const leerLineas = (texto) =>
     .slice(0, CONFIG.maxElementos);
 
 // ---------------- Guardado en este navegador ----------------
-function cargar() {
+/** Una lista de la ruleta (alumnos, temas...). */
+type Lista = { id: string; nombre: string; items: string[] };
+type Guardado = { listas: Lista[]; activa: string; quitar: boolean; sonido: boolean; mascota: boolean };
+
+function cargar(): Guardado {
   let d: SinTipo = null;
   try {
     d = JSON.parse(localStorage.getItem(CONFIG.clave) || "null");
   } catch {
     /* sin datos guardados */
   }
-  let listas: { id: string; nombre: string; items: string[] }[] = [];
+  let listas: Lista[] = [];
   if (d && Array.isArray(d.listas)) {
     listas = d.listas
-      .filter((l) => l && typeof l.id === "string" && Array.isArray(l.items))
-      .map((l) => ({
+      .filter((l: SinTipo) => l && typeof l.id === "string" && Array.isArray(l.items))
+      .map((l: SinTipo) => ({
         id: l.id,
         nombre: String(l.nombre || "Lista").slice(0, 40),
         items: l.items.map(String).slice(0, CONFIG.maxElementos),
@@ -97,21 +101,21 @@ function cargar() {
 }
 
 // ---------------- Colores ----------------
-function luminancia(hex) {
+function luminancia(hex: string) {
   const c = [1, 3, 5].map((i) => {
     const v = parseInt(hex.substr(i, 2), 16) / 255;
     return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
   });
   return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
 }
-function contraste(a, b) {
+function contraste(a: string, b: string) {
   const l1 = luminancia(a);
   const l2 = luminancia(b);
   return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 }
-const colorDeTexto = (fondo) =>
+const colorDeTexto = (fondo: string) =>
   contraste(fondo, "#FFFFFF") >= contraste(fondo, CONFIG.textoOscuro) ? "#FFFFFF" : CONFIG.textoOscuro;
-export function colorDeSegmento(i, n) {
+export function colorDeSegmento(i: number, n: number) {
   const p = CONFIG.paleta;
   let c = p[i % p.length];
   if (n > 1 && i === n - 1 && c === p[0]) c = p[(i + 1) % p.length]; // que el último no sea igual al primero
@@ -126,12 +130,19 @@ export function colorDeSegmento(i, n) {
 // ============================================================================
 
 // ¿Qué segmento queda bajo la flecha con un giro dado? (misma matemática que el dibujo)
-export function segmentoBajoLaFlecha(giro, n) {
+export function segmentoBajoLaFlecha(giro: number, n: number) {
   if (n <= 0) return -1;
   return Math.min(n - 1, Math.floor(mod(-giro, TAU) / (TAU / n)));
 }
 
-function ajustarTexto(ctx, texto, anchoMax, tamMax, tamMin, fuente) {
+function ajustarTexto(
+  ctx: CanvasRenderingContext2D,
+  texto: string,
+  anchoMax: number,
+  tamMax: number,
+  tamMin: number,
+  fuente: string,
+) {
   let tam = tamMax;
   ctx.font = `800 ${tam}px ${fuente}`;
   while (tam > tamMin && ctx.measureText(texto).width > anchoMax) {
@@ -144,7 +155,7 @@ function ajustarTexto(ctx, texto, anchoMax, tamMax, tamMin, fuente) {
   return { texto: t, tam };
 }
 
-export function dibujarRuleta(canvas, items, giro, resaltado) {
+export function dibujarRuleta(canvas: HTMLCanvasElement | null, items: string[], giro: number, resaltado: number) {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
@@ -272,23 +283,26 @@ export function dibujarRuleta(canvas, items, giro, resaltado) {
 // ============================================================================
 // COMPONENTE
 // ============================================================================
-export function Ruleta({ goHome }) {
-  const inicial = useRef<SinTipo>(null);
+export function Ruleta({ goHome }: { goHome?: SinTipo }) {
+  const inicial = useRef<Guardado | null>(null);
   if (!inicial.current) inicial.current = cargar();
+  const ini = inicial.current;
 
-  const [listas, setListas] = useState(inicial.current.listas);
-  const [activaId, setActivaId] = useState(inicial.current.activa);
-  const [quitar, setQuitar] = useState(inicial.current.quitar);
-  const [sonido, setSonido] = useState(inicial.current.sonido);
-  const [mascota, setMascota] = useState(inicial.current.mascota);
+  const [listas, setListas] = useState(ini.listas);
+  const [activaId, setActivaId] = useState(ini.activa);
+  const [quitar, setQuitar] = useState(ini.quitar);
+  const [sonido, setSonido] = useState(ini.sonido);
+  const [mascota, setMascota] = useState(ini.mascota);
   const [pestana, setPestana] = useState("ruleta"); // ruleta | repartir
   const [soloRuleta, setSoloRuleta] = useState(false); // true = oculta las listas para proyectar
 
   // Lo que hay AHORA en la ruleta (copia de trabajo de cada lista) y lo que va saliendo
-  const [pools, setPools] = useState(() => Object.fromEntries(inicial.current.listas.map((l) => [l.id, [...l.items]])));
-  const [historiales, setHistoriales] = useState<SinTipo>({});
+  const [pools, setPools] = useState<Record<string, string[]>>(() =>
+    Object.fromEntries(ini.listas.map((l) => [l.id, [...l.items]])),
+  );
+  const [historiales, setHistoriales] = useState<Record<string, string[]>>({});
   const [borrador, setBorrador] = useState(() =>
-    inicial.current.listas.find((l) => l.id === inicial.current.activa).items.join("\n"),
+    (ini.listas.find((l) => l.id === ini.activa) ?? ini.listas[0]).items.join("\n"),
   );
   const [resultado, setResultado] = useState({ etiqueta: "Resultado", texto: "Pulsa «Girar»", clave: 0, gano: false });
   const [ocupada, setOcupada] = useState(false); // true mientras gira
@@ -358,7 +372,7 @@ export function Ruleta({ goHome }) {
   );
 
   // ---------------- Listas ----------------
-  function poner(id, items) {
+  function poner(id: string, items: string[]) {
     setPools((p) => ({ ...p, [id]: items }));
     setBorrador(items.join("\n"));
   }
@@ -366,7 +380,7 @@ export function Ruleta({ goHome }) {
     setResultado({ etiqueta: "Resultado", texto: "Pulsa «Girar»", clave: Date.now(), gano: false });
     setResaltado(-1);
   }
-  function cambiarLista(id) {
+  function cambiarLista(id: string) {
     setActivaId(id);
     setBorrador((pools[id] || []).join("\n"));
     reiniciarResultado();
@@ -392,11 +406,11 @@ export function Ruleta({ goHome }) {
     setBorrador((pools[resto[0].id] || resto[0].items).join("\n"));
     reiniciarResultado();
   }
-  function renombrar(nombre) {
+  function renombrar(nombre: string) {
     setListas(listas.map((l) => (l.id === activa.id ? { ...l, nombre: nombre.slice(0, 40) } : l)));
   }
   // Lo que el docente escribe es la lista GUARDADA y también lo que hay en la ruleta
-  function editarElementos(texto) {
+  function editarElementos(texto: string) {
     const items = leerLineas(texto);
     setBorrador(texto);
     setListas(listas.map((l) => (l.id === activa.id ? { ...l, items } : l)));
@@ -442,7 +456,7 @@ export function Ruleta({ goHome }) {
     let ultimo = segmentoBajoLaFlecha(desde, n);
     let ultimoTic = 0;
 
-    const cuadro = (ahora) => {
+    const cuadro = (ahora: number) => {
       const p = Math.min(1, (ahora - t0) / duracion);
       const suave = 1 - Math.pow(1 - p, 4); // desaceleración
       giroRef.current = desde + (hasta - desde) * suave;
@@ -461,7 +475,7 @@ export function Ruleta({ goHome }) {
     animRef.current = requestAnimationFrame(cuadro);
   }
 
-  function terminar(id, items) {
+  function terminar(id: string, items: string[]) {
     giroRef.current = mod(giroRef.current, TAU);
     const idx = segmentoBajoLaFlecha(giroRef.current, items.length); // resultado leído de dónde quedó la flecha
     const ganador = items[idx];
@@ -488,17 +502,19 @@ export function Ruleta({ goHome }) {
   // ============================================================================
   // REPARTIR UNA LISTA ENTRE OTRA
   // ============================================================================
-  const [repartirQue, setRepartirQue] = useState(() => (inicial.current.listas[1] || inicial.current.listas[0]).id);
-  const [repartirEntre, setRepartirEntre] = useState(() => inicial.current.listas[0].id);
-  const [reparto, setReparto] = useState<SinTipo>(null); // { entre, que, filas: [[quien, que, repetido]] }
+  const [repartirQue, setRepartirQue] = useState(() => (ini.listas[1] || ini.listas[0]).id);
+  const [repartirEntre, setRepartirEntre] = useState(() => ini.listas[0].id);
+  const [reparto, setReparto] = useState<{ entre: string; que: string; filas: [string, string, boolean][] } | null>(
+    null,
+  );
   const [avisoReparto, setAvisoReparto] = useState("");
   const idsValidos = listas.map((l) => l.id);
   const queId = idsValidos.includes(repartirQue) ? repartirQue : listas[0].id;
   const entreId = idsValidos.includes(repartirEntre) ? repartirEntre : listas[0].id;
 
   function repartir() {
-    const que = listas.find((l) => l.id === queId);
-    const entre = listas.find((l) => l.id === entreId);
+    const que = listas.find((l) => l.id === queId)!; // queId ya está validado
+    const entre = listas.find((l) => l.id === entreId)!;
     setReparto(null);
     if (que.id === entre.id)
       return setAvisoReparto("Elige dos listas distintas: una para repartir y otra con quienes la reciben.");
@@ -521,8 +537,8 @@ export function Ruleta({ goHome }) {
     } else {
       setAvisoReparto(`Reparto exacto: cada elemento de «${que.nombre}» le tocó a uno distinto.`);
     }
-    const vistos = new Set();
-    const filas = B.map((quien, i) => {
+    const vistos = new Set<string>();
+    const filas = B.map((quien, i): [string, string, boolean] => {
       const repetido = vistos.has(asignados[i]);
       vistos.add(asignados[i]);
       return [quien, asignados[i], repetido];
@@ -547,18 +563,18 @@ export function Ruleta({ goHome }) {
   // Reparte una lista en grupos equilibrados (tamaños que difieren como máximo en 1),
   // con líder y tema al azar si se pide.
   // ============================================================================
-  const [grupoLista, setGrupoLista] = useState(inicial.current.listas[0].id);
+  const [grupoLista, setGrupoLista] = useState(ini.listas[0].id);
   const [grupoModo, setGrupoModo] = useState("cantidad"); // cantidad | tamano
   const [grupoNum, setGrupoNum] = useState<number | string>(4);
   const [grupoLider, setGrupoLider] = useState(true);
   const [grupoTema, setGrupoTema] = useState(""); // id de la lista de temas ("" = sin tema)
-  const [grupos, setGrupos] = useState<SinTipo>(null); // [{ n, miembros, lider, tema }]
+  const [grupos, setGrupos] = useState<{ n: number; miembros: string[]; lider: string; tema: string }[] | null>(null);
   const [avisoGrupos, setAvisoGrupos] = useState("");
   const grupoListaId = idsValidos.includes(grupoLista) ? grupoLista : listas[0].id;
   const grupoTemaId = idsValidos.includes(grupoTema) && grupoTema !== grupoListaId ? grupoTema : "";
 
   function formarGrupos() {
-    const lista = listas.find((l) => l.id === grupoListaId);
+    const lista = listas.find((l) => l.id === grupoListaId)!; // grupoListaId ya está validado
     const total = lista.items.length;
     setGrupos(null);
     if (total < 2) return setAvisoGrupos("La lista necesita al menos 2 integrantes.");
@@ -572,12 +588,12 @@ export function Ruleta({ goHome }) {
       lider: "",
       tema: "",
     }));
-    base.forEach((nombre, i) => resultado[i % cuantos].miembros.push(nombre)); // reparto en ronda: quedan equilibrados
+    base.forEach((nombre: string, i: number) => resultado[i % cuantos].miembros.push(nombre)); // reparto en ronda: quedan equilibrados
     if (grupoLider)
       resultado.forEach((g) => {
         g.lider = g.miembros[azarEntero(g.miembros.length)];
       });
-    const temas = grupoTemaId ? listas.find((l) => l.id === grupoTemaId).items : [];
+    const temas = grupoTemaId ? (listas.find((l) => l.id === grupoTemaId)?.items ?? []) : [];
     if (temas.length) {
       let cola: string[] = [];
       resultado.forEach((g) => {
@@ -829,9 +845,9 @@ export function Ruleta({ goHome }) {
               ) : (
                 <ol className="hr-lista-salidos">
                   {historial
-                    .map((h, i) => ({ h, n: i + 1 }))
+                    .map((h, i: number) => ({ h, n: i + 1 }))
                     .reverse()
-                    .map(({ h, n }) => (
+                    .map(({ h, n }: { h?: SinTipo; n?: SinTipo }) => (
                       <li key={n}>
                         <span className="n">{n}</span>
                         <span className="t">{h}</span>

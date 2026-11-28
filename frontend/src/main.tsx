@@ -1,3 +1,4 @@
+import "./monitoreo"; // avisa de errores en producción (va primero para no perderse ninguno)
 import React, { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { createHashRouter, RouterProvider } from "react-router-dom";

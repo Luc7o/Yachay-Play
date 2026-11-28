@@ -1,3 +1,4 @@
+import { reportarError } from "./monitoreo";
 import React from "react";
 
 // ============================================================================
@@ -25,6 +26,7 @@ export class ErrorBoundary extends React.Component<{ children?: React.ReactNode 
   componentDidCatch(error, info) {
     // Queda también en la consola del navegador (F12) para quien sepa mirarla.
     console.error("Error atrapado por ErrorBoundary:", error, info);
+    reportarError(error, { componentStack: info?.componentStack });
   }
 
   handleReset = () => {

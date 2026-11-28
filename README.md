@@ -169,8 +169,13 @@ El servidor de Vite está abierto a la red local (`host: true`), así que puedes
    | `NODE_ENV` | `production` |
    | `CORS_ORIGIN` | `https://www.yachayplay.com` (varias URLs separadas por coma, sin `/` final) |
    | `SEED_DEMO_USERS` | `false` |
+   | `ROLLBAR_SERVER_TOKEN` | Token de servidor de Rollbar (monitoreo de errores). En Vercel → proyecto `yachay-play` → Settings → Environment Variables está como `ROLLBAR_YACHAY_PLAY_SERVER_TOKEN_…`: copia su valor aquí. |
 
 3. **Frontend** (Vercel): Root Directory `frontend`, framework Vite. Variable `VITE_API_URL` con la URL pública del backend (sin `/` final). Después de cambiarla, hay que hacer redeploy.
+
+### Monitoreo de errores (Rollbar)
+
+La integración de Rollbar está instalada en el proyecto de Vercel (`yachayplay-errores`, plan de 5.000 errores al mes). El frontend toma solo su token de cliente (`NEXT_PUBLIC_ROLLBAR_…_CLIENT_TOKEN_…`, ver `frontend/vite.config.js`) y reporta solo en producción. El backend necesita `ROLLBAR_SERVER_TOKEN` (tabla de arriba). Los errores se ven en el panel de Rollbar, separados por entorno (`production`, `preview`).
 
 Las cuentas demo no se crean en producción salvo que se ponga `SEED_DEMO_USERS=true`. Sus claves son públicas, así que no se recomienda.
 

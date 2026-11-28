@@ -1,6 +1,7 @@
 import express from "express";
 
 import "./env.js"; // carga backend/.env antes que cualquier otro módulo
+import "./monitoreo.js"; // errores a Rollbar en producción (necesita las variables de env.js)
 import cors from "cors";
 import http from "http";
 import crypto from "node:crypto";

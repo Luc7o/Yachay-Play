@@ -39,7 +39,7 @@ const quitarHist = (code) =>
     LS_HIST,
     leerHist().filter((x) => x.code !== code),
   );
-const haceTiempo = (ms) => {
+const haceTiempo = (ms: number) => {
   const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
   if (s < 60) return "hace un momento";
   if (s < 3600) return `hace ${Math.round(s / 60)} min`;
@@ -48,7 +48,7 @@ const haceTiempo = (ms) => {
   return d === 1 ? "ayer" : `hace ${d} días`;
 };
 
-async function pedir(path, options = {}) {
+async function pedir(path: string, options = {}) {
   const token = getToken();
   let res;
   try {
@@ -76,7 +76,21 @@ async function pedir(path, options = {}) {
 //   Docente  -> crea una sala y ve en vivo las presentaciones de todos
 //   Alumno   -> entra con el código y crea su presentación (sola o en equipo)
 // ============================================================================
-export function Estudio({ user, goHome, onLogin, onRegister, initialCode = "", initialName = "" }) {
+export function Estudio({
+  user,
+  goHome,
+  onLogin,
+  onRegister,
+  initialCode = "",
+  initialName = "",
+}: {
+  user?: SinTipo;
+  goHome?: SinTipo;
+  onLogin?: SinTipo;
+  onRegister?: SinTipo;
+  initialCode?: SinTipo;
+  initialName?: SinTipo;
+}) {
   const esDocente = user?.role === "docente";
   const [vista, setVista] = useState(() => (esDocente ? "revisando" : "join")); // revisando | salas | setup | docente | join | alumno | gate
   const [sala, setSala] = useState<SinTipo>(null); // docente: { code, state }
@@ -312,7 +326,17 @@ function Pantalla({ goHome, extra, children }: { goHome: () => void; extra?: Rea
   );
 }
 
-function Crear({ goHome, onCrear, cargando, onSalas }) {
+function Crear({
+  goHome,
+  onCrear,
+  cargando,
+  onSalas,
+}: {
+  goHome: SinTipo;
+  onCrear: SinTipo;
+  cargando: boolean;
+  onSalas: (() => void) | null;
+}) {
   const [name, setName] = useState("");
   const [task, setTask] = useState("");
   const [error, setError] = useState("");
@@ -383,7 +407,19 @@ const fechaSala = (ms) =>
     minute: "2-digit",
   });
 
-function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
+function MisSalas({
+  goHome,
+  salas,
+  onAbrir,
+  onEliminar,
+  onNueva,
+}: {
+  goHome: SinTipo;
+  salas: SinTipo;
+  onAbrir: SinTipo;
+  onEliminar: SinTipo;
+  onNueva: () => void;
+}) {
   const [error, setError] = useState("");
   const [ocupada, setOcupada] = useState(""); // id de la sala en la que se está trabajando
   const abiertas = salas.filter((s) => s.status !== "closed").length;
@@ -500,7 +536,23 @@ function MisSalas({ goHome, salas, onAbrir, onEliminar, onNueva }) {
   );
 }
 
-function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "", initialName = "" }) {
+function Unirse({
+  goHome,
+  user,
+  onEntrar,
+  onLogin,
+  onRegister,
+  initialCode = "",
+  initialName = "",
+}: {
+  goHome: SinTipo;
+  user: SinTipo;
+  onEntrar: SinTipo;
+  onLogin: SinTipo;
+  onRegister: SinTipo;
+  initialCode?: string;
+  initialName?: string;
+}) {
   const [code, setCode] = useState(
     String(initialCode || "")
       .replace(/\D/g, "")
@@ -734,7 +786,7 @@ function Unirse({ goHome, user, onEntrar, onLogin, onRegister, initialCode = "",
 // ============================================================================
 // ESTUDIANTE: editor conectado a la sala
 // ============================================================================
-function SalaAlumno({ session, initial, onSalir }) {
+function SalaAlumno({ session, initial, onSalir }: { session: SinTipo; initial: SinTipo; onSalir: () => void }) {
   const [deck, setDeck] = useState(initial.deck);
   const [comments, setComments] = useState(initial.comments || {});
   const [members, setMembers] = useState(initial.members || []);
@@ -773,11 +825,12 @@ function SalaAlumno({ session, initial, onSalir }) {
   const { conectado } = useSalaEnVivo({
     clave: deckKey,
     eventos: {
-      "ss:op": ({ op }) => setDeck((d) => aplicarOp(d, op)),
-      "ss:comment": ({ key, sid, comment }) =>
+      "ss:op": ({ op }: { op?: SinTipo }) => setDeck((d) => aplicarOp(d, op)),
+      "ss:comment": ({ key, sid, comment }: { key?: SinTipo; sid?: SinTipo; comment?: SinTipo }) =>
         key === deckKey && setComments((c) => ({ ...c, [sid]: [...(c[sid] || []), comment] })),
-      "ss:members": ({ members }) => setMembers(members),
-      "ss:room": ({ locked, status }) => setRoom((r) => ({ ...r, locked, status })),
+      "ss:members": ({ members }: { members?: SinTipo }) => setMembers(members),
+      "ss:room": ({ locked, status }: { locked?: SinTipo; status?: SinTipo }) =>
+        setRoom((r) => ({ ...r, locked, status })),
     },
     alReconectar: resync,
   });
@@ -798,7 +851,7 @@ function SalaAlumno({ session, initial, onSalir }) {
     [resync],
   );
   const onView = useCallback(
-    (slideId) => {
+    (slideId: string) => {
       socket.emit("ss:view", { slideId });
       guardarHist({ code: session.code, slideId }); // para volver a la misma diapositiva al retomar
     },

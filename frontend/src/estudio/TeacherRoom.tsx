@@ -10,7 +10,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "../ui";
 import type { SinTipo } from "../tipos";
 
-const hace = (ms) => {
+const hace = (ms: number) => {
   const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
   return s < 8
     ? "ahora"
@@ -25,7 +25,21 @@ const SIN_OP = () => {};
 // ============================================================================
 // DOCENTE: ve en vivo TODAS las presentaciones de su sala (sin Meet ni compartir pantalla)
 // ============================================================================
-export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEliminar }) {
+export function TeacherRoom({
+  code,
+  initial,
+  onExit,
+  onNuevaSala,
+  onSalas,
+  onEliminar,
+}: {
+  code: SinTipo;
+  initial: SinTipo;
+  onExit: SinTipo;
+  onNuevaSala: () => void;
+  onSalas: () => void;
+  onEliminar: () => Promise<string>;
+}) {
   const [room, setRoom] = useState({
     name: initial.name,
     task: initial.task,
@@ -46,7 +60,7 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
     setRoom({ name: state.name, task: state.task, status: state.status, locked: state.locked });
     setDecks(new Map<string, SinTipo>(state.decks.map((d) => [d.key, d])));
   };
-  const onStudent = ({ student, deck }) =>
+  const onStudent = ({ student, deck }: { student?: SinTipo; deck?: SinTipo }) =>
     setDecks((prev) => {
       const m = new Map(prev);
       const actual = m.get(deck.key) || { ...deck, members: [] };
@@ -56,7 +70,7 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
       m.set(deck.key, { ...actual, ...deck, deck: m.has(deck.key) ? actual.deck : deck.deck, members });
       return m;
     });
-  const onOp = ({ key, op }) =>
+  const onOp = ({ key, op }: { key?: SinTipo; op?: SinTipo }) =>
     setDecks((prev) => {
       const e = prev.get(key);
       if (!e) return prev;
@@ -64,7 +78,17 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
       m.set(key, { ...e, deck: aplicarOp(e.deck, op), updatedAt: Date.now() });
       return m;
     });
-  const onPresence = ({ id, deckKey, online, slideId }) =>
+  const onPresence = ({
+    id,
+    deckKey,
+    online,
+    slideId,
+  }: {
+    id?: SinTipo;
+    deckKey?: SinTipo;
+    online?: SinTipo;
+    slideId?: SinTipo;
+  }) =>
     setDecks((prev) => {
       const e = prev.get(deckKey);
       if (!e) return prev;
@@ -72,7 +96,7 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
       m.set(deckKey, { ...e, members: e.members.map((x) => (x.id === id ? { ...x, online, slideId } : x)) });
       return m;
     });
-  const onComment = ({ key, sid, comment }) =>
+  const onComment = ({ key, sid, comment }: { key?: SinTipo; sid?: SinTipo; comment?: SinTipo }) =>
     setDecks((prev) => {
       const e = prev.get(key);
       if (!e) return prev;
@@ -80,7 +104,8 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
       m.set(key, { ...e, comments: { ...e.comments, [sid]: [...(e.comments[sid] || []), comment] } });
       return m;
     });
-  const onRoom = ({ locked, status }) => setRoom((r) => ({ ...r, locked, status }));
+  const onRoom = ({ locked, status }: { locked?: SinTipo; status?: SinTipo }) =>
+    setRoom((r) => ({ ...r, locked, status }));
 
   // Tras una desconexión se pide todo otra vez.
   const { conectado } = useSalaEnVivo({
@@ -99,10 +124,10 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
   const enLinea = lista.reduce((n, d) => n + d.members.filter((m) => m.online).length, 0);
   const totalAlumnos = lista.reduce((n, d) => n + d.members.length, 0);
 
-  const accion = (evento, extra = {}) =>
+  const accion = (evento: string, extra = {}) =>
     emitConTiempoLimite(evento, { code, ...extra }, (ack) => setError(ack?.error || ""));
   // El servidor no nos devuelve nuestro propio comentario: lo agregamos aquí cuando confirma que lo guardó.
-  const enviarComentario = (key, sid, text) =>
+  const enviarComentario = (key: string, sid, text) =>
     emitConTiempoLimite("ss:comment", { code, key, sid, text }, (a) => {
       setError(a?.error || "");
       if (!a?.ok) return;
@@ -315,7 +340,7 @@ export function TeacherRoom({ code, initial, onExit, onNuevaSala, onSalas, onEli
   );
 }
 
-export function Miembros({ members }) {
+export function Miembros({ members }: { members: SinTipo }) {
   return (
     <span className="es-miembros">
       {members.map((m) => (
@@ -328,7 +353,7 @@ export function Miembros({ members }) {
   );
 }
 
-function Comentar({ onEnviar }) {
+function Comentar({ onEnviar }: { onEnviar: SinTipo }) {
   const [t, setT] = useState("");
   const [ok, setOk] = useState(false);
   return (

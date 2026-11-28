@@ -221,13 +221,13 @@ export function Editor({
     }
     commit(op, { guardarUndo: false });
   };
-  const avisarToast = (msg) => {
+  const avisarToast = (msg: string) => {
     setToast(msg);
     clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(""), 2200);
   };
   useEffect(() => () => clearTimeout(toastTimer.current), []);
-  const irADiapositiva = (i) => {
+  const irADiapositiva = (i: number) => {
     const s = deck.slides[Math.max(0, Math.min(deck.slides.length - 1, i))];
     if (s) {
       setSlideId(s.id);
@@ -237,7 +237,7 @@ export function Editor({
   };
 
   // ---- acciones ----
-  const addEl = (el, editar = false) => {
+  const addEl = (el, editar: boolean = false) => {
     commit({ t: "el+", sid: slide.id, el });
     setSel(el.id);
     setEditing(editar ? el.id : null);
@@ -254,7 +254,7 @@ export function Editor({
     if (elSel) addEl({ ...elSel, id: nuevoId(), x: elSel.x + 24, y: elSel.y + 24 });
   };
 
-  const nuevaDiapositiva = (plantilla) => {
+  const nuevaDiapositiva = (plantilla: string) => {
     const s = diapositiva(plantilla);
     const i = deck.slides.findIndex((x) => x.id === slide.id) + 1;
     commit({ t: "slide+", slide: s, index: i });
@@ -274,13 +274,13 @@ export function Editor({
     commit({ t: "slide-", id: s.id });
     setSlideId(deck.slides[i + 1]?.id || deck.slides[i - 1].id);
   };
-  const mover = (s, d) => {
+  const mover = (s, d: number) => {
     const i = deck.slides.findIndex((x) => x.id === s.id);
     const to = i + d;
     if (to >= 0 && to < deck.slides.length) commit({ t: "slide>", id: s.id, to });
   };
 
-  async function subirImagen(e) {
+  async function subirImagen(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     e.target.value = "";
     if (!f) return;
@@ -294,10 +294,10 @@ export function Editor({
   }
 
   // ---- teclado: atajos como en Canva / PowerPoint / Google Slides (la lista completa está en "⌨ Atajos") ----
-  const cambiarTamano = (d) =>
+  const cambiarTamano = (d: number) =>
     elSel && elSel.type === "text" && patch(elSel.id, { size: Math.max(8, Math.min(200, elSel.size + d)) });
-  const alinear = (a) => elSel && elSel.type === "text" && patch(elSel.id, { align: a });
-  const orden = (z) => elSel && commit({ t: "el^", sid: slide.id, id: elSel.id, z });
+  const alinear = (a: string) => elSel && elSel.type === "text" && patch(elSel.id, { align: a });
+  const orden = (z: string) => elSel && commit({ t: "el^", sid: slide.id, id: elSel.id, z });
 
   useEffect(() => {
     function onKey(e) {
@@ -551,7 +551,7 @@ export function Editor({
         e.preventDefault();
         setError("");
         leerImagen(img)
-          .then(({ src, w, h }) => addEl(elementoImagen(src, w, h)))
+          .then(({ src, w, h }: { src?: SinTipo; w?: SinTipo; h?: SinTipo }) => addEl(elementoImagen(src, w, h)))
           .catch((er) => setError(er.message));
         return;
       }
@@ -571,7 +571,7 @@ export function Editor({
   });
 
   // ---- arrastrar y redimensionar ----
-  function empezar(e, el, modo) {
+  function empezar(e, el, modo: string) {
     if (readOnly || editing === el.id) return;
     e.stopPropagation();
     if (editing) (document.activeElement as HTMLElement | null)?.blur?.(); // guarda el texto que se estaba escribiendo
@@ -804,7 +804,7 @@ export function Editor({
       <div className="es-body">
         {/* Diapositivas */}
         <nav className="es-films" aria-label="Diapositivas">
-          {deck.slides.map((s, i) => (
+          {deck.slides.map((s, i: number) => (
             <div key={s.id} className={"es-film" + (s.id === slide.id ? " on" : "")}>
               <button
                 className="es-film-btn"
@@ -983,7 +983,7 @@ export function Editor({
 }
 
 // ---------- modo presentación a pantalla completa ----------
-function Presentar({ deck, inicio, onSalir }) {
+function Presentar({ deck, inicio, onSalir }: { deck: SinTipo; inicio: SinTipo; onSalir: () => void }) {
   const total = deck.slides.length;
   const [i, setI] = useState(Math.max(0, Math.min(total - 1, inicio)));
   const [pantalla, setPantalla] = useState<SinTipo>(null); // null | "negra" | "blanca"
@@ -991,14 +991,14 @@ function Presentar({ deck, inicio, onSalir }) {
   const numRef = useRef("");
   const [ancho, setAncho] = useState(window.innerWidth);
   const ref = useRef<HTMLDivElement>(null);
-  const ir = (n) => {
+  const ir = (n: number) => {
     setPantalla(null);
     setI(Math.max(0, Math.min(total - 1, n)));
   };
   useEffect(() => {
     ref.current?.requestFullscreen?.().catch(() => {});
     const onResize = () => setAncho(window.innerWidth);
-    const poner = (v) => {
+    const poner = (v: string) => {
       numRef.current = v;
       setNum(v);
     };
@@ -1028,8 +1028,8 @@ function Presentar({ deck, inicio, onSalir }) {
       } else if (e.key === "End") {
         e.preventDefault();
         ir(total - 1);
-      } else if (k === "b" || e.key === ".") setPantalla((p) => (p === "negra" ? null : "negra"));
-      else if (k === "w" || e.key === ",") setPantalla((p) => (p === "blanca" ? null : "blanca"));
+      } else if (k === "b" || e.key === ".") setPantalla((p: string) => (p === "negra" ? null : "negra"));
+      else if (k === "w" || e.key === ",") setPantalla((p: string) => (p === "blanca" ? null : "blanca"));
     };
     const onFs = () => {
       if (!document.fullscreenElement) onSalir();
@@ -1159,7 +1159,7 @@ const GRUPOS_ATAJOS: [string, [string, string][]][] = [
   ],
 ];
 
-function Atajos({ onCerrar }) {
+function Atajos({ onCerrar }: { onCerrar: () => void }) {
   return (
     <div className="es-atajos-bg" onClick={onCerrar}>
       <div

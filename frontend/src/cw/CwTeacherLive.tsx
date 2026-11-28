@@ -127,7 +127,7 @@ export function CwTeacherLive({ live, ended }: { live: SinTipo; ended?: boolean 
 
 // Fila de eventos: sabotajes, quién se unió, quién terminó... para que el
 // docente vea qué está pasando sin tener que adivinar por qué cambió el marcador.
-export function CwActivityLog({ log }) {
+export function CwActivityLog({ log }: { log: SinTipo }) {
   if (!log || log.length === 0) return <p className="muted">Aún no hay actividad.</p>;
   return (
     <ul className="cw-activity-list">
@@ -143,7 +143,7 @@ export function CwActivityLog({ log }) {
   );
 }
 
-export function CwClueProgress({ c, total }) {
+export function CwClueProgress({ c, total }: { c: SinTipo; total: SinTipo }) {
   const pct = total ? Math.round((c.solvedCount / total) * 100) : 0;
   const completa = total > 0 && c.solvedCount === total;
   return (
@@ -164,7 +164,7 @@ export function CwClueProgress({ c, total }) {
 }
 
 export function CwLeaderboard({ board, showMedals }: { board: SinTipo[]; showMedals?: boolean }) {
-  const medal = (i) => `${i + 1}.`;
+  const medal = (i: number) => `${i + 1}.`;
   return (
     <div className="cw-leaderboard">
       {board.map((p, i) => (

@@ -35,7 +35,7 @@ export function LudoBoard({
     return m;
   }, [players, positions]);
 
-  const piecesAt = (cell) => piecesByCell[cellKey(cell)] || [];
+  const piecesAt = (cell: number[]) => piecesByCell[cellKey(cell)] || [];
 
   return (
     <div className={`ludo-board ${small ? "small" : ""}`}>
@@ -96,7 +96,7 @@ export function LudoBoard({
 }
 
 // Fichas dibujadas dentro de una casilla (pueden ser varias apiladas)
-export function Tokens({ list }) {
+export function Tokens({ list }: { list: SinTipo }) {
   if (!list.length) return null;
   return (
     <div className="tokens">
@@ -115,7 +115,21 @@ export function Tokens({ list }) {
 }
 
 // La casa de un color: 4 huecos donde esperan las fichas que aún no salieron
-export function BaseBox({ color, row, col, players, positions, activeTeams = TURN_ORDER }) {
+export function BaseBox({
+  color,
+  row,
+  col,
+  players,
+  positions,
+  activeTeams = TURN_ORDER,
+}: {
+  color: Equipo;
+  row: number;
+  col: number;
+  players: SinTipo;
+  positions: SinTipo;
+  activeTeams?: Equipo[];
+}) {
   if (!activeTeams.length) activeTeams = TURN_ORDER;
   const mine = players.filter((p) => p.team === color);
   const atHome = mine.filter((p) => (positions[p.id] ?? -1) < 0);

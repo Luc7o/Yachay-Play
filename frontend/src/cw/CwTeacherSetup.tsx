@@ -6,7 +6,15 @@ import { Button } from "../ui";
 // CRUCIGRAMA · CREAR PARTIDA (docente) — diseño "Campus". Va dentro del menú de la app.
 // Props sin cambios: goHome, onCreate(name, minutes, wordCount), error.
 // ============================================================================
-export function CwTeacherSetup({ goHome, onCreate, error }) {
+export function CwTeacherSetup({
+  goHome,
+  onCreate,
+  error,
+}: {
+  goHome: () => void;
+  onCreate: (name: string, minutes: number, wordCount: number) => void;
+  error: string;
+}) {
   const [name, setName] = useState("Reto de Inventos");
   const [minutes, setMinutes] = useState(8);
   const [wordCount, setWordCount] = useState(12);

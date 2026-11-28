@@ -14,6 +14,36 @@ export type Respuesta = { ok?: boolean; error?: string } & Record<string, any>;
 type Ack = (r: Respuesta) => void;
 type Jugador = { code: string; playerId: string };
 
+/**
+ * Evaluación rápida: lo que ve cada quien de la sala (backend/quick/engine.js, publicState).
+ * Los campos opcionales dependen de la fase y de si mira el docente o un estudiante.
+ */
+export interface EstadoEvaluacion {
+  code: string;
+  name: string;
+  status: "lobby" | "question" | "reveal" | "ended";
+  total: number;
+  qIndex: number;
+  players: number;
+  now: number;
+  question?: { text: string; options: string[]; seconds: number; correct?: number };
+  deadline?: number;
+  answered?: number;
+  counts?: number[];
+  top?: { name: string; score: number; rank: number }[];
+  me?: { name: string; score: number; rank: number | null; choice: number | null; points: number | null };
+  ranking?: { name: string; score: number; correct: number; rank: number }[];
+  names?: string[];
+  review?: {
+    text: string;
+    options: string[];
+    correct: number;
+    counts: number[];
+    respondieron: number;
+    aciertos: number;
+  }[];
+}
+
 /** Cliente → servidor */
 export interface EventosAlServidor {
   // Ludo
@@ -79,7 +109,7 @@ export interface EventosDelServidor {
   "pr:state": (s: Record<string, unknown>) => void;
   "pr:typing": (d: { n: number; text: string }) => void;
   // Evaluación rápida
-  "qz:state": (s: Record<string, unknown>) => void;
+  "qz:state": (s: EstadoEvaluacion) => void;
   // Presentaciones
   "ss:student": (d: Record<string, unknown>) => void;
   "ss:op": (d: Record<string, unknown>) => void;

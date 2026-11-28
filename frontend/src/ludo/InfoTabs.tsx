@@ -1,6 +1,7 @@
 import { COLORS, TURN_ORDER } from "../constants";
+import type { SinTipo } from "../tipos";
 
-export function QuestionsTab({ bank }) {
+export function QuestionsTab({ bank }: { bank: SinTipo }) {
   return (
     <main className="proj-main eg-info">
       <div className="cp-card cp-panel">
@@ -23,7 +24,7 @@ export function QuestionsTab({ bank }) {
   );
 }
 
-export function ScoresTab({ teams, history }) {
+export function ScoresTab({ teams, history }: { teams: SinTipo; history: SinTipo }) {
   return (
     <main className="proj-main eg-info">
       <div className="eg-score-grid">

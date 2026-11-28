@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { Marca, BotonTema, Icono } from "../campusUi";
 import "./joinHub.css";
 import { Button } from "../ui";
+import type { PublicUser } from "../../../shared/types/api";
+import type { SinTipo } from "../tipos";
 
 // ============================================================================
 // ¿A QUÉ TE QUIERES UNIR? — para invitados y estudiantes
@@ -46,7 +48,19 @@ const OPCIONES = [
   },
 ];
 
-export function JoinHub({ user, initialCode = "", initialName = "", onPick, onBack }) {
+export function JoinHub({
+  user,
+  initialCode = "",
+  initialName = "",
+  onPick,
+  onBack,
+}: {
+  user: PublicUser | null;
+  initialCode?: string;
+  initialName?: string;
+  onPick: SinTipo;
+  onBack: () => void;
+}) {
   const [name, setName] = useState(initialName || user?.name || "");
   const [error, setError] = useState("");
   const nameRef = useRef<HTMLInputElement>(null);
@@ -55,7 +69,7 @@ export function JoinHub({ user, initialCode = "", initialName = "", onPick, onBa
     .slice(0, 6);
   const sinNombre = name.trim().length === 0;
 
-  function elegir(id) {
+  function elegir(id: string) {
     const n = name.trim();
     if (!n) {
       setError("Escribe tu nombre para continuar.");

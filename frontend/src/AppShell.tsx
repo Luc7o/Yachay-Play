@@ -2,6 +2,8 @@ import React, { Suspense } from "react";
 import "./shell.css";
 import { Icono, Marca, BotonTema } from "./campusUi";
 import { Button } from "./ui";
+import type { SinTipo } from "./tipos";
+import type { ReactNode } from "react";
 
 // ============================================================================
 // MARCO DE LA APP para cuentas con sesión — diseño "Campus" (ver campus.css).
@@ -35,7 +37,7 @@ const NAV_INFO = [
   { id: "contacto", label: "Ayuda y contacto" },
 ];
 
-function Item({ it, active, onNavigate }) {
+function Item({ it, active, onNavigate }: { it: SinTipo; active: SinTipo; onNavigate: SinTipo }) {
   const Ico = it.icono || Icono.info;
   return (
     <button
@@ -50,14 +52,28 @@ function Item({ it, active, onNavigate }) {
   );
 }
 
-export function AppShell({ user, active, onNavigate, onLogout, buildVersion, children }) {
+export function AppShell({
+  user,
+  active,
+  onNavigate,
+  onLogout,
+  buildVersion,
+  children,
+}: {
+  user: SinTipo;
+  active: SinTipo;
+  onNavigate: SinTipo;
+  onLogout: SinTipo;
+  buildVersion: SinTipo;
+  children: ReactNode;
+}) {
   const esDocente = user.role === "docente";
   const items = esDocente ? NAV_DOCENTE : NAV_ESTUDIANTE;
   const iniciales = user.name
     .trim()
     .split(/\s+/)
     .slice(0, 2)
-    .map((p) => p.charAt(0).toUpperCase())
+    .map((p: string) => p.charAt(0).toUpperCase())
     .join("");
 
   return (

@@ -9,6 +9,7 @@ import { CwTeacherRoom } from "./CwTeacherRoom";
 import { CwStudentJoin } from "./CwStudentJoin";
 import { CwStudentRoom } from "./CwStudentRoom";
 import type { SinTipo } from "../tipos";
+import type { ReactNode } from "react";
 
 // ============================================================================
 // CRUCIGRAMA RELÁMPAGO — juego nuevo de YachayPlay
@@ -23,7 +24,7 @@ import type { SinTipo } from "../tipos";
 // ============================================================================
 
 // Si App.jsx pasa `frame`, la configuración del docente se muestra dentro del menú lateral.
-export const conMarco = (frame, pagina) => (frame ? frame(pagina) : pagina);
+export const conMarco = (frame, pagina: ReactNode) => (frame ? frame(pagina) : pagina);
 
 export function CrosswordGame({
   user,
@@ -35,6 +36,16 @@ export function CrosswordGame({
   startJoin = false,
   onGuestCode,
   frame,
+}: {
+  user?: SinTipo;
+  onLogin?: SinTipo;
+  onRegister?: SinTipo;
+  goHome?: SinTipo;
+  initialCode?: SinTipo;
+  initialName?: SinTipo;
+  startJoin?: SinTipo;
+  onGuestCode?: SinTipo;
+  frame?: SinTipo;
 }) {
   // Si ya hay sesión, arrancamos directo en la pantalla de su rol (sin pasar
   // primero por "gate"): así no se alcanza a ver un parpadeo de esa pantalla
@@ -195,7 +206,7 @@ export function CrosswordGame({
       <CwTeacherSetup
         goHome={volverAlCatalogo}
         error={error}
-        onCreate={(name, minutes, wordCount) => {
+        onCreate={(name: string, minutes: number, wordCount: number) => {
           setError("");
           api
             .crosswordCreate(name, minutes, wordCount)

@@ -1,10 +1,11 @@
 import { Marca } from "../campusUi";
 import { Button } from "../ui";
+import type { SinTipo } from "../tipos";
 
 // ============================================================================
 // LUDO · CONECTANDO / ERROR AL ENTRAR — diseño "Campus". Props sin cambios.
 // ============================================================================
-export function LoadingScreen({ code, error, onReset }) {
+export function LoadingScreen({ code, error, onReset }: { code: SinTipo; error: SinTipo; onReset: SinTipo }) {
   return (
     <div className="cp stu-page">
       <header className="stu-top">

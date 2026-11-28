@@ -12,7 +12,19 @@ import type { SinTipo } from "../tipos";
 //   alInvitado(): "entrar como invitado"   permitirLogin: false con una partida de Ludo abierta
 //   conSesion: con la sesión ya iniciada, #/entrar y #/registro no se muestran (App lleva al panel)
 // ============================================================================
-export function usePantallaCuenta({ ruta, alEntrar, alInvitado, permitirLogin, conSesion }) {
+export function usePantallaCuenta({
+  ruta,
+  alEntrar,
+  alInvitado,
+  permitirLogin,
+  conSesion,
+}: {
+  ruta: SinTipo;
+  alEntrar: SinTipo;
+  alInvitado: () => void;
+  permitirLogin: boolean;
+  conSesion: boolean;
+}) {
   const navigate = useNavigate();
   const [desafio2fa, setDesafio2fa] = useState<SinTipo>(null); // 2.º paso del login (cuenta con 2FA)
   // Los tokens del correo se guardan en memoria y se sacan de la barra de direcciones apenas se leen.
@@ -64,7 +76,7 @@ export function usePantallaCuenta({ ruta, alEntrar, alInvitado, permitirLogin, c
     return (
       <AuthScreen
         tab={ruta.auth}
-        setTab={(t) => navigate(t === "login" ? "/entrar" : "/registro")}
+        setTab={(t: string) => navigate(t === "login" ? "/entrar" : "/registro")}
         onSuccess={alEntrar}
         onForgot={() => navigate("/olvide")}
         onNeeds2FA={setDesafio2fa}

@@ -20,7 +20,7 @@ const ROLES: { id: Rol; title: string; text: string }[] = [
   { id: "estudiante", title: "Estudiante", text: "Me uno a mis clases y juego con el código." },
 ];
 
-const IconEye = ({ off }) => (
+const IconEye = ({ off }: { off: boolean }) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
@@ -38,7 +38,7 @@ const IconEye = ({ off }) => (
 
 // Mismas reglas que valida el servidor (authCore.js → validatePassword).
 // La de "contraseña demasiado común" solo la revisa el servidor.
-function reglasClave(clave, correo) {
+function reglasClave(clave: string, correo: string) {
   return [
     { id: "largo", texto: "8 caracteres o más", ok: clave.length >= 8 && clave.length <= 100 },
     { id: "letra", texto: "Al menos una letra", ok: /[A-Za-z\u00C0-\u017F]/.test(clave) },
@@ -52,7 +52,7 @@ function reglasClave(clave, correo) {
 }
 
 // Columna izquierda: el mensaje de la marca (se oculta en celular).
-export function AuthSide({ titulo, texto }) {
+export function AuthSide({ titulo, texto }: { titulo: string; texto: string }) {
   const Check = Icono.check;
   return (
     <aside className="cp-auth-side" aria-hidden="true">
@@ -80,7 +80,23 @@ export function AuthSide({ titulo, texto }) {
   );
 }
 
-export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, onNeeds2FA }) {
+export function AuthScreen({
+  tab,
+  setTab,
+  onSuccess,
+  onBack,
+  onGuest,
+  onForgot,
+  onNeeds2FA,
+}: {
+  tab: SinTipo;
+  setTab: (t: string) => void;
+  onSuccess: SinTipo;
+  onBack: () => void;
+  onGuest: SinTipo;
+  onForgot: () => void;
+  onNeeds2FA: SinTipo;
+}) {
   const registro = tab === "register";
   const [role, setRole] = useState<Rol | "">("");
   const [name, setName] = useState("");
@@ -107,7 +123,7 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
     setError("");
   }
 
-  function cambiarTab(t) {
+  function cambiarTab(t: string) {
     setTab(t);
     setError("");
   }
@@ -143,7 +159,7 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
     if (cajaGoogle.current) cajaGoogle.current.inert = googleBloqueado;
   }, [googleBloqueado]);
 
-  async function enviar(e) {
+  async function enviar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!listo || loading) return;
     setLoading(true);
@@ -171,7 +187,7 @@ export function AuthScreen({ tab, setTab, onSuccess, onBack, onGuest, onForgot, 
   edadRef.current = edad;
   const registroRef = useRef(registro);
   registroRef.current = registro;
-  async function entrarConGoogle(credential) {
+  async function entrarConGoogle(credential: string) {
     if (!credential) return;
     if (registroRef.current && (!roleRef.current || !termsRef.current || !edadRef.current)) {
       setError(

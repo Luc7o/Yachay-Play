@@ -1,9 +1,25 @@
+import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { hoy, nombreSeguro } from "./utils";
 import { Button, Field, Input } from "../ui";
+import type { SinTipo } from "../tipos";
 
 // Cuadro "Guardar tu trabajo": nombre, formato y páginas
-export function DialogoDescarga({ vista, nombreInicial, paginas, ocupado, onCancelar, onConfirmar }) {
+export function DialogoDescarga({
+  vista,
+  nombreInicial,
+  paginas,
+  ocupado,
+  onCancelar,
+  onConfirmar,
+}: {
+  vista: SinTipo;
+  nombreInicial: SinTipo;
+  paginas: SinTipo;
+  ocupado: boolean;
+  onCancelar: () => void;
+  onConfirmar: SinTipo;
+}) {
   const [nombre, setNombre] = useState(nombreInicial);
   const [formato, setFormato] = useState("png");
   const [alcance, setAlcance] = useState(paginas > 1 ? "todas" : "actual");
@@ -18,7 +34,7 @@ export function DialogoDescarga({ vista, nombreInicial, paginas, ocupado, onCanc
   const esPdf = formato === "pdf";
   const alc = esPdf ? alcance : "actual";
   const archivo = nombreSeguro(nombre + (fecha ? ` ${hoy()}` : ""));
-  const enviar = (e) => {
+  const enviar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!ocupado) onConfirmar({ nombre, archivo, formato, alcance: alc });
   };
@@ -122,7 +138,7 @@ export function DialogoDescarga({ vista, nombreInicial, paginas, ocupado, onCanc
 }
 
 // Miniatura de cada fondo para la lista (así se ve cómo es antes de elegirlo)
-export function muestraFondo(f) {
+export function muestraFondo(f: { id: string; color: string }): React.CSSProperties {
   const l = "#C3D3E6";
   if (f.id === "cuadro")
     return {

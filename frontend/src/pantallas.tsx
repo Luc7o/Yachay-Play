@@ -1,5 +1,8 @@
 import { lazy } from "react";
 import { InfoPage } from "./InfoPages";
+import type { PublicUser } from "../../shared/types/api";
+import type { Dispatch, SetStateAction } from "react";
+import type { SinTipo } from "./tipos";
 
 // ============================================================================
 // QUÉ SE MUESTRA EN CADA RUTA del panel y de los juegos. App.jsx decide CUÁL
@@ -9,7 +12,7 @@ import { InfoPage } from "./InfoPages";
 // Pantallas que se cargan bajo demanda: un alumno que entra a Ludo desde el celular
 // no descarga la Pizarra, la Ruleta, el Estudio, etc. (el Suspense está en main.jsx y en AppShell).
 // Sus CSS se cargan igual al inicio, desde estilos.js, para no cambiar el orden.
-const diferido = (cargar, nombre) => lazy(() => cargar().then((m) => ({ default: m[nombre] })));
+const diferido = (cargar, nombre: string) => lazy(() => cargar().then((m) => ({ default: m[nombre] })));
 const CrosswordGame = diferido(() => import("./cw/CrosswordGame"), "CrosswordGame");
 const PalabraRelampago = diferido(() => import("./PalabraRelampago"), "PalabraRelampago");
 const StatsPage = diferido(() => import("./Stats"), "StatsPage");
@@ -26,7 +29,25 @@ const ClasesPage = diferido(() => import("./clases/Clases"), "ClasesPage");
  * Páginas del panel con sesión (#/app/clases, stats, questions, profile, planes, contacto).
  * enMenu(activo, pagina) las envuelve con el menú lateral.
  */
-export function paginaPanel({ pagina, claseId, user, setUser, enMenu, navegar, irA, clases }) {
+export function paginaPanel({
+  pagina,
+  claseId,
+  user,
+  setUser,
+  enMenu,
+  navegar,
+  irA,
+  clases,
+}: {
+  pagina: string;
+  claseId: string | null;
+  user: PublicUser;
+  setUser: Dispatch<SetStateAction<PublicUser | null>>;
+  enMenu: SinTipo;
+  navegar: (id: string) => void;
+  irA: SinTipo;
+  clases: SinTipo;
+}) {
   if (pagina === "clases")
     return enMenu(
       "clases",
@@ -58,7 +79,25 @@ export function paginaPanel({ pagina, claseId, user, setUser, enMenu, navegar, i
  * Juegos y herramientas (#/juego/<id> y #/app/juego/<id>), salvo Ludo (ver ludo/LudoPantallas.jsx).
  * pedirCuenta("login" | "register"): manda a iniciar sesión y vuelve a este juego después.
  */
-export function pantallaJuego({ juego, user, codigo, nombre, volver, salir, pedirCuenta, enMenu }) {
+export function pantallaJuego({
+  juego,
+  user,
+  codigo,
+  nombre,
+  volver,
+  salir,
+  pedirCuenta,
+  enMenu,
+}: {
+  juego: string;
+  user: PublicUser | null;
+  codigo: string;
+  nombre: string;
+  volver: () => void;
+  salir: () => void;
+  pedirCuenta: (tipo: string) => void;
+  enMenu: SinTipo;
+}) {
   const cuenta = { onLogin: () => pedirCuenta("login"), onRegister: () => pedirCuenta("register") };
   const comun = { user, initialCode: codigo, initialName: nombre, goHome: volver };
   switch (juego) {

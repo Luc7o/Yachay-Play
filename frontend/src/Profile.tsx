@@ -6,6 +6,7 @@ import { Button, Card, Chip, Empty, Field, Grid, Input, Loading, Notice, StatCar
 import "./tools.css";
 import type { SinTipo } from "./tipos";
 import type { ErrorApi } from "./api";
+import type { ReactNode } from "react";
 
 const fecha = (v) => {
   try {
@@ -16,11 +17,11 @@ const fecha = (v) => {
 };
 
 // Mensaje { tipo: "ok" | "error", texto } -> aviso
-const Mensaje = ({ msg }) => <Notice tone={msg.tipo === "ok" ? "ok" : "error"}>{msg.texto}</Notice>;
-const Acciones = ({ children }) => <div className="ui-actions">{children}</div>;
+const Mensaje = ({ msg }: { msg: SinTipo }) => <Notice tone={msg.tipo === "ok" ? "ok" : "error"}>{msg.texto}</Notice>;
+const Acciones = ({ children }: { children: ReactNode }) => <div className="ui-actions">{children}</div>;
 
 // ------------------------- editar datos -------------------------
-function EditarDatos({ user, onUserUpdate }) {
+function EditarDatos({ user, onUserUpdate }: { user: SinTipo; onUserUpdate: SinTipo }) {
   const [nombre, setNombre] = useState(user.name);
   const [msg, setMsg] = useState({ tipo: "", texto: "" });
   const [guardando, setGuardando] = useState(false);
@@ -58,7 +59,7 @@ function EditarDatos({ user, onUserUpdate }) {
 
 // ------------------------- cambiar / crear contraseña -------------------------
 // Cuenta con contraseña: pide la actual. Cuenta creada con Google: se crea con un enlace que llega al correo.
-function CrearClavePorCorreo({ user }) {
+function CrearClavePorCorreo({ user }: { user: SinTipo }) {
   const [msg, setMsg] = useState({ tipo: "", texto: "" });
   const [enviando, setEnviando] = useState(false);
   async function pedirEnlace() {
@@ -89,7 +90,7 @@ function CrearClavePorCorreo({ user }) {
   );
 }
 
-function CambiarClave({ user, onUserUpdate }) {
+function CambiarClave({ user, onUserUpdate }: { user: SinTipo; onUserUpdate: SinTipo }) {
   const sinClave = user.hasPassword === false;
   const [actual, setActual] = useState("");
   const [nueva, setNueva] = useState("");
@@ -161,7 +162,7 @@ function CambiarClave({ user, onUserUpdate }) {
 
 // ------------------------- verificar correo -------------------------
 // Solo aparece si el correo aún no se confirmó (cuentas creadas con contraseña).
-function VerificarCorreo({ user }) {
+function VerificarCorreo({ user }: { user: SinTipo }) {
   const [msg, setMsg] = useState({ tipo: "", texto: "" });
   const [enviando, setEnviando] = useState(false);
   if (user.emailVerified !== false) return null;
@@ -302,7 +303,17 @@ function Ranking() {
 }
 
 // ------------------------- página -------------------------
-export function ProfilePage({ user, onUserUpdate, onOpenStats, onOpenQuestions }) {
+export function ProfilePage({
+  user,
+  onUserUpdate,
+  onOpenStats,
+  onOpenQuestions,
+}: {
+  user?: SinTipo;
+  onUserUpdate?: SinTipo;
+  onOpenStats?: SinTipo;
+  onOpenQuestions?: SinTipo;
+}) {
   const [data, setData] = useState<SinTipo>(null);
   const [error, setError] = useState("");
 

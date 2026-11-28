@@ -33,7 +33,27 @@ function Barra({
   );
 }
 
-export function CwTeacherRoom({ code, live, now, goHome, onStart, onEnd, onReset, onNewGame, error }) {
+export function CwTeacherRoom({
+  code,
+  live,
+  now,
+  goHome,
+  onStart,
+  onEnd,
+  onReset,
+  onNewGame,
+  error,
+}: {
+  code: string;
+  live: SinTipo;
+  now: number;
+  goHome: () => void;
+  onStart: () => void;
+  onEnd: () => void;
+  onReset: () => void;
+  onNewGame: () => void;
+  error: string;
+}) {
   if (!live) {
     return (
       <div className="cp cp-proj">

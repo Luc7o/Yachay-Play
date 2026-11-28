@@ -4,11 +4,25 @@ import { SetupScreen } from "./SetupScreen";
 import { LobbyScreen } from "./LobbyScreen";
 import { EngineerGame } from "./EngineerGame";
 import { StudentJoin, StudentWaiting, StudentGame } from "./Student";
+import type { PublicUser } from "../../../shared/types/api";
+import type { SinTipo } from "../tipos";
 
 // Pantallas de Ludo según el rol (docente / estudiante) y la fase de la partida.
 //   ludo: lo que devuelve useLudo()   changeDevice: salir de la partida
 //   enMenu(activo, pagina): marco con menú lateral   setAuthScreen("login" | "register")
-export function LudoPantallas({ ludo, user, changeDevice, enMenu, setAuthScreen }) {
+export function LudoPantallas({
+  ludo,
+  user,
+  changeDevice,
+  enMenu,
+  setAuthScreen,
+}: {
+  ludo: SinTipo;
+  user: PublicUser | null;
+  changeDevice: () => void;
+  enMenu: SinTipo;
+  setAuthScreen: (t: string) => void;
+}) {
   const {
     addTime,
     answerSeconds,

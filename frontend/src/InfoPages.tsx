@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Card, PageHeader } from "./ui";
 import type { ReactNode } from "react";
+import type { SinTipo } from "./tipos";
 
 // Tarjeta informativa: antetítulo opcional, título, texto y un botón.
 const Info = ({
@@ -27,7 +28,7 @@ const Info = ({
 );
 
 // Páginas informativas: no dependen del backend ni de tarifas inventadas.
-export function InfoPage({ page, onNavigate }) {
+export function InfoPage({ page, onNavigate }: { page: SinTipo; onNavigate: SinTipo }) {
   if (page === "planes")
     return (
       <>

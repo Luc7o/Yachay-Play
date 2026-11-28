@@ -1,3 +1,4 @@
+import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Brand } from "./Brand";
 import { CONFIG, TAU, FORMAS, CON_RELLENO, NOMBRES_HERR, NOMBRES_OBJ, AYUDA } from "./pizarra/config";
@@ -13,6 +14,13 @@ import "./herramientas.css";
 import "./pizarra.css";
 import { Button } from "./ui";
 import type { SinTipo } from "./tipos";
+import type { EstadoGuardado, ObjPizarra } from "./pizarra/tipos";
+
+type Herramienta = keyof typeof NOMBRES_HERR;
+/** Editor de texto abierto sobre la pizarra (id null = texto nuevo). */
+type TextoAbierto = { id: string | null; x: number; y: number; value: string; color: string; size: number };
+type Historial = { undo: ObjPizarra[][]; redo: ObjPizarra[][] };
+const nombreObj = (t: string) => (NOMBRES_OBJ as Record<string, string>)[t];
 import type { ErrorApi } from "./api";
 
 // ============================================================================
@@ -34,22 +42,23 @@ import type { ErrorApi } from "./api";
 // ============================================================================
 
 // ============================================================================
-export function Pizarra({ goHome }) {
-  const inicial = useRef<SinTipo>(null);
+export function Pizarra({ goHome }: { goHome?: SinTipo }) {
+  const inicial = useRef<EstadoGuardado | null>(null);
   if (!inicial.current) inicial.current = cargar();
+  const ini = inicial.current;
 
-  const [paginas, setPaginas] = useState(inicial.current.paginas);
-  const [actual, setActual] = useState(inicial.current.actual);
-  const [herr, setHerr] = useState("lapiz"); // mover | lapiz | marcador | borrador | texto | forma
+  const [paginas, setPaginas] = useState(ini.paginas);
+  const [actual, setActual] = useState(ini.actual);
+  const [herr, setHerr] = useState<Herramienta>("lapiz"); // mover | lapiz | marcador | borrador | texto | forma
   const [forma, setForma] = useState("rect");
-  const [color, setColor] = useState(inicial.current.color);
-  const [grosor, setGrosor] = useState(inicial.current.grosor);
+  const [color, setColor] = useState(ini.color);
+  const [grosor, setGrosor] = useState(ini.grosor);
   const [relleno, setRelleno] = useState(false);
-  const [seleccion, setSeleccion] = useState<SinTipo>(null);
-  const [texto, setTexto] = useState<SinTipo>(null); // editor de texto abierto: { id, x, y, value, color, size }
-  const [menu, setMenu] = useState<SinTipo>(null); // "formas" | "fondo" | null
+  const [seleccion, setSeleccion] = useState<string | null>(null);
+  const [texto, setTexto] = useState<TextoAbierto | null>(null); // editor de texto abierto: { id, x, y, value, color, size }
+  const [menu, setMenu] = useState<string | null>(null); // "formas" | "fondo" | null
   const [enfoque, setEnfoque] = useState(false); // true = sin barra superior (para proyectar)
-  const [nombre, setNombre] = useState(inicial.current.nombre); // nombre del trabajo
+  const [nombre, setNombre] = useState(ini.nombre); // nombre del trabajo
   const [dialogo, setDialogo] = useState<SinTipo>(null); // cuadro "Guardar" abierto: { vista }
   const [exportando, setExportando] = useState(false);
   const [aviso, setAviso] = useState(""); // mensaje corto que aparece y se va solo
@@ -61,7 +70,7 @@ export function Pizarra({ goHome }) {
   const stageRef = useRef<SinTipo>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const rafRef = useRef(0);
-  const histRef = useRef<SinTipo>({}); // id de página -> { undo: [], redo: [] }
+  const histRef = useRef<Record<string, Historial>>({}); // id de página -> { undo: [], redo: [] }
   const paginasRef = useRef(paginas);
   const actualRef = useRef(actual);
   const seleccionRef = useRef(seleccion);
@@ -91,16 +100,16 @@ export function Pizarra({ goHome }) {
   const objSel = seleccion ? pagina.objs.find((o) => o.id === seleccion) : null;
 
   const pag = () => paginasRef.current[Math.min(actualRef.current, paginasRef.current.length - 1)];
-  const histDe = (id) => (histRef.current[id] = histRef.current[id] || { undo: [], redo: [] });
+  const histDe = (id: string) => (histRef.current[id] = histRef.current[id] || { undo: [], redo: [] });
 
   // ---------------- Historial (deshacer / rehacer) ----------------
-  function poner(objs) {
+  function poner(objs: ObjPizarra[]) {
     const id = pag().id;
     const nuevas = paginasRef.current.map((p) => (p.id === id ? { ...p, objs } : p));
     paginasRef.current = nuevas;
     setPaginas(nuevas);
   }
-  function aplicar(objs) {
+  function aplicar(objs: ObjPizarra[]) {
     const p = pag();
     const h = histDe(p.id);
     h.undo.push(p.objs);
@@ -113,7 +122,7 @@ export function Pizarra({ goHome }) {
     const h = histDe(p.id);
     if (!h.undo.length) return;
     h.redo.push(p.objs);
-    poner(h.undo.pop());
+    poner(h.undo.pop()!); // hay al menos uno (se revisó arriba)
     setSeleccion(null);
   }
   function rehacer() {
@@ -121,7 +130,7 @@ export function Pizarra({ goHome }) {
     const h = histDe(p.id);
     if (!h.redo.length) return;
     h.undo.push(p.objs);
-    poner(h.redo.pop());
+    poner(h.redo.pop()!);
     setSeleccion(null);
   }
   const hp = histDe(pagina.id);
@@ -276,7 +285,7 @@ export function Pizarra({ goHome }) {
   }, [paginas, idx, color, grosor, nombre]);
 
   // ---------------- Avisos cortos ----------------
-  function avisar(msg) {
+  function avisar(msg: string) {
     setAviso(msg);
     clearTimeout(avisoRef.current);
     avisoRef.current = setTimeout(() => setAviso(""), 3200);
@@ -284,13 +293,21 @@ export function Pizarra({ goHome }) {
   useEffect(() => () => clearTimeout(avisoRef.current), []);
 
   // ---------------- Texto ----------------
-  function ponerTexto(t) {
+  function ponerTexto(t: TextoAbierto | null) {
     textoRef.current = t;
     setTexto(t);
   }
-  function abrirTexto(obj, x?: number, y?: number) {
+  function abrirTexto(obj: ObjPizarra | null | undefined, x?: number, y?: number) {
     if (obj) ponerTexto({ id: obj.id, x: obj.x, y: obj.y, value: obj.text, color: obj.color, size: obj.size });
-    else ponerTexto({ id: null, x, y: (y ?? 0) - g.t * 0.625, value: "", color: colorReal(color, oscuro), size: g.t });
+    else
+      ponerTexto({
+        id: null,
+        x: x ?? 0,
+        y: (y ?? 0) - g.t * 0.625,
+        value: "",
+        color: colorReal(color, oscuro),
+        size: g.t,
+      });
     setSeleccion(null);
   }
   function confirmarTexto() {
@@ -304,7 +321,10 @@ export function Pizarra({ goHome }) {
       else if (objs.find((o) => o.id === t.id)?.text !== v)
         aplicar(objs.map((o) => (o.id === t.id ? { ...o, text: v } : o)));
     } else if (v.trim()) {
-      aplicar([...objs, { id: uid(), type: "text", x: t.x, y: t.y, text: v, color: t.color, size: t.size }]);
+      aplicar([
+        ...objs,
+        { id: uid(), type: "text", x: t.x, y: t.y, text: v, color: t.color, size: t.size } as ObjPizarra,
+      ]);
     }
   }
   // Al abrir un cuadro de texto nuevo (o moverlo), el cursor va al final de lo escrito.
@@ -325,16 +345,16 @@ export function Pizarra({ goHome }) {
   }, [hayTexto, textoClave]);
 
   // ---------------- Punteros ----------------
-  function posicion(e) {
+  function posicion(e: { clientX: number; clientY: number }) {
     const r = canvasRef.current!.getBoundingClientRect();
     return { x: e.clientX - r.left, y: e.clientY - r.top };
   }
-  function encima(x, y, tol) {
+  function encima(x: number, y: number, tol: number) {
     const objs = pag().objs;
     for (let i = objs.length - 1; i >= 0; i--) if (toca(objs[i], x, y, tol)) return objs[i];
     return null;
   }
-  function alBajar(e) {
+  function alBajar(e: React.PointerEvent<HTMLCanvasElement>) {
     if (!e.isPrimary || (e.pointerType === "mouse" && e.button !== 0)) return;
     if (document.activeElement && document.activeElement.tagName === "TEXTAREA")
       (document.activeElement as HTMLElement).blur(); // confirma el texto abierto
@@ -372,7 +392,7 @@ export function Pizarra({ goHome }) {
       const o = encima(x, y, 8);
       setSeleccion(o ? o.id : null);
       gestoRef.current = o ? { tipo: "mover", id: o.id, x0: x, y0: y, orig: o, movido: false } : null;
-      setVivo(o ? `${NOMBRES_OBJ[o.type] || "Elemento"} seleccionado` : "");
+      setVivo(o ? `${nombreObj(o.type) || "Elemento"} seleccionado` : "");
     } else if (herr === "texto") {
       gestoRef.current = { tipo: "texto", x0: x, y0: y };
     } else if (herr === "laser") {
@@ -382,7 +402,7 @@ export function Pizarra({ goHome }) {
     pedir();
   }
 
-  function alMover(e) {
+  function alMover(e: React.PointerEvent<HTMLCanvasElement>) {
     const { x, y } = posicion(e);
     hoverRef.current = { x, y };
     const gs = gestoRef.current;
@@ -419,7 +439,7 @@ export function Pizarra({ goHome }) {
     pedir();
   }
 
-  function alSoltar(e) {
+  function alSoltar(e: React.PointerEvent<HTMLCanvasElement>) {
     const gs = gestoRef.current;
     gestoRef.current = null;
     setVivo("");
@@ -451,7 +471,7 @@ export function Pizarra({ goHome }) {
     pedir();
   }
 
-  function dobleClic(e) {
+  function dobleClic(e: React.MouseEvent<HTMLCanvasElement>) {
     if (herr !== "mover") return;
     const { x, y } = posicion(e);
     const o = encima(x, y, 6);
@@ -459,22 +479,22 @@ export function Pizarra({ goHome }) {
   }
 
   // ---------------- Acciones ----------------
-  function elegirHerramienta(h) {
+  function elegirHerramienta(h: Herramienta) {
     if (texto) confirmarTexto();
     setHerr(h);
     setMenu(null);
     if (h !== "mover") setSeleccion(null);
   }
-  function elegirForma(f) {
+  function elegirForma(f: string) {
     setForma(f);
     elegirHerramienta("forma");
   }
-  function cambiarColor(c) {
+  function cambiarColor(c: string) {
     setColor(c);
     if (objSel && objSel.type !== "img" && herr === "mover")
       aplicar(pagina.objs.map((o) => (o.id === objSel.id ? { ...o, color: colorReal(c, oscuro) } : o)));
   }
-  function cambiarGrosor(i) {
+  function cambiarGrosor(i: number) {
     setGrosor(i);
     if (objSel && objSel.type !== "img" && herr === "mover") {
       const n = CONFIG.grosores[i];
@@ -501,7 +521,7 @@ export function Pizarra({ goHome }) {
     }
     setSeleccion(null);
   }
-  function cambiarFondo(id) {
+  function cambiarFondo(id: string) {
     setMenu(null);
     if (id === pagina.fondo) return;
     const nuevoOscuro = fondoDe(id).oscuro;
@@ -517,7 +537,7 @@ export function Pizarra({ goHome }) {
         : `Fondo: ${fondoDe(id).nombre}`,
     );
   }
-  function irA(i) {
+  function irA(i: number) {
     if (texto) confirmarTexto();
     const n = Math.min(Math.max(0, i), paginas.length - 1);
     setActual(n);
@@ -554,7 +574,17 @@ export function Pizarra({ goHome }) {
     const vista = renderPagina(pag(), c.clientWidth, c.clientHeight, 0.4).toDataURL("image/jpeg", 0.8);
     setDialogo({ vista });
   }
-  async function exportar({ nombre: elegido, archivo, formato, alcance }) {
+  async function exportar({
+    nombre: elegido,
+    archivo,
+    formato,
+    alcance,
+  }: {
+    nombre?: SinTipo;
+    archivo?: SinTipo;
+    formato?: SinTipo;
+    alcance?: SinTipo;
+  }) {
     const c = canvasRef.current;
     if (!c) return;
     const W = c.clientWidth;
@@ -624,7 +654,7 @@ export function Pizarra({ goHome }) {
       im.src = url;
     });
   }
-  async function insertarImagen(archivo) {
+  async function insertarImagen(archivo: File) {
     if (textoRef.current) confirmarTexto();
     try {
       const { src, w, h } = await leerImagen(archivo);
@@ -634,7 +664,17 @@ export function Pizarra({ goHome }) {
       const alto = h * k;
       const x1 = (c.clientWidth - ancho) / 2;
       const y1 = (c.clientHeight - alto) / 2;
-      const obj = { id: uid(), type: "img", src, color: "#000000", w: 0, x1, y1, x2: x1 + ancho, y2: y1 + alto };
+      const obj = {
+        id: uid(),
+        type: "img",
+        src,
+        color: "#000000",
+        w: 0,
+        x1,
+        y1,
+        x2: x1 + ancho,
+        y2: y1 + alto,
+      } as ObjPizarra;
       aplicar([...pag().objs, obj]);
       setHerr("mover");
       setSeleccion(obj.id);
@@ -649,7 +689,7 @@ export function Pizarra({ goHome }) {
       );
     }
   }
-  function escalarImagen(factor) {
+  function escalarImagen(factor: number) {
     if (!objSel || objSel.type !== "img") return;
     const cx = (objSel.x1 + objSel.x2) / 2;
     const cy = (objSel.y1 + objSel.y2) / 2;
@@ -703,8 +743,9 @@ export function Pizarra({ goHome }) {
   // ---------------- Menús: se abren solo al pulsar su botón y se cierran al tocar fuera ----------------
   useEffect(() => {
     if (!menu) return undefined;
-    const fuera = (e) => {
-      if (!e.target.closest || !e.target.closest(".pz-anchor")) setMenu(null);
+    const fuera = (e: PointerEvent) => {
+      const t = e.target as Element | null;
+      if (!t?.closest || !t.closest(".pz-anchor")) setMenu(null);
     };
     document.addEventListener("pointerdown", fuera, true);
     return () => document.removeEventListener("pointerdown", fuera, true);
@@ -723,8 +764,8 @@ export function Pizarra({ goHome }) {
     insertarImagen,
   };
   useEffect(() => {
-    const alPulsar = (e) => {
-      const t = e.target;
+    const alPulsar = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
       const et = t && t.tagName;
       const a = accionesRef.current;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
@@ -756,7 +797,14 @@ export function Pizarra({ goHome }) {
         a.setMenu(null);
         return;
       }
-      const mapa = { v: "mover", p: "lapiz", h: "marcador", e: "borrador", t: "texto", l: "laser" };
+      const mapa: Record<string, Herramienta> = {
+        v: "mover",
+        p: "lapiz",
+        h: "marcador",
+        e: "borrador",
+        t: "texto",
+        l: "laser",
+      };
       const h = mapa[e.key.toLowerCase()];
       if (h) {
         e.preventDefault();
@@ -769,8 +817,8 @@ export function Pizarra({ goHome }) {
 
   // Ctrl+V con una imagen en el portapapeles (p. ej. una captura de pantalla)
   useEffect(() => {
-    const alPegar = (e) => {
-      const et = e.target && e.target.tagName;
+    const alPegar = (e: ClipboardEvent) => {
+      const et = (e.target as HTMLElement | null)?.tagName;
       if (et === "INPUT" || et === "TEXTAREA" || dialogoRef.current) return;
       const f = [...((e.clipboardData && e.clipboardData.files) || [])].find((x) => x.type.startsWith("image/"));
       if (f) {
@@ -792,7 +840,7 @@ export function Pizarra({ goHome }) {
   const ayudaActual = texto
     ? "Escribiendo… Ctrl+Enter para terminar · Esc cancela"
     : herr === "mover" && objSel
-      ? `${NOMBRES_OBJ[objSel.type] || "Elemento"} seleccionado · arrastra para mover · Supr para borrar`
+      ? `${nombreObj(objSel.type) || "Elemento"} seleccionado · arrastra para mover · Supr para borrar`
       : AYUDA[herr];
 
   return (
@@ -876,7 +924,7 @@ export function Pizarra({ goHome }) {
               height: Math.ceil(medida!.h) + 2,
               maxWidth: "calc(100% - 20px)",
             }}
-            onChange={(e) => ponerTexto({ ...textoRef.current, value: e.target.value })}
+            onChange={(e) => ponerTexto({ ...textoRef.current!, value: e.target.value })}
             onBlur={confirmarTexto}
             onKeyDown={(e) => {
               if (e.key === "Escape")

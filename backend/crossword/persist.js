@@ -1,5 +1,5 @@
 // ============================================================================
-// GUARDADO DEL CRUCIGRAMA EN LA BASE DE DATOS (Supabase)
+// GUARDADO DEL CRUCIGRAMA EN LA BASE DE DATOS
 // ============================================================================
 // El motor (engine.js) avisa con "ganchos" cuando pasa algo importante y este
 // archivo lo guarda. Todo se hace "por detrás": si la base falla, la partida en

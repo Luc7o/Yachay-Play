@@ -1,3 +1,7 @@
 .vercel
 .env*
 !.env.example
+
+# Herramientas locales (Claude Code, Impeccable): no son parte del proyecto
+.claude/
+.impeccable/

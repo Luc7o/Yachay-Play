@@ -1,0 +1,122 @@
+# ============================================================================
+# RESPALDO SEMANAL DE LA BASE DE DATOS (Neon)
+# ----------------------------------------------------------------------------
+# Cada domingo hace una copia completa, la cifra y la guarda 90 días como
+# artefacto de GitHub (Actions → "Respaldo de la base de datos" → la corrida →
+# Artifacts). También se puede lanzar a mano con "Run workflow".
+#
+# Necesita dos secretos (Settings → Secrets and variables → Actions):
+#   DATABASE_URL    cadena de conexión de Neon (la "direct", sin -pooler)
+#   RESPALDO_CLAVE  frase larga y aleatoria para cifrar (guárdala también fuera
+#                   de GitHub: sin ella la copia no se puede abrir)
+#
+# Cómo restaurar: README → "Respaldo de la base de datos".
+#
+# El job "prueba" corre el mismo script contra una base temporal (con las
+# migraciones del proyecto) cuando cambia el respaldo, para no enterarse el
+# día que haga falta de que no funcionaba.
+# ============================================================================
+name: Respaldo de la base de datos
+
+on:
+  schedule:
+    - cron: "0 8 * * 0" # domingos 08:00 UTC (03:00 en Perú)
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/respaldo-db.yml"
+      - "backend/scripts/respaldo.sh"
+      - "backend/migrations/**"
+
+permissions:
+  contents: read
+
+jobs:
+  respaldo:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar pg_dump 18 (copia servidores 18 o anteriores)
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-18
+          echo "/usr/lib/postgresql/18/bin" >> "$GITHUB_PATH"
+      - name: Copiar, verificar y cifrar
+        id: copia
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RESPALDO_CLAVE: ${{ secrets.RESPALDO_CLAVE }}
+        run: bash backend/scripts/respaldo.sh
+      - name: Guardar el respaldo (90 días)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.copia.outputs.nombre }}
+          path: ${{ steps.copia.outputs.archivo }}
+          retention-days: 90
+          if-no-files-found: error
+          compression-level: 0 # ya va comprimido y cifrado
+
+  prueba:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: prueba
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:prueba@localhost:5432/postgres
+      PGSSLMODE: disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Base temporal con las migraciones del proyecto
+        working-directory: backend
+        run: |
+          npm ci
+          node migrate.js up
+          psql "$DATABASE_URL" -c "INSERT INTO users (id, name, email, password_hash, role) VALUES ('prueba-1', 'Prueba', 'prueba@ejemplo.test', 'x', 'docente')"
+      - name: Instalar pg_dump 18 (copia servidores 18 o anteriores)
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-18
+          echo "/usr/lib/postgresql/18/bin" >> "$GITHUB_PATH"
+      - name: Respaldo (mismo script que el semanal)
+        env:
+          RESPALDO_CLAVE: clave-de-prueba-solo-para-este-test-0123456789
+        run: bash backend/scripts/respaldo.sh
+      - name: Restaurar la copia en otra base y comparar
+        env:
+          RESPALDO_CLAVE: clave-de-prueba-solo-para-este-test-0123456789
+        run: |
+          set -euo pipefail
+          psql "$DATABASE_URL" -c "CREATE DATABASE restaurada"
+          gpg --batch --quiet --pinentry-mode loopback --decrypt --passphrase-fd 3 --output /tmp/copia.dump respaldo/*.dump.gpg 3<<<"$RESPALDO_CLAVE"
+          pg_restore --no-owner --no-privileges --dbname "postgresql://postgres:prueba@localhost:5432/restaurada" /tmp/copia.dump
+          a=$(psql "$DATABASE_URL" -tAc "SELECT count(*) FROM users")
+          b=$(psql "postgresql://postgres:prueba@localhost:5432/restaurada" -tAc "SELECT count(*) FROM users")
+          ta=$(psql "$DATABASE_URL" -tAc "SELECT count(*) FROM information_schema.tables WHERE table_schema='public'")
+          tb=$(psql "postgresql://postgres:prueba@localhost:5432/restaurada" -tAc "SELECT count(*) FROM information_schema.tables WHERE table_schema='public'")
+          echo "usuarios: original $a, restaurada $b · tablas: original $ta, restaurada $tb"
+          [ "$a" = "$b" ] && [ "$ta" = "$tb" ] && [ "$a" -ge 1 ]
+          # con una clave equivocada no debe poder abrirse
+          if gpg --batch --quiet --pinentry-mode loopback --decrypt --passphrase "otra-clave" respaldo/*.dump.gpg >/dev/null 2>&1; then
+            echo "¡La copia se abrió con una clave equivocada!" >&2; exit 1
+          fi
+          echo "Restauración verificada."

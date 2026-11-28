@@ -2,7 +2,7 @@
   "name": "yachayplay-backend",
   "version": "0.1.0",
   "type": "module",
-  "description": "Backend con Express + Socket.IO + PostgreSQL (Supabase) de YachayPlay",
+  "description": "Backend con Express + Socket.IO + PostgreSQL (Neon) de YachayPlay",
   "engines": {
     "node": ">=20"
   },

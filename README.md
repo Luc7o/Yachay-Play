@@ -173,6 +173,36 @@ El servidor de Vite está abierto a la red local (`host: true`), así que puedes
 
 3. **Frontend** (Vercel): Root Directory `frontend`, framework Vite. Variable `VITE_API_URL` con la URL pública del backend (sin `/` final). Después de cambiarla, hay que hacer redeploy.
 
+### Respaldo de la base de datos (Neon)
+
+Cada domingo, GitHub Actions hace una copia completa de la base (`pg_dump`), comprueba que se pueda leer, la **cifra** y la guarda 90 días (`.github/workflows/respaldo-db.yml`, script `backend/scripts/respaldo.sh`). El repositorio es público y los artefactos los puede bajar cualquiera, por eso la copia nunca se guarda sin cifrar.
+
+**Configuración (una sola vez)** — en GitHub: Settings → Secrets and variables → Actions → *New repository secret*:
+
+| Secreto | Valor |
+|---|---|
+| `DATABASE_URL` | Cadena de conexión de Neon. Usa la **directa** (en Neon → Connect, sin `-pooler` en el host). |
+| `RESPALDO_CLAVE` | Frase larga y aleatoria (20+ caracteres). **Guárdala también en otro lado** (gestor de contraseñas): sin ella la copia no se puede abrir. |
+
+Después: Actions → *Respaldo de la base de datos* → *Run workflow* para hacer la primera copia y ver que todo funciona.
+
+**Restaurar una copia** (lo más seguro es restaurar primero en una base o rama nueva de Neon, revisar y recién después cambiar el `DATABASE_URL` del backend):
+
+1. Actions → *Respaldo de la base de datos* → la corrida de la fecha → *Artifacts* → descarga y descomprime el `.zip`.
+2. Descifra (pide `RESPALDO_CLAVE`):
+   ```bash
+   gpg --decrypt --output yachayplay.dump yachayplay_AAAA-MM-DD_HHMM.dump.gpg
+   ```
+3. Restaura en la base destino (necesita `pg_restore` 18 o más nuevo):
+   ```bash
+   pg_restore --no-owner --no-privileges --dbname "postgresql://…/neondb?sslmode=require" yachayplay.dump
+   ```
+   Si la base destino ya tiene tablas, agrega `--clean --if-exists` (las borra y las vuelve a crear).
+
+Además de esta copia semanal, Neon permite volver la base a un momento anterior (*restore*) dentro del período de historial de su plan; para errores recientes es lo más rápido.
+
+> GitHub pausa los workflows programados de un repositorio público tras 60 días sin actividad. Si eso pasa, aparece un aviso en Actions para reactivarlo.
+
 ### Monitoreo de errores (Rollbar)
 
 La integración de Rollbar está instalada en el proyecto de Vercel (`yachayplay-errores`, plan de 5.000 errores al mes). El frontend toma solo su token de cliente (`NEXT_PUBLIC_ROLLBAR_…_CLIENT_TOKEN_…`, ver `frontend/vite.config.js`) y reporta solo en producción. El backend necesita `ROLLBAR_SERVER_TOKEN` (tabla de arriba). Los errores se ven en el panel de Rollbar, separados por entorno (`production`, `preview`).
